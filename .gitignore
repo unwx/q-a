@@ -1,0 +1,6 @@
+/shelf/
+.idea
+target
+/dataSources/
+/dataSources.local.xml
+/httpRequests/
