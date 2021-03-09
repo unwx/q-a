@@ -8,5 +8,4 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @ComponentScan("qa")
 @EnableWebMvc
-public class SpringConfig implements WebMvcConfigurer {
-}
+public class SpringConfig implements WebMvcConfigurer {}

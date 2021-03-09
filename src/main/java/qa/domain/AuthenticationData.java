@@ -1,0 +1,215 @@
+package qa.domain;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import qa.dao.databasecomponents.Field;
+import qa.dao.databasecomponents.FieldExtractor;
+
+import javax.persistence.*;
+import java.util.List;
+
+@Entity
+@Table(name = "authentication")
+public class AuthenticationData implements FieldExtractor {
+
+    @Id
+    @Column(name = "auth_id")
+    @JsonIgnore
+    private Long id;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
+
+    @Column(name = "password", nullable = false)
+    @JsonIgnore
+    private String password;
+
+    @Column(name = "email", length = 64, nullable = false)
+    private String email; //login
+
+    @Column(name = "enabled", nullable = false)
+    private Boolean enabled;
+
+    @Column(name = "access_token_exp_date", length = 10, nullable = false)
+    @JsonIgnore
+    private Long accessTokenExpirationDateAtMills;
+
+    @Column(name = "refresh_token_exp_date", length = 10, nullable = false)
+    @JsonIgnore
+    private Long refreshTokenExpirationDateAtMillis;
+
+    @ElementCollection(targetClass = UserRoles.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "auth_id"))
+    @Enumerated(EnumType.STRING)
+    @JsonIgnore
+    private List<UserRoles> roles;
+
+
+    public AuthenticationData(User user,
+                              String password,
+                              String email,
+                              Boolean enabled,
+                              Long accessTokenExpirationDateAtMills,
+                              Long refreshTokenExpirationDateAtMillis,
+                              List<UserRoles> roles) {
+        this.user = user;
+        this.password = password;
+        this.email = email;
+        this.enabled = enabled;
+        this.accessTokenExpirationDateAtMills = accessTokenExpirationDateAtMills;
+        this.refreshTokenExpirationDateAtMillis = refreshTokenExpirationDateAtMillis;
+        this.roles = roles;
+    }
+
+    public AuthenticationData(Long id,
+                              User user,
+                              String password,
+                              String email,
+                              Boolean enabled,
+                              Long accessTokenExpirationDateAtMills,
+                              Long refreshTokenExpirationDateAtMillis,
+                              List<UserRoles> roles) {
+        this.id = id;
+        this.user = user;
+        this.password = password;
+        this.email = email;
+        this.enabled = enabled;
+        this.accessTokenExpirationDateAtMills = accessTokenExpirationDateAtMills;
+        this.refreshTokenExpirationDateAtMillis = refreshTokenExpirationDateAtMillis;
+        this.roles = roles;
+    }
+
+    public AuthenticationData() {}
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Long getAccessTokenExpirationDateAtMills() {
+        return accessTokenExpirationDateAtMills;
+    }
+
+    public void setAccessTokenExpirationDateAtMills(Long accessTokenExpirationDateAtMills) {
+        this.accessTokenExpirationDateAtMills = accessTokenExpirationDateAtMills;
+    }
+
+    public Long getRefreshTokenExpirationDateAtMillis() {
+        return refreshTokenExpirationDateAtMillis;
+    }
+
+    public void setRefreshTokenExpirationDateAtMillis(Long refreshTokenExpirationDateAtMillis) {
+        this.refreshTokenExpirationDateAtMillis = refreshTokenExpirationDateAtMillis;
+    }
+
+    public List<UserRoles> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<UserRoles> roles) {
+        this.roles = roles;
+    }
+
+    @Override
+    public Field[] extract() {
+        return new Field[] {
+                new Field("id", id),
+                new Field("password", password),
+                new Field("email", email),
+                new Field("enabled", enabled),
+                new Field("accessTokenExpirationDateAtMills", accessTokenExpirationDateAtMills),
+                new Field("refreshTokenExpirationDateAtMillis", refreshTokenExpirationDateAtMillis),
+        };
+    }
+
+
+    public static class Builder {
+        private final AuthenticationData data;
+
+        public Builder() {
+            this.data = new AuthenticationData();
+        }
+
+        public Builder id(Long id) {
+            data.id = id;
+            return this;
+        }
+
+        public Builder password(String password) {
+            data.password = password;
+            return this;
+        }
+
+        public Builder email(String email) {
+            data.email = email;
+            return this;
+        }
+
+        public Builder enabled(Boolean enabled) {
+            data.enabled = enabled;
+            return this;
+        }
+
+        public Builder accessTokenExpirationDateAtMillis(Long access) {
+            data.accessTokenExpirationDateAtMills = access;
+            return this;
+        }
+
+        public Builder refreshTokenExpirationDateAtMillis(Long refresh) {
+            data.refreshTokenExpirationDateAtMillis = refresh;
+            return this;
+        }
+
+        public Builder user(User user) {
+            data.user = user;
+            return this;
+        }
+
+        public Builder roles(List<UserRoles> roles) {
+            data.roles = roles;
+            return this;
+        }
+
+        public AuthenticationData build() {
+            return data;
+        }
+    }
+}
