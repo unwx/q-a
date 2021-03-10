@@ -1,5 +1,6 @@
 package qa.dao;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Test;
 import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.NestedEntity;
@@ -150,7 +151,7 @@ public class HqlBuilderTest {
         fieldNames.add("b9");
 
         Table table = new Table(fieldNames, "BigEntity");
-        String hql = entityHqlBuilder.read(new Field("l1", 0), table, Collections.emptyList());
+        String hql = hqlBuilder.read(new Field("l1", 0), table, Collections.emptyList());
         String required =
                 """
                 select\s\
@@ -161,5 +162,81 @@ public class HqlBuilderTest {
                 where a.l1=:a\
                 """;
         assertThat(hql, equalTo(required));
+    }
+
+    @Test
+    public void updateTest() {
+        Entity entity = new Entity(null, "test", true, null);
+        ImmutablePair<String, Field[]> pair = entityHqlBuilder.update(new Field("id", 5L), entity, "Entity");
+        String required =
+                """
+                update Entity a\s\
+                set\s\
+                a.str=:b,a.bool=:c\s\
+                where a.id=:a\
+                """;
+        Field[] requiredF = new Field[] {
+                new Field("b", "test"),
+                new Field("c", true)
+        };
+        assertThat(pair.left, equalTo(required));
+
+        for (int i = 0; i < requiredF.length; i++) {
+            assertThat(requiredF[i].getName(), equalTo(pair.right[i].getName()));
+            assertThat(requiredF[i].getValue(), equalTo(pair.right[i].getValue()));
+        }
+    }
+
+    @Test
+    public void updateBigEntityTest() {
+        BigEntity bigEntity = new BigEntity(
+                1L, 2L, 3L, 4L, 4L, 4L, 4L, 8L, 9L,
+                "1", "2", "3", "3", "3", "6", "7", "8", "9",
+                true, null, true, false, false, true, true, true, true
+        );
+        HqlBuilder<BigEntity> hqlBuilder = new HqlBuilder<>();
+        ImmutablePair<String, Field[]> pair = hqlBuilder.update(new Field("id", 5L), bigEntity, "BigEntity");
+        String required =
+                """
+                update BigEntity a\s\
+                set\s\
+                a.l1=:b,a.l2=:c,a.l3=:d,a.l4=:e,a.l5=:f,a.l6=:g,a.l7=:h,a.l8=:i,a.l9=:j,\
+                a.s1=:k,a.s2=:l,a.s3=:m,a.s4=:n,a.s5=:o,a.s6=:p,a.s7=:q,a.s8=:r,a.s9=:s,\
+                a.b1=:t,a.b3=:u,a.b4=:v,a.b5=:w,a.b6=:x,a.b7=:y,a.b8=:z,a.b9=:bb\s\
+                where a.id=:a\
+                """;
+        Field[] requiredF = new Field[]{
+                new Field("b", 1L),
+                new Field("c", 2L),
+                new Field("d", 3L),
+                new Field("e", 4L),
+                new Field("f", 4L),
+                new Field("g", 4L),
+                new Field("h", 4L),
+                new Field("i", 8L),
+                new Field("j", 9L),
+                new Field("k", "1"),
+                new Field("l", "2"),
+                new Field("m", "3"),
+                new Field("n", "3"),
+                new Field("o", "3"),
+                new Field("p", "6"),
+                new Field("q", "7"),
+                new Field("r", "8"),
+                new Field("s", "9"),
+                new Field("t", true),
+                new Field("u", true),
+                new Field("v", false),
+                new Field("w", false),
+                new Field("x", true),
+                new Field("y", true),
+                new Field("z", true),
+                new Field("bb", true),
+        };
+        assertThat(pair.left, equalTo(required));
+
+        for (int i = 0; i < requiredF.length; i++) {
+            assertThat(requiredF[i].getValue(), equalTo(pair.right[i].getValue()));
+        }
     }
 }

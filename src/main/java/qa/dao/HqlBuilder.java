@@ -59,18 +59,18 @@ public class HqlBuilder<Entity extends FieldExtractor> {
     private Field[] setParameterMarks(Entity entity, StringBuilder hqlBuilder) {
         Field[] fields = nullFilterFields(entity.extract());
         fewFieldsAlgorithm(fields, hqlBuilder);
-        String abb = String.valueOf(abbreviated[0]);
-        int abbIndex = 0;
         if (fields.length > 25) {
+            String abb = String.valueOf(abbreviated[0]);
+            int abbIndex = 0;
             int times = fields.length - 25;
             while (times > 0) {
-                for (int i = times; i > times - 25; i--) {
-                    set(fields[i].getName(), hqlBuilder, abb + abbreviated[i]);
+                for (int i = 0; i < Math.min(times, 25); i++) {
+                    set(fields[i + 25].getName(), hqlBuilder, abb + abbreviated[i]);
                     /*
                      * replace the field names inserted in the query into their labeled names,
                      *  so that later they can be inserted as parameters ("param_name": "param_value")
                      */
-                    fields[i].setName(abb + abbreviated[i]);
+                    fields[i + 25].setName(abb + abbreviated[i]);
                 }
                 times -= 25;
                 abbIndex++;
@@ -109,7 +109,7 @@ public class HqlBuilder<Entity extends FieldExtractor> {
     }
 
     private void fewFieldsAlgorithm(Field[] fields, StringBuilder hqlBuilder) {
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < Math.min(fields.length, 25); i++) {
             set(fields[i].getName(), hqlBuilder, abbreviated[i]);
             fields[i].setName(String.valueOf(abbreviated[i]));
         }
@@ -162,6 +162,7 @@ public class HqlBuilder<Entity extends FieldExtractor> {
     private void set(String name, StringBuilder hqlBuilder, String abb) {
         hqlBuilder
                 .append(tl)
+                .append('.')
                 .append(name)
                 .append("=:")
                 .append(abb)
