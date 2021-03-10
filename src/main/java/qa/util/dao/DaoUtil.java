@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface DaoUtil<Entity> {
 
-    Entity read(final Field where, final Table target, final List<NestedEntity> nested, Session session);
+    Entity read(final Field where, final Table target, final List<NestedEntity> nested, final Session session);
 
-    List<Entity> readList(final Field where, final Table target, final List<NestedEntity> nested, Session session);
+    List<Entity> readList(final Field where, final Table target, final List<NestedEntity> nested, final Session session);
 
-    void update(final Field where, final Entity entity, final String className, Session session);
+    void update(final Field where, final Entity entity, final String className, final Session session);
 }

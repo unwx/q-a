@@ -11,12 +11,12 @@ import java.util.List;
  * ':a' - where.
  */
 public class HqlBuilder<Entity extends FieldExtractor> {
-    private final char[] abbreviated = new char[]{
-            'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-            'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
-            't', 'u', 'v', 'w', 'x', 'y', 'z',
+    private final String[] abbreviated = new String[]{
+            "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s",
+            "t", "u", "v", "w", "x", "y", "z",
     };
-    private final char tl = 'a'; //target letter
+    private final String tl = "a"; //target letter
     public final char DEFAULT_WHERE_PARAM_NAME = 'a';
 
     /**
@@ -47,9 +47,11 @@ public class HqlBuilder<Entity extends FieldExtractor> {
     }
 
     private void selectProcess(Table target, List<NestedEntity> nested, StringBuilder hqlBuilder) {
-        select(target, tl, hqlBuilder);
-        for (int i = 1; i < nested.size(); i++) {
-            select(nested.get(i), abbreviated[i], hqlBuilder);
+        String[] as = asGenerate("a", target.getFieldNames().size());
+        select(target, tl, as, hqlBuilder);
+        for (int i = 0; i < nested.size(); i++) {
+            String[] _as = asGenerate(abbreviated[i], nested.get(i).getFieldNames().size());
+            select(nested.get(i), abbreviated[i], _as, hqlBuilder);
         }
         removeTrash(hqlBuilder);
     }
@@ -80,6 +82,31 @@ public class HqlBuilder<Entity extends FieldExtractor> {
         return fields;
     }
 
+    private String[] asGenerate(String symbol, int length) {
+        String[] as = new String[length];
+        int asIndex = 0;
+        int times = length;
+        while (times > 0) {
+            for (int i = 0; i < Math.min(times, 25); i++) {
+                as[asIndex] = symbol + abbreviated[i];
+                asIndex++;
+            }
+            times -= 25;
+        }
+        if (length > 25) {
+            int additionalSymbolTimes = 1;
+            int _times = length - 25;
+            while (_times > 0) {
+                for (int i = 0; i < Math.min(_times, 25); i++) {
+                    as[i + 25] += "_".repeat(additionalSymbolTimes);
+                }
+                _times -= 25;
+                additionalSymbolTimes++;
+            }
+
+        }
+        return as;
+    }
 
     private void fewFieldsAlgorithm(Field[] fields, StringBuilder hqlBuilder) {
         for (int i = 0; i < 25; i++) {
@@ -114,31 +141,22 @@ public class HqlBuilder<Entity extends FieldExtractor> {
         hqlBuilder
                 .append("update ")
                 .append(className)
-                .append(" as ")
+                .append(' ')
                 .append(tl)
                 .append(" set ");
     }
 
-    private void select(EntityTable t, char abb, StringBuilder hqlBuilder) {
-        t.getFieldNames().forEach((f) ->
-                hqlBuilder
-                        .append(abb)
-                        .append('.')
-                        .append(f)
-                        .append("as ")
-                        .append(f)
-                        .append(',')
-
-        );
-    }
-
-    private void set(String name, StringBuilder hqlBuilder, char abb) {
-        hqlBuilder
-                .append(tl)
-                .append(name)
-                .append("=:")
-                .append(abb)
-                .append(',');
+    private void select(EntityTable t, String abb, String[] as, StringBuilder hqlBuilder) {
+        List<String> fieldNames = t.getFieldNames();
+        for (int i = 0; i < fieldNames.size(); i++) {
+            hqlBuilder
+                    .append(abb)
+                    .append('.')
+                    .append(fieldNames.get(i))
+                    .append(" as ")
+                    .append(as[i])
+                    .append(',');
+        }
     }
 
     private void set(String name, StringBuilder hqlBuilder, String abb) {
@@ -152,14 +170,14 @@ public class HqlBuilder<Entity extends FieldExtractor> {
 
     private void from(Table t, StringBuilder hqlBuilder) {
         hqlBuilder
-                .append("from ")
+                .append(" from ")
                 .append(t.getClassName())
-                .append(" as ")
+                .append(' ')
                 .append(tl)
                 .append(' ');
     }
 
-    private void join(NestedEntity table, char abb, StringBuilder hqlBuilder) {
+    private void join(NestedEntity table, String abb, StringBuilder hqlBuilder) {
         hqlBuilder
                 .append("inner join ")
                 .append(tl)
