@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import qa.dao.databasecomponents.Field;
+import qa.dao.databasecomponents.NestedEntity;
 import qa.dao.databasecomponents.Table;
 import qa.domain.User;
 
@@ -27,7 +28,7 @@ public class UserDao implements Dao<User, Long> {
 
     @Override
     @Nullable
-    public User read(@NotNull final Field where, @NotNull final Table target, @NotNull final List<Table> nested) {
+    public User read(@NotNull final Field where, @NotNull final Table target, @NotNull final List<NestedEntity> nested) {
         return dao.read(where, target, nested);
     }
 
@@ -37,7 +38,7 @@ public class UserDao implements Dao<User, Long> {
     }
 
     @Override
-    public List<User> readMany(@NotNull final Field where, @NotNull final Table target, @NotNull final List<Table> nested) {
+    public List<User> readMany(@NotNull final Field where, @NotNull final Table target, @NotNull final List<NestedEntity> nested) {
         return dao.readMany(where, target, nested);
     }
 

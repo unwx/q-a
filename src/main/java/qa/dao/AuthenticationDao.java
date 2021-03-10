@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import qa.dao.databasecomponents.Field;
+import qa.dao.databasecomponents.NestedEntity;
 import qa.dao.databasecomponents.Table;
 import qa.domain.AuthenticationData;
 
@@ -27,7 +28,7 @@ public class AuthenticationDao implements Dao<AuthenticationData, Long> {
 
     @Override
     @Nullable
-    public AuthenticationData read(@NotNull final Field where, @NotNull final Table target, @NotNull final List<Table> nested) {
+    public AuthenticationData read(@NotNull final Field where, @NotNull final Table target, @NotNull final List<NestedEntity> nested) {
         return dao.read(where, target, nested);
     }
 
@@ -37,13 +38,13 @@ public class AuthenticationDao implements Dao<AuthenticationData, Long> {
     }
 
     @Override
-    public List<AuthenticationData> readMany(@NotNull final Field where, @NotNull final Table target, @NotNull final List<Table> nested) {
+    public List<AuthenticationData> readMany(@NotNull final Field where, @NotNull final Table target, @NotNull final List<NestedEntity> nested) {
         return dao.readMany(where, target, nested);
     }
 
     @Override
-    public void update(@NotNull final Field where, @NotNull final AuthenticationData data, @NotNull final String clz) {
-        dao.update(where, data, clz);
+    public void update(@NotNull final Field where, @NotNull final AuthenticationData data, @NotNull final String className) {
+        dao.update(where, data, className);
     }
 
     @Override

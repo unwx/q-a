@@ -1,9 +1,7 @@
-package qa.dao.daoutil;
+package qa.dao;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import qa.dao.databasecomponents.Field;
-import qa.dao.databasecomponents.FieldExtractor;
-import qa.dao.databasecomponents.Table;
+import qa.dao.databasecomponents.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,15 +17,16 @@ public class HqlBuilder<Entity extends FieldExtractor> {
             't', 'u', 'v', 'w', 'x', 'y', 'z',
     };
     private final char tl = 'a'; //target letter
+    public final char DEFAULT_WHERE_PARAM_NAME = 'a';
 
     /**
      * @param nested @Nullable.
      * @return hqlQuery as string.
      * <h3>param = 'a'.</h3>
      */
-    public String read(Field where, Table target, List<Table> nested) {
+    public String read(Field where, Table target, List<NestedEntity> nested) {
         StringBuilder hqlBuilder = new StringBuilder();
-        hqlBuilder.append("select ");
+        prepareForRead(hqlBuilder);
         selectProcess(target, nested, hqlBuilder);
         fromProcess(target, hqlBuilder);
         joinProcess(nested, hqlBuilder);
@@ -39,25 +38,15 @@ public class HqlBuilder<Entity extends FieldExtractor> {
      * @return String - hql query;
      * Field[] - :params; ("param.name":"param.value")
      */
-    public ImmutablePair<String, Field[]> update(Field where, Entity entity, String clz) {
+    public ImmutablePair<String, Field[]> update(Field where, Entity entity, String className) {
         StringBuilder hqlBuilder = new StringBuilder();
-        prepareForUpdate(clz, hqlBuilder);
+        prepareForUpdate(className, hqlBuilder);
         Field[] fields = setParameterMarks(entity, hqlBuilder);
-        hqlBuilder.append(' ');
         where(where, hqlBuilder);
         return new ImmutablePair<>(hqlBuilder.toString(), fields);
     }
 
-    private void prepareForUpdate(String clz, StringBuilder hqlBuilder) {
-        hqlBuilder
-                .append("update ")
-                .append(clz)
-                .append(" as ")
-                .append(tl)
-                .append(" set ");
-    }
-
-    private void selectProcess(Table target, List<Table> nested, StringBuilder hqlBuilder) {
+    private void selectProcess(Table target, List<NestedEntity> nested, StringBuilder hqlBuilder) {
         select(target, tl, hqlBuilder);
         for (int i = 1; i < nested.size(); i++) {
             select(nested.get(i), abbreviated[i], hqlBuilder);
@@ -72,9 +61,13 @@ public class HqlBuilder<Entity extends FieldExtractor> {
         int abbIndex = 0;
         if (fields.length > 25) {
             int times = fields.length - 25;
-            while(times > 0) {
+            while (times > 0) {
                 for (int i = times; i > times - 25; i--) {
                     set(fields[i].getName(), hqlBuilder, abb + abbreviated[i]);
+                    /*
+                     * replace the field names inserted in the query into their labeled names,
+                     *  so that later they can be inserted as parameters ("param_name": "param_value")
+                     */
                     fields[i].setName(abb + abbreviated[i]);
                 }
                 times -= 25;
@@ -83,6 +76,7 @@ public class HqlBuilder<Entity extends FieldExtractor> {
             }
         }
         removeTrash(hqlBuilder);
+        hqlBuilder.append(' ');
         return fields;
     }
 
@@ -102,7 +96,7 @@ public class HqlBuilder<Entity extends FieldExtractor> {
         from(t, hqlBuilder);
     }
 
-    private void joinProcess(List<Table> nested, StringBuilder hqlBuilder) {
+    private void joinProcess(List<NestedEntity> nested, StringBuilder hqlBuilder) {
         for (int i = 0; i < nested.size(); i++) {
             join(nested.get(i), abbreviated[i], hqlBuilder);
         }
@@ -112,8 +106,21 @@ public class HqlBuilder<Entity extends FieldExtractor> {
         where(field, hqlBuilder);
     }
 
-    private void select(Table t, char abb, StringBuilder hqlBuilder) {
-        t.getFields().forEach((f) ->
+    private void prepareForRead(StringBuilder hqlBuilder) {
+        hqlBuilder.append("select ");
+    }
+
+    private void prepareForUpdate(String className, StringBuilder hqlBuilder) {
+        hqlBuilder
+                .append("update ")
+                .append(className)
+                .append(" as ")
+                .append(tl)
+                .append(" set ");
+    }
+
+    private void select(EntityTable t, char abb, StringBuilder hqlBuilder) {
+        t.getFieldNames().forEach((f) ->
                 hqlBuilder
                         .append(abb)
                         .append('.')
@@ -146,18 +153,18 @@ public class HqlBuilder<Entity extends FieldExtractor> {
     private void from(Table t, StringBuilder hqlBuilder) {
         hqlBuilder
                 .append("from ")
-                .append(t.getClz())
+                .append(t.getClassName())
                 .append(" as ")
                 .append(tl)
                 .append(' ');
     }
 
-    private void join(Table table, char abb, StringBuilder hqlBuilder) {
+    private void join(NestedEntity table, char abb, StringBuilder hqlBuilder) {
         hqlBuilder
                 .append("inner join ")
                 .append(tl)
                 .append('.')
-                .append(table.getClz())
+                .append(table.getClassName())
                 .append(" as ")
                 .append(abb)
                 .append(' ');
@@ -170,7 +177,8 @@ public class HqlBuilder<Entity extends FieldExtractor> {
                 .append('.')
                 .append(where.getName())
                 .append('=')
-                .append(":a");
+                .append(':')
+                .append(DEFAULT_WHERE_PARAM_NAME);
     }
 
     private void removeTrash(StringBuilder hqlBuilder) {

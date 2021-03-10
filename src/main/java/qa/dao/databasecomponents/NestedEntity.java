@@ -3,13 +3,14 @@ package qa.dao.databasecomponents;
 import java.util.List;
 
 /**
- * <h1>className: value should be with a capital letter </h1>
+ * <h1>class name should be lowercase;</h1>
  */
-public class Table implements EntityTable {
+public class NestedEntity implements EntityTable {
+
     private final List<String> fieldNames;
     private final String className;
 
-    public Table(List<String> fieldNames, String className) {
+    public NestedEntity(List<String> fieldNames, String className) {
         this.fieldNames = fieldNames;
         this.className = className;
     }
