@@ -9,6 +9,11 @@ public class AuthenticationRequestDto {
         this.password = password;
     }
 
+    public AuthenticationRequestDto() {
+        this.email = null;
+        this.password = null;
+    }
+
     public String getEmail() {
         return email;
     }

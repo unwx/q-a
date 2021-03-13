@@ -1,5 +1,7 @@
 package qa.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 public class RegistrationRequestDto {
     private final String username;
     private final String email;
@@ -11,6 +13,12 @@ public class RegistrationRequestDto {
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+    public RegistrationRequestDto() {
+        this.username = null;
+        this.email = null;
+        this.password = null;
     }
 
     public String getUsername() {

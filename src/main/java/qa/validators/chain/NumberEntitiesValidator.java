@@ -18,9 +18,9 @@ public class NumberEntitiesValidator extends Validator implements ValidationChai
             if (f.getMax() != -1 && f.getNum() > f.getMax() || f.getMin() != -1 && f.getNum() < f.getMin())
                 throw new ValidationException(formatMessage(
                         """
-                        invalid value of: %s.
-                        (max value = %s
-                        min value = %s)
+                        invalid value of: %s.\
+                        (max value = %s\
+                        min value = %s)\
                         """.formatted(f.getNum(), f.getMax(), f.getMin())
                 ));
         }

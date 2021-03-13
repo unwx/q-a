@@ -1,10 +1,12 @@
 package qa.dao;
 
 import qa.dao.databasecomponents.Field;
+import qa.dao.databasecomponents.FieldDataSetterExtractor;
 import qa.dao.databasecomponents.FieldExtractor;
+import qa.domain.setters.SetterField;
 
 @SuppressWarnings("unused")
-public class BigEntity implements FieldExtractor {
+public class BigEntity implements FieldExtractor, FieldDataSetterExtractor {
 
     private Long l1;
     private Long l2;
@@ -339,5 +341,10 @@ public class BigEntity implements FieldExtractor {
                 new Field("b8", b8),
                 new Field("b9", b9),
         };
+    }
+
+    @Override
+    public SetterField[] extractSettersField() {
+        return new SetterField[0];
     }
 }

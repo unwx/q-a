@@ -5,25 +5,25 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import qa.dao.databasecomponents.*;
+import qa.domain.setters.DomainSetter;
 import qa.util.dao.DaoUtil;
 import qa.util.dao.DaoUtilImpl;
-import qa.dao.databasecomponents.Field;
-import qa.dao.databasecomponents.FieldExtractor;
-import qa.dao.databasecomponents.NestedEntity;
-import qa.dao.databasecomponents.Table;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.util.Collections;
 import java.util.List;
 
-final class DaoImpl<Entity extends FieldExtractor> implements Dao<Entity, Object> {
+final class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor> implements Dao<Entity, Object> {
 
-    private final SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+    private final SessionFactory sessionFactory;
     private final DaoUtil<Entity> daoUtil;
 
 
-    public DaoImpl(Class<Entity> clz) {
-        daoUtil = new DaoUtilImpl<>(clz);
+    public DaoImpl(SessionFactory sessionFactory,
+                   Entity emptyEntity,
+                   DomainSetter<Entity> mainSetter) {
+        this.sessionFactory = sessionFactory;
+        daoUtil = new DaoUtilImpl<>(emptyEntity, mainSetter);
     }
 
     @Override
@@ -38,7 +38,7 @@ final class DaoImpl<Entity extends FieldExtractor> implements Dao<Entity, Object
 
     @Override
     @Nullable
-    public Entity read(final Field where, final Table target) {
+    public Entity read(final Where where, final Table target) {
         try(Session session = sessionFactory.openSession()) {
             return daoUtil.read(where, target, Collections.emptyList(), session);
         }
@@ -46,28 +46,21 @@ final class DaoImpl<Entity extends FieldExtractor> implements Dao<Entity, Object
 
     @Override
     @Nullable
-    public Entity read(final Field where, final Table target, final List<NestedEntity> nested) {
+    public Entity read(final Where where, final Table target, final List<NestedEntity> nested) {
         try(Session session = sessionFactory.openSession()) {
             return daoUtil.read(where, target, nested, session);
         }
     }
 
     @Override
-    public List<Entity> readMany(final Field where, final Table target) {
+    public List<Entity> readMany(final Where where, final Table target) {
         try(Session session = sessionFactory.openSession()) {
-            return daoUtil.readList(where, target, Collections.emptyList(), session);
+            return daoUtil.readList(where, target, session);
         }
     }
 
     @Override
-    public List<Entity> readMany(final Field where, final Table target, final List<NestedEntity> nested) {
-        try(Session session = sessionFactory.openSession()) {
-            return daoUtil.readList(where, target, nested, session);
-        }
-    }
-
-    @Override
-    public void update(Field where, Entity entity, String className) {
+    public void update(Where where, Entity entity, String className) {
         try(Session session = sessionFactory.openSession()) {
             daoUtil.update(where, entity, className, session);
         }

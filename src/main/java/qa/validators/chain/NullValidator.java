@@ -53,10 +53,8 @@ public class NullValidator extends Validator implements ValidationChain {
 
 
     private void ignoreProcess(Object[] objects, ValidationFieldType type) {
-        for (Object o : objects) {
-            if (o == null)
-                ignore.add(type);
-        }
+        if (objects == null)
+            ignore.add(type);
     }
 
     private void nullValidationNestedProcess(ValidationNestedField[] fields, ValidationFieldType type) throws ValidationException {

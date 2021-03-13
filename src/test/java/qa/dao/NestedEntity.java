@@ -1,11 +1,13 @@
 package qa.dao;
 
 import qa.dao.databasecomponents.Field;
+import qa.dao.databasecomponents.FieldDataSetterExtractor;
 import qa.dao.databasecomponents.FieldExtractor;
+import qa.domain.setters.SetterField;
 
 import java.time.LocalDateTime;
 
-public class NestedEntity implements FieldExtractor {
+public class NestedEntity implements FieldExtractor, FieldDataSetterExtractor {
     private Long id;
     private String str;
     private Boolean bool;
@@ -58,5 +60,10 @@ public class NestedEntity implements FieldExtractor {
                 new Field("bool", bool),
                 new Field("date", date)
         };
+    }
+
+    @Override
+    public SetterField[] extractSettersField() {
+        return new SetterField[0];
     }
 }

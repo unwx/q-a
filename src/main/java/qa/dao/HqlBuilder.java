@@ -17,14 +17,14 @@ public class HqlBuilder<Entity extends FieldExtractor> {
             "t", "u", "v", "w", "x", "y", "z",
     };
     private final String tl = "a"; //target letter
-    public final char DEFAULT_WHERE_PARAM_NAME = 'a';
+    public final String DEFAULT_WHERE_PARAM_NAME = "a";
 
     /**
      * @param nested @Nullable.
      * @return hqlQuery as string.
-     * <h3>param = 'a'.</h3>
+     * <h3>param = DEFAULT_WHERE_PARAM_NAME.</h3>
      */
-    public String read(Field where, Table target, List<NestedEntity> nested) {
+    public String read(Where where, Table target, List<NestedEntity> nested) {
         StringBuilder hqlBuilder = new StringBuilder();
         prepareForRead(hqlBuilder);
         selectProcess(target, nested, hqlBuilder);
@@ -38,7 +38,7 @@ public class HqlBuilder<Entity extends FieldExtractor> {
      * @return String - hql query;
      * Field[] - :params; ("param.name":"param.value")
      */
-    public ImmutablePair<String, Field[]> update(Field where, Entity entity, String className) {
+    public ImmutablePair<String, Field[]> update(Where where, Entity entity, String className) {
         StringBuilder hqlBuilder = new StringBuilder();
         prepareForUpdate(className, hqlBuilder);
         Field[] fields = setParameterMarks(entity, hqlBuilder);
@@ -47,10 +47,10 @@ public class HqlBuilder<Entity extends FieldExtractor> {
     }
 
     private void selectProcess(Table target, List<NestedEntity> nested, StringBuilder hqlBuilder) {
-        String[] as = asGenerate("a", target.getFieldNames().size());
+        String[] as = asGenerate("a", target.getFieldNames().length);
         select(target, tl, as, hqlBuilder);
         for (int i = 0; i < nested.size(); i++) {
-            String[] _as = asGenerate(abbreviated[i], nested.get(i).getFieldNames().size());
+            String[] _as = asGenerate(abbreviated[i], nested.get(i).getFieldNames().length);
             select(nested.get(i), abbreviated[i], _as, hqlBuilder);
         }
         removeTrash(hqlBuilder);
@@ -129,8 +129,8 @@ public class HqlBuilder<Entity extends FieldExtractor> {
         }
     }
 
-    private void whereProcess(Field field, StringBuilder hqlBuilder) {
-        where(field, hqlBuilder);
+    private void whereProcess(Where where, StringBuilder hqlBuilder) {
+        where(where, hqlBuilder);
     }
 
     private void prepareForRead(StringBuilder hqlBuilder) {
@@ -147,12 +147,12 @@ public class HqlBuilder<Entity extends FieldExtractor> {
     }
 
     private void select(EntityTable t, String abb, String[] as, StringBuilder hqlBuilder) {
-        List<String> fieldNames = t.getFieldNames();
-        for (int i = 0; i < fieldNames.size(); i++) {
+        String[] fieldNames = t.getFieldNames();
+        for (int i = 0; i < fieldNames.length; i++) {
             hqlBuilder
                     .append(abb)
                     .append('.')
-                    .append(fieldNames.get(i))
+                    .append(fieldNames[i])
                     .append(" as ")
                     .append(as[i])
                     .append(',');
@@ -183,19 +183,19 @@ public class HqlBuilder<Entity extends FieldExtractor> {
                 .append("inner join ")
                 .append(tl)
                 .append('.')
-                .append(table.getClassName())
+                .append(table.getNestedEntityName())
                 .append(" as ")
                 .append(abb)
                 .append(' ');
     }
 
-    private void where(Field where, StringBuilder hqlBuilder) {
+    private void where(Where where, StringBuilder hqlBuilder) {
         hqlBuilder.
                 append("where ")
                 .append(tl)
                 .append('.')
-                .append(where.getName())
-                .append('=')
+                .append(where.getFieldName())
+                .append(where.getOperator().label)
                 .append(':')
                 .append(DEFAULT_WHERE_PARAM_NAME);
     }
@@ -203,4 +203,5 @@ public class HqlBuilder<Entity extends FieldExtractor> {
     private void removeTrash(StringBuilder hqlBuilder) {
         hqlBuilder.deleteCharAt(hqlBuilder.length() - 1);
     }
+
 }

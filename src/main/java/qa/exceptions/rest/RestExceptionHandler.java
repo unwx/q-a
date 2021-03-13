@@ -20,4 +20,15 @@ public class RestExceptionHandler {
                 ex.getMessage(),
                 request.getDescription(false));
     }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorMessage accessDeniedHandle(AccessDeniedException ex, WebRequest request) {
+        return new ErrorMessage(
+                HttpStatus.FORBIDDEN.value(),
+                new Date(),
+                "",
+                request.getDescription(false));
+    }
+
 }

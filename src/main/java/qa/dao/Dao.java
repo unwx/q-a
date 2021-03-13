@@ -1,9 +1,9 @@
 package qa.dao;
 
 import org.jetbrains.annotations.Nullable;
-import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.NestedEntity;
 import qa.dao.databasecomponents.Table;
+import qa.dao.databasecomponents.Where;
 
 import java.util.List;
 
@@ -26,16 +26,14 @@ public interface Dao<Entity, Key> {
     Key create(final Entity entity);
 
     @Nullable
-    Entity read(final Field where, final Table target);
+    Entity read(final Where where, final Table target);
 
     @Nullable
-    Entity read(final Field where, final Table target, final List<NestedEntity> nested);
+    Entity read(final Where where, final Table target, final List<NestedEntity> nested);
 
-    List<Entity> readMany(final Field where, final Table target);
+    List<Entity> readMany(final Where where, final Table target);
 
-    List<Entity> readMany(final Field where, final Table target, final List<NestedEntity> nested);
-
-    void update(final Field where, final Entity entity, String className);
+    void update(final Where where, final Entity entity, String className);
 
     void updateEager(final Entity entity);
 

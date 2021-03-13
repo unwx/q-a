@@ -1,12 +1,14 @@
 package qa.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import qa.dao.AuthenticationDao;
-import qa.dao.databasecomponents.Field;
+import qa.dao.databasecomponents.Table;
+import qa.dao.databasecomponents.Where;
+import qa.dao.databasecomponents.WhereOperator;
 import qa.domain.AuthenticationData;
 import qa.domain.User;
 import qa.domain.UserRoles;
@@ -17,6 +19,7 @@ import qa.dto.service.JwtDataDto;
 import qa.dto.service.JwtPairDataDto;
 import qa.dto.validation.wrapper.AuthenticationRequestValidationWrapper;
 import qa.dto.validation.wrapper.RegistrationRequestValidationWrapper;
+import qa.exceptions.rest.AccessDeniedException;
 import qa.exceptions.rest.BadRequestException;
 import qa.exceptions.validator.ValidationException;
 import qa.source.PropertiesDataSource;
@@ -35,6 +38,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
+    @Autowired
     public AuthenticationService(AuthenticationDao authenticationDao,
                                  PropertiesDataSource propertiesDataSource,
                                  ChainValidatorImpl chainValidator,
@@ -73,6 +77,7 @@ public class AuthenticationService {
 
     private JwtPairResponseDto registrationProcess(RegistrationRequestDto request) {
         validate(request);
+        alreadyExistException(request);
         JwtPairDataDto dto = getTokens(request.getEmail());
         User user = new User.Builder()
                 .username(request.getUsername())
@@ -115,7 +120,9 @@ public class AuthenticationService {
     }
 
     private void authenticate(AuthenticationData data) {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(data.getEmail(), data.getPassword()));
+        if (!authenticationDao.isEmailPasswordCorrect(data.getEmail(), data.getPassword())) {
+            throw new AccessDeniedException();
+        }
     }
 
     private JwtPairDataDto getTokens(String email) {
@@ -129,6 +136,21 @@ public class AuthenticationService {
                 .accessTokenExpirationDateAtMillis(jwtPair.getAccess().getExp())
                 .refreshTokenExpirationDateAtMillis(jwtPair.getRefresh().getExp())
                 .build();
-        authenticationDao.update(new Field("email", email), data, "AuthenticationData");
+        authenticationDao.update(new Where("email", email, WhereOperator.EQUALS), data, "AuthenticationData");
+    }
+
+    private boolean isUserAlreadyExist(RegistrationRequestDto request) {
+        String[] fieldsName = new String[] {
+                "id"
+        };
+        AuthenticationData data = authenticationDao.read(
+                new Where("email", request.getEmail(), WhereOperator.EQUALS),
+                new Table(fieldsName, "AuthenticationData"));
+        return data != null;
+    }
+
+    private void alreadyExistException(RegistrationRequestDto request) {
+        if (isUserAlreadyExist(request))
+            throw new BadRequestException("user already exist.");
     }
 }

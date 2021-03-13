@@ -1,19 +1,23 @@
 package qa.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import qa.dao.databasecomponents.Field;
+import qa.dao.databasecomponents.FieldDataSetterExtractor;
 import qa.dao.databasecomponents.FieldExtractor;
+import qa.domain.setters.SetterField;
 
 import javax.persistence.*;
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Entity
 @Table(name = "authentication")
-public class AuthenticationData implements FieldExtractor {
+public class AuthenticationData implements FieldExtractor, FieldDataSetterExtractor {
 
     @Id
-    @Column(name = "auth_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonIgnore
     private Long id;
 
@@ -26,7 +30,7 @@ public class AuthenticationData implements FieldExtractor {
     @JsonIgnore
     private String password;
 
-    @Column(name = "email", length = 64, nullable = false)
+    @Column(name = "email", length = 64, nullable = false, unique = true)
     private String email; //login
 
     @Column(name = "enabled", nullable = false)
@@ -81,7 +85,8 @@ public class AuthenticationData implements FieldExtractor {
         this.roles = roles;
     }
 
-    public AuthenticationData() {}
+    public AuthenticationData() {
+    }
 
 
     public Long getId() {
@@ -150,16 +155,29 @@ public class AuthenticationData implements FieldExtractor {
 
     @Override
     public Field[] extract() {
-        return new Field[] {
+        return new Field[]{
                 new Field("id", id),
                 new Field("password", password),
                 new Field("email", email),
                 new Field("enabled", enabled),
                 new Field("accessTokenExpirationDateAtMills", accessTokenExpirationDateAtMills),
-                new Field("refreshTokenExpirationDateAtMillis", refreshTokenExpirationDateAtMillis),
+                new Field("refreshTokenExpirationDateAtMillis", refreshTokenExpirationDateAtMillis)
         };
     }
 
+    @Override
+    public SetterField[] extractSettersField() {
+        return new SetterField[]{
+                new SetterField("id", Long.class),
+                new SetterField("password", String.class),
+                new SetterField("email", String.class),
+                new SetterField("enabled", Boolean.class),
+                new SetterField("accessTokenExpirationDateAtMills", Long.class),
+                new SetterField("refreshTokenExpirationDateAtMillis", Long.class),
+                new SetterField("user", User.class),
+                new SetterField("roles", List.class),
+        };
+    }
 
     public static class Builder {
         private final AuthenticationData data;

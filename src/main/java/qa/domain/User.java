@@ -1,14 +1,15 @@
 package qa.domain;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import qa.dao.databasecomponents.Field;
+import qa.dao.databasecomponents.FieldDataSetterExtractor;
 import qa.dao.databasecomponents.FieldExtractor;
+import qa.domain.setters.SetterField;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "usr")
-public class User implements FieldExtractor {
+public class User implements FieldExtractor, FieldDataSetterExtractor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,12 +20,6 @@ public class User implements FieldExtractor {
 
     @Column(name = "about", length = 1024)
     private String about;
-
-
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JoinColumn(name = "auth_id")
-    private AuthenticationData authentication;
-
 
     public User(String username,
                 String about) {
@@ -68,13 +63,22 @@ public class User implements FieldExtractor {
         this.about = about;
     }
 
+    @Override
+    public SetterField[] extractSettersField() {
+        return new SetterField[]{
+                new SetterField("id", Long.class),
+                new SetterField("username", String.class),
+                new SetterField("about", String.class),
+        };
+    }
 
     @Override
     public Field[] extract() {
         return new Field[]{
                 new Field("id", id),
                 new Field("username", username),
-                new Field("about", about)};
+                new Field("about", about),
+        };
     }
 
     public static class Builder {

@@ -1,21 +1,20 @@
 package qa.dao.databasecomponents;
 
-import java.util.List;
-
 /**
  * <h1>className: value should be with a capital letter </h1>
  */
 public class Table implements EntityTable {
-    private final List<String> fieldNames;
+    private final String[] fieldNames;
     private final String className;
 
-    public Table(List<String> fieldNames, String className) {
+    public Table(String[] fieldNames,
+                 String className) {
         this.fieldNames = fieldNames;
         this.className = className;
     }
 
     @Override
-    public List<String> getFieldNames() {
+    public String[] getFieldNames() {
         return fieldNames;
     }
 
