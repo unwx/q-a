@@ -6,8 +6,6 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import qa.security.jwt.auxiliary.RsaKeysInitialization;
 import qa.security.jwt.entity.*;
@@ -39,11 +37,6 @@ public class JwtProvider {
         algorithm = Algorithm.RSA256(publicKey, privateKey);
     }
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
     @Nullable
     public String resolveToken(HttpServletRequest req) {
         String bearerToken = req.getHeader("Authorization");
@@ -59,7 +52,9 @@ public class JwtProvider {
                 withIssuer("qa")
                 .withClaim("type", "access")
                 .withSubject(email)
-                .withClaim("exp", String.valueOf(expiration))
+                .withClaim("expm", String.valueOf(expiration))
+                //expiration at millis,
+                // I need millisecond precision an ordinary long for some reason does not give me this
                 .sign(algorithm);
         return new JwtData(cleanToken, expiration);
     }
@@ -70,7 +65,7 @@ public class JwtProvider {
                 withIssuer("qa")
                 .withClaim("type", "refresh")
                 .withSubject(email)
-                .withClaim("exp", String.valueOf(expiration))
+                .withClaim("expm", String.valueOf(expiration))
                 .sign(algorithm);
         return new JwtData(cleanToken, expiration);
     }
@@ -81,7 +76,7 @@ public class JwtProvider {
                     .withIssuer("qa")
                     .build()
                     .verify(cleanToken);
-            long expAtMillis = Long.parseLong(jwtDecoded.getClaim("exp").asString());
+            long expAtMillis = Long.parseLong(jwtDecoded.getClaim("expm").asString());
             JwtType type = jwtDecoded.getClaim("type").asString().equals("access") ? JwtType.ACCESS : JwtType.REFRESH;
             JwtAuthenticationData data = (JwtAuthenticationData) jwtUserDetailsService.loadUserByUsername(jwtDecoded.getSubject());
 

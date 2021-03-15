@@ -28,7 +28,7 @@ public class DaoUtilImpl<Entity extends FieldExtractor & FieldDataSetterExtracto
             return daoReadUtil.read(where, target, nested, session, emptyEntity);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
-            System.out.println("make sure your model has all setters and that your data is correct");
+            System.out.println("make sure your model has setter.class & implemented FieldDataSetterExtractor and that your data is correct");
             return null;
         }
     }

@@ -10,7 +10,7 @@ public class JwtClaims {
     private final String sub;
 
     public JwtClaims(Map<String, Claim> claims) {
-        this.exp = Long.parseLong(claims.get("exp").asString());
+        this.exp = Long.parseLong(claims.get("expm").asString());
         this.sub = claims.get("sub").asString();
     }
 

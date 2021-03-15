@@ -27,8 +27,17 @@ public class RestExceptionHandler {
         return new ErrorMessage(
                 HttpStatus.FORBIDDEN.value(),
                 new Date(),
-                "",
+                ex.getMessage(),
                 request.getDescription(false));
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorMessage unauthorizedHandle(UnauthorizedException ex, WebRequest request) {
+        return new ErrorMessage(
+                HttpStatus.UNAUTHORIZED.value(),
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false));
+    }
 }

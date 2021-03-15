@@ -6,9 +6,6 @@ public class AccessDeniedException extends RuntimeException {
     @Serial
     private static final long serialVersionUID = -6657651448714682130L;
 
-    public AccessDeniedException() {
-    }
-
     public AccessDeniedException(String message) {
         super(message);
     }

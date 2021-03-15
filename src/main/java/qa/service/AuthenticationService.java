@@ -3,7 +3,6 @@ package qa.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 import qa.dao.AuthenticationDao;
 import qa.dao.databasecomponents.Table;
@@ -19,8 +18,8 @@ import qa.dto.service.JwtDataDto;
 import qa.dto.service.JwtPairDataDto;
 import qa.dto.validation.wrapper.AuthenticationRequestValidationWrapper;
 import qa.dto.validation.wrapper.RegistrationRequestValidationWrapper;
-import qa.exceptions.rest.AccessDeniedException;
 import qa.exceptions.rest.BadRequestException;
+import qa.exceptions.rest.UnauthorizedException;
 import qa.exceptions.validator.ValidationException;
 import qa.source.PropertiesDataSource;
 import qa.util.JwtUtil;
@@ -35,19 +34,16 @@ public class AuthenticationService {
     private final AuthenticationDao authenticationDao;
     private final PropertiesDataSource propertiesDataSource;
     private final ChainValidatorImpl chainValidator;
-    private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
     @Autowired
     public AuthenticationService(AuthenticationDao authenticationDao,
                                  PropertiesDataSource propertiesDataSource,
                                  ChainValidatorImpl chainValidator,
-                                 AuthenticationManager authenticationManager,
                                  JwtUtil jwtUtil) {
         this.authenticationDao = authenticationDao;
         this.propertiesDataSource = propertiesDataSource;
         this.chainValidator = chainValidator;
-        this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
     }
 
@@ -121,7 +117,7 @@ public class AuthenticationService {
 
     private void authenticate(AuthenticationData data) {
         if (!authenticationDao.isEmailPasswordCorrect(data.getEmail(), data.getPassword())) {
-            throw new AccessDeniedException();
+            throw new UnauthorizedException("incorrect login or password");
         }
     }
 
