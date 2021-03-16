@@ -1,7 +1,10 @@
 package qa.security.jwt.auxiliary;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import qa.domain.setters.UserSetter;
 import qa.source.PropertiesDataSource;
 import qa.util.PemUtil;
 
@@ -16,6 +19,8 @@ public class RsaKeysInitialization {
     private RSAPrivateKey privateKey = null;
     private final PropertiesDataSource propertiesDataSource;
 
+    private final Logger logger = LogManager.getLogger(UserSetter.class);
+
     @Autowired
     public RsaKeysInitialization(PropertiesDataSource propertiesDataSource) {
         this.propertiesDataSource = propertiesDataSource;
@@ -29,7 +34,13 @@ public class RsaKeysInitialization {
                         propertiesDataSource.getJWT_ALGORITHM());
             } catch (IOException e) {
                 e.printStackTrace();
-                System.out.println("cannot get the --public-- rsa key from the file. Cause: " + e.getCause());
+                String log =
+                        """
+                        cannot get the PUBLIC RSA key from the file.\s\
+                        filepath: %s
+                        Cause: %s\
+                        """.formatted(propertiesDataSource.getRSA_PUBLIC_PATH(), e.getMessage());
+                logger.fatal(log);
             }
         }
         return publicKey;
@@ -43,7 +54,13 @@ public class RsaKeysInitialization {
                         propertiesDataSource.getJWT_ALGORITHM());
             } catch (IOException e) {
                 e.printStackTrace();
-                System.out.println("cannot get the --private-- rsa key from the file. Cause: " + e.getCause());
+                String log =
+                        """
+                        cannot get the PRIVATE RSA key from the file.\s\
+                        filepath: %s
+                        Cause: %s\
+                        """.formatted(propertiesDataSource.getRSA_PRIVATE_PATH(), e.getMessage());
+                logger.fatal(log);
             }
         }
         return privateKey;

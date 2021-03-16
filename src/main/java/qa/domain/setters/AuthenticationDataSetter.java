@@ -1,11 +1,16 @@
 package qa.domain.setters;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import qa.domain.AuthenticationData;
 
 import java.io.Serial;
 import java.util.HashMap;
 
 public class AuthenticationDataSetter implements DomainSetter<AuthenticationData> {
+
+    private static final Logger logger = LogManager.getLogger(AuthenticationDataSetter.class);
+
     private AuthenticationDataSetter() {
     }
 
@@ -19,7 +24,7 @@ public class AuthenticationDataSetter implements DomainSetter<AuthenticationData
                 initSetter();
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
-                System.out.println("error during initialization entity setters");
+                logger.error("[entity setter.class error]: error during initialization entity setters");
             }
         }
         return authenticationDataSetter;

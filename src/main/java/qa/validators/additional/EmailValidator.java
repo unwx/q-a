@@ -1,13 +1,20 @@
 package qa.validators.additional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import qa.exceptions.validator.ValidationException;
-import qa.validators.additional.ValidationAdditional;
 import qa.validators.abstraction.Validator;
 
 public class EmailValidator extends Validator implements ValidationAdditional<String> {
+
+    private final Logger logger = LogManager.getLogger(EmailValidator.class);
+
     @Override
     public void validate(String c) throws ValidationException {
-        if (!org.apache.commons.validator.routines.EmailValidator.getInstance().isValid(c))
-            throw new ValidationException("invalid email by email pattern.");
+        if (!org.apache.commons.validator.routines.EmailValidator.getInstance().isValid(c)) {
+            String message = formatMessage("invalid email by email pattern. (" + c + ")");
+            logger.info("[validation unsuccessful]: " + message);
+            throw new ValidationException(message);
+        }
     }
 }

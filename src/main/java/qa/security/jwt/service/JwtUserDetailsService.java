@@ -10,7 +10,6 @@ import qa.security.jwt.entity.JwtAuthenticationDataFactory;
 
 import java.util.Objects;
 
-// TODO : logging
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
 

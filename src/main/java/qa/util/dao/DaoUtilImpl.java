@@ -1,5 +1,7 @@
 package qa.util.dao;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import qa.dao.HqlBuilder;
 import qa.dao.databasecomponents.*;
@@ -13,6 +15,8 @@ public class DaoUtilImpl<Entity extends FieldExtractor & FieldDataSetterExtracto
     private final DaoReadUtil<Entity> daoReadUtil;
     private final DaoUpdateUtil<Entity> daoUpdateUtil;
     private final Entity emptyEntity;
+
+    private final Logger logger = LogManager.getLogger(DaoUtilImpl.class);
 
     public DaoUtilImpl(Entity emptyEntity,
                        DomainSetter<Entity> mainSetter) {
@@ -28,7 +32,7 @@ public class DaoUtilImpl<Entity extends FieldExtractor & FieldDataSetterExtracto
             return daoReadUtil.read(where, target, nested, session, emptyEntity);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             e.printStackTrace();
-            System.out.println("make sure your model has setter.class & implemented FieldDataSetterExtractor and that your data is correct");
+            logger.error("[read error]: make sure your model has setter.class & implemented FieldDataSetterExtractor and that your data is correct");
             return null;
         }
     }

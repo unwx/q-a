@@ -1,11 +1,15 @@
 package qa.domain.setters;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import qa.domain.User;
 
 import java.io.Serial;
 import java.util.HashMap;
 
 public class UserSetter implements DomainSetter<User> {
+
+    private static final Logger logger = LogManager.getLogger(UserSetter.class);
 
     private UserSetter() {
     }
@@ -20,7 +24,7 @@ public class UserSetter implements DomainSetter<User> {
                 initSetter();
             } catch (Throwable throwable) {
                 throwable.printStackTrace();
-                System.out.println("error during initialization entity setters");
+                logger.error("[entity setter.class error]: error during initialization entity setters");
             }
         }
         return userSetter;

@@ -1,5 +1,7 @@
 package qa.validators.chain;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import qa.exceptions.validator.ValidationException;
 import qa.validators.abstraction.ValidationChain;
 import qa.validators.abstraction.ValidationNestedField;
@@ -21,6 +23,8 @@ import java.util.List;
 public class NullValidator extends Validator implements ValidationChain {
 
     private final List<ValidationFieldType> ignore = new LinkedList<>();
+
+    private final Logger logger = LogManager.getLogger(NullValidator.class);
 
     @Override
     public void validate(ValidatorEntity entity) throws ValidationException {
@@ -62,9 +66,13 @@ public class NullValidator extends Validator implements ValidationChain {
             return;
 
         for (ValidationNestedField f : fields) {
-            for (Object o : f.getNested())
-                if (o == null)
-                    throw new ValidationException(formatMessage("required field = null."));
+            for (Object o : f.getNested()) {
+                if (o == null) {
+                    String message = formatMessage("required field = null.");
+                    logger.info("[validation unsuccessful]: " + message);
+                    throw new ValidationException(message);
+                }
+            }
         }
     }
 
