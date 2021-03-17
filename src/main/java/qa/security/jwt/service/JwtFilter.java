@@ -72,6 +72,7 @@ public class JwtFilter extends GenericFilterBean {
         response.setCharacterEncoding("UTF-8");
         String message = objectMapper.writeValueAsString(new ErrorMessage(401, new Date(), validationMessage, null));
         response.getWriter().write(message);
+        java.lang.String string = "";
     }
 
     private void logInvalidToken(HttpServletRequest servletRequest) {

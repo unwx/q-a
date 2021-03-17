@@ -1,5 +1,6 @@
 package qa.security.jwt.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,7 +14,12 @@ import java.util.Objects;
 @Service
 public class JwtUserDetailsService implements UserDetailsService {
 
-    private final AuthenticationDao dao = new AuthenticationDao();
+    private final AuthenticationDao dao;
+
+    @Autowired
+    public JwtUserDetailsService(AuthenticationDao dao) {
+        this.dao = dao;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {

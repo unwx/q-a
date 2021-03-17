@@ -13,5 +13,8 @@
         <mapping class="qa.domain.User" />
         <mapping class="qa.domain.UserRoles" />
         <mapping class="qa.domain.AuthenticationData" />
+        <mapping class="qa.domain.Comment" />
+        <mapping class="qa.domain.Answer" />
+        <mapping class="qa.domain.Question" />
     </session-factory>
 </hibernate-configuration>

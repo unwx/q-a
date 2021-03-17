@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 @PropertySources({
         @PropertySource("classpath:properties/validation/validAuthentication.properties"),
         @PropertySource("classpath:properties/validation/validUser.properties"),
+        @PropertySource("classpath:properties/validation/validAnswer.properties"),
+        @PropertySource("classpath:properties/validation/validQuestion.properties"),
+        @PropertySource("classpath:properties/validation/validComment.properties"),
         @PropertySource("classpath:properties/rsa.properties"),
         @PropertySource("classpath:properties/jwt.properties")
 })
@@ -38,6 +41,33 @@ public final class PropertiesDataSource {
 
     @Value("${user.about.length.min}")
     private Integer USER_ABOUT_LENGTH_MIN;
+
+    /* question validation properties */
+
+    @Value("${question.tags.length.min}")
+    private Integer QUESTION_TAGS_LENGTH_MIN;
+
+    @Value("${question.text.length.max}")
+    private Integer QUESTION_TEXT_LENGTH_MAX;
+
+    @Value("${question.text.length.min}")
+    private Integer QUESTION_TEXT_LENGTH_MIN;
+
+    /* answer validation properties */
+
+    @Value("${answer.text.length.max}")
+    private Integer ANSWER_TEXT_LENGTH_MAX;
+
+    @Value("${answer.text.length.min}")
+    private Integer ANSWER_TEXT_LENGTH_MIN;
+
+    /* comment validation properties */
+
+    @Value("${comment.text.length.max}")
+    private Integer COMMENT_TEXT_LENGTH_MAX;
+
+    @Value("${comment.text.length.min}")
+    private Integer COMMENT_TEXT_LENGTH_MIN;
 
     /* rsa properties */
 
@@ -101,5 +131,33 @@ public final class PropertiesDataSource {
 
     public Long getJWT_REFRESH_EXPIRATION() {
         return JWT_REFRESH_EXPIRATION;
+    }
+
+    public Integer getQUESTION_TAGS_LENGTH_MIN() {
+        return QUESTION_TAGS_LENGTH_MIN;
+    }
+
+    public Integer getQUESTION_TEXT_LENGTH_MAX() {
+        return QUESTION_TEXT_LENGTH_MAX;
+    }
+
+    public Integer getQUESTION_TEXT_LENGTH_MIN() {
+        return QUESTION_TEXT_LENGTH_MIN;
+    }
+
+    public Integer getANSWER_TEXT_LENGTH_MAX() {
+        return ANSWER_TEXT_LENGTH_MAX;
+    }
+
+    public Integer getANSWER_TEXT_LENGTH_MIN() {
+        return ANSWER_TEXT_LENGTH_MIN;
+    }
+
+    public Integer getCOMMENT_TEXT_LENGTH_MAX() {
+        return COMMENT_TEXT_LENGTH_MAX;
+    }
+
+    public Integer getCOMMENT_TEXT_LENGTH_MIN() {
+        return COMMENT_TEXT_LENGTH_MIN;
     }
 }

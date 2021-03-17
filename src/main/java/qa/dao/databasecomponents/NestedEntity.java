@@ -3,7 +3,7 @@ package qa.dao.databasecomponents;
 import qa.domain.setters.DomainSetter;
 
 /**
- * be careful that the field name matches the class name (with a lowercase letter)
+ * one to one or many to one only
  */
 public class NestedEntity implements EntityTable {
 

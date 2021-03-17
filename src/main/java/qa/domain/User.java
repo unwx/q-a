@@ -6,6 +6,7 @@ import qa.dao.databasecomponents.FieldExtractor;
 import qa.domain.setters.SetterField;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "usr")
@@ -21,23 +22,46 @@ public class User implements FieldExtractor, FieldDataSetterExtractor {
     @Column(name = "about", length = 1024)
     private String about;
 
-    public User(String username,
-                String about) {
-        this.username = username;
-        this.about = about;
-    }
+    @OneToMany(mappedBy = "author", cascade = {
+            CascadeType.MERGE,
+            CascadeType.DETACH,
+            CascadeType.REFRESH,
+            CascadeType.PERSIST})
+    private List<Question> questions;
+
+    @OneToMany(mappedBy = "author", cascade = {
+            CascadeType.MERGE,
+            CascadeType.DETACH,
+            CascadeType.REFRESH,
+            CascadeType.PERSIST})
+    private List<Answer> answers;
 
     public User(Long id,
                 String username,
-                String about) {
+                String about,
+                List<Question> questions,
+                List<Answer> answers) {
         this.id = id;
         this.username = username;
         this.about = about;
+        this.questions = questions;
+        this.answers = answers;
     }
 
+    public User(String username,
+                String about,
+                List<Question> questions,
+                List<Answer> answers,
+                List<Comment> comments) {
+        this.username = username;
+        this.about = about;
+        this.questions = questions;
+        this.answers = answers;
+    }
 
     public User() {
     }
+
 
     public Long getId() {
         return id;
@@ -61,6 +85,22 @@ public class User implements FieldExtractor, FieldDataSetterExtractor {
 
     public void setAbout(String about) {
         this.about = about;
+    }
+
+    public List<Question> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
+    }
+
+    public List<Answer> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(List<Answer> answers) {
+        this.answers = answers;
     }
 
     @Override
@@ -99,9 +139,18 @@ public class User implements FieldExtractor, FieldDataSetterExtractor {
             return this;
         }
 
-
         public Builder about(String about) {
             user.about = about;
+            return this;
+        }
+
+        public Builder questions(List<Question> questions) {
+            user.questions = questions;
+            return this;
+        }
+
+        public Builder answers(List<Answer> answers) {
+            user.answers = answers;
             return this;
         }
 

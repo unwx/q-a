@@ -7,9 +7,6 @@ import qa.dao.databasecomponents.FieldExtractor;
 import qa.domain.setters.SetterField;
 
 import javax.persistence.*;
-import java.io.Serial;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Entity
@@ -21,7 +18,7 @@ public class AuthenticationData implements FieldExtractor, FieldDataSetterExtrac
     @JsonIgnore
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     @JsonIgnore
     private User user;
@@ -175,7 +172,6 @@ public class AuthenticationData implements FieldExtractor, FieldDataSetterExtrac
                 new SetterField("accessTokenExpirationDateAtMills", Long.class),
                 new SetterField("refreshTokenExpirationDateAtMillis", Long.class),
                 new SetterField("user", User.class),
-                new SetterField("roles", List.class),
         };
     }
 
