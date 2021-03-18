@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.*;
 
 public class HqlBuilderTest {
 
-    HqlBuilder<Entity> entityHqlBuilder = new HqlBuilder<>();
+    HqlBuilder entityHqlBuilder = new HqlBuilder();
     String[] entityDefaultFieldNames = new String[] {
             "id",
             "str",
@@ -59,7 +59,7 @@ public class HqlBuilderTest {
                 select\s\
                 b.id as bb,b.str as bc,b.date as bd\s\
                 from Entity a\s\
-                inner join a.qa.dao.NestedEntity as b\s\
+                inner join a.nestedEntity as b\s\
                 where a.id=:a\
                 """;
         assertThat(hql, equalTo(required));
@@ -81,7 +81,7 @@ public class HqlBuilderTest {
                 b.id as bb,b.str as bc,b.date as bd,\
                 c.id as cb,c.str as cc,c.date as cd\s\
                 from Entity a\s\
-                inner join a.qa.dao.NestedEntity as b inner join a.qa.dao.NestedEntity as c\s\
+                inner join a.nestedEntity as b inner join a.nestedEntity as c\s\
                 where a.id=:a\
                 """;
         assertThat(hql, equalTo(required));
@@ -104,7 +104,7 @@ public class HqlBuilderTest {
                 b.id as bb,b.str as bc,b.date as bd,\
                 c.id as cb,c.str as cc,c.date as cd\s\
                 from Entity a\s\
-                inner join a.qa.dao.NestedEntity as b inner join a.qa.dao.NestedEntity as c\s\
+                inner join a.nestedEntity as b inner join a.nestedEntity as c\s\
                 where a.id=:a\
                 """;
         assertThat(hql, equalTo(required));
@@ -112,7 +112,7 @@ public class HqlBuilderTest {
 
     @Test
     void readBigEntity() {
-        HqlBuilder<BigEntity> hqlBuilder = new HqlBuilder<>();
+        HqlBuilder hqlBuilder = new HqlBuilder();
         String[] fieldNames = new String[]{
                 "l1",
                 "l2",
@@ -187,7 +187,7 @@ public class HqlBuilderTest {
                 "1", "2", "3", "3", "3", "6", "7", "8", "9",
                 true, null, true, false, false, true, true, true, true
         );
-        HqlBuilder<BigEntity> hqlBuilder = new HqlBuilder<>();
+        HqlBuilder hqlBuilder = new HqlBuilder();
         ImmutablePair<String, Field[]> pair = hqlBuilder.update(new Where("id", 5L, WhereOperator.EQUALS), bigEntity, "BigEntity");
         String required =
                 """

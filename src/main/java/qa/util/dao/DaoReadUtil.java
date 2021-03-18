@@ -14,11 +14,11 @@ import java.util.List;
 
 public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtractor> {
 
-    private final HqlBuilder<Entity> hqlBuilder;
+    private final HqlBuilder hqlBuilder;
     private final PropertySetter mainSetter;
     private final Entity targetEntity;
 
-    public DaoReadUtil(HqlBuilder<Entity> hqlBuilder,
+    public DaoReadUtil(HqlBuilder hqlBuilder,
                        Entity emptyEntity,
                        PropertySetter propertySetter) {
         this.hqlBuilder = hqlBuilder;

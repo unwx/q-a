@@ -18,7 +18,7 @@ public class DaoUtilImpl<Entity extends FieldExtractor & FieldDataSetterExtracto
     private final Logger logger = LogManager.getLogger(DaoUtilImpl.class);
 
     public DaoUtilImpl(Entity emptyEntity, PropertySetter propertySetter) {
-        HqlBuilder<Entity> hqlBuilder = new HqlBuilder<>();
+        HqlBuilder hqlBuilder = new HqlBuilder();
         daoReadUtil = new DaoReadUtil<>(hqlBuilder, emptyEntity, propertySetter);
         daoUpdateUtil = new DaoUpdateUtil<>(hqlBuilder);
     }

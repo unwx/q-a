@@ -13,9 +13,9 @@ import java.util.Arrays;
 
 public class DaoUpdateUtil<Entity extends FieldExtractor> {
 
-    private final HqlBuilder<Entity> hqlBuilder;
+    private final HqlBuilder hqlBuilder;
 
-    public DaoUpdateUtil(HqlBuilder<Entity> hqlBuilder) {
+    public DaoUpdateUtil(HqlBuilder hqlBuilder) {
         this.hqlBuilder = hqlBuilder;
     }
 

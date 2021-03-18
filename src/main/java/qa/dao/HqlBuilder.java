@@ -10,7 +10,7 @@ import java.util.List;
  * RESERVED:
  * ':a' - where.
  */
-public class HqlBuilder<Entity extends FieldExtractor> { // TODO extract field
+public class HqlBuilder {
     private final String[] abbreviated = new String[]{
             "b", "c", "d", "e", "f", "g", "h", "i", "j",
             "k", "l", "m", "n", "o", "p", "q", "r", "s",
@@ -38,7 +38,7 @@ public class HqlBuilder<Entity extends FieldExtractor> { // TODO extract field
      * @return String - hql query;
      * Field[] - :params; ("param.name":"param.value")
      */
-    public ImmutablePair<String, Field[]> update(Where where, Entity entity, String className) {
+    public ImmutablePair<String, Field[]> update(Where where, FieldExtractor entity, String className) {
         StringBuilder hqlBuilder = new StringBuilder();
         prepareForUpdate(className, hqlBuilder);
         Field[] fields = setParameterMarks(entity, hqlBuilder);
@@ -56,7 +56,7 @@ public class HqlBuilder<Entity extends FieldExtractor> { // TODO extract field
         removeTrash(hqlBuilder);
     }
 
-    private Field[] setParameterMarks(Entity entity, StringBuilder hqlBuilder) {
+    private Field[] setParameterMarks(FieldExtractor entity, StringBuilder hqlBuilder) {
         Field[] fields = nullFilterFields(entity.extract());
         fewFieldsAlgorithm(fields, hqlBuilder);
         if (fields.length > 25) {
