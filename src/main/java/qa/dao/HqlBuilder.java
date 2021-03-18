@@ -10,7 +10,7 @@ import java.util.List;
  * RESERVED:
  * ':a' - where.
  */
-public class HqlBuilder<Entity extends FieldExtractor> {
+public class HqlBuilder<Entity extends FieldExtractor> { // TODO extract field
     private final String[] abbreviated = new String[]{
             "b", "c", "d", "e", "f", "g", "h", "i", "j",
             "k", "l", "m", "n", "o", "p", "q", "r", "s",

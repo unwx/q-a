@@ -7,7 +7,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import qa.security.jwt.auxiliary.RsaKeysInitialization;
+import qa.security.jwt.auxiliary.RsaKeysInitializer;
 import qa.security.jwt.entity.*;
 import qa.source.PropertiesDataSource;
 
@@ -28,12 +28,12 @@ public class JwtProvider {
 
     @Autowired
     public JwtProvider(JwtUserDetailsService jwtUserDetailsService,
-                       RsaKeysInitialization rsaKeysInitialization,
+                       RsaKeysInitializer rsaKeysInitializer,
                        PropertiesDataSource propertiesDataSource) {
         this.jwtUserDetailsService = jwtUserDetailsService;
         this.propertiesDataSource = propertiesDataSource;
-        RSAPublicKey publicKey = rsaKeysInitialization.getPublicKey();
-        RSAPrivateKey privateKey = rsaKeysInitialization.getPrivateKey();
+        RSAPublicKey publicKey = rsaKeysInitializer.getPublicKey();
+        RSAPrivateKey privateKey = rsaKeysInitializer.getPrivateKey();
         algorithm = Algorithm.RSA256(publicKey, privateKey);
     }
 

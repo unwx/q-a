@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import qa.domain.setters.UserSetter;
 import qa.source.PropertiesDataSource;
 import qa.util.PemUtil;
 
@@ -13,16 +12,16 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 @Component
-public class RsaKeysInitialization {
+public class RsaKeysInitializer {
 
     private RSAPublicKey publicKey = null;
     private RSAPrivateKey privateKey = null;
     private final PropertiesDataSource propertiesDataSource;
 
-    private final Logger logger = LogManager.getLogger(UserSetter.class);
+    private final Logger logger = LogManager.getLogger(RsaKeysInitializer.class);
 
     @Autowired
-    public RsaKeysInitialization(PropertiesDataSource propertiesDataSource) {
+    public RsaKeysInitializer(PropertiesDataSource propertiesDataSource) {
         this.propertiesDataSource = propertiesDataSource;
     }
 

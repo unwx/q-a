@@ -6,7 +6,7 @@ import org.hibernate.Transaction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import qa.dao.databasecomponents.*;
-import qa.domain.setters.DomainSetter;
+import qa.domain.setters.PropertySetter;
 import qa.util.dao.DaoUtil;
 import qa.util.dao.DaoUtilImpl;
 
@@ -21,9 +21,9 @@ final class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor> im
 
     public DaoImpl(SessionFactory sessionFactory,
                    Entity emptyEntity,
-                   DomainSetter<Entity> mainSetter) {
+                   PropertySetter propertySetter) {
         this.sessionFactory = sessionFactory;
-        daoUtil = new DaoUtilImpl<>(emptyEntity, mainSetter);
+        daoUtil = new DaoUtilImpl<>(emptyEntity, propertySetter);
     }
 
     @Override

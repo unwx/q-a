@@ -12,7 +12,7 @@ import qa.dao.databasecomponents.Table;
 import qa.dao.databasecomponents.Where;
 import qa.domain.AuthenticationData;
 import qa.domain.UserRoles;
-import qa.domain.setters.AuthenticationDataSetter;
+import qa.domain.setters.PropertySetterFactory;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.util.LinkedList;
@@ -22,10 +22,14 @@ import java.util.List;
 public class AuthenticationDao implements Dao<AuthenticationData, Long> {
 
     SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-    private final DaoImpl<AuthenticationData> dao = new DaoImpl<>(
-            sessionFactory,
-            new AuthenticationData(),
-            AuthenticationDataSetter.getInstance());
+    private final DaoImpl<AuthenticationData> dao;
+
+    public AuthenticationDao(PropertySetterFactory propertySetterFactory) {
+        dao = new DaoImpl<>(
+                sessionFactory,
+                new AuthenticationData(),
+                propertySetterFactory.getSetter(new AuthenticationData()));
+    }
 
     @Override
     public Long create(@NotNull final AuthenticationData data) {

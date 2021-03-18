@@ -8,7 +8,7 @@ import qa.dao.databasecomponents.NestedEntity;
 import qa.dao.databasecomponents.Table;
 import qa.dao.databasecomponents.Where;
 import qa.domain.Answer;
-import qa.domain.setters.AnswerSetter;
+import qa.domain.setters.PropertySetterFactory;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.util.List;
@@ -17,11 +17,15 @@ import java.util.List;
 public class AnswerDao implements Dao<Answer, Long> {
 
     SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-    private final DaoImpl<Answer> dao = new DaoImpl<>(
-            sessionFactory,
-            new Answer(),
-            AnswerSetter.getInstance()
-    );
+
+    private final DaoImpl<Answer> dao;
+
+    public AnswerDao(PropertySetterFactory propertySetterFactory) {
+        dao = new DaoImpl<>(
+                sessionFactory,
+                new Answer(),
+                propertySetterFactory.getSetter(new Answer()));
+    }
 
     @Override
     public Long create(@NotNull final Answer answer) {

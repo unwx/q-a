@@ -4,7 +4,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import qa.dao.HqlBuilder;
 import qa.dao.databasecomponents.*;
-import qa.domain.setters.DomainSetter;
+import qa.domain.setters.PropertySetter;
 
 import javax.persistence.NoResultException;
 import java.lang.reflect.InvocationTargetException;
@@ -15,19 +15,21 @@ import java.util.List;
 public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtractor> {
 
     private final HqlBuilder<Entity> hqlBuilder;
-    private final DomainSetter<Entity> mainSetter;
+    private final PropertySetter mainSetter;
+    private final Entity targetEntity;
 
     public DaoReadUtil(HqlBuilder<Entity> hqlBuilder,
-                       DomainSetter<Entity> mainSetter) {
+                       Entity emptyEntity,
+                       PropertySetter propertySetter) {
         this.hqlBuilder = hqlBuilder;
-        this.mainSetter = mainSetter;
+        this.targetEntity = emptyEntity;
+        this.mainSetter = propertySetter;
     }
 
     public Entity read(final Where where,
                        final Table target,
                        final List<NestedEntity> nested,
-                       final Session session,
-                       final Entity targetEntity)
+                       final Session session)
             throws
             NoSuchMethodException,
             InstantiationException,
@@ -39,8 +41,7 @@ public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtracto
 
     public List<Entity> readList(final Where where,
                                  final Table mainTable,
-                                 final Session session,
-                                 final Entity targetEntity) {
+                                 final Session session) {
         return readListProcess(where, mainTable, session, targetEntity);
     }
 
@@ -90,8 +91,9 @@ public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtracto
         } else {
             String mainHql = hqlBuilder.read(where, mainTable, Collections.emptyList());
             String nestedHql = hqlBuilder.read(where, new Table(new String[]{}, mainTable.getClassName()), nestedEntities);
-            Query<?> mainQuery = session.createQuery(mainHql).setParameter(hqlBuilder.DEFAULT_WHERE_PARAM_NAME, whereParameterValue);
             Query<?> nestedQuery = session.createQuery(nestedHql).setParameter(hqlBuilder.DEFAULT_WHERE_PARAM_NAME, whereParameterValue);
+            Query<?> mainQuery = session.createQuery(mainHql).setParameter(hqlBuilder.DEFAULT_WHERE_PARAM_NAME, whereParameterValue);
+
             result = readMainNestedMany(
                     mainQuery,
                     nestedQuery,
@@ -283,7 +285,7 @@ public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtracto
     private FieldDataSetterExtractor setProperty(String mainFieldName,
                                                  Object mainFieldValue,
                                                  FieldDataSetterExtractor obj,
-                                                 DomainSetter<FieldDataSetterExtractor> setter) {
+                                                 PropertySetter setter) {
         setter.set(obj, mainFieldName, mainFieldValue);
         return obj;
     }
@@ -298,7 +300,7 @@ public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtracto
     private FieldDataSetterExtractor setProperties(String[] mainFieldNames,
                                                    Object[] mainFieldValues,
                                                    FieldDataSetterExtractor obj,
-                                                   DomainSetter<FieldDataSetterExtractor> setter) {
+                                                   PropertySetter setter) {
         setter.setAll(obj, mainFieldNames, mainFieldValues);
         return obj;
     }

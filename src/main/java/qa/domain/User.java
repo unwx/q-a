@@ -51,8 +51,7 @@ public class User implements FieldExtractor, FieldDataSetterExtractor {
     public User(String username,
                 String about,
                 List<Question> questions,
-                List<Answer> answers,
-                List<Comment> comments) {
+                List<Answer> answers) {
         this.username = username;
         this.about = about;
         this.questions = questions;

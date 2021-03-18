@@ -99,6 +99,14 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor {
         this.question = question;
     }
 
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
     @Override
     public SetterField[] extractSettersField() {
         return new SetterField[]{
@@ -129,32 +137,37 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor {
             answer = new Answer();
         }
 
-        private Builder id(Long id) {
+        public Builder id(Long id) {
             answer.id = id;
             return this;
         }
 
-        private Builder text(String text) {
+        public Builder text(String text) {
             answer.text = text;
             return this;
         }
 
-        private Builder adopted(Boolean adopted) {
+        public Builder adopted(Boolean adopted) {
             answer.adopted = adopted;
             return this;
         }
 
-        private Builder author(User author) {
+        public Builder author(User author) {
             answer.author = author;
             return this;
         }
 
-        private Builder question(Question question) {
+        public Builder question(Question question) {
             answer.question = question;
             return this;
         }
 
-        private Answer build() {
+        public Builder comments(List<Comment> comments) {
+            answer.comments = comments;
+            return this;
+        }
+
+        public Answer build() {
             return answer;
         }
     }

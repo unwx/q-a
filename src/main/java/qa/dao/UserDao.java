@@ -3,12 +3,13 @@ package qa.dao;
 import org.hibernate.SessionFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import qa.dao.databasecomponents.NestedEntity;
 import qa.dao.databasecomponents.Table;
 import qa.dao.databasecomponents.Where;
 import qa.domain.User;
-import qa.domain.setters.UserSetter;
+import qa.domain.setters.PropertySetterFactory;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.util.List;
@@ -17,10 +18,15 @@ import java.util.List;
 public class UserDao implements Dao<User, Long> {
 
     SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-    private final DaoImpl<User> dao = new DaoImpl<>(
-            sessionFactory,
-            new User(),
-            UserSetter.getInstance());
+    private final DaoImpl<User> dao;
+
+    @Autowired
+    public UserDao(PropertySetterFactory propertySetterFactory) {
+         dao = new DaoImpl<>(
+                sessionFactory,
+                new User(),
+                 propertySetterFactory.getSetter(new User()));
+    }
 
     @Override
     public Long create(@NotNull final User user) {

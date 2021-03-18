@@ -1,10 +1,12 @@
 package qa.domain.setters;
 
+import qa.dao.databasecomponents.FieldDataSetterExtractor;
+
 import java.lang.invoke.*;
 
-public class SetterFactory {
+public class SetterMethodBuilder {
     @SuppressWarnings("unchecked")
-    public static <T> ISetter<T> getSetter(Class<T> clazz, String fieldName, Class<?> fieldType) throws Throwable {
+    public static ISetter<FieldDataSetterExtractor> getSetter(Class<? extends FieldDataSetterExtractor> clazz, String fieldName, Class<?> fieldType) throws Throwable {
 
         MethodHandles.Lookup caller = MethodHandles.lookup();
         MethodType setter = MethodType.methodType(void.class, fieldType);
@@ -22,7 +24,7 @@ public class SetterFactory {
 
         MethodHandle factory = site.getTarget();
 
-        return (ISetter<T>) factory.invoke();
+        return (ISetter<FieldDataSetterExtractor>) factory.invoke();
     }
 
     private static String computeSetterName(String name) {

@@ -36,13 +36,17 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     private List<Answer> answers;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Comment> comments;
+
     public Question(Long id,
                     String text,
                     Date creationDate,
                     Date lastActivity,
                     String tags,
                     User author,
-                    List<Answer> answers) {
+                    List<Answer> answers,
+                    List<Comment> comments) {
         this.id = id;
         this.text = text;
         this.creationDate = creationDate;
@@ -50,6 +54,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
         this.tags = tags;
         this.author = author;
         this.answers = answers;
+        this.comments = comments;
     }
 
     public Question(String text,
@@ -57,13 +62,15 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
                     Date lastActivity,
                     String tags,
                     User author,
-                    List<Answer> answers) {
+                    List<Answer> answers,
+                    List<Comment> comments) {
         this.text = text;
         this.creationDate = creationDate;
         this.lastActivity = lastActivity;
         this.tags = tags;
         this.author = author;
         this.answers = answers;
+        this.comments = comments;
     }
 
     public Question() {
@@ -126,6 +133,14 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
         this.answers = answers;
     }
 
+    public List<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<Comment> comments) {
+        this.comments = comments;
+    }
+
     @Override
     public SetterField[] extractSettersField() {
         return new SetterField[] {
@@ -158,6 +173,11 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
             question = new Question();
         }
 
+        public Builder id(Long id) {
+            question.id = id;
+            return this;
+        }
+
         public Builder text(String text) {
             question.text = text;
             return this;
@@ -185,6 +205,11 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
 
         public Builder answers(List<Answer> answers) {
             question.answers = answers;
+            return this;
+        }
+
+        public Builder comments(List<Comment> comments) {
+            question.comments = comments;
             return this;
         }
 

@@ -1,6 +1,6 @@
 package qa.dao.databasecomponents;
 
-import qa.domain.setters.DomainSetter;
+import qa.domain.setters.PropertySetter;
 
 /**
  * one to one or many to one only
@@ -9,14 +9,14 @@ public class NestedEntity implements EntityTable {
 
     private final String[] fieldNames;
     private final Class<? extends FieldDataSetterExtractor> clazz;
-    private final DomainSetter<FieldDataSetterExtractor> domainSetter;
+    private final PropertySetter propertySetter;
 
     public NestedEntity(String[] fieldNames,
                         Class<? extends FieldDataSetterExtractor> clazz,
-                        DomainSetter<FieldDataSetterExtractor> domainSetter) {
+                        PropertySetter propertySetter) {
         this.fieldNames = fieldNames;
         this.clazz = clazz;
-        this.domainSetter = domainSetter;
+        this.propertySetter = propertySetter;
     }
 
     @Override
@@ -28,12 +28,12 @@ public class NestedEntity implements EntityTable {
         return clazz;
     }
 
-    public DomainSetter<FieldDataSetterExtractor> getDomainSetter() {
-        return domainSetter;
+    public PropertySetter getDomainSetter() {
+        return propertySetter;
     }
 
     public String getNestedEntityName() {
-        String name = clazz.getName();
+        String name = clazz.getSimpleName();
         return Character.toLowerCase(name.charAt(0)) + name.substring(1);
     }
 }
