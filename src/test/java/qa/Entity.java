@@ -1,4 +1,4 @@
-package qa.dao;
+package qa;
 
 import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.FieldDataSetterExtractor;
@@ -7,17 +7,48 @@ import qa.domain.setters.SetterField;
 
 import java.time.LocalDateTime;
 
-public class NestedEntity implements FieldExtractor, FieldDataSetterExtractor {
+public class Entity implements FieldExtractor, FieldDataSetterExtractor {
+
     private Long id;
     private String str;
     private Boolean bool;
     private LocalDateTime date;
+    private NestedEntity nested1;
+    private NestedEntity nested2;
 
-    public NestedEntity(Long id, String str, Boolean bool, LocalDateTime date) {
+    public Entity(Long id, String str, Boolean bool, LocalDateTime date) {
         this.id = id;
         this.str = str;
         this.bool = bool;
         this.date = date;
+    }
+
+    public Entity(Long id, String str, Boolean bool, LocalDateTime date, NestedEntity nested1, NestedEntity nested2) {
+        this.id = id;
+        this.str = str;
+        this.bool = bool;
+        this.date = date;
+        this.nested1 = nested1;
+        this.nested2 = nested2;
+    }
+
+    public Entity() {
+    }
+
+    public NestedEntity getNested1() {
+        return nested1;
+    }
+
+    public void setNested1(NestedEntity nested1) {
+        this.nested1 = nested1;
+    }
+
+    public NestedEntity getNested2() {
+        return nested2;
+    }
+
+    public void setNested2(NestedEntity nested2) {
+        this.nested2 = nested2;
     }
 
     public Long getId() {
@@ -64,6 +95,12 @@ public class NestedEntity implements FieldExtractor, FieldDataSetterExtractor {
 
     @Override
     public SetterField[] extractSettersField() {
-        return new SetterField[0];
+        return new SetterField[]{
+                new SetterField("id", Long.class),
+                new SetterField("str", String.class),
+                new SetterField("bool", Boolean.class),
+                new SetterField("date", LocalDateTime.class),
+                new SetterField("nested1", NestedEntity.class)
+        };
     }
 }

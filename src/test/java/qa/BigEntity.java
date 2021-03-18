@@ -1,4 +1,4 @@
-package qa.dao;
+package qa;
 
 import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.FieldDataSetterExtractor;
@@ -92,6 +92,9 @@ public class BigEntity implements FieldExtractor, FieldDataSetterExtractor {
         this.b7 = b7;
         this.b8 = b8;
         this.b9 = b9;
+    }
+
+    public BigEntity() {
     }
 
     public Long getL1() {
@@ -345,6 +348,36 @@ public class BigEntity implements FieldExtractor, FieldDataSetterExtractor {
 
     @Override
     public SetterField[] extractSettersField() {
-        return new SetterField[0];
+        return new SetterField[]{
+                new SetterField("l1", Long.class),
+                new SetterField("l2", Long.class),
+                new SetterField("l3", Long.class),
+                new SetterField("l4", Long.class),
+                new SetterField("l5", Long.class),
+                new SetterField("l6", Long.class),
+                new SetterField("l7", Long.class),
+                new SetterField("l8", Long.class),
+                new SetterField("l9", Long.class),
+                new SetterField("s1", String.class),
+                new SetterField("s1", String.class),
+                new SetterField("s2", String.class),
+                new SetterField("s3", String.class),
+                new SetterField("s4", String.class),
+                new SetterField("s5", String.class),
+                new SetterField("s6", String.class),
+                new SetterField("s7", String.class),
+                new SetterField("s8", String.class),
+                new SetterField("s9", String.class),
+                new SetterField("b1", Boolean.class),
+                new SetterField("b1", Boolean.class),
+                new SetterField("b2", Boolean.class),
+                new SetterField("b3", Boolean.class),
+                new SetterField("b4", Boolean.class),
+                new SetterField("b5", Boolean.class),
+                new SetterField("b6", Boolean.class),
+                new SetterField("b7", Boolean.class),
+                new SetterField("b8", Boolean.class),
+                new SetterField("b9", Boolean.class)
+        };
     }
 }

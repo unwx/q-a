@@ -1,12 +1,18 @@
 package qa.domain.setters;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import qa.dao.databasecomponents.FieldDataSetterExtractor;
+import qa.exceptions.domain.SetterNotImplementedException;
+import qa.exceptions.domain.SetterTargetIsNullException;
 import qa.exceptions.domain.SettersInitializationException;
 
 import java.io.Serial;
 import java.util.HashMap;
 
 public class PropertySetterImpl implements PropertySetter {
+
+    private final Logger logger = LogManager.getLogger(PropertySetterImpl.class);
 
     private final HashMap<String, ISetter<FieldDataSetterExtractor>> setters;
 
@@ -17,15 +23,35 @@ public class PropertySetterImpl implements PropertySetter {
     @Override
     public void setAll(FieldDataSetterExtractor object, String[] names, Object[] values) {
         for (int i = 0; i < names.length; i++) {
-            ISetter<FieldDataSetterExtractor> s = setters.get(names[i]);
-            s.set(object, values[i]);
+            try {
+                ISetter<FieldDataSetterExtractor> s = setters.get(names[i]);
+                s.set(object, values[i]);
+            } catch (NullPointerException ex) {
+                nullPointerExceptionProcess(object, names[i]);
+            }
         }
     }
 
     @Override
     public void set(FieldDataSetterExtractor object, String name, Object value) {
-        ISetter<FieldDataSetterExtractor> s = setters.get(name);
-        s.set(object, value);
+        try {
+            ISetter<FieldDataSetterExtractor> s = setters.get(name);
+            s.set(object, value);
+        } catch (NullPointerException ex) {
+            nullPointerExceptionProcess(object, name);
+        }
+    }
+
+    private void nullPointerExceptionProcess(FieldDataSetterExtractor object, String name) {
+        if (object == null) {
+            String message = "NullPointerException -> setter target is null. -> FieldDataSetterExtractor = null.";
+            logger.error(message);
+            throw new SetterTargetIsNullException(message);
+        } else {
+            String message = "NullPointerException -> setter " + name + " not exist/implemented. ";
+            logger.error(message);
+            throw new SetterNotImplementedException(message);
+        }
     }
 
     private static class SettersInitializer {
