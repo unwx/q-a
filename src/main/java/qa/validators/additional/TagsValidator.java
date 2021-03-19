@@ -3,15 +3,15 @@ package qa.validators.additional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qa.exceptions.validator.ValidationException;
-import qa.source.PropertiesDataSource;
+import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.Validator;
 
 public class TagsValidator extends Validator implements AdditionalValidator<String[]> {
 
     private final Logger logger = LogManager.getLogger(TagsValidator.class);
-    private final PropertiesDataSource propertiesDataSource;
+    private final ValidationPropertyDataSource propertiesDataSource;
 
-    public TagsValidator(PropertiesDataSource propertiesDataSource) {
+    public TagsValidator(ValidationPropertyDataSource propertiesDataSource) {
         this.propertiesDataSource = propertiesDataSource;
     }
 

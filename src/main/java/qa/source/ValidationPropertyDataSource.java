@@ -11,14 +11,9 @@ import org.springframework.stereotype.Component;
         @PropertySource("classpath:properties/validation/validUser.properties"),
         @PropertySource("classpath:properties/validation/validAnswer.properties"),
         @PropertySource("classpath:properties/validation/validQuestion.properties"),
-        @PropertySource("classpath:properties/validation/validComment.properties"),
-        @PropertySource("classpath:properties/rsa.properties"),
-        @PropertySource("classpath:properties/jwt.properties")
-})
-public final class PropertiesDataSource {
-
-    public PropertiesDataSource() {
-    }
+        @PropertySource("classpath:properties/validation/validComment.properties")}
+)
+public class ValidationPropertyDataSource {
 
     /* authentication validation properties */
 
@@ -84,25 +79,6 @@ public final class PropertiesDataSource {
     @Value("${comment.text.length.min}")
     private Integer COMMENT_TEXT_LENGTH_MIN;
 
-    /* rsa properties */
-
-    @Value("${rsa.public.path}")
-    private String RSA_PUBLIC_PATH;
-
-    @Value("${rsa.private.path}")
-    private String RSA_PRIVATE_PATH;
-
-    /* jwt properties */
-
-    @Value("${jwt.algorithm}")
-    private String JWT_ALGORITHM;
-
-    @Value("${jwt.access.expiration}")
-    private Long JWT_ACCESS_EXPIRATION;
-
-    @Value("${jwt.refresh.expiration}")
-    private Long JWT_REFRESH_EXPIRATION;
-
 
     public Integer getAUTHENTICATION_PASSWORD_LENGTH_MAX() {
         return AUTHENTICATION_PASSWORD_LENGTH_MAX;
@@ -128,26 +104,6 @@ public final class PropertiesDataSource {
         return USER_ABOUT_LENGTH_MIN;
     }
 
-    public String getRSA_PUBLIC_PATH() {
-        return RSA_PUBLIC_PATH;
-    }
-
-    public String getRSA_PRIVATE_PATH() {
-        return RSA_PRIVATE_PATH;
-    }
-
-    public String getJWT_ALGORITHM() {
-        return JWT_ALGORITHM;
-    }
-
-    public Long getJWT_ACCESS_EXPIRATION() {
-        return JWT_ACCESS_EXPIRATION;
-    }
-
-    public Long getJWT_REFRESH_EXPIRATION() {
-        return JWT_REFRESH_EXPIRATION;
-    }
-
     public Integer getQUESTION_TAGS_COUNT_MIN() {
         return QUESTION_TAGS_COUNT_MIN;
     }
@@ -160,16 +116,16 @@ public final class PropertiesDataSource {
         return QUESTION_TAG_LENGTH_MIN;
     }
 
+    public Integer getQUESTION_TAG_LENGTH_MAX() {
+        return QUESTION_TAG_LENGTH_MAX;
+    }
+
     public Integer getQUESTION_TITLE_LENGTH_MIN() {
         return QUESTION_TITLE_LENGTH_MIN;
     }
 
     public Integer getQUESTION_TITLE_LENGTH_MAX() {
         return QUESTION_TITLE_LENGTH_MAX;
-    }
-
-    public Integer getQUESTION_TAG_LENGTH_MAX() {
-        return QUESTION_TAG_LENGTH_MAX;
     }
 
     public Integer getQUESTION_TEXT_LENGTH_MAX() {

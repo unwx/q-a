@@ -21,7 +21,7 @@ import qa.dto.validation.wrapper.RegistrationRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.exceptions.rest.UnauthorizedException;
 import qa.exceptions.validator.ValidationException;
-import qa.source.PropertiesDataSource;
+import qa.source.ValidationPropertyDataSource;
 import qa.util.JwtUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
@@ -31,13 +31,13 @@ import java.util.Collections;
 public class AuthenticationService {
 
     private final AuthenticationDao authenticationDao;
-    private final PropertiesDataSource propertiesDataSource;
+    private final ValidationPropertyDataSource propertiesDataSource;
     private final ValidationChainAdditional chainValidator;
     private final JwtUtil jwtUtil;
 
     @Autowired
     public AuthenticationService(AuthenticationDao authenticationDao,
-                                 PropertiesDataSource propertiesDataSource,
+                                 ValidationPropertyDataSource propertiesDataSource,
                                  ValidationChainAdditional chainValidator,
                                  JwtUtil jwtUtil) {
         this.authenticationDao = authenticationDao;

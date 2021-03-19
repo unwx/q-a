@@ -2,7 +2,7 @@ package qa.dto.validation.wrapper;
 
 import org.jetbrains.annotations.Nullable;
 import qa.dto.request.RegistrationRequestDto;
-import qa.source.PropertiesDataSource;
+import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.ValidationEntity;
 import qa.validators.additional.EmailValidator;
 import qa.validators.entities.ValidationAdditional;
@@ -12,10 +12,10 @@ import qa.validators.entities.ValidationStringField;
 
 public class RegistrationRequestValidationWrapper extends RegistrationRequestDto implements ValidationEntity {
 
-    private final PropertiesDataSource propertiesDataSource;
+    private final ValidationPropertyDataSource propertiesDataSource;
 
     public RegistrationRequestValidationWrapper(RegistrationRequestDto request,
-                                                PropertiesDataSource propertiesDataSource) {
+                                                ValidationPropertyDataSource propertiesDataSource) {
         super(request.getUsername(), request.getEmail(), request.getPassword());
         this.propertiesDataSource = propertiesDataSource;
     }

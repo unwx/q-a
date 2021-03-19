@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import qa.security.jwt.auxiliary.RsaKeysInitializer;
 import qa.security.jwt.entity.*;
-import qa.source.PropertiesDataSource;
+import qa.source.JWTPropertyDataSource;
 
 import javax.servlet.http.HttpServletRequest;
 import java.security.interfaces.RSAPrivateKey;
@@ -24,12 +24,12 @@ public class JwtProvider {
     private final JwtUserDetailsService jwtUserDetailsService;
 
     private final Algorithm algorithm;
-    private final PropertiesDataSource propertiesDataSource;
+    private final JWTPropertyDataSource propertiesDataSource;
 
     @Autowired
     public JwtProvider(JwtUserDetailsService jwtUserDetailsService,
                        RsaKeysInitializer rsaKeysInitializer,
-                       PropertiesDataSource propertiesDataSource) {
+                       JWTPropertyDataSource propertiesDataSource) {
         this.jwtUserDetailsService = jwtUserDetailsService;
         this.propertiesDataSource = propertiesDataSource;
         RSAPublicKey publicKey = rsaKeysInitializer.getPublicKey();

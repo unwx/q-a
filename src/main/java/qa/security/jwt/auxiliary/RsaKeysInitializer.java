@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import qa.source.PropertiesDataSource;
+import qa.source.RSAPropertyDataSource;
 import qa.util.PemUtil;
 
 import java.io.IOException;
@@ -16,12 +16,12 @@ public class RsaKeysInitializer {
 
     private RSAPublicKey publicKey = null;
     private RSAPrivateKey privateKey = null;
-    private final PropertiesDataSource propertiesDataSource;
+    private final RSAPropertyDataSource propertiesDataSource;
 
     private final Logger logger = LogManager.getLogger(RsaKeysInitializer.class);
 
     @Autowired
-    public RsaKeysInitializer(PropertiesDataSource propertiesDataSource) {
+    public RsaKeysInitializer(RSAPropertyDataSource propertiesDataSource) {
         this.propertiesDataSource = propertiesDataSource;
     }
 
@@ -30,7 +30,7 @@ public class RsaKeysInitializer {
             try {
                 publicKey = (RSAPublicKey) PemUtil.readPublicKeyFromFile(
                         propertiesDataSource.getRSA_PUBLIC_PATH(),
-                        propertiesDataSource.getJWT_ALGORITHM());
+                        "RSA");
             } catch (IOException e) {
                 e.printStackTrace();
                 String log =
@@ -50,7 +50,7 @@ public class RsaKeysInitializer {
             try {
                 privateKey = (RSAPrivateKey) PemUtil.readPrivateKeyFromFile(
                         propertiesDataSource.getRSA_PRIVATE_PATH(),
-                        propertiesDataSource.getJWT_ALGORITHM());
+                        "RSA");
             } catch (IOException e) {
                 e.printStackTrace();
                 String log =

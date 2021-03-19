@@ -2,7 +2,7 @@ package qa.dto.validation.wrapper;
 
 import org.jetbrains.annotations.Nullable;
 import qa.dto.request.QuestionCreateRequest;
-import qa.source.PropertiesDataSource;
+import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.ValidationEntity;
 import qa.validators.additional.TagsValidator;
 import qa.validators.entities.ValidationAdditional;
@@ -12,10 +12,10 @@ import qa.validators.entities.ValidationStringField;
 
 public class QuestionCreateRequestValidationWrapper extends QuestionCreateRequest implements ValidationEntity {
 
-    private final PropertiesDataSource propertiesDataSource;
+    private final ValidationPropertyDataSource propertiesDataSource;
 
     public QuestionCreateRequestValidationWrapper(QuestionCreateRequest request,
-                                                  PropertiesDataSource propertiesDataSource) {
+                                                  ValidationPropertyDataSource propertiesDataSource) {
         super(request.getTitle(), request.getTitle(), request.getTags());
         this.propertiesDataSource = propertiesDataSource;
     }
