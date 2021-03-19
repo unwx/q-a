@@ -11,6 +11,13 @@ public class EmailValidator extends Validator implements AdditionalValidator<Str
 
     @Override
     public void validate(String c) throws ValidationException {
+
+        if (c == null) {
+            String message = formatMessage("email = null");
+            logger.info("[validation unsuccessful]: " + message);
+            throw new ValidationException(message);
+        }
+
         if (!org.apache.commons.validator.routines.EmailValidator.getInstance().isValid(c)) {
             String message = formatMessage("invalid email by email pattern. (" + c + ")");
             logger.info("[validation unsuccessful]: " + message);

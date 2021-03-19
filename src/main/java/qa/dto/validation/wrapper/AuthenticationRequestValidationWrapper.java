@@ -24,10 +24,6 @@ public class AuthenticationRequestValidationWrapper extends AuthenticationReques
     public ValidationStringField[] getStringFields() {
         return new ValidationStringField[]{
                 new ValidationStringField(
-                        getEmail(),
-                        -1,
-                        -1),
-                new ValidationStringField(
                         getPassword(),
                         propertiesDataSource.getAUTHENTICATION_PASSWORD_LENGTH_MIN(),
                         propertiesDataSource.getAUTHENTICATION_PASSWORD_LENGTH_MAX())

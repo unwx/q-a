@@ -28,10 +28,6 @@ public class RegistrationRequestValidationWrapper extends RegistrationRequestDto
                         propertiesDataSource.getUSER_USERNAME_LENGTH_MIN(),
                         propertiesDataSource.getUSER_USERNAME_LENGTH_MAX()),
                 new ValidationStringField(
-                        getEmail(),
-                        -1,
-                        -1),
-                new ValidationStringField(
                         getPassword(),
                         propertiesDataSource.getAUTHENTICATION_PASSWORD_LENGTH_MIN(),
                         propertiesDataSource.getUSER_USERNAME_LENGTH_MAX())
