@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import qa.exceptions.validator.ValidationException;
 import qa.validators.abstraction.ValidationChain;
 import qa.validators.abstraction.Validator;
-import qa.validators.abstraction.ValidatorEntity;
+import qa.validators.abstraction.ValidationEntity;
 import qa.validators.entities.ValidationStringField;
 
 public class StringEntitiesValidator extends Validator implements ValidationChain {
@@ -13,11 +13,11 @@ public class StringEntitiesValidator extends Validator implements ValidationChai
     private final Logger logger = LogManager.getLogger(StringEntitiesValidator.class);
 
     @Override
-    public void validate(ValidatorEntity entity) throws ValidationException {
+    public void validate(ValidationEntity entity) throws ValidationException {
         lengthValidate(entity);
     }
 
-    private void lengthValidate(ValidatorEntity entity) throws ValidationException {
+    private void lengthValidate(ValidationEntity entity) throws ValidationException {
         ValidationStringField[] fields = entity.getStringFields();
         for (ValidationStringField s : fields) {
             if (s.getMaxLen() != -1 && s.getS().length() > s.getMaxLen() || s.getMinLen() != -1 && s.getS().length() < s.getMinLen()) {

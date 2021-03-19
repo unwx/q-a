@@ -6,7 +6,7 @@ import qa.exceptions.validator.ValidationException;
 import qa.validators.abstraction.ValidationChain;
 import qa.validators.abstraction.ValidationNestedField;
 import qa.validators.abstraction.Validator;
-import qa.validators.abstraction.ValidatorEntity;
+import qa.validators.abstraction.ValidationEntity;
 import qa.validators.entities.ValidationFieldType;
 import qa.validators.entities.ValidationNumberField;
 import qa.validators.entities.ValidationObjectField;
@@ -27,29 +27,29 @@ public class NullValidator extends Validator implements ValidationChain {
     private final Logger logger = LogManager.getLogger(NullValidator.class);
 
     @Override
-    public void validate(ValidatorEntity entity) throws ValidationException {
+    public void validate(ValidationEntity entity) throws ValidationException {
         areAttributesAreNotNull(entity);
     }
 
-    private void areAttributesAreNotNull(ValidatorEntity entity) throws ValidationException {
+    private void areAttributesAreNotNull(ValidationEntity entity) throws ValidationException {
         objectPart(entity);
         stringPart(entity);
         numberPart(entity);
     }
 
-    private void objectPart(ValidatorEntity entity) throws ValidationException {
+    private void objectPart(ValidationEntity entity) throws ValidationException {
         ValidationObjectField[] objectsFields = entity.getObjectFields();
         ignoreProcess(objectsFields, ValidationFieldType.OBJECT);
         nullValidationNestedProcess(objectsFields, ValidationFieldType.OBJECT);
     }
 
-    private void stringPart(ValidatorEntity entity) throws ValidationException {
+    private void stringPart(ValidationEntity entity) throws ValidationException {
         ValidationStringField[] stringFields = entity.getStringFields();
         ignoreProcess(stringFields, ValidationFieldType.STRING);
         nullValidationNestedProcess(stringFields, ValidationFieldType.STRING);
     }
 
-    private void numberPart(ValidatorEntity entity) throws ValidationException {
+    private void numberPart(ValidationEntity entity) throws ValidationException {
         ValidationNumberField[] numberFields = entity.getNumberFields();
         ignoreProcess(numberFields, ValidationFieldType.NUMBER);
         nullValidationNestedProcess(numberFields, ValidationFieldType.NUMBER);

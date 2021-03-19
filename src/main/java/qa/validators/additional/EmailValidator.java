@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 import qa.exceptions.validator.ValidationException;
 import qa.validators.abstraction.Validator;
 
-public class EmailValidator extends Validator implements ValidationAdditional<String> {
+public class EmailValidator extends Validator implements AdditionalValidator<String> {
 
     private final Logger logger = LogManager.getLogger(EmailValidator.class);
 

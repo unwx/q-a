@@ -44,8 +44,23 @@ public final class PropertiesDataSource {
 
     /* question validation properties */
 
-    @Value("${question.tags.length.min}")
-    private Integer QUESTION_TAGS_LENGTH_MIN;
+    @Value("${question.tags.count.min}")
+    private Integer QUESTION_TAGS_COUNT_MIN;
+
+    @Value("${question.tags.count.max}")
+    private Integer QUESTION_TAGS_COUNT_MAX;
+
+    @Value("${question.tag.length.min}")
+    private Integer QUESTION_TAG_LENGTH_MIN;
+
+    @Value("${question.tag.length.max}")
+    private Integer QUESTION_TAG_LENGTH_MAX;
+
+    @Value("${question.title.length.min}")
+    private Integer QUESTION_TITLE_LENGTH_MIN;
+
+    @Value("${question.title.length.max}")
+    private Integer QUESTION_TITLE_LENGTH_MAX;
 
     @Value("${question.text.length.max}")
     private Integer QUESTION_TEXT_LENGTH_MAX;
@@ -133,8 +148,28 @@ public final class PropertiesDataSource {
         return JWT_REFRESH_EXPIRATION;
     }
 
-    public Integer getQUESTION_TAGS_LENGTH_MIN() {
-        return QUESTION_TAGS_LENGTH_MIN;
+    public Integer getQUESTION_TAGS_COUNT_MIN() {
+        return QUESTION_TAGS_COUNT_MIN;
+    }
+
+    public Integer getQUESTION_TAGS_COUNT_MAX() {
+        return QUESTION_TAGS_COUNT_MAX;
+    }
+
+    public Integer getQUESTION_TAG_LENGTH_MIN() {
+        return QUESTION_TAG_LENGTH_MIN;
+    }
+
+    public Integer getQUESTION_TITLE_LENGTH_MIN() {
+        return QUESTION_TITLE_LENGTH_MIN;
+    }
+
+    public Integer getQUESTION_TITLE_LENGTH_MAX() {
+        return QUESTION_TITLE_LENGTH_MAX;
+    }
+
+    public Integer getQUESTION_TAG_LENGTH_MAX() {
+        return QUESTION_TAG_LENGTH_MAX;
     }
 
     public Integer getQUESTION_TEXT_LENGTH_MAX() {

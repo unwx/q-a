@@ -20,6 +20,9 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
     @Column(name = "text", length = 2000, nullable = false)
     private String text;
 
+    @Column(name = "title", length = 50, nullable = false)
+    private String title;
+
     @Column(name = "creation_date", nullable = false)
     private Date creationDate;
 
@@ -41,6 +44,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
 
     public Question(Long id,
                     String text,
+                    String title,
                     Date creationDate,
                     Date lastActivity,
                     String tags,
@@ -49,6 +53,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
                     List<Comment> comments) {
         this.id = id;
         this.text = text;
+        this.title = title;
         this.creationDate = creationDate;
         this.lastActivity = lastActivity;
         this.tags = tags;
@@ -58,6 +63,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
     }
 
     public Question(String text,
+                    String title,
                     Date creationDate,
                     Date lastActivity,
                     String tags,
@@ -65,6 +71,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
                     List<Answer> answers,
                     List<Comment> comments) {
         this.text = text;
+        this.title = title;
         this.creationDate = creationDate;
         this.lastActivity = lastActivity;
         this.tags = tags;
@@ -141,11 +148,20 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
         this.comments = comments;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     @Override
     public SetterField[] extractSettersField() {
         return new SetterField[] {
                 new SetterField("id", Long.class),
                 new SetterField("text", String.class),
+                new SetterField("title", String.class),
                 new SetterField("creationDate", Date.class),
                 new SetterField("lastActivity", Date.class),
                 new SetterField("tags", String.class),
@@ -158,6 +174,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
         return new Field[] {
             new Field("id", id),
             new Field("text", id),
+            new Field("title", title),
             new Field("creationDate", creationDate),
             new Field("lastActivity", lastActivity),
             new Field("tags", tags),
@@ -180,6 +197,11 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
 
         public Builder text(String text) {
             question.text = text;
+            return this;
+        }
+
+        public Builder title(String title) {
+            question.title = title;
             return this;
         }
 

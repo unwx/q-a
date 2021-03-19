@@ -3,12 +3,14 @@ package qa.dto.validation.wrapper;
 import org.jetbrains.annotations.Nullable;
 import qa.dto.request.RegistrationRequestDto;
 import qa.source.PropertiesDataSource;
-import qa.validators.abstraction.ValidatorEntity;
+import qa.validators.abstraction.ValidationEntity;
+import qa.validators.additional.EmailValidator;
+import qa.validators.entities.ValidationAdditional;
 import qa.validators.entities.ValidationNumberField;
 import qa.validators.entities.ValidationObjectField;
 import qa.validators.entities.ValidationStringField;
 
-public class RegistrationRequestValidationWrapper extends RegistrationRequestDto implements ValidatorEntity {
+public class RegistrationRequestValidationWrapper extends RegistrationRequestDto implements ValidationEntity {
 
     private final PropertiesDataSource propertiesDataSource;
 
@@ -44,5 +46,14 @@ public class RegistrationRequestValidationWrapper extends RegistrationRequestDto
     @Override
     public @Nullable ValidationObjectField[] getObjectFields() {
         return null;
+    }
+
+    @Override
+    @Nullable
+    @SuppressWarnings("rawtypes")
+    public ValidationAdditional[] getAdditional() {
+        return new ValidationAdditional[]{
+                new ValidationAdditional<>(getEmail(), new EmailValidator()),
+        };
     }
 }

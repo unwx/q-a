@@ -23,8 +23,7 @@ import qa.exceptions.rest.UnauthorizedException;
 import qa.exceptions.validator.ValidationException;
 import qa.source.PropertiesDataSource;
 import qa.util.JwtUtil;
-import qa.validators.ChainValidatorImpl;
-import qa.validators.additional.EmailValidator;
+import qa.validators.abstraction.ValidationChainAdditional;
 
 import java.util.Collections;
 
@@ -33,13 +32,13 @@ public class AuthenticationService {
 
     private final AuthenticationDao authenticationDao;
     private final PropertiesDataSource propertiesDataSource;
-    private final ChainValidatorImpl chainValidator;
+    private final ValidationChainAdditional chainValidator;
     private final JwtUtil jwtUtil;
 
     @Autowired
     public AuthenticationService(AuthenticationDao authenticationDao,
                                  PropertiesDataSource propertiesDataSource,
-                                 ChainValidatorImpl chainValidator,
+                                 ValidationChainAdditional chainValidator,
                                  JwtUtil jwtUtil) {
         this.authenticationDao = authenticationDao;
         this.propertiesDataSource = propertiesDataSource;
@@ -100,7 +99,7 @@ public class AuthenticationService {
     private void validate(AuthenticationRequestDto request) {
         AuthenticationRequestValidationWrapper validationWrapper = new AuthenticationRequestValidationWrapper(request, propertiesDataSource);
         try {
-            chainValidator.validateWithAdditionalValidator(validationWrapper, validationWrapper.getEmail(), new EmailValidator());
+            chainValidator.validateWithAdditionalValidator(validationWrapper);
         } catch (ValidationException e) {
             throw new BadRequestException(e.getMessage());
         }
@@ -109,7 +108,7 @@ public class AuthenticationService {
     private void validate(RegistrationRequestDto request) {
         RegistrationRequestValidationWrapper validationWrapper = new RegistrationRequestValidationWrapper(request, propertiesDataSource);
         try {
-            chainValidator.validateWithAdditionalValidator(validationWrapper, validationWrapper.getEmail(), new EmailValidator());
+            chainValidator.validateWithAdditionalValidator(validationWrapper);
         } catch (ValidationException e) {
             throw new BadRequestException(e.getMessage());
         }
