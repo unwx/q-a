@@ -32,7 +32,11 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
     @Column(name = "tags", nullable = false)
     private String tags;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class, cascade = {
+            CascadeType.MERGE,
+            CascadeType.DETACH,
+            CascadeType.REFRESH
+    })
     @JoinColumn(name = "author_id", nullable = false, updatable = false)
     private User author;
 

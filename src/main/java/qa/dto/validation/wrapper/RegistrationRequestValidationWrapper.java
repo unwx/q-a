@@ -5,10 +5,7 @@ import qa.dto.request.RegistrationRequestDto;
 import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.ValidationEntity;
 import qa.validators.additional.EmailValidator;
-import qa.validators.entities.ValidationAdditional;
-import qa.validators.entities.ValidationNumberField;
-import qa.validators.entities.ValidationObjectField;
-import qa.validators.entities.ValidationStringField;
+import qa.validators.entities.*;
 
 public class RegistrationRequestValidationWrapper extends RegistrationRequestDto implements ValidationEntity {
 
@@ -50,6 +47,13 @@ public class RegistrationRequestValidationWrapper extends RegistrationRequestDto
     public ValidationAdditional[] getAdditional() {
         return new ValidationAdditional[]{
                 new ValidationAdditional<>(getEmail(), new EmailValidator()),
+        };
+    }
+
+    @Override
+    public @Nullable ValidationRegexField[] getRegexFields() {
+        return new ValidationRegexField[]{
+                new ValidationRegexField(propertiesDataSource.getUSER_USERNAME_REGEXP(), new String[]{getUsername()})
         };
     }
 }

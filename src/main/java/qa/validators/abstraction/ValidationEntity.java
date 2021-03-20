@@ -1,10 +1,7 @@
 package qa.validators.abstraction;
 
 import org.jetbrains.annotations.Nullable;
-import qa.validators.entities.ValidationAdditional;
-import qa.validators.entities.ValidationNumberField;
-import qa.validators.entities.ValidationObjectField;
-import qa.validators.entities.ValidationStringField;
+import qa.validators.entities.*;
 
 /**
  * <h3>fill in only the fields you need for validation</h3>
@@ -23,4 +20,7 @@ public interface ValidationEntity {
     @Nullable
     @SuppressWarnings("rawtypes")
     ValidationAdditional[] getAdditional();
+
+    @Nullable
+    ValidationRegexField[] getRegexFields();
 }

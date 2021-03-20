@@ -1,12 +1,12 @@
 package qa.validators.entities;
 
-import qa.validators.abstraction.ValidationNestedField;
+import qa.validators.abstraction.ValidationField;
 
 /**
  * <h3>class null = ignore</h3>
  * <h3>field '-1' = ignore</h3>
  */
-public class ValidationNumberField implements ValidationNestedField {
+public class ValidationNumberField implements ValidationField {
     private final Long num;
     private final Long max;
     private final Long min;
@@ -30,7 +30,7 @@ public class ValidationNumberField implements ValidationNestedField {
     }
 
     @Override
-    public Object[] getNested() {
+    public Object[] getField() {
         return new Object[]{
                 num, max, min
         };

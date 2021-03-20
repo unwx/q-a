@@ -34,7 +34,7 @@ public class AuthenticationRestController {
      *
      * @request
      * Dto {
-     *     username: string|length(min = 2; max = 30)
+     *     username: string|length(min = 2; max = 30). regex = ^(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$
      *     email: string
      *     password: string|length(min = 10; max = 30)
      * }

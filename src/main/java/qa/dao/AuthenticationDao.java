@@ -89,7 +89,7 @@ public class AuthenticationDao implements Dao<AuthenticationData, Long> {
             String hql =
                     """
                     select\s\
-                    a.enabled, a.password, a.accessTokenExpirationDateAtMills, a.refreshTokenExpirationDateAtMillis, b\s\
+                    a.id, a.enabled, a.password, a.accessTokenExpirationDateAtMills, a.refreshTokenExpirationDateAtMillis, b\s\
                     from AuthenticationData a inner join a.roles as b\s\
                     where a.email=:a
                     """;
@@ -101,12 +101,13 @@ public class AuthenticationDao implements Dao<AuthenticationData, Long> {
             if (result.size() == 0)
                 return null;
 
-            result.forEach((r) -> roles.add((UserRoles) r[4]));
+            result.forEach((r) -> roles.add((UserRoles) r[5]));
             return new AuthenticationData.Builder()
-                    .enabled((Boolean) result.get(0)[0])
-                    .password((String) result.get(0)[1])
-                    .accessTokenExpirationDateAtMillis((Long) result.get(0)[2])
-                    .refreshTokenExpirationDateAtMillis((Long) result.get(0)[3])
+                    .id((Long) result.get(0)[0])
+                    .enabled((Boolean) result.get(0)[1])
+                    .password((String) result.get(0)[2])
+                    .accessTokenExpirationDateAtMillis((Long) result.get(0)[3])
+                    .refreshTokenExpirationDateAtMillis((Long) result.get(0)[4])
                     .roles(roles)
                     .email(email)
                     .build();

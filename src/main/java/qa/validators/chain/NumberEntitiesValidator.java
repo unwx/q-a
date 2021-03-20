@@ -23,8 +23,8 @@ public class NumberEntitiesValidator extends Validator implements ValidationChai
             if (f.getMax() != -1 && f.getNum() > f.getMax() || f.getMin() != -1 && f.getNum() < f.getMin()) {
                 String message = formatMessage(
                         """
-                        invalid value of: %s.\
-                        (max value = %s\
+                        invalid value of: %s.\s\
+                        (max value = %s\s\
                         min value = %s)\
                         """.formatted(f.getNum(), f.getMax(), f.getMin()));
                 logger.info("[validation unsuccessful]: " + message);

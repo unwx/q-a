@@ -25,15 +25,13 @@ public class User implements FieldExtractor, FieldDataSetterExtractor {
     @OneToMany(mappedBy = "author", cascade = {
             CascadeType.MERGE,
             CascadeType.DETACH,
-            CascadeType.REFRESH,
-            CascadeType.PERSIST})
+            CascadeType.REFRESH})
     private List<Question> questions;
 
     @OneToMany(mappedBy = "author", cascade = {
             CascadeType.MERGE,
             CascadeType.DETACH,
-            CascadeType.REFRESH,
-            CascadeType.PERSIST})
+            CascadeType.REFRESH})
     private List<Answer> answers;
 
     public User(Long id,
@@ -56,6 +54,10 @@ public class User implements FieldExtractor, FieldDataSetterExtractor {
         this.about = about;
         this.questions = questions;
         this.answers = answers;
+    }
+
+    public User(Long id) {
+        this.id = id;
     }
 
     public User() {

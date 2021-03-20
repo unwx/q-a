@@ -6,6 +6,9 @@ import qa.exceptions.validator.ValidationException;
 import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.Validator;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class TagsValidator extends Validator implements AdditionalValidator<String[]> {
 
     private final Logger logger = LogManager.getLogger(TagsValidator.class);
@@ -18,21 +21,28 @@ public class TagsValidator extends Validator implements AdditionalValidator<Stri
     @Override
     public void validate(String[] c) throws ValidationException {
         if (c == null) {
-            String message = "tags must not be null";
+            String message = formatMessage("tags must not be null");
             logger.info("[validation unsuccessful]: " + message);
             throw new ValidationException(message);
         }
 
         int counter = 0;
+        Pattern pattern = Pattern.compile(propertiesDataSource.getQUESTION_TAG_REGEXP());
         for (String s : c) {
             if (s == null) {
-                String message = "tag must not be null";
+                String message = formatMessage("tag must not be null");
                 logger.info("[validation unsuccessful]: " + message);
                 throw new ValidationException(message);
             }
             if (s.length() > propertiesDataSource.getQUESTION_TAG_LENGTH_MAX() ||
                 s.length() < propertiesDataSource.getQUESTION_TAG_LENGTH_MIN()) {
-                String message = "tag length must be >= 2 and <= 20";
+                String message = formatMessage("tag length must be >= 2 and <= 20");
+                logger.info("[validation unsuccessful]: " + message);
+                throw new ValidationException(message);
+            }
+            Matcher matcher = pattern.matcher(s);
+            if (!matcher.find()) {
+                String message = formatMessage("the tag has unresolved characters");
                 logger.info("[validation unsuccessful]: " + message);
                 throw new ValidationException(message);
             }

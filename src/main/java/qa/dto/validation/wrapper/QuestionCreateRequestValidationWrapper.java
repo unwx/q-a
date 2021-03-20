@@ -5,10 +5,7 @@ import qa.dto.request.QuestionCreateRequest;
 import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.ValidationEntity;
 import qa.validators.additional.TagsValidator;
-import qa.validators.entities.ValidationAdditional;
-import qa.validators.entities.ValidationNumberField;
-import qa.validators.entities.ValidationObjectField;
-import qa.validators.entities.ValidationStringField;
+import qa.validators.entities.*;
 
 public class QuestionCreateRequestValidationWrapper extends QuestionCreateRequest implements ValidationEntity {
 
@@ -16,7 +13,7 @@ public class QuestionCreateRequestValidationWrapper extends QuestionCreateReques
 
     public QuestionCreateRequestValidationWrapper(QuestionCreateRequest request,
                                                   ValidationPropertyDataSource propertiesDataSource) {
-        super(request.getTitle(), request.getTitle(), request.getTags());
+        super(request.getTitle(), request.getText(), request.getTags());
         this.propertiesDataSource = propertiesDataSource;
     }
 
@@ -53,6 +50,14 @@ public class QuestionCreateRequestValidationWrapper extends QuestionCreateReques
     public ValidationAdditional[] getAdditional() {
         return new ValidationAdditional[]{
                 new ValidationAdditional(getTags(), new TagsValidator(propertiesDataSource))
+        };
+    }
+
+    @Override
+    @Nullable
+    public ValidationRegexField[] getRegexFields() {
+        return new ValidationRegexField[]{
+                new ValidationRegexField(propertiesDataSource.getQUESTION_TITLE_REGEXP(), new String[]{getTitle()})
         };
     }
 }

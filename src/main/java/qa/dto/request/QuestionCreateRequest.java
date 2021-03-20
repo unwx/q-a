@@ -14,6 +14,12 @@ public class QuestionCreateRequest {
         this.tags = tags;
     }
 
+    public QuestionCreateRequest() {
+        this.title = null;
+        this.text = null;
+        this.tags = null;
+    }
+
     public String getTitle() {
         return title;
     }

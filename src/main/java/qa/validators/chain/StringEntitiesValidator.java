@@ -23,8 +23,8 @@ public class StringEntitiesValidator extends Validator implements ValidationChai
             if (s.getMaxLen() != -1 && s.getS().length() > s.getMaxLen() || s.getMinLen() != -1 && s.getS().length() < s.getMinLen()) {
                 String message = formatMessage(
                         """
-                        invalid length of: %s.\
-                        (max length = %s;\
+                        invalid length of: %s.\s\
+                        (max length = %s;\s\
                         min length = %s)\
                         """.formatted(s.getS(), s.getMaxLen(), s.getMinLen()));
                         logger.info("[validation unsuccessful]: " + message);

@@ -18,7 +18,7 @@ public class Comment implements FieldExtractor, FieldDataSetterExtractor {
     @Column(name = "text", length = 500, nullable = false)
     private String text;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "author_id", nullable = false, updatable = false)
     private User author;
 

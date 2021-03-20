@@ -5,10 +5,7 @@ import qa.dto.request.AuthenticationRequestDto;
 import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.ValidationEntity;
 import qa.validators.additional.EmailValidator;
-import qa.validators.entities.ValidationAdditional;
-import qa.validators.entities.ValidationNumberField;
-import qa.validators.entities.ValidationObjectField;
-import qa.validators.entities.ValidationStringField;
+import qa.validators.entities.*;
 
 public class AuthenticationRequestValidationWrapper extends AuthenticationRequestDto implements ValidationEntity {
 
@@ -49,5 +46,11 @@ public class AuthenticationRequestValidationWrapper extends AuthenticationReques
         return new ValidationAdditional[]{
                 new ValidationAdditional<>(getEmail(), new EmailValidator()),
         };
+    }
+
+    @Override
+    @Nullable
+    public ValidationRegexField[] getRegexFields() {
+        return null;
     }
 }

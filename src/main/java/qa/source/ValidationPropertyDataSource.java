@@ -31,6 +31,9 @@ public class ValidationPropertyDataSource {
     @Value("${user.username.length.min}")
     private Integer USER_USERNAME_LENGTH_MIN;
 
+    @Value("${user.username.regexp}")
+    private String USER_USERNAME_REGEXP;
+
     @Value("${user.about.length.max}")
     private Integer USER_ABOUT_LENGTH_MAX;
 
@@ -51,11 +54,17 @@ public class ValidationPropertyDataSource {
     @Value("${question.tag.length.max}")
     private Integer QUESTION_TAG_LENGTH_MAX;
 
+    @Value("${question.tag.regexp}")
+    private String QUESTION_TAG_REGEXP;
+
     @Value("${question.title.length.min}")
     private Integer QUESTION_TITLE_LENGTH_MIN;
 
     @Value("${question.title.length.max}")
     private Integer QUESTION_TITLE_LENGTH_MAX;
+
+    @Value("${question.title.regexp}")
+    private String QUESTION_TITLE_REGEXP;
 
     @Value("${question.text.length.max}")
     private Integer QUESTION_TEXT_LENGTH_MAX;
@@ -96,6 +105,10 @@ public class ValidationPropertyDataSource {
         return USER_USERNAME_LENGTH_MIN;
     }
 
+    public String getUSER_USERNAME_REGEXP() {
+        return USER_USERNAME_REGEXP;
+    }
+
     public Integer getUSER_ABOUT_LENGTH_MAX() {
         return USER_ABOUT_LENGTH_MAX;
     }
@@ -112,12 +125,20 @@ public class ValidationPropertyDataSource {
         return QUESTION_TAGS_COUNT_MAX;
     }
 
+    public String getQUESTION_TITLE_REGEXP() {
+        return QUESTION_TITLE_REGEXP;
+    }
+
     public Integer getQUESTION_TAG_LENGTH_MIN() {
         return QUESTION_TAG_LENGTH_MIN;
     }
 
     public Integer getQUESTION_TAG_LENGTH_MAX() {
         return QUESTION_TAG_LENGTH_MAX;
+    }
+
+    public String getQUESTION_TAG_REGEXP() {
+        return QUESTION_TAG_REGEXP;
     }
 
     public Integer getQUESTION_TITLE_LENGTH_MIN() {

@@ -3,7 +3,6 @@ package qa.dao;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import qa.dao.databasecomponents.*;
 import qa.domain.setters.PropertySetter;
@@ -27,7 +26,7 @@ final class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor> im
     }
 
     @Override
-    public Object create(final @NotNull Entity e) {
+    public Object create(final Entity e) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             Object id = session.save(e);
@@ -60,14 +59,14 @@ final class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor> im
     }
 
     @Override
-    public void update(Where where, Entity entity, String className) {
+    public void update(final Where where, final Entity entity, final String className) {
         try(Session session = sessionFactory.openSession()) {
             daoUtil.update(where, entity, className, session);
         }
     }
 
     @Override
-    public void updateEager(Entity entity) {
+    public void updateEager(final Entity entity) {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.update(entity);
@@ -76,7 +75,7 @@ final class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor> im
     }
 
     @Override
-    public void delete(@NotNull Entity e) {
+    public void delete(final Entity e) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.delete(e);

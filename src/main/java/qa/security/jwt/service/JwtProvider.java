@@ -78,7 +78,10 @@ public class JwtProvider {
                     .verify(cleanToken);
             long expAtMillis = Long.parseLong(jwtDecoded.getClaim("expm").asString());
             JwtType type = jwtDecoded.getClaim("type").asString().equals("access") ? JwtType.ACCESS : JwtType.REFRESH;
+
             JwtAuthenticationData data = (JwtAuthenticationData) jwtUserDetailsService.loadUserByUsername(jwtDecoded.getSubject());
+            if (data == null)
+                return new JwtIntermediateDateTransport(JwtStatus.INVALID);
 
             JwtStatus status = validateExpiration(expAtMillis, data, type);
             return new JwtIntermediateDateTransport(status, type, new JwtClaims(jwtDecoded.getClaims()), data);

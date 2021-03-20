@@ -1,8 +1,8 @@
 package qa.validators.entities;
 
-import qa.validators.abstraction.ValidationNestedField;
+import qa.validators.abstraction.ValidationField;
 
-public class ValidationObjectField implements ValidationNestedField {
+public class ValidationObjectField implements ValidationField {
     private final Object obj;
 
     public ValidationObjectField(Object obj) {
@@ -14,7 +14,7 @@ public class ValidationObjectField implements ValidationNestedField {
     }
 
     @Override
-    public Object[] getNested() {
+    public Object[] getField() {
         return new Object[]{
                 obj
         };

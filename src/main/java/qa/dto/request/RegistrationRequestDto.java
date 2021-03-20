@@ -1,7 +1,5 @@
 package qa.dto.request;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-
 public class RegistrationRequestDto {
     private final String username;
     private final String email;

@@ -22,11 +22,13 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor {
     @Column(name = "adopted", nullable = false)
     private Boolean adopted;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class, cascade = {
+            CascadeType.REFRESH, CascadeType.MERGE
+    })
     @JoinColumn(name = "author_id", nullable = false, updatable = false)
     private User author;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Question.class, cascade = CascadeType.ALL)
     @JoinColumn(name = "question_id", nullable = false, updatable = false)
     private Question question;
 
