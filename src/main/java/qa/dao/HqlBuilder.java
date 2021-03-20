@@ -183,7 +183,7 @@ public class HqlBuilder {
                 .append("inner join ")
                 .append(tl)
                 .append('.')
-                .append(table.getNestedEntityName())
+                .append(table.getTargetNestedFieldName())
                 .append(" as ")
                 .append(abb)
                 .append(' ');

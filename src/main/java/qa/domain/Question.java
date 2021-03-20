@@ -177,7 +177,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
     public Field[] extract() {
         return new Field[] {
             new Field("id", id),
-            new Field("text", id),
+            new Field("text", text),
             new Field("title", title),
             new Field("creationDate", creationDate),
             new Field("lastActivity", lastActivity),

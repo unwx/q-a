@@ -315,7 +315,7 @@ public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtracto
                 value,
                 nested,
                 nestedEntity.getDomainSetter());
-        mainSetter.set(target, nestedEntity.getNestedEntityName(), data);
+        mainSetter.set(target, nestedEntity.getTargetNestedFieldName(), data);
     }
 
     private void setNested(NestedEntity nestedEntity,
@@ -328,7 +328,7 @@ public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtracto
                 values,
                 nested,
                 nestedEntity.getDomainSetter());
-        mainSetter.set(target, nestedEntity.getNestedEntityName(), data);
+        mainSetter.set(target, nestedEntity.getTargetNestedFieldName(), data);
     }
 
     private ReadSituation defineSituation(String[] mainFieldNames,

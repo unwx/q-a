@@ -11,7 +11,7 @@ public class ValidationNumberField implements ValidationField {
     private final Long max;
     private final Long min;
 
-    ValidationNumberField(Long num, Long max, Long min) {
+    public ValidationNumberField(Long num, Long max, Long min) {
         this.num = num;
         this.max = max;
         this.min = min;
