@@ -34,18 +34,6 @@ public class QuestionCreateRequestValidationWrapper extends QuestionCreateReques
 
     @Override
     @Nullable
-    public ValidationNumberField[] getNumberFields() {
-        return new ValidationNumberField[0];
-    }
-
-    @Override
-    @Nullable
-    public ValidationObjectField[] getObjectFields() {
-        return new ValidationObjectField[0];
-    }
-
-    @Override
-    @Nullable
     @SuppressWarnings({"rawtypes", "unchecked"})
     public ValidationAdditional[] getAdditional() {
         return new ValidationAdditional[]{

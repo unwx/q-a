@@ -9,18 +9,28 @@ import qa.validators.entities.*;
  */
 public interface ValidationEntity {
     @Nullable
-    ValidationStringField[] getStringFields();
+    default ValidationStringField[] getStringFields() {
+        return null;
+    }
 
     @Nullable
-    ValidationNumberField[] getNumberFields();
+    default ValidationNumberField[] getNumberFields() {
+        return null;
+    }
 
     @Nullable
-    ValidationObjectField[] getObjectFields();
+    default ValidationObjectField[] getObjectFields() {
+        return null;
+    }
 
     @Nullable
     @SuppressWarnings("rawtypes")
-    ValidationAdditional[] getAdditional();
+    default ValidationAdditional[] getAdditional() {
+        return null;
+    }
 
     @Nullable
-    ValidationRegexField[] getRegexFields();
+    default ValidationRegexField[] getRegexFields() {
+        return null;
+    }
 }

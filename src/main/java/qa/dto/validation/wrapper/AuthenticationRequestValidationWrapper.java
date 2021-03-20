@@ -29,28 +29,10 @@ public class AuthenticationRequestValidationWrapper extends AuthenticationReques
 
     @Override
     @Nullable
-    public ValidationNumberField[] getNumberFields() {
-        return null;
-    }
-
-    @Override
-    @Nullable
-    public ValidationObjectField[] getObjectFields() {
-        return null;
-    }
-
-    @Override
-    @Nullable
     @SuppressWarnings("rawtypes")
     public ValidationAdditional[] getAdditional() {
         return new ValidationAdditional[]{
                 new ValidationAdditional<>(getEmail(), new EmailValidator()),
         };
-    }
-
-    @Override
-    @Nullable
-    public ValidationRegexField[] getRegexFields() {
-        return null;
     }
 }

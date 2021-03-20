@@ -32,16 +32,6 @@ public class RegistrationRequestValidationWrapper extends RegistrationRequestDto
     }
 
     @Override
-    public @Nullable ValidationNumberField[] getNumberFields() {
-        return null;
-    }
-
-    @Override
-    public @Nullable ValidationObjectField[] getObjectFields() {
-        return null;
-    }
-
-    @Override
     @Nullable
     @SuppressWarnings("rawtypes")
     public ValidationAdditional[] getAdditional() {
