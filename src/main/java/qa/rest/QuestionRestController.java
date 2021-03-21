@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import qa.dto.request.QuestionCreateRequest;
-import qa.dto.request.QuestionDeleteRequest;
-import qa.dto.request.QuestionEditRequest;
+import qa.dto.request.question.QuestionCreateRequest;
+import qa.dto.request.question.QuestionDeleteRequest;
+import qa.dto.request.question.QuestionEditRequest;
 import qa.service.QuestionService;
 
 @RestController

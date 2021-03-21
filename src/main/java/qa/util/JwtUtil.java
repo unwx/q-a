@@ -2,7 +2,7 @@ package qa.util;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import qa.dto.service.JwtDataDto;
+import qa.dto.internal.JwtDataDto;
 import qa.security.jwt.entity.JwtData;
 import qa.security.jwt.service.JwtProvider;
 

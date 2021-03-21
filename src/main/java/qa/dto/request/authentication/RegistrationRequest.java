@@ -1,19 +1,19 @@
-package qa.dto.request;
+package qa.dto.request.authentication;
 
-public class RegistrationRequestDto {
+public class RegistrationRequest {
     private final String username;
     private final String email;
     private final String password;
 
-    public RegistrationRequestDto(String username,
-                                  String email,
-                                  String password) {
+    public RegistrationRequest(String username,
+                               String email,
+                               String password) {
         this.username = username;
         this.email = email;
         this.password = password;
     }
 
-    public RegistrationRequestDto() {
+    public RegistrationRequest() {
         this.username = null;
         this.email = null;
         this.password = null;

@@ -15,7 +15,7 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     private final AuthenticationDao dao;
 
-    private final Logger logger = LogManager.getLogger(JwtUserDetailsService.class);
+    private final static Logger logger = LogManager.getLogger(JwtUserDetailsService.class);
 
     @Autowired
     public JwtUserDetailsService(AuthenticationDao dao) {

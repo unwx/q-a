@@ -1,4 +1,4 @@
-package qa.dto.request;
+package qa.dto.request.question;
 
 public class QuestionEditRequest {
 

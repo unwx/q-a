@@ -1,4 +1,4 @@
-package qa.dto.service;
+package qa.dto.internal;
 
 public class JwtPairDataDto {
     private final JwtDataDto access;

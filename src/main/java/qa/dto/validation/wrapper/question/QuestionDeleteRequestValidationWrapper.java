@@ -1,7 +1,7 @@
-package qa.dto.validation.wrapper;
+package qa.dto.validation.wrapper.question;
 
 import org.jetbrains.annotations.Nullable;
-import qa.dto.request.QuestionDeleteRequest;
+import qa.dto.request.question.QuestionDeleteRequest;
 import qa.validators.abstraction.ValidationEntity;
 import qa.validators.entities.ValidationNumberField;
 

@@ -25,7 +25,7 @@ public class JwtFilter extends GenericFilterBean {
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final Logger logger = LogManager.getLogger(JwtFilter.class);
+    private final static Logger logger = LogManager.getLogger(JwtFilter.class);
 
     public JwtFilter(JwtProvider jwtTokenProvider) {
         this.jwtProvider = jwtTokenProvider;

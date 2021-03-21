@@ -5,8 +5,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import qa.dto.request.AuthenticationRequestDto;
-import qa.dto.request.RegistrationRequestDto;
+import qa.dto.request.authentication.AuthenticationRequest;
+import qa.dto.request.authentication.RegistrationRequest;
 import qa.dto.response.JwtPairResponseDto;
 import qa.security.jwt.entity.JwtClaims;
 import qa.service.AuthenticationService;
@@ -59,7 +59,7 @@ public class AuthenticationRestController {
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<JwtPairResponseDto> registration(@RequestBody RegistrationRequestDto request) {
+    public ResponseEntity<JwtPairResponseDto> registration(@RequestBody RegistrationRequest request) {
         return authenticationService.registration(request);
     }
 
@@ -97,7 +97,7 @@ public class AuthenticationRestController {
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<JwtPairResponseDto> login(@RequestBody AuthenticationRequestDto request) {
+    public ResponseEntity<JwtPairResponseDto> login(@RequestBody AuthenticationRequest request) {
         return authenticationService.login(request);
     }
 

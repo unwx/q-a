@@ -11,7 +11,7 @@ import java.util.HashMap;
 @Component
 public class PropertySetterFactory {
 
-    private final Logger logger = LogManager.getLogger(PropertySetterFactory.class);
+    private final static Logger logger = LogManager.getLogger(PropertySetterFactory.class);
     public PropertySetterFactory() {}
 
     private final HashMap<String, PropertySetter> propertySetters = new HashMap<>();

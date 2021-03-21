@@ -1,7 +1,7 @@
-package qa.dto.validation.wrapper;
+package qa.dto.validation.wrapper.question;
 
 import org.jetbrains.annotations.Nullable;
-import qa.dto.request.QuestionCreateRequest;
+import qa.dto.request.question.QuestionCreateRequest;
 import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.ValidationEntity;
 import qa.validators.additional.TagsValidator;
@@ -38,14 +38,6 @@ public class QuestionCreateRequestValidationWrapper extends QuestionCreateReques
     public ValidationAdditional[] getAdditional() {
         return new ValidationAdditional[]{
                 new ValidationAdditional(getTags(), new TagsValidator(propertiesDataSource))
-        };
-    }
-
-    @Override
-    @Nullable
-    public ValidationRegexField[] getRegexFields() {
-        return new ValidationRegexField[]{
-                new ValidationRegexField(propertiesDataSource.getQUESTION_TITLE_REGEXP(), new String[]{getTitle()})
         };
     }
 }

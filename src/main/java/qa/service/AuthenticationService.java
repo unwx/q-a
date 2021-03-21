@@ -11,13 +11,13 @@ import qa.dao.databasecomponents.WhereOperator;
 import qa.domain.AuthenticationData;
 import qa.domain.User;
 import qa.domain.UserRoles;
-import qa.dto.request.AuthenticationRequestDto;
-import qa.dto.request.RegistrationRequestDto;
+import qa.dto.request.authentication.AuthenticationRequest;
+import qa.dto.request.authentication.RegistrationRequest;
 import qa.dto.response.JwtPairResponseDto;
-import qa.dto.service.JwtDataDto;
-import qa.dto.service.JwtPairDataDto;
-import qa.dto.validation.wrapper.AuthenticationRequestValidationWrapper;
-import qa.dto.validation.wrapper.RegistrationRequestValidationWrapper;
+import qa.dto.internal.JwtDataDto;
+import qa.dto.internal.JwtPairDataDto;
+import qa.dto.validation.wrapper.authentication.AuthenticationRequestValidationWrapper;
+import qa.dto.validation.wrapper.authentication.RegistrationRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.exceptions.rest.UnauthorizedException;
 import qa.exceptions.validator.ValidationException;
@@ -46,11 +46,11 @@ public class AuthenticationService {
         this.jwtUtil = jwtUtil;
     }
 
-    public ResponseEntity<JwtPairResponseDto> login(AuthenticationRequestDto request) {
+    public ResponseEntity<JwtPairResponseDto> login(AuthenticationRequest request) {
         return new ResponseEntity<>(loginProcess(request), HttpStatus.OK);
     }
 
-    public ResponseEntity<JwtPairResponseDto> registration(RegistrationRequestDto request) {
+    public ResponseEntity<JwtPairResponseDto> registration(RegistrationRequest request) {
         return new ResponseEntity<>(registrationProcess(request), HttpStatus.OK);
     }
 
@@ -58,7 +58,7 @@ public class AuthenticationService {
         return new ResponseEntity<>(refreshTokensProcess(email), HttpStatus.OK);
     }
 
-    private JwtPairResponseDto loginProcess(AuthenticationRequestDto request) {
+    private JwtPairResponseDto loginProcess(AuthenticationRequest request) {
         validate(request);
         AuthenticationData data = new AuthenticationData.Builder()
                 .email(request.getEmail())
@@ -70,7 +70,7 @@ public class AuthenticationService {
         return new JwtPairResponseDto(dto.getAccess().getToken(), dto.getRefresh().getToken());
     }
 
-    private JwtPairResponseDto registrationProcess(RegistrationRequestDto request) {
+    private JwtPairResponseDto registrationProcess(RegistrationRequest request) {
         validate(request);
         alreadyExistException(request);
         JwtPairDataDto dto = getTokens(request.getEmail());
@@ -96,7 +96,7 @@ public class AuthenticationService {
         return new JwtPairResponseDto(dto.getAccess().getToken(), dto.getRefresh().getToken());
     }
 
-    private void validate(AuthenticationRequestDto request) {
+    private void validate(AuthenticationRequest request) {
         AuthenticationRequestValidationWrapper validationWrapper = new AuthenticationRequestValidationWrapper(request, propertiesDataSource);
         try {
             chainValidator.validateWithAdditionalValidator(validationWrapper);
@@ -105,7 +105,7 @@ public class AuthenticationService {
         }
     }
 
-    private void validate(RegistrationRequestDto request) {
+    private void validate(RegistrationRequest request) {
         RegistrationRequestValidationWrapper validationWrapper = new RegistrationRequestValidationWrapper(request, propertiesDataSource);
         try {
             chainValidator.validateWithAdditionalValidator(validationWrapper);
@@ -134,7 +134,7 @@ public class AuthenticationService {
         authenticationDao.update(new Where("email", email, WhereOperator.EQUALS), data, "AuthenticationData");
     }
 
-    private boolean isUserAlreadyExist(RegistrationRequestDto request) {
+    private boolean isUserAlreadyExist(RegistrationRequest request) {
         String[] fieldsName = new String[] {
                 "id"
         };
@@ -144,7 +144,7 @@ public class AuthenticationService {
         return data != null;
     }
 
-    private void alreadyExistException(RegistrationRequestDto request) {
+    private void alreadyExistException(RegistrationRequest request) {
         if (isUserAlreadyExist(request))
             throw new BadRequestException("user already exist.");
     }

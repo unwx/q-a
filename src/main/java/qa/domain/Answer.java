@@ -8,6 +8,7 @@ import qa.dao.databasecomponents.FieldExtractor;
 import qa.domain.setters.SetterField;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -24,24 +25,30 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor {
     @Column(name = "adopted", nullable = false)
     private Boolean adopted;
 
+    @Column(name = "creation_date", nullable = false, updatable = false)
+    private Date creationDate;
+
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class, cascade = {
-            CascadeType.REFRESH, CascadeType.MERGE
+            CascadeType.REFRESH, CascadeType.MERGE, CascadeType.DETACH
     })
     @JoinColumn(name = "author_id", nullable = false, updatable = false)
     private User author;
 
-    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Question.class, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY, targetEntity = Question.class, cascade = {
+            CascadeType.MERGE, CascadeType.REFRESH, CascadeType.DETACH
+    })
     @JoinColumn(name = "question_id", nullable = false, updatable = false)
     private Question question;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "answer_comment_id") // TODO sever
+    @JoinColumn(name = "answer_comment_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<AnswerComment> comments;
 
     public Answer(Long id,
                   String text,
                   Boolean adopted,
+                  Date creationDate,
                   User author,
                   Question question,
                   List<AnswerComment> comments) {
@@ -51,10 +58,12 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor {
         this.author = author;
         this.question = question;
         this.comments = comments;
+        this.creationDate = creationDate;
     }
 
     public Answer(String text,
                   Boolean adopted,
+                  Date creationDate,
                   User author,
                   Question question,
                   List<AnswerComment> comments) {
@@ -63,6 +72,7 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor {
         this.author = author;
         this.question = question;
         this.comments = comments;
+        this.creationDate = creationDate;
     }
 
     public Answer() {
@@ -87,6 +97,14 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor {
 
     public Boolean getAdopted() {
         return adopted;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 
     public void setAdopted(Boolean adopted) {
@@ -122,6 +140,7 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor {
         return new SetterField[]{
                 new SetterField("id", Long.class),
                 new SetterField("text", String.class),
+                new SetterField("creationDate", Date.class),
                 new SetterField("adopted", Boolean.class),
                 new SetterField("author", User.class),
                 new SetterField("question", Question.class),
@@ -133,6 +152,7 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor {
         return new Field[]{
                 new Field("id", id),
                 new Field("text", text),
+                new Field("creationDate", creationDate),
                 new Field("adopted", adopted),
                 new Field("author", author),
                 new Field("question", question),
@@ -159,6 +179,11 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor {
 
         public Builder adopted(Boolean adopted) {
             answer.adopted = adopted;
+            return this;
+        }
+
+        public Builder creationDate(Date creationDate) {
+            answer.creationDate = creationDate;
             return this;
         }
 

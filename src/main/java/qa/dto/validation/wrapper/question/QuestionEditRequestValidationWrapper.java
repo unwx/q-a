@@ -1,7 +1,7 @@
-package qa.dto.validation.wrapper;
+package qa.dto.validation.wrapper.question;
 
 import org.jetbrains.annotations.Nullable;
-import qa.dto.request.QuestionEditRequest;
+import qa.dto.request.question.QuestionEditRequest;
 import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.ValidationEntity;
 import qa.validators.additional.TagsValidator;

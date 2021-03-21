@@ -14,12 +14,12 @@ import qa.dao.databasecomponents.WhereOperator;
 import qa.domain.Question;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
-import qa.dto.request.QuestionCreateRequest;
-import qa.dto.request.QuestionDeleteRequest;
-import qa.dto.request.QuestionEditRequest;
-import qa.dto.validation.wrapper.QuestionCreateRequestValidationWrapper;
-import qa.dto.validation.wrapper.QuestionDeleteRequestValidationWrapper;
-import qa.dto.validation.wrapper.QuestionEditRequestValidationWrapper;
+import qa.dto.request.question.QuestionCreateRequest;
+import qa.dto.request.question.QuestionDeleteRequest;
+import qa.dto.request.question.QuestionEditRequest;
+import qa.dto.validation.wrapper.question.QuestionCreateRequestValidationWrapper;
+import qa.dto.validation.wrapper.question.QuestionDeleteRequestValidationWrapper;
+import qa.dto.validation.wrapper.question.QuestionEditRequestValidationWrapper;
 import qa.exceptions.rest.AccessDeniedException;
 import qa.exceptions.rest.BadRequestException;
 import qa.exceptions.service.internal.AuthorNotExistException;
@@ -40,7 +40,7 @@ public class QuestionService {
     private final ValidationChainAdditional validationChain;
     private final PropertySetterFactory propertySetterFactory;
 
-    private final Logger logger = LogManager.getLogger(QuestionService.class);
+    private final static Logger logger = LogManager.getLogger(QuestionService.class);
 
     public QuestionService(QuestionDao questionDao,
                            ValidationPropertyDataSource validationPropertyDataSource,
