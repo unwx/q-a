@@ -15,8 +15,10 @@ import qa.domain.Question;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.QuestionCreateRequest;
+import qa.dto.request.QuestionDeleteRequest;
 import qa.dto.request.QuestionEditRequest;
 import qa.dto.validation.wrapper.QuestionCreateRequestValidationWrapper;
+import qa.dto.validation.wrapper.QuestionDeleteRequestValidationWrapper;
 import qa.dto.validation.wrapper.QuestionEditRequestValidationWrapper;
 import qa.exceptions.rest.AccessDeniedException;
 import qa.exceptions.rest.BadRequestException;
@@ -59,6 +61,11 @@ public class QuestionService {
         return new ResponseEntity<>(200, HttpStatus.OK);
     }
 
+    public ResponseEntity<Integer> deleteQuestion(QuestionDeleteRequest request, Authentication authentication) {
+        deleteQuestionProcess(request, authentication);
+        return new ResponseEntity<>(200, HttpStatus.OK);
+    }
+
     private Long createQuestionProcess(QuestionCreateRequest request, Authentication authentication) {
         validationProcess(request);
         return saveNewQuestion(request, authentication);
@@ -66,8 +73,14 @@ public class QuestionService {
 
     private void editQuestionProcess(QuestionEditRequest request, Authentication authentication) {
         validationProcess(request);
-        checkIsRealAuthor(request, PrincipalUtil.getUserIdFromAuthentication(authentication));
+        checkIsRealAuthor(request.getId(), PrincipalUtil.getUserIdFromAuthentication(authentication));
         saveEditedQuestion(request);
+    }
+
+    private void deleteQuestionProcess(QuestionDeleteRequest request, Authentication authentication) {
+        validationProcess(request);
+        checkIsRealAuthor(request.getId(), PrincipalUtil.getUserIdFromAuthentication(authentication));
+        deleteQuestionById(request.getId());
     }
 
     private Long saveNewQuestion(QuestionCreateRequest request, Authentication authentication) {
@@ -93,23 +106,27 @@ public class QuestionService {
                 "Question");
     }
 
-    private void checkIsRealAuthor(QuestionEditRequest request, Long userId) {
-        if (!isRealAuthor(request, userId)) {
-            throw new AccessDeniedException("you do not have permission to edit this question");
+    private void deleteQuestionById(Long questionId) {
+        questionDao.delete(Question.class, new Where("id", questionId, WhereOperator.EQUALS));
+    }
+
+    private void checkIsRealAuthor(Long requestId, Long userId) {
+        if (!isRealAuthor(requestId, userId)) {
+            throw new AccessDeniedException("you do not have permission to this question");
         }
     }
 
-    private boolean isRealAuthor(QuestionEditRequest request, Long userId) {
+    private boolean isRealAuthor(Long requestId, Long userId) {
         Question question = questionDao.read(
-                new Where("id", request.getId(), WhereOperator.EQUALS),
+                new Where("id", requestId, WhereOperator.EQUALS),
                 new Table(new String[]{}, "Question"),
                 Collections.singletonList(new NestedEntity(new String[]{"id"}, User.class, "author", propertySetterFactory.getSetter(new User())))
         );
         if (question == null)
-            questionNotExistProcess(request.getId());
+            questionNotExistProcess(requestId);
 
         if (question.getAuthor() == null)
-            authorNotExistProcess(request.getId());
+            authorNotExistProcess(requestId);
 
         return question.getAuthor().getId().equals(userId);
     }
@@ -144,6 +161,15 @@ public class QuestionService {
         QuestionEditRequestValidationWrapper requestValidationWrapper = new QuestionEditRequestValidationWrapper(request, validationPropertyDataSource);
         try {
             validationChain.validateWithAdditionalValidator(requestValidationWrapper);
+        } catch (ValidationException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    private void validationProcess(QuestionDeleteRequest request) {
+        QuestionDeleteRequestValidationWrapper requestValidationWrapper = new QuestionDeleteRequestValidationWrapper(request);
+        try {
+            validationChain.validate(requestValidationWrapper);
         } catch (ValidationException e) {
             throw new BadRequestException(e.getMessage());
         }

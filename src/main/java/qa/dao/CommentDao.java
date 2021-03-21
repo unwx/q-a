@@ -59,7 +59,7 @@ public class CommentDao implements Dao<Comment, Long> {
     }
 
     @Override
-    public void delete(@NotNull final Comment comment) {
-        dao.delete(comment);
+    public void delete(@NotNull final Class<Comment> clazz, @NotNull final Where where) {
+        dao.delete(clazz, where);
     }
 }

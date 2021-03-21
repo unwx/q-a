@@ -18,7 +18,8 @@ public class QuestionEditRequestValidationWrapper extends QuestionEditRequest im
     }
 
     @Override
-    public @Nullable ValidationStringField[] getStringFields() {
+    @Nullable
+    public ValidationStringField[] getStringFields() {
         return new ValidationStringField[]{
                 new ValidationStringField(
                         getText(),
@@ -28,9 +29,10 @@ public class QuestionEditRequestValidationWrapper extends QuestionEditRequest im
     }
 
     @Override
-        public @Nullable ValidationNumberField[] getNumberFields() {
+    @Nullable
+    public ValidationNumberField[] getNumberFields() {
         return new ValidationNumberField[]{
-                new ValidationNumberField(getId(), -1L, -1L)
+                new ValidationNumberField(getId(), -1L, 0L)
         };
     }
 

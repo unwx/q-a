@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import qa.dto.request.QuestionCreateRequest;
+import qa.dto.request.QuestionDeleteRequest;
 import qa.dto.request.QuestionEditRequest;
 import qa.service.QuestionService;
 
@@ -64,7 +65,7 @@ public class QuestionRestController {
      * /api/v1/question/create
      *
      * @method
-     * post
+     * put
      *
      * @request
      * Dto {
@@ -93,5 +94,36 @@ public class QuestionRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Integer> editQuestion(@RequestBody QuestionEditRequest request, Authentication authentication) {
         return questionService.editQuestion(request, authentication);
+    }
+
+    /**
+     * @uri
+     * /api/v1/question/delete
+     *
+     * @method
+     * delete
+     *
+     * @request
+     * id: long
+     *
+     * @response
+     * OK:
+     * http status: int (NOT JSON)
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "delete",
+            method = RequestMethod.DELETE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Integer> deleteQuestion(@RequestBody QuestionDeleteRequest request, Authentication authentication) {
+        return questionService.deleteQuestion(request, authentication);
     }
 }

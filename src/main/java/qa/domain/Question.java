@@ -1,5 +1,7 @@
 package qa.domain;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.FieldDataSetterExtractor;
 import qa.dao.databasecomponents.FieldExtractor;
@@ -41,9 +43,12 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
     private User author;
 
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Answer> answers;
 
     @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "question_comment_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Comment> comments;
 
     public Question(Long id,
@@ -82,6 +87,10 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
         this.author = author;
         this.answers = answers;
         this.comments = comments;
+    }
+
+    public Question(Long id) {
+        this.id = id;
     }
 
     public Question() {

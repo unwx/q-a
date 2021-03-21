@@ -46,6 +46,14 @@ public class HqlBuilder {
         return new ImmutablePair<>(hqlBuilder.toString(), fields);
     }
 
+    public String delete(String className, Where where) {
+        StringBuilder hqlBuilder = new StringBuilder();
+        prepareToDelete(className, hqlBuilder);
+        from(className, hqlBuilder);
+        where(where, hqlBuilder);
+        return hqlBuilder.toString();
+    }
+
     private void selectProcess(Table target, List<NestedEntity> nested, StringBuilder hqlBuilder) {
         String[] as = asGenerate("a", target.getFieldNames().length);
         select(target, tl, as, hqlBuilder);
@@ -137,6 +145,11 @@ public class HqlBuilder {
         hqlBuilder.append("select ");
     }
 
+    private void prepareToDelete(String className, StringBuilder hqlBuilder) {
+        hqlBuilder
+                .append("delete");
+    }
+
     private void prepareForUpdate(String className, StringBuilder hqlBuilder) {
         hqlBuilder
                 .append("update ")
@@ -167,6 +180,15 @@ public class HqlBuilder {
                 .append("=:")
                 .append(abb)
                 .append(',');
+    }
+
+    private void from(String className, StringBuilder hqlBuilder) {
+        hqlBuilder
+                .append(" from ")
+                .append(className)
+                .append(' ')
+                .append(tl)
+                .append(' ');
     }
 
     private void from(Table t, StringBuilder hqlBuilder) {

@@ -61,7 +61,7 @@ public class UserDao implements Dao<User, Long> {
     }
 
     @Override
-    public void delete(@NotNull final User user) {
-        dao.delete(user);
+    public void delete(@NotNull final Class<User> clazz, @NotNull final Where where) {
+        dao.delete(clazz, where);
     }
 }

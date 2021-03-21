@@ -234,4 +234,17 @@ public class HqlBuilderTest {
             assertThat(requiredF[i].getValue(), equalTo(pair.right[i].getValue()));
         }
     }
+
+    @Test
+    public void deleteTest() {
+        String className = "Entity";
+        Where where = new Where("id", 5L, WhereOperator.EQUALS);
+        String required =
+                """
+                delete from Entity a\s\
+                where a.id=:a\
+                """;
+        String result = entityHqlBuilder.delete(className, where);
+        assertThat(required, equalTo(result));
+    }
 }

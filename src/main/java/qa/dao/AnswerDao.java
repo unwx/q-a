@@ -58,7 +58,7 @@ public class AnswerDao implements Dao<Answer, Long> {
     }
 
     @Override
-    public void delete(@NotNull final Answer answer) {
-        dao.delete(answer);
+    public void delete(@NotNull final Class<Answer> clazz, @NotNull final Where where) {
+        dao.delete(clazz, where);
     }
 }

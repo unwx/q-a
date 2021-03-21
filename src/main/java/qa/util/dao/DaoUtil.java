@@ -14,4 +14,6 @@ public interface DaoUtil<Entity> {
     List<Entity> readList(final Where where, final Table target, final Session session);
 
     void update(final Where where, final Entity entity, final String className, final Session session);
+
+    void delete(final String className, final Where where, final Session session);
 }

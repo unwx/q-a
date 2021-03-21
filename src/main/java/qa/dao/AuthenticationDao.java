@@ -64,8 +64,8 @@ public class AuthenticationDao implements Dao<AuthenticationData, Long> {
     }
 
     @Override
-    public void delete(@NotNull final AuthenticationData data) {
-        dao.delete(data);
+    public void delete(@NotNull final Class<AuthenticationData> clazz, @NotNull final Where where) {
+        dao.delete(clazz, where);
     }
 
     public boolean isEmailPasswordCorrect(String email, String password) {

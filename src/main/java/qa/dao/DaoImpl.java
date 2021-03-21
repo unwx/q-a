@@ -75,11 +75,9 @@ final class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor> im
     }
 
     @Override
-    public void delete(final Entity e) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.delete(e);
-            transaction.commit();
+    public void delete(final Class<Entity> clazz, final Where where) {
+        try(Session session = sessionFactory.openSession()) {
+            daoUtil.delete(clazz.getName(), where, session);
         }
     }
 }

@@ -33,9 +33,9 @@ public interface Dao<Entity, Key> {
 
     List<Entity> readMany(final Where where, final Table target);
 
-    void update(final Where where, final Entity entity, String className);
+    void update(final Where where, final Entity entity, final String className);
 
     void updateEager(final Entity entity);
 
-    void delete(final Entity entity);
+    void delete(final Class<Entity> clazz, final Where where);
 }
