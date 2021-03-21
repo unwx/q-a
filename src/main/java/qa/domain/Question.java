@@ -49,7 +49,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "question_comment_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Comment> comments;
+    private List<QuestionComment> comments;
 
     public Question(Long id,
                     String text,
@@ -59,7 +59,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
                     String tags,
                     User author,
                     List<Answer> answers,
-                    List<Comment> comments) {
+                    List<QuestionComment> comments) {
         this.id = id;
         this.text = text;
         this.title = title;
@@ -78,7 +78,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
                     String tags,
                     User author,
                     List<Answer> answers,
-                    List<Comment> comments) {
+                    List<QuestionComment> comments) {
         this.text = text;
         this.title = title;
         this.creationDate = creationDate;
@@ -153,11 +153,11 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
         this.answers = answers;
     }
 
-    public List<Comment> getComments() {
+    public List<QuestionComment> getComments() {
         return comments;
     }
 
-    public void setComments(List<Comment> comments) {
+    public void setComments(List<QuestionComment> comments) {
         this.comments = comments;
     }
 
@@ -243,7 +243,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
             return this;
         }
 
-        public Builder comments(List<Comment> comments) {
+        public Builder comments(List<QuestionComment> comments) {
             question.comments = comments;
             return this;
         }

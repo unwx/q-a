@@ -9,6 +9,8 @@ import javax.persistence.*;
 
 @Entity
 @Table
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="comment_type", discriminatorType = DiscriminatorType.STRING)
 public class Comment implements FieldExtractor, FieldDataSetterExtractor {
 
     @Id

@@ -48,7 +48,7 @@ public class HqlBuilder {
 
     public String delete(String className, Where where) {
         StringBuilder hqlBuilder = new StringBuilder();
-        prepareToDelete(className, hqlBuilder);
+        prepareToDelete(hqlBuilder);
         from(className, hqlBuilder);
         where(where, hqlBuilder);
         return hqlBuilder.toString();
@@ -145,7 +145,7 @@ public class HqlBuilder {
         hqlBuilder.append("select ");
     }
 
-    private void prepareToDelete(String className, StringBuilder hqlBuilder) {
+    private void prepareToDelete(StringBuilder hqlBuilder) {
         hqlBuilder
                 .append("delete");
     }
