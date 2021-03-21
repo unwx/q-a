@@ -3,69 +3,54 @@ package qa.validators.chain;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qa.exceptions.validator.ValidationException;
-import qa.validators.abstraction.ValidationChain;
+import qa.validators.abstraction.ValidationEntity;
 import qa.validators.abstraction.ValidationField;
 import qa.validators.abstraction.Validator;
-import qa.validators.abstraction.ValidationEntity;
 import qa.validators.entities.*;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
 
 /**
  * part of the validation chain.
  * <p></p>
  * if there are no required fields, <h3>return null!</h3>
  */
-public class NullValidator extends Validator implements ValidationChain {
+public class NullValidator extends Validator {
 
-    private final List<ValidationIgnoreType> ignore = new LinkedList<>();
+    private final static Logger logger = LogManager.getLogger(NullValidator.class);
 
-    private final Logger logger = LogManager.getLogger(NullValidator.class);
-
-    @Override
-    public void validate(ValidationEntity entity) throws ValidationException {
-        areAttributesAreNotNull(entity);
+    public void validate(ValidationEntity entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
+        areAttributesAreNotNull(entity, ignore);
     }
 
-    private void areAttributesAreNotNull(ValidationEntity entity) throws ValidationException {
-        objectPart(entity);
-        stringPart(entity);
-        numberPart(entity);
-        regexPart(entity);
+    private void areAttributesAreNotNull(ValidationEntity entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
+        objectPart(entity, ignore);
+        stringPart(entity, ignore);
+        numberPart(entity, ignore);
+        regexPart(entity, ignore);
     }
 
-    private void objectPart(ValidationEntity entity) throws ValidationException {
+    private void objectPart(ValidationEntity entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
         ValidationObjectField[] objectsFields = entity.getObjectFields();
-        ignoreProcess(objectsFields, ValidationIgnoreType.OBJECT);
-        nullValidationProcess(objectsFields, ValidationIgnoreType.OBJECT);
+        nullValidationProcess(objectsFields, ValidationIgnoreType.OBJECT, ignore);
     }
 
-    private void stringPart(ValidationEntity entity) throws ValidationException {
+    private void stringPart(ValidationEntity entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
         ValidationStringField[] stringFields = entity.getStringFields();
-        ignoreProcess(stringFields, ValidationIgnoreType.STRING);
-        nullValidationProcess(stringFields, ValidationIgnoreType.STRING);
+        nullValidationProcess(stringFields, ValidationIgnoreType.STRING, ignore);
     }
 
-    private void numberPart(ValidationEntity entity) throws ValidationException {
+    private void numberPart(ValidationEntity entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
         ValidationNumberField[] numberFields = entity.getNumberFields();
-        ignoreProcess(numberFields, ValidationIgnoreType.NUMBER);
-        nullValidationProcess(numberFields, ValidationIgnoreType.NUMBER);
+        nullValidationProcess(numberFields, ValidationIgnoreType.NUMBER, ignore);
     }
 
-    private void regexPart(ValidationEntity entity) throws ValidationException {
+    private void regexPart(ValidationEntity entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
         ValidationRegexField[] regexFields = entity.getRegexFields();
-        ignoreProcess(regexFields, ValidationIgnoreType.REGEX);
-        nullValidationProcess(regexFields, ValidationIgnoreType.REGEX);
+        nullValidationProcess(regexFields, ValidationIgnoreType.REGEX, ignore);
     }
 
-
-    private void ignoreProcess(Object[] objects, ValidationIgnoreType type) {
-        if (objects == null)
-            ignore.add(type);
-    }
-
-    private void nullValidationProcess(ValidationField[] fields, ValidationIgnoreType type) throws ValidationException {
+    private void nullValidationProcess(ValidationField[] fields, ValidationIgnoreType type, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
         if (ignore.contains(type))
             return;
 
@@ -78,9 +63,5 @@ public class NullValidator extends Validator implements ValidationChain {
                 }
             }
         }
-    }
-
-    public List<ValidationIgnoreType> getIgnore() {
-        return ignore;
     }
 }

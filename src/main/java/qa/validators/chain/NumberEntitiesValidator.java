@@ -3,16 +3,14 @@ package qa.validators.chain;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qa.exceptions.validator.ValidationException;
-import qa.validators.abstraction.ValidationChain;
-import qa.validators.abstraction.Validator;
 import qa.validators.abstraction.ValidationEntity;
+import qa.validators.abstraction.Validator;
 import qa.validators.entities.ValidationNumberField;
 
-public class NumberEntitiesValidator extends Validator implements ValidationChain {
+public class NumberEntitiesValidator extends Validator {
 
-    private final Logger logger = LogManager.getLogger(NumberEntitiesValidator.class);
+    private final static Logger logger = LogManager.getLogger(NumberEntitiesValidator.class);
 
-    @Override
     public void validate(ValidationEntity entity) throws ValidationException {
         valuesValidate(entity);
     }

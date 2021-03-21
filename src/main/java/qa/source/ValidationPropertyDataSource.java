@@ -63,9 +63,6 @@ public class ValidationPropertyDataSource {
     @Value("${question.title.length.max}")
     private Integer QUESTION_TITLE_LENGTH_MAX;
 
-    @Value("${question.title.regexp}")
-    private String QUESTION_TITLE_REGEXP;
-
     @Value("${question.text.length.max}")
     private Integer QUESTION_TEXT_LENGTH_MAX;
 
@@ -123,10 +120,6 @@ public class ValidationPropertyDataSource {
 
     public Integer getQUESTION_TAGS_COUNT_MAX() {
         return QUESTION_TAGS_COUNT_MAX;
-    }
-
-    public String getQUESTION_TITLE_REGEXP() {
-        return QUESTION_TITLE_REGEXP;
     }
 
     public Integer getQUESTION_TAG_LENGTH_MIN() {
