@@ -1,5 +1,6 @@
 package qa.rest;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -76,8 +77,7 @@ public class QuestionRestController {
      * }
      *
      * @response
-     * OK:
-     * http status: int (NOT JSON)
+     * OK: (200)
      *
      * 400 | 401 | 403:
      * Message {
@@ -92,7 +92,7 @@ public class QuestionRestController {
             value = "edit",
             method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Integer> editQuestion(@RequestBody QuestionEditRequest request, Authentication authentication) {
+    public ResponseEntity<HttpStatus> editQuestion(@RequestBody QuestionEditRequest request, Authentication authentication) {
         return questionService.editQuestion(request, authentication);
     }
 
@@ -107,8 +107,7 @@ public class QuestionRestController {
      * id: long
      *
      * @response
-     * OK:
-     * http status: int (NOT JSON)
+     * OK: (200)
      *
      * 400 | 401 | 403:
      * Message {
@@ -123,7 +122,7 @@ public class QuestionRestController {
             value = "delete",
             method = RequestMethod.DELETE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Integer> deleteQuestion(@RequestBody QuestionDeleteRequest request, Authentication authentication) {
+    public ResponseEntity<HttpStatus> deleteQuestion(@RequestBody QuestionDeleteRequest request, Authentication authentication) {
         return questionService.deleteQuestion(request, authentication);
     }
 }

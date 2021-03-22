@@ -7,8 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import qa.dao.QuestionDao;
-import qa.dao.databasecomponents.NestedEntity;
-import qa.dao.databasecomponents.Table;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.domain.Question;
@@ -20,16 +18,14 @@ import qa.dto.request.question.QuestionEditRequest;
 import qa.dto.validation.wrapper.question.QuestionCreateRequestValidationWrapper;
 import qa.dto.validation.wrapper.question.QuestionDeleteRequestValidationWrapper;
 import qa.dto.validation.wrapper.question.QuestionEditRequestValidationWrapper;
-import qa.exceptions.rest.AccessDeniedException;
 import qa.exceptions.rest.BadRequestException;
-import qa.exceptions.service.internal.AuthorNotExistException;
 import qa.exceptions.validator.ValidationException;
 import qa.source.ValidationPropertyDataSource;
+import qa.util.AuthorUtil;
 import qa.util.PrincipalUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 
 @Service
@@ -56,14 +52,14 @@ public class QuestionService {
         return new ResponseEntity<>(createQuestionProcess(request, authentication), HttpStatus.OK);
     }
 
-    public ResponseEntity<Integer> editQuestion(QuestionEditRequest request, Authentication authentication) {
+    public ResponseEntity<HttpStatus> editQuestion(QuestionEditRequest request, Authentication authentication) {
         editQuestionProcess(request, authentication);
-        return new ResponseEntity<>(200, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    public ResponseEntity<Integer> deleteQuestion(QuestionDeleteRequest request, Authentication authentication) {
+    public ResponseEntity<HttpStatus> deleteQuestion(QuestionDeleteRequest request, Authentication authentication) {
         deleteQuestionProcess(request, authentication);
-        return new ResponseEntity<>(200, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private Long createQuestionProcess(QuestionCreateRequest request, Authentication authentication) {
@@ -73,13 +69,13 @@ public class QuestionService {
 
     private void editQuestionProcess(QuestionEditRequest request, Authentication authentication) {
         validationProcess(request);
-        checkIsRealAuthor(request.getId(), PrincipalUtil.getUserIdFromAuthentication(authentication));
+        checkIsRealAuthor(request.getId(), authentication);
         saveEditedQuestion(request);
     }
 
     private void deleteQuestionProcess(QuestionDeleteRequest request, Authentication authentication) {
         validationProcess(request);
-        checkIsRealAuthor(request.getId(), PrincipalUtil.getUserIdFromAuthentication(authentication));
+        checkIsRealAuthor(request.getId(), authentication);
         deleteQuestionById(request.getId());
     }
 
@@ -95,6 +91,16 @@ public class QuestionService {
         return questionDao.create(question);
     }
 
+    private void checkIsRealAuthor(Long id, Authentication authentication) {
+        AuthorUtil.checkIsRealAuthor(
+                PrincipalUtil.getUserIdFromAuthentication(authentication),
+                new Where("id", id, WhereOperator.EQUALS),
+                Question.class,
+                questionDao,
+                propertySetterFactory,
+                logger);
+    }
+
     private void saveEditedQuestion(QuestionEditRequest request) {
         questionDao.update(
                 new Where("id", request.getId(), WhereOperator.EQUALS),
@@ -108,37 +114,6 @@ public class QuestionService {
 
     private void deleteQuestionById(Long questionId) {
         questionDao.delete(Question.class, new Where("id", questionId, WhereOperator.EQUALS));
-    }
-
-    private void checkIsRealAuthor(Long requestId, Long userId) {
-        if (!isRealAuthor(requestId, userId)) {
-            throw new AccessDeniedException("you do not have permission to this question");
-        }
-    }
-
-    private boolean isRealAuthor(Long requestId, Long userId) {
-        Question question = questionDao.read(
-                new Where("id", requestId, WhereOperator.EQUALS),
-                new Table(new String[]{}, "Question"),
-                Collections.singletonList(new NestedEntity(new String[]{"id"}, User.class, "author", propertySetterFactory.getSetter(new User())))
-        );
-        if (question == null)
-            questionNotExistProcess(requestId);
-
-        if (question.getAuthor() == null)
-            authorNotExistProcess(requestId);
-
-        return question.getAuthor().getId().equals(userId);
-    }
-
-    private void questionNotExistProcess(Long id) {
-        throw new BadRequestException("this question doesn't exist. id: " + id);
-    }
-
-    private void authorNotExistProcess(Long id) {
-        String message = "question id: " + id + ". Author not exist";
-        logger.error(message);
-        throw new AuthorNotExistException(message);
     }
 
     private String tagsArrayToString(String[] tags) {

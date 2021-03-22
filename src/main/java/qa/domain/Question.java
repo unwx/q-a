@@ -6,6 +6,7 @@ import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.FieldDataSetterExtractor;
 import qa.dao.databasecomponents.FieldExtractor;
 import qa.domain.setters.SetterField;
+import qa.util.access.HasAuthor;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @Entity
 @Table
-public class Question implements FieldExtractor, FieldDataSetterExtractor {
+public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAuthor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -137,6 +138,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor {
         this.tags = tags;
     }
 
+    @Override
     public User getAuthor() {
         return author;
     }

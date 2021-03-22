@@ -3,11 +3,11 @@ package qa.dto.validation.wrapper.authentication;
 import org.jetbrains.annotations.Nullable;
 import qa.dto.request.authentication.AuthenticationRequest;
 import qa.source.ValidationPropertyDataSource;
-import qa.validators.abstraction.ValidationEntity;
+import qa.validators.abstraction.ValidationWrapper;
 import qa.validators.additional.EmailValidator;
 import qa.validators.entities.*;
 
-public class AuthenticationRequestValidationWrapper extends AuthenticationRequest implements ValidationEntity {
+public class AuthenticationRequestValidationWrapper extends AuthenticationRequest implements ValidationWrapper {
 
     private final ValidationPropertyDataSource propertiesDataSource;
     public AuthenticationRequestValidationWrapper(AuthenticationRequest dto,

@@ -1,5 +1,6 @@
 package qa.rest;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import qa.dto.request.answer.AnswerCreateRequest;
+import qa.dto.request.answer.AnswerEditRequest;
 import qa.service.AnswerService;
 
 @RestController
@@ -32,7 +34,7 @@ public class AnswerRestController {
      * @request
      * Dto {
      *     question_id: long
-     *     test: string|length(min = 20; max = 2000)
+     *     text: string|length(min = 20; max = 2000)
      * }
      *
      * @response
@@ -54,5 +56,39 @@ public class AnswerRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> createAnswer(@RequestBody AnswerCreateRequest request, Authentication authentication) {
         return answerService.createAnswer(request, authentication);
+    }
+
+
+    /**
+     * @uri
+     * /api/v1/answer/edit
+     *
+     * @method
+     * put
+     *
+     * @request
+     * Dto {
+     *     id: long
+     *     text: string|length(min = 20; max = 2000)
+     * }
+     *
+     * @response
+     * OK: (200)
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "edit",
+            method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> editAnswer(@RequestBody AnswerEditRequest request, Authentication authentication) {
+        return answerService.editAnswer(request, authentication);
     }
 }

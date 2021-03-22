@@ -3,11 +3,11 @@ package qa.dto.validation.wrapper.question;
 import org.jetbrains.annotations.Nullable;
 import qa.dto.request.question.QuestionEditRequest;
 import qa.source.ValidationPropertyDataSource;
-import qa.validators.abstraction.ValidationEntity;
+import qa.validators.abstraction.ValidationWrapper;
 import qa.validators.additional.TagsValidator;
 import qa.validators.entities.*;
 
-public class QuestionEditRequestValidationWrapper extends QuestionEditRequest implements ValidationEntity {
+public class QuestionEditRequestValidationWrapper extends QuestionEditRequest implements ValidationWrapper {
 
     private final ValidationPropertyDataSource propertyDataSource;
 

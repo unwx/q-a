@@ -7,7 +7,7 @@ import qa.validators.entities.*;
  * <h3>fill in only the fields you need for validation</h3>
  * <h2>null = ignore</h2>
  */
-public interface ValidationEntity {
+public interface ValidationWrapper {
     @Nullable
     default ValidationStringField[] getStringFields() {
         return null;

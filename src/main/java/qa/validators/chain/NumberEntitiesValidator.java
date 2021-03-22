@@ -3,7 +3,7 @@ package qa.validators.chain;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qa.exceptions.validator.ValidationException;
-import qa.validators.abstraction.ValidationEntity;
+import qa.validators.abstraction.ValidationWrapper;
 import qa.validators.abstraction.Validator;
 import qa.validators.entities.ValidationNumberField;
 
@@ -11,11 +11,11 @@ public class NumberEntitiesValidator extends Validator {
 
     private final static Logger logger = LogManager.getLogger(NumberEntitiesValidator.class);
 
-    public void validate(ValidationEntity entity) throws ValidationException {
+    public void validate(ValidationWrapper entity) throws ValidationException {
         valuesValidate(entity);
     }
 
-    private void valuesValidate(ValidationEntity entity) throws ValidationException {
+    private void valuesValidate(ValidationWrapper entity) throws ValidationException {
         ValidationNumberField[] fields = entity.getNumberFields();
         for (ValidationNumberField f : fields) {
             if (f.getMax() != -1 && f.getNum() > f.getMax() || f.getMin() != -1 && f.getNum() < f.getMin()) {
