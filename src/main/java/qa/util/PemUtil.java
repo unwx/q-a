@@ -18,6 +18,9 @@ import java.security.spec.X509EncodedKeySpec;
 
 public class PemUtil {
 
+    private PemUtil() {
+    }
+
     private static byte[] parsePEMFile(File pemFile) throws IOException {
         if (!pemFile.isFile() || !pemFile.exists()) {
             throw new FileNotFoundException(String.format("The file '%s' doesn't exist.", pemFile.getAbsolutePath()));

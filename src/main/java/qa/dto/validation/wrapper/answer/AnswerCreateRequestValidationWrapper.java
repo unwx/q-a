@@ -22,8 +22,8 @@ public class AnswerCreateRequestValidationWrapper extends AnswerCreateRequest im
         return new ValidationStringField[] {
                 new ValidationStringField(
                         getText(),
-                        propertyDataSource.getANSWER_TEXT_LENGTH_MIN(),
-                        propertyDataSource.getANSWER_TEXT_LENGTH_MAX())
+                        propertyDataSource.getAnswer().getANSWER_TEXT_LENGTH_MIN(),
+                        propertyDataSource.getAnswer().getANSWER_TEXT_LENGTH_MAX())
         };
     }
 

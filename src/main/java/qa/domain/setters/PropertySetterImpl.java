@@ -56,6 +56,9 @@ public class PropertySetterImpl implements PropertySetter {
 
     private static class SettersInitializer {
 
+        private SettersInitializer() {
+        }
+
         public static HashMap<String, ISetter<FieldDataSetterExtractor>> init(Class<? extends FieldDataSetterExtractor> clazz, FieldDataSetterExtractor obj) throws SettersInitializationException {
             return new HashMap<>() {
 

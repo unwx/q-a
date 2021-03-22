@@ -5,6 +5,10 @@ import qa.dao.databasecomponents.FieldDataSetterExtractor;
 import java.lang.invoke.*;
 
 public class SetterMethodBuilder {
+
+    private SetterMethodBuilder() {
+    }
+
     @SuppressWarnings("unchecked")
     public static ISetter<FieldDataSetterExtractor> getSetter(Class<? extends FieldDataSetterExtractor> clazz, String fieldName, Class<?> fieldType) throws Throwable {
 

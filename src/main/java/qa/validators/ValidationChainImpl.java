@@ -16,8 +16,6 @@ public class ValidationChainImpl implements ValidationChain {
     private final RegexValidator regexValidator = new RegexValidator();
     private final IgnorePartValidator ignorePartValidator = new IgnorePartValidator();
 
-    public ValidationChainImpl() {}
-
     @Override
     public void validate(ValidationEntity entity) throws ValidationException {
         HashSet<ValidationIgnoreType> ignore = ignorePart(entity);

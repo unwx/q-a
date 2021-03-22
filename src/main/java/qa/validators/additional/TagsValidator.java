@@ -27,15 +27,15 @@ public class TagsValidator extends Validator implements AdditionalValidator<Stri
         }
 
         int counter = 0;
-        Pattern pattern = Pattern.compile(propertiesDataSource.getQUESTION_TAG_REGEXP());
+        Pattern pattern = Pattern.compile(propertiesDataSource.getQuestion().getQUESTION_TAG_REGEXP());
         for (String s : c) {
             if (s == null) {
                 String message = formatMessage("tag must not be null");
                 logger.info("[validation unsuccessful]: " + message);
                 throw new ValidationException(message);
             }
-            if (s.length() > propertiesDataSource.getQUESTION_TAG_LENGTH_MAX() ||
-                s.length() < propertiesDataSource.getQUESTION_TAG_LENGTH_MIN()) {
+            if (s.length() > propertiesDataSource.getQuestion().getQUESTION_TAG_LENGTH_MAX() ||
+                s.length() < propertiesDataSource.getQuestion().getQUESTION_TAG_LENGTH_MIN()) {
                 String message = formatMessage("tag length must be >= 2 and <= 20");
                 logger.info("[validation unsuccessful]: " + message);
                 throw new ValidationException(message);
@@ -49,8 +49,8 @@ public class TagsValidator extends Validator implements AdditionalValidator<Stri
             counter++;
         }
 
-        if (counter > propertiesDataSource.getQUESTION_TAGS_COUNT_MAX() ||
-            counter < propertiesDataSource.getQUESTION_TAGS_COUNT_MIN()) {
+        if (counter > propertiesDataSource.getQuestion().getQUESTION_TAGS_COUNT_MAX() ||
+            counter < propertiesDataSource.getQuestion().getQUESTION_TAGS_COUNT_MIN()) {
             String message = "tags count must be >= 1 and <= 7";
             logger.info("[validation unsuccessful]: " + message);
             throw new ValidationException(message);

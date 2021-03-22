@@ -5,7 +5,7 @@ import qa.domain.AuthenticationData;
 
 public class JwtAuthenticationDataFactory {
 
-    public JwtAuthenticationDataFactory() {}
+    private JwtAuthenticationDataFactory() {}
 
     @Nullable
     public static JwtAuthenticationData create(@Nullable AuthenticationData data) {

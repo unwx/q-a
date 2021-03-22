@@ -2,13 +2,10 @@ package qa.source;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
 import org.springframework.stereotype.Component;
 
 @Component
-@PropertySources(
-        @PropertySource("classpath:properties/rsa.properties")
-)
+@PropertySource("classpath:properties/rsa.properties")
 public class RSAPropertyDataSource {
 
     @Value("${rsa.public.path}")

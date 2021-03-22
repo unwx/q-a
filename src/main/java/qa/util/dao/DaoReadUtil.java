@@ -1,5 +1,7 @@
 package qa.util.dao;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import qa.dao.HqlBuilder;
@@ -17,6 +19,8 @@ public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtracto
     private final HqlBuilder hqlBuilder;
     private final PropertySetter mainSetter;
     private final Entity targetEntity;
+
+    private final static Logger logger = LogManager.getLogger(DaoReadUtil.class);
 
     public DaoReadUtil(HqlBuilder hqlBuilder,
                        Entity emptyEntity,
@@ -87,6 +91,7 @@ public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtracto
                         mainTable.getFieldNames()[0],
                         nestedEntities.get(0),
                         targetEntity);
+                default -> logger.error("uncertain situation");
             }
         } else {
             String mainHql = hqlBuilder.read(where, mainTable, Collections.emptyList());

@@ -23,12 +23,12 @@ public class QuestionCreateRequestValidationWrapper extends QuestionCreateReques
         return new ValidationStringField[]{
                 new ValidationStringField(
                         getTitle(),
-                        propertiesDataSource.getQUESTION_TITLE_LENGTH_MIN(),
-                        propertiesDataSource.getQUESTION_TITLE_LENGTH_MAX()),
+                        propertiesDataSource.getQuestion().getQUESTION_TITLE_LENGTH_MIN(),
+                        propertiesDataSource.getQuestion().getQUESTION_TITLE_LENGTH_MAX()),
                 new ValidationStringField(
                         getText(),
-                        propertiesDataSource.getQUESTION_TEXT_LENGTH_MIN(),
-                        propertiesDataSource.getQUESTION_TEXT_LENGTH_MAX())
+                        propertiesDataSource.getQuestion().getQUESTION_TEXT_LENGTH_MIN(),
+                        propertiesDataSource.getQuestion().getQUESTION_TEXT_LENGTH_MAX())
         };
     }
 

@@ -23,8 +23,8 @@ public class QuestionEditRequestValidationWrapper extends QuestionEditRequest im
         return new ValidationStringField[]{
                 new ValidationStringField(
                         getText(),
-                        propertyDataSource.getQUESTION_TEXT_LENGTH_MIN(),
-                        propertyDataSource.getQUESTION_TEXT_LENGTH_MAX())
+                        propertyDataSource.getQuestion().getQUESTION_TEXT_LENGTH_MIN(),
+                        propertyDataSource.getQuestion().getQUESTION_TEXT_LENGTH_MAX())
         };
     }
 

@@ -10,7 +10,7 @@ import qa.validators.entities.ValidationAdditional;
 public class ValidationChainAdditionalImpl extends ValidationChainImpl implements ValidationChainAdditional {
 
     @Override
-    public <T> void validateWithAdditionalValidator(ValidationEntity entity) throws ValidationException {
+    public void validateWithAdditionalValidator(ValidationEntity entity) throws ValidationException {
         validate(entity);
         additionalPart(entity);
     }

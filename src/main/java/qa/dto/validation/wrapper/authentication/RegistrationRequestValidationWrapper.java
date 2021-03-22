@@ -22,12 +22,12 @@ public class RegistrationRequestValidationWrapper extends RegistrationRequest im
         return new ValidationStringField[]{
                 new ValidationStringField(
                         getUsername(),
-                        propertiesDataSource.getUSER_USERNAME_LENGTH_MIN(),
-                        propertiesDataSource.getUSER_USERNAME_LENGTH_MAX()),
+                        propertiesDataSource.getUser().getUSER_USERNAME_LENGTH_MIN(),
+                        propertiesDataSource.getUser().getUSER_USERNAME_LENGTH_MAX()),
                 new ValidationStringField(
                         getPassword(),
-                        propertiesDataSource.getAUTHENTICATION_PASSWORD_LENGTH_MIN(),
-                        propertiesDataSource.getUSER_USERNAME_LENGTH_MAX())
+                        propertiesDataSource.getAuthentication().getAUTHENTICATION_PASSWORD_LENGTH_MIN(),
+                        propertiesDataSource.getUser().getUSER_USERNAME_LENGTH_MAX())
         };
     }
 
@@ -43,7 +43,7 @@ public class RegistrationRequestValidationWrapper extends RegistrationRequest im
     @Override
     public @Nullable ValidationRegexField[] getRegexFields() {
         return new ValidationRegexField[]{
-                new ValidationRegexField(propertiesDataSource.getUSER_USERNAME_REGEXP(), new String[]{getUsername()})
+                new ValidationRegexField(propertiesDataSource.getUser().getUSER_USERNAME_REGEXP(), new String[]{getUsername()})
         };
     }
 }

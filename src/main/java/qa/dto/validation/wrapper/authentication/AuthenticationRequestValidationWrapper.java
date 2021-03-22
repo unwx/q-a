@@ -22,8 +22,8 @@ public class AuthenticationRequestValidationWrapper extends AuthenticationReques
         return new ValidationStringField[]{
                 new ValidationStringField(
                         getPassword(),
-                        propertiesDataSource.getAUTHENTICATION_PASSWORD_LENGTH_MIN(),
-                        propertiesDataSource.getAUTHENTICATION_PASSWORD_LENGTH_MAX())
+                        propertiesDataSource.getAuthentication().getAUTHENTICATION_PASSWORD_LENGTH_MIN(),
+                        propertiesDataSource.getAuthentication().getAUTHENTICATION_PASSWORD_LENGTH_MAX())
         };
     }
 

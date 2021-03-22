@@ -16,11 +16,10 @@ import java.util.List;
 @Component
 public class AnswerDao implements Dao<Answer, Long> {
 
-    SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-
     private final DaoImpl<Answer> dao;
 
     public AnswerDao(PropertySetterFactory propertySetterFactory) {
+        SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         dao = new DaoImpl<>(
                 sessionFactory,
                 new Answer(),

@@ -51,6 +51,7 @@ public class JwtFilter extends GenericFilterBean {
             }
             else if (validationResult.getStatus() == JwtStatus.EXPIRED) {
                 invalidTokenProcess(servletResponse, "the token is expired.");
+                return;
             }
         }
         filterChain.doFilter(servletRequest, servletResponse);
