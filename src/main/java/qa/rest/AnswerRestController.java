@@ -98,7 +98,7 @@ public class AnswerRestController {
      * /api/v1/answer/answered
      *
      * @method
-     * put
+     * post
      *
      * @request
      * Dto {
@@ -123,5 +123,37 @@ public class AnswerRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpStatus> setAnswered(@RequestBody AnswerAnsweredRequest request, Authentication authentication) {
         return answerService.setAnswered(request, authentication);
+    }
+
+    /**
+     * @uri
+     * /api/v1/answer/not-answered
+     *
+     * @method
+     * post
+     *
+     * @request
+     * Dto {
+     *     id: long
+     * }
+     *
+     * @response
+     * OK: (200)
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "not-answered",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> removeAnswered(@RequestBody AnswerAnsweredRequest request, Authentication authentication) {
+        return answerService.removeAnswered(request, authentication);
     }
 }

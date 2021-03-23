@@ -62,6 +62,11 @@ public class AnswerService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    public ResponseEntity<HttpStatus> removeAnswered(AnswerAnsweredRequest request, Authentication authentication) {
+        removeAnsweredProcess(request, authentication);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     private Long createAnswerProcess(AnswerCreateRequest request, Authentication authentication) {
         validationProcess(request);
         return saveNewAnswer(request, authentication);
@@ -77,6 +82,12 @@ public class AnswerService {
         validationProcess(request);
         checkIsRealAuthor(request.getId(), authentication);
         saveAnswered(request);
+    }
+
+    private void removeAnsweredProcess(AnswerAnsweredRequest request, Authentication authentication) {
+        validationProcess(request);
+        checkIsRealAuthor(request.getId(), authentication);
+        saveNotAnswered(request);
     }
 
     private Long saveNewAnswer(AnswerCreateRequest request, Authentication authentication) {
@@ -102,6 +113,13 @@ public class AnswerService {
         answerDao.update(
                 new Where("id", request.getId(), WhereOperator.EQUALS),
                 new Answer.Builder().answered(true).build(),
+                "Answer");
+    }
+
+    private void saveNotAnswered(AnswerAnsweredRequest request) {
+        answerDao.update(
+                new Where("id", request.getId(), WhereOperator.EQUALS),
+                new Answer.Builder().answered(false).build(),
                 "Answer");
     }
 
