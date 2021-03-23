@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import qa.dto.request.answer.AnswerAnsweredRequest;
 import qa.dto.request.answer.AnswerCreateRequest;
 import qa.dto.request.answer.AnswerEditRequest;
 import qa.service.AnswerService;
@@ -90,5 +91,37 @@ public class AnswerRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpStatus> editAnswer(@RequestBody AnswerEditRequest request, Authentication authentication) {
         return answerService.editAnswer(request, authentication);
+    }
+
+    /**
+     * @uri
+     * /api/v1/answer/answered
+     *
+     * @method
+     * put
+     *
+     * @request
+     * Dto {
+     *     id: long
+     * }
+     *
+     * @response
+     * OK: (200)
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "answered",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> setAnswered(@RequestBody AnswerAnsweredRequest request, Authentication authentication) {
+        return answerService.setAnswered(request, authentication);
     }
 }

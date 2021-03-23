@@ -13,8 +13,10 @@ import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
+import qa.dto.request.answer.AnswerAnsweredRequest;
 import qa.dto.request.answer.AnswerCreateRequest;
 import qa.dto.request.answer.AnswerEditRequest;
+import qa.dto.validation.wrapper.answer.AnswerAnsweredRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerCreateRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerEditRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
@@ -55,6 +57,11 @@ public class AnswerService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    public ResponseEntity<HttpStatus> setAnswered(AnswerAnsweredRequest request, Authentication authentication) {
+        setAnsweredProcess(request, authentication);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     private Long createAnswerProcess(AnswerCreateRequest request, Authentication authentication) {
         validationProcess(request);
         return saveNewAnswer(request, authentication);
@@ -66,10 +73,16 @@ public class AnswerService {
         saveEditedAnswer(request);
     }
 
+    private void setAnsweredProcess(AnswerAnsweredRequest request, Authentication authentication) {
+        validationProcess(request);
+        checkIsRealAuthor(request.getId(), authentication);
+        saveAnswered(request);
+    }
+
     private Long saveNewAnswer(AnswerCreateRequest request, Authentication authentication) {
         Answer answer = new Answer.Builder()
                 .text(request.getText())
-                .adopted(false)
+                .answered(false)
                 .creationDate(new Date())
                 .author(new User(PrincipalUtil.getUserIdFromAuthentication(authentication)))
                 .question(new Question(request.getId()))
@@ -83,6 +96,13 @@ public class AnswerService {
                 .build();
 
         answerDao.update(new Where("id", request.getId(), WhereOperator.EQUALS), answer, "Answer");
+    }
+
+    private void saveAnswered(AnswerAnsweredRequest request) {
+        answerDao.update(
+                new Where("id", request.getId(), WhereOperator.EQUALS),
+                new Answer.Builder().answered(true).build(),
+                "Answer");
     }
 
     private void checkIsRealAuthor(Long id, Authentication authentication) {
@@ -106,6 +126,15 @@ public class AnswerService {
 
     private void validationProcess(AnswerEditRequest request) {
         AnswerEditRequestValidationWrapper validationWrapper = new AnswerEditRequestValidationWrapper(request, propertyDataSource);
+        try {
+            validationChain.validate(validationWrapper);
+        } catch (ValidationException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    private void validationProcess(AnswerAnsweredRequest request) {
+        AnswerAnsweredRequestValidationWrapper validationWrapper = new AnswerAnsweredRequestValidationWrapper(request);
         try {
             validationChain.validate(validationWrapper);
         } catch (ValidationException e) {

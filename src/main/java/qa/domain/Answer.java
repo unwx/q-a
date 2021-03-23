@@ -23,8 +23,8 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
     @Column(name = "text", length = 2000, nullable = false)
     private String text;
 
-    @Column(name = "adopted", nullable = false)
-    private Boolean adopted;
+    @Column(name = "answered", nullable = false)
+    private Boolean answered;
 
     @Column(name = "creation_date", nullable = false, updatable = false)
     private Date creationDate;
@@ -48,14 +48,14 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
 
     public Answer(Long id,
                   String text,
-                  Boolean adopted,
+                  Boolean answered,
                   Date creationDate,
                   User author,
                   Question question,
                   List<AnswerComment> comments) {
         this.id = id;
         this.text = text;
-        this.adopted = adopted;
+        this.answered = answered;
         this.author = author;
         this.question = question;
         this.comments = comments;
@@ -63,13 +63,13 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
     }
 
     public Answer(String text,
-                  Boolean adopted,
+                  Boolean answered,
                   Date creationDate,
                   User author,
                   Question question,
                   List<AnswerComment> comments) {
         this.text = text;
-        this.adopted = adopted;
+        this.answered = answered;
         this.author = author;
         this.question = question;
         this.comments = comments;
@@ -96,8 +96,8 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
         this.text = text;
     }
 
-    public Boolean getAdopted() {
-        return adopted;
+    public Boolean getAnswered() {
+        return answered;
     }
 
     public Date getCreationDate() {
@@ -108,8 +108,8 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
         this.creationDate = creationDate;
     }
 
-    public void setAdopted(Boolean adopted) {
-        this.adopted = adopted;
+    public void setAnswered(Boolean answered) {
+        this.answered = answered;
     }
 
     @Override
@@ -143,7 +143,7 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
                 new SetterField("id", Long.class),
                 new SetterField("text", String.class),
                 new SetterField("creationDate", Date.class),
-                new SetterField("adopted", Boolean.class),
+                new SetterField("answered", Boolean.class),
                 new SetterField("author", User.class),
                 new SetterField("question", Question.class),
         };
@@ -155,7 +155,7 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
                 new Field("id", id),
                 new Field("text", text),
                 new Field("creationDate", creationDate),
-                new Field("adopted", adopted),
+                new Field("answered", answered),
                 new Field("author", author),
                 new Field("question", question),
         };
@@ -179,8 +179,8 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
             return this;
         }
 
-        public Builder adopted(Boolean adopted) {
-            answer.adopted = adopted;
+        public Builder answered(Boolean answered) {
+            answer.answered = answered;
             return this;
         }
 
