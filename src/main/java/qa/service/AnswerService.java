@@ -15,9 +15,11 @@ import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.answer.AnswerAnsweredRequest;
 import qa.dto.request.answer.AnswerCreateRequest;
+import qa.dto.request.answer.AnswerDeleteRequest;
 import qa.dto.request.answer.AnswerEditRequest;
 import qa.dto.validation.wrapper.answer.AnswerAnsweredRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerCreateRequestValidationWrapper;
+import qa.dto.validation.wrapper.answer.AnswerDeleteRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerEditRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.exceptions.validator.ValidationException;
@@ -67,6 +69,11 @@ public class AnswerService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    public ResponseEntity<HttpStatus> deleteAnswer(AnswerDeleteRequest request, Authentication authentication) {
+        deleteAnswerProcess(request, authentication);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     private Long createAnswerProcess(AnswerCreateRequest request, Authentication authentication) {
         validationProcess(request);
         return saveNewAnswer(request, authentication);
@@ -88,6 +95,12 @@ public class AnswerService {
         validationProcess(request);
         checkIsRealAuthor(request.getId(), authentication);
         saveNotAnswered(request);
+    }
+
+    private void deleteAnswerProcess(AnswerDeleteRequest request, Authentication authentication) {
+        validationProcess(request);
+        checkIsRealAuthor(request.getId(), authentication);
+        deleteAnswerFromDatabase(request);
     }
 
     private Long saveNewAnswer(AnswerCreateRequest request, Authentication authentication) {
@@ -123,6 +136,10 @@ public class AnswerService {
                 "Answer");
     }
 
+    private void deleteAnswerFromDatabase(AnswerDeleteRequest request) {
+        answerDao.delete(Answer.class, new Where("id", request.getId(), WhereOperator.EQUALS));
+    }
+
     private void checkIsRealAuthor(Long id, Authentication authentication) {
         AuthorUtil.checkIsRealAuthor(
                 PrincipalUtil.getUserIdFromAuthentication(authentication),
@@ -153,6 +170,15 @@ public class AnswerService {
 
     private void validationProcess(AnswerAnsweredRequest request) {
         AnswerAnsweredRequestValidationWrapper validationWrapper = new AnswerAnsweredRequestValidationWrapper(request);
+        try {
+            validationChain.validate(validationWrapper);
+        } catch (ValidationException e) {
+            throw new BadRequestException(e.getMessage());
+        }
+    }
+
+    private void validationProcess(AnswerDeleteRequest request) {
+        AnswerDeleteRequestValidationWrapper validationWrapper = new AnswerDeleteRequestValidationWrapper(request);
         try {
             validationChain.validate(validationWrapper);
         } catch (ValidationException e) {

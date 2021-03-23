@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import qa.dto.request.answer.AnswerAnsweredRequest;
 import qa.dto.request.answer.AnswerCreateRequest;
+import qa.dto.request.answer.AnswerDeleteRequest;
 import qa.dto.request.answer.AnswerEditRequest;
 import qa.service.AnswerService;
 
@@ -155,5 +156,38 @@ public class AnswerRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpStatus> removeAnswered(@RequestBody AnswerAnsweredRequest request, Authentication authentication) {
         return answerService.removeAnswered(request, authentication);
+    }
+
+
+    /**
+     * @uri
+     * /api/v1/answer/delete
+     *
+     * @method
+     * delete
+     *
+     * @request
+     * Dto {
+     *     id: long
+     * }
+     *
+     * @response
+     * OK: (200)
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "delete",
+            method = RequestMethod.DELETE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> deleteAnswer(@RequestBody AnswerDeleteRequest request, Authentication authentication) {
+        return answerService.deleteAnswer(request, authentication);
     }
 }
