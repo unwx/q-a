@@ -11,18 +11,18 @@ import qa.dao.databasecomponents.WhereOperator;
 import qa.domain.AuthenticationData;
 import qa.domain.User;
 import qa.domain.UserRoles;
+import qa.dto.internal.JwtDataDto;
+import qa.dto.internal.JwtPairDataDto;
 import qa.dto.request.authentication.AuthenticationRequest;
 import qa.dto.request.authentication.RegistrationRequest;
 import qa.dto.response.JwtPairResponseDto;
-import qa.dto.internal.JwtDataDto;
-import qa.dto.internal.JwtPairDataDto;
 import qa.dto.validation.wrapper.authentication.AuthenticationRequestValidationWrapper;
 import qa.dto.validation.wrapper.authentication.RegistrationRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.exceptions.rest.UnauthorizedException;
-import qa.exceptions.validator.ValidationException;
 import qa.source.ValidationPropertyDataSource;
 import qa.util.JwtUtil;
+import qa.util.ValidationUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 import java.util.Collections;
@@ -96,24 +96,6 @@ public class AuthenticationService {
         return new JwtPairResponseDto(dto.getAccess().getToken(), dto.getRefresh().getToken());
     }
 
-    private void validate(AuthenticationRequest request) {
-        AuthenticationRequestValidationWrapper validationWrapper = new AuthenticationRequestValidationWrapper(request, propertiesDataSource);
-        try {
-            chainValidator.validateWithAdditionalValidator(validationWrapper);
-        } catch (ValidationException e) {
-            throw new BadRequestException(e.getMessage());
-        }
-    }
-
-    private void validate(RegistrationRequest request) {
-        RegistrationRequestValidationWrapper validationWrapper = new RegistrationRequestValidationWrapper(request, propertiesDataSource);
-        try {
-            chainValidator.validateWithAdditionalValidator(validationWrapper);
-        } catch (ValidationException e) {
-            throw new BadRequestException(e.getMessage());
-        }
-    }
-
     private void authenticate(AuthenticationData data) {
         if (!authenticationDao.isEmailPasswordCorrect(data.getEmail(), data.getPassword())) {
             throw new UnauthorizedException("incorrect login or password");
@@ -147,5 +129,13 @@ public class AuthenticationService {
     private void alreadyExistException(RegistrationRequest request) {
         if (isUserAlreadyExist(request))
             throw new BadRequestException("user already exist.");
+    }
+
+    private void validate(AuthenticationRequest request) {
+        ValidationUtil.validateWithAdditional(new AuthenticationRequestValidationWrapper(request, propertiesDataSource), chainValidator);
+    }
+
+    private void validate(RegistrationRequest request) {
+        ValidationUtil.validateWithAdditional(new RegistrationRequestValidationWrapper(request, propertiesDataSource), chainValidator);
     }
 }
