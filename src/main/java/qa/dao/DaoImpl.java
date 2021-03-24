@@ -12,7 +12,7 @@ import qa.util.dao.DaoUtilImpl;
 import java.util.Collections;
 import java.util.List;
 
-final class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor> implements Dao<Entity, Object> {
+class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor> implements Dao<Entity, Object> {
 
     private final SessionFactory sessionFactory;
     private final DaoUtil<Entity> daoUtil;

@@ -66,18 +66,18 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     private Long createQuestionProcess(QuestionCreateRequest request, Authentication authentication) {
-        validationProcess(request);
+        validate(request);
         return saveNewQuestion(request, authentication);
     }
 
     private void editQuestionProcess(QuestionEditRequest request, Authentication authentication) {
-        validationProcess(request);
+        validate(request);
         checkIsRealAuthor(request.getId(), authentication);
         saveEditedQuestion(request);
     }
 
     private void deleteQuestionProcess(QuestionDeleteRequest request, Authentication authentication) {
-        validationProcess(request);
+        validate(request);
         checkIsRealAuthor(request.getId(), authentication);
         deleteQuestionById(request.getId());
     }
@@ -126,15 +126,15 @@ public class QuestionServiceImpl implements QuestionService {
         return sb.toString();
     }
 
-    private void validationProcess(QuestionCreateRequest request) {
+    private void validate(QuestionCreateRequest request) {
         ValidationUtil.validateWithAdditional(new QuestionCreateRequestValidationWrapper(request, validationPropertyDataSource), validationChain);
     }
 
-    private void validationProcess(QuestionEditRequest request) {
+    private void validate(QuestionEditRequest request) {
         ValidationUtil.validateWithAdditional(new QuestionEditRequestValidationWrapper(request, validationPropertyDataSource), validationChain);
     }
 
-    private void validationProcess(QuestionDeleteRequest request) {
+    private void validate(QuestionDeleteRequest request) {
         ValidationUtil.validate(new QuestionDeleteRequestValidationWrapper(request), validationChain);
     }
 }

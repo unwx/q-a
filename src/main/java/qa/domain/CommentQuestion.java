@@ -1,0 +1,83 @@
+package qa.domain;
+
+import qa.dao.databasecomponents.Field;
+import qa.domain.setters.SetterField;
+
+import javax.persistence.*;
+
+@Entity
+@DiscriminatorValue("question")
+public class CommentQuestion extends Comment {
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.REFRESH, CascadeType.MERGE})
+    @JoinColumn(name = "question_id")
+    private Question question;
+
+    public CommentQuestion(String text,
+                           User author,
+                           Question question) {
+        super(text, author);
+        this.question = question;
+    }
+
+    public CommentQuestion() {
+    }
+
+    public Question getQuestion() {
+        return question;
+    }
+
+    public void setQuestion(Question question) {
+        this.question = question;
+    }
+
+    @Override
+    public SetterField[] extractSettersField() {
+        return new SetterField[] {
+                new SetterField("id", Long.class),
+                new SetterField("text", String.class),
+                new SetterField("author", User.class),
+                new SetterField("question", Question.class),
+        };
+    }
+
+    @Override
+    public Field[] extract() {
+        return new Field[] {
+                new Field("id", id),
+                new Field("text", text),
+                new Field("author", author),
+                new Field("question", question),
+        };
+    }
+
+    @Override
+    public Long getId() {
+        return super.getId();
+    }
+
+    @Override
+    public void setId(Long id) {
+        super.setId(id);
+    }
+
+    @Override
+    public String getText() {
+        return super.getText();
+    }
+
+    @Override
+    public void setText(String text) {
+        super.setText(text);
+    }
+
+    @Override
+    public User getAuthor() {
+        return super.getAuthor();
+    }
+
+    @Override
+    public void setAuthor(User author) {
+        super.setAuthor(author);
+    }
+}

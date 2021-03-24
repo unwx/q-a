@@ -41,10 +41,9 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
     @JoinColumn(name = "question_id", nullable = false, updatable = false)
     private Question question;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "answer_comment_id")
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<AnswerComment> comments;
+    private List<CommentAnswer> comments;
 
     public Answer(Long id,
                   String text,
@@ -52,7 +51,7 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
                   Date creationDate,
                   User author,
                   Question question,
-                  List<AnswerComment> comments) {
+                  List<CommentAnswer> comments) {
         this.id = id;
         this.text = text;
         this.answered = answered;
@@ -67,7 +66,7 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
                   Date creationDate,
                   User author,
                   Question question,
-                  List<AnswerComment> comments) {
+                  List<CommentAnswer> comments) {
         this.text = text;
         this.answered = answered;
         this.author = author;
@@ -129,11 +128,11 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
         this.question = question;
     }
 
-    public List<AnswerComment> getComments() {
+    public List<CommentAnswer> getComments() {
         return comments;
     }
 
-    public void setComments(List<AnswerComment> comments) {
+    public void setComments(List<CommentAnswer> comments) {
         this.comments = comments;
     }
 
@@ -199,7 +198,7 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
             return this;
         }
 
-        public Builder comments(List<AnswerComment> comments) {
+        public Builder comments(List<CommentAnswer> comments) {
             answer.comments = comments;
             return this;
         }

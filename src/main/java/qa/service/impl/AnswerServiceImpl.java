@@ -86,31 +86,31 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     private Long createAnswerProcess(AnswerCreateRequest request, Authentication authentication) {
-        validationProcess(request);
+        validate(request);
         badRequestIfQuestionNotExist(request.getId());
         return saveNewAnswer(request, authentication);
     }
 
     private void editAnswerProcess(AnswerEditRequest request, Authentication authentication) {
-        validationProcess(request);
+        validate(request);
         checkIsRealAuthor(request.getId(), authentication);
         saveEditedAnswer(request);
     }
 
     private void setAnsweredProcess(AnswerAnsweredRequest request, Authentication authentication) {
-        validationProcess(request);
+        validate(request);
         checkIsRealAuthor(request.getId(), authentication);
         saveAnswered(request);
     }
 
     private void removeAnsweredProcess(AnswerAnsweredRequest request, Authentication authentication) {
-        validationProcess(request);
+        validate(request);
         checkIsRealAuthor(request.getId(), authentication);
         saveNotAnswered(request);
     }
 
     private void deleteAnswerProcess(AnswerDeleteRequest request, Authentication authentication) {
-        validationProcess(request);
+        validate(request);
         checkIsRealAuthor(request.getId(), authentication);
         deleteAnswerFromDatabase(request);
     }
@@ -174,19 +174,19 @@ public class AnswerServiceImpl implements AnswerService {
         return q != null;
     }
 
-    private void validationProcess(AnswerCreateRequest request) {
+    private void validate(AnswerCreateRequest request) {
         ValidationUtil.validate(new AnswerCreateRequestValidationWrapper(request, propertyDataSource), validationChain);
     }
 
-    private void validationProcess(AnswerEditRequest request) {
+    private void validate(AnswerEditRequest request) {
         ValidationUtil.validate(new AnswerEditRequestValidationWrapper(request, propertyDataSource), validationChain);
     }
 
-    private void validationProcess(AnswerAnsweredRequest request) {
+    private void validate(AnswerAnsweredRequest request) {
         ValidationUtil.validate(new AnswerAnsweredRequestValidationWrapper(request), validationChain);
     }
 
-    private void validationProcess(AnswerDeleteRequest request) {
+    private void validate(AnswerDeleteRequest request) {
         ValidationUtil.validate(new AnswerDeleteRequestValidationWrapper(request), validationChain);
     }
 }

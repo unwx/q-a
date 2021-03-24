@@ -47,10 +47,9 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Answer> answers;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "question_comment_id")
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<QuestionComment> comments;
+    private List<CommentQuestion> comments;
 
     public Question(Long id,
                     String text,
@@ -60,7 +59,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
                     String tags,
                     User author,
                     List<Answer> answers,
-                    List<QuestionComment> comments) {
+                    List<CommentQuestion> comments) {
         this.id = id;
         this.text = text;
         this.title = title;
@@ -79,7 +78,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
                     String tags,
                     User author,
                     List<Answer> answers,
-                    List<QuestionComment> comments) {
+                    List<CommentQuestion> comments) {
         this.text = text;
         this.title = title;
         this.creationDate = creationDate;
@@ -155,11 +154,11 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
         this.answers = answers;
     }
 
-    public List<QuestionComment> getComments() {
+    public List<CommentQuestion> getComments() {
         return comments;
     }
 
-    public void setComments(List<QuestionComment> comments) {
+    public void setComments(List<CommentQuestion> comments) {
         this.comments = comments;
     }
 
@@ -245,7 +244,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
             return this;
         }
 
-        public Builder comments(List<QuestionComment> comments) {
+        public Builder comments(List<CommentQuestion> comments) {
             question.comments = comments;
             return this;
         }
