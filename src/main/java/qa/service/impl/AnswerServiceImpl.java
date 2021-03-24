@@ -8,7 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import qa.dao.AnswerDao;
 import qa.dao.QuestionDao;
-import qa.dao.databasecomponents.Table;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.domain.Answer;
@@ -87,7 +86,7 @@ public class AnswerServiceImpl implements AnswerService {
 
     private Long createAnswerProcess(AnswerCreateRequest request, Authentication authentication) {
         validate(request);
-        badRequestIfQuestionNotExist(request.getId());
+        throwBadRequestExIfQuestionNotExist(request.getId());
         return saveNewAnswer(request, authentication);
     }
 
@@ -162,16 +161,13 @@ public class AnswerServiceImpl implements AnswerService {
                 logger);
     }
 
-    private void badRequestIfQuestionNotExist(Long questionId) {
+    private void throwBadRequestExIfQuestionNotExist(Long questionId) {
         if (!isQuestionExist(questionId))
             throw new BadRequestException("question not exist. id: " + questionId);
     }
 
     private boolean isQuestionExist(Long questionId) {
-        Question q = questionDao.read(
-                new Where("id", questionId, WhereOperator.EQUALS),
-                new Table(new String[]{"id"}, "Question"));
-        return q != null;
+        return questionDao.isExist(questionId);
     }
 
     private void validate(AnswerCreateRequest request) {

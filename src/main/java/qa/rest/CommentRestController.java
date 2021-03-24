@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import qa.dto.request.comment.CommentAnswerCreateRequest;
 import qa.dto.request.comment.CommentQuestionCreateRequest;
 import qa.service.CommentService;
 
@@ -53,5 +54,40 @@ public class CommentRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> createCommentQuestion(@RequestBody CommentQuestionCreateRequest request, Authentication authentication) {
         return commentService.createCommentQuestion(request, authentication);
+    }
+
+
+    /**
+     * @uri
+     * /api/v1/comment/answer/create
+     *
+     * @method
+     * post
+     *
+     * @request
+     * dto {
+     *     question_id: long
+     *     text: string
+     * }
+     *
+     * @response
+     * OK: (200)
+     * id: long (NOT JSON)
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "/answer/create",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Long> createCommentAnswer(@RequestBody CommentAnswerCreateRequest request, Authentication authentication) {
+        return commentService.createCommentAnswer(request, authentication);
     }
 }

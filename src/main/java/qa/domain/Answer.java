@@ -75,6 +75,10 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
         this.creationDate = creationDate;
     }
 
+    public Answer(Long id) {
+        this.id = id;
+    }
+
     public Answer() {
     }
 
