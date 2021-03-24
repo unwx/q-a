@@ -4,12 +4,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import qa.dao.databasecomponents.NestedEntity;
-import qa.dao.databasecomponents.Table;
-import qa.dao.databasecomponents.Where;
 import qa.domain.AuthenticationData;
 import qa.domain.UserRoles;
 import qa.domain.setters.PropertySetterFactory;
@@ -19,53 +16,19 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Component
-public class AuthenticationDao implements Dao<AuthenticationData, Long> {
+public class AuthenticationDao extends DaoImpl<AuthenticationData> {
 
-    SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-    private final DaoImpl<AuthenticationData> dao;
+    private final SessionFactory sessionFactory;
 
+    @Autowired
     public AuthenticationDao(PropertySetterFactory propertySetterFactory) {
-        dao = new DaoImpl<>(
-                sessionFactory,
-                new AuthenticationData(),
-                propertySetterFactory.getSetter(new AuthenticationData()));
+        super(HibernateSessionFactoryUtil.getSessionFactory(), new AuthenticationData(), propertySetterFactory.getSetter(new AuthenticationData()));
+        sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
     }
 
     @Override
-    public Long create(@NotNull final AuthenticationData data) {
-        return (Long) dao.create(data);
-    }
-
-    @Override
-    @Nullable
-    public AuthenticationData read(@NotNull final Where where, @NotNull final Table target) {
-        return dao.read(where, target);
-    }
-
-    @Override
-    @Nullable
-    public AuthenticationData read(@NotNull final Where where, @NotNull final Table target, @NotNull final List<NestedEntity> nested) {
-        return dao.read(where, target, nested);
-    }
-
-    @Override
-    public List<AuthenticationData> readMany(@NotNull final Where where, @NotNull final Table target) {
-        return dao.readMany(where, target);
-    }
-
-    @Override
-    public void update(@NotNull final Where where, @NotNull final AuthenticationData data, @NotNull final String className) {
-        dao.update(where, data, className);
-    }
-
-    @Override
-    public void updateEager(AuthenticationData data) {
-        dao.updateEager(data);
-    }
-
-    @Override
-    public void delete(@NotNull final Class<AuthenticationData> clazz, @NotNull final Where where) {
-        dao.delete(clazz, where);
+    public Long create(AuthenticationData e) {
+        return (Long) super.create(e);
     }
 
     public boolean isEmailPasswordCorrect(String email, String password) {

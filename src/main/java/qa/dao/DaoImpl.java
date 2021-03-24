@@ -12,13 +12,13 @@ import qa.util.dao.DaoUtilImpl;
 import java.util.Collections;
 import java.util.List;
 
-class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor> implements Dao<Entity, Object> {
+abstract class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor> implements Dao<Entity, Object> {
 
     private final SessionFactory sessionFactory;
     private final DaoUtil<Entity> daoUtil;
 
 
-    public DaoImpl(SessionFactory sessionFactory,
+    protected DaoImpl(SessionFactory sessionFactory,
                    Entity emptyEntity,
                    PropertySetter propertySetter) {
         this.sessionFactory = sessionFactory;
