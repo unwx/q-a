@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import qa.dao.AnswerDao;
+import qa.dao.QuestionDao;
+import qa.dao.databasecomponents.Table;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.domain.Answer;
@@ -21,6 +23,7 @@ import qa.dto.validation.wrapper.answer.AnswerAnsweredRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerCreateRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerDeleteRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerEditRequestValidationWrapper;
+import qa.exceptions.rest.BadRequestException;
 import qa.service.AnswerService;
 import qa.source.ValidationPropertyDataSource;
 import qa.util.AuthorUtil;
@@ -34,6 +37,7 @@ import java.util.Date;
 public class AnswerServiceImpl implements AnswerService {
 
     private final AnswerDao answerDao;
+    private final QuestionDao questionDao;
     private final ValidationPropertyDataSource propertyDataSource;
     private final ValidationChainAdditional validationChain;
     private final PropertySetterFactory propertySetterFactory;
@@ -41,10 +45,12 @@ public class AnswerServiceImpl implements AnswerService {
     private static final Logger logger = LogManager.getLogger(AnswerServiceImpl.class);
 
     public AnswerServiceImpl(AnswerDao answerDao,
+                             QuestionDao questionDao,
                              ValidationPropertyDataSource propertyDataSource,
                              ValidationChainAdditional validationChain,
                              PropertySetterFactory propertySetterFactory) {
         this.answerDao = answerDao;
+        this.questionDao = questionDao;
         this.propertyDataSource = propertyDataSource;
         this.validationChain = validationChain;
         this.propertySetterFactory = propertySetterFactory;
@@ -81,6 +87,7 @@ public class AnswerServiceImpl implements AnswerService {
 
     private Long createAnswerProcess(AnswerCreateRequest request, Authentication authentication) {
         validationProcess(request);
+        badRequestIfQuestionNotExist(request.getId());
         return saveNewAnswer(request, authentication);
     }
 
@@ -153,6 +160,18 @@ public class AnswerServiceImpl implements AnswerService {
                 answerDao,
                 propertySetterFactory,
                 logger);
+    }
+
+    private void badRequestIfQuestionNotExist(Long questionId) {
+        if (!isQuestionExist(questionId))
+            throw new BadRequestException("question not exist. id: " + questionId);
+    }
+
+    private boolean isQuestionExist(Long questionId) {
+        Question q = questionDao.read(
+                new Where("id", questionId, WhereOperator.EQUALS),
+                new Table(new String[]{"id"}, "Question"));
+        return q != null;
     }
 
     private void validationProcess(AnswerCreateRequest request) {
