@@ -18,11 +18,10 @@ import qa.dto.request.question.QuestionEditRequest;
 import qa.dto.validation.wrapper.question.QuestionCreateRequestValidationWrapper;
 import qa.dto.validation.wrapper.question.QuestionDeleteRequestValidationWrapper;
 import qa.dto.validation.wrapper.question.QuestionEditRequestValidationWrapper;
-import qa.exceptions.rest.BadRequestException;
-import qa.exceptions.validator.ValidationException;
 import qa.source.ValidationPropertyDataSource;
 import qa.util.AuthorUtil;
 import qa.util.PrincipalUtil;
+import qa.util.ValidationUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 import java.util.Arrays;
@@ -124,29 +123,14 @@ public class QuestionService {
     }
 
     private void validationProcess(QuestionCreateRequest request) {
-        QuestionCreateRequestValidationWrapper requestValidationWrapper = new QuestionCreateRequestValidationWrapper(request, validationPropertyDataSource);
-        try {
-            validationChain.validateWithAdditionalValidator(requestValidationWrapper);
-        } catch (ValidationException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        ValidationUtil.validateWithAdditional(new QuestionCreateRequestValidationWrapper(request, validationPropertyDataSource), validationChain);
     }
 
     private void validationProcess(QuestionEditRequest request) {
-        QuestionEditRequestValidationWrapper requestValidationWrapper = new QuestionEditRequestValidationWrapper(request, validationPropertyDataSource);
-        try {
-            validationChain.validateWithAdditionalValidator(requestValidationWrapper);
-        } catch (ValidationException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        ValidationUtil.validateWithAdditional(new QuestionEditRequestValidationWrapper(request, validationPropertyDataSource), validationChain);
     }
 
     private void validationProcess(QuestionDeleteRequest request) {
-        QuestionDeleteRequestValidationWrapper requestValidationWrapper = new QuestionDeleteRequestValidationWrapper(request);
-        try {
-            validationChain.validate(requestValidationWrapper);
-        } catch (ValidationException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        ValidationUtil.validate(new QuestionDeleteRequestValidationWrapper(request), validationChain);
     }
 }
