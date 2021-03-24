@@ -21,11 +21,10 @@ import qa.dto.validation.wrapper.answer.AnswerAnsweredRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerCreateRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerDeleteRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerEditRequestValidationWrapper;
-import qa.exceptions.rest.BadRequestException;
-import qa.exceptions.validator.ValidationException;
 import qa.source.ValidationPropertyDataSource;
 import qa.util.AuthorUtil;
 import qa.util.PrincipalUtil;
+import qa.util.ValidationUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 import java.util.Date;
@@ -151,38 +150,18 @@ public class AnswerService {
     }
 
     private void validationProcess(AnswerCreateRequest request) {
-        AnswerCreateRequestValidationWrapper validationWrapper = new AnswerCreateRequestValidationWrapper(request, propertyDataSource);
-        try {
-            validationChain.validate(validationWrapper);
-        } catch (ValidationException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        ValidationUtil.validate(new AnswerCreateRequestValidationWrapper(request, propertyDataSource), validationChain);
     }
 
     private void validationProcess(AnswerEditRequest request) {
-        AnswerEditRequestValidationWrapper validationWrapper = new AnswerEditRequestValidationWrapper(request, propertyDataSource);
-        try {
-            validationChain.validate(validationWrapper);
-        } catch (ValidationException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        ValidationUtil.validate(new AnswerEditRequestValidationWrapper(request, propertyDataSource), validationChain);
     }
 
     private void validationProcess(AnswerAnsweredRequest request) {
-        AnswerAnsweredRequestValidationWrapper validationWrapper = new AnswerAnsweredRequestValidationWrapper(request);
-        try {
-            validationChain.validate(validationWrapper);
-        } catch (ValidationException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        ValidationUtil.validate(new AnswerAnsweredRequestValidationWrapper(request), validationChain);
     }
 
     private void validationProcess(AnswerDeleteRequest request) {
-        AnswerDeleteRequestValidationWrapper validationWrapper = new AnswerDeleteRequestValidationWrapper(request);
-        try {
-            validationChain.validate(validationWrapper);
-        } catch (ValidationException e) {
-            throw new BadRequestException(e.getMessage());
-        }
+        ValidationUtil.validate(new AnswerDeleteRequestValidationWrapper(request), validationChain);
     }
 }
