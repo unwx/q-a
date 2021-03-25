@@ -78,9 +78,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         validate(request);
         alreadyExistException(request);
         JwtPairDataDto dto = getTokens(request.getEmail());
+        saveNewUser(request, dto);
+        return new JwtPairResponseDto(dto.getAccess().getToken(), dto.getRefresh().getToken());
+    }
+
+    private void saveNewUser(RegistrationRequest request, JwtPairDataDto dto) {
         User user = new User.Builder()
                 .username(request.getUsername())
                 .build();
+
         AuthenticationData data = new AuthenticationData.Builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
@@ -91,7 +97,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .roles(Collections.singletonList(UserRoles.USER))
                 .build();
         authenticationDao.create(data);
-        return new JwtPairResponseDto(dto.getAccess().getToken(), dto.getRefresh().getToken());
     }
 
     private JwtPairResponseDto refreshTokensProcess(String email) {

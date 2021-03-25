@@ -8,7 +8,7 @@ public class QuestionDeleteRequest {
         this.id = id;
     }
 
-    public QuestionDeleteRequest() {
+    protected QuestionDeleteRequest() {
         this.id = null;
     }
 

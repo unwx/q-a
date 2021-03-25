@@ -9,6 +9,11 @@ public class JwtPairResponseDto {
         this.refresh = refresh;
     }
 
+    protected JwtPairResponseDto() {
+        this.access = null;
+        this.refresh = null;
+    }
+
     public String getAccess() {
         return access;
     }

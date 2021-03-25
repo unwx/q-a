@@ -15,6 +15,13 @@ public class ErrorMessage {
         this.description = description;
     }
 
+    protected ErrorMessage() {
+        this.statusCode = 0;
+        this.timestamp = null;
+        this.message = null;
+        this.description = null;
+    }
+
     public int getStatusCode() {
         return statusCode;
     }

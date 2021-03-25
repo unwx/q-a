@@ -42,6 +42,7 @@ public class JwtFilter extends GenericFilterBean {
                 }
                 if (validationResult.getType() == JwtType.REFRESH && ((HttpServletRequest) servletRequest).getRequestURI().equals("/api/v1/authentication/refresh-tokens")) {
                     putClaimsInServletRequest(servletRequest, validationResult.getClaims());
+                    authentication(validationResult.getData());
                 }
             }
             else if (validationResult.getStatus() == JwtStatus.INVALID) {

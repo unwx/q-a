@@ -8,7 +8,7 @@ public class AnswerDeleteRequest {
         this.id = id;
     }
 
-    public AnswerDeleteRequest() {
+    protected AnswerDeleteRequest() {
         this.id = null;
     }
 

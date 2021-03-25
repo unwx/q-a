@@ -14,7 +14,7 @@ public class CommentAnswerCreateRequest {
         this.text = text;
     }
 
-    public CommentAnswerCreateRequest() {
+    protected CommentAnswerCreateRequest() {
         this.answerId = null;
         this.text = null;
     }

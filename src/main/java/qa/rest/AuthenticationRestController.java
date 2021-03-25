@@ -113,7 +113,7 @@ public class AuthenticationRestController {
      * post
      *
      * @headers
-     * refresh-token: string
+     * Authorization: string
      *
      * @response
      * OK:

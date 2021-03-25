@@ -2,8 +2,8 @@ package qa.security.jwt.entity;
 
 public class JwtData {
 
-    private String token;
-    private long expirationAtMillis;
+    private final String token;
+    private final long expirationAtMillis;
 
     public JwtData(String token, long expirationAtMillis) {
         this.token = token;
@@ -14,15 +14,7 @@ public class JwtData {
         return token;
     }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public long getExpirationAtMillis() {
         return expirationAtMillis;
-    }
-
-    public void setExpirationAtMillis(long expirationAtMillis) {
-        this.expirationAtMillis = expirationAtMillis;
     }
 }

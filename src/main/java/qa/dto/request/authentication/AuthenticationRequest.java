@@ -9,7 +9,7 @@ public class AuthenticationRequest {
         this.password = password;
     }
 
-    public AuthenticationRequest() {
+    protected AuthenticationRequest() {
         this.email = null;
         this.password = null;
     }

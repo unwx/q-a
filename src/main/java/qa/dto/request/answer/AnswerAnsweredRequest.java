@@ -8,7 +8,7 @@ public class AnswerAnsweredRequest {
         this.id = id;
     }
 
-    public AnswerAnsweredRequest() {
+    protected AnswerAnsweredRequest() {
         this.id = null;
     }
 

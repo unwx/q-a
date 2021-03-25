@@ -14,7 +14,7 @@ public class AnswerCreateRequest {
         this.text = text;
     }
 
-    public AnswerCreateRequest() {
+    protected AnswerCreateRequest() {
         this.id = null;
         this.text = null;
     }

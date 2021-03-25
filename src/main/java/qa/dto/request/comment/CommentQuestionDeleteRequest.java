@@ -8,7 +8,7 @@ public class CommentQuestionDeleteRequest {
         this.id = id;
     }
 
-    public CommentQuestionDeleteRequest() {
+    protected CommentQuestionDeleteRequest() {
         this.id = null;
     }
 

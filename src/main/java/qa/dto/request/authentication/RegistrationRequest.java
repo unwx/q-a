@@ -13,7 +13,7 @@ public class RegistrationRequest {
         this.password = password;
     }
 
-    public RegistrationRequest() {
+    protected RegistrationRequest() {
         this.username = null;
         this.email = null;
         this.password = null;
