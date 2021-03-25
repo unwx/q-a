@@ -1,5 +1,6 @@
 package qa.rest;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import qa.dto.request.comment.CommentAnswerCreateRequest;
 import qa.dto.request.comment.CommentQuestionCreateRequest;
+import qa.dto.request.comment.CommentQuestionEditRequest;
 import qa.service.CommentService;
 
 @RestController
@@ -89,5 +91,14 @@ public class CommentRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Long> createCommentAnswer(@RequestBody CommentAnswerCreateRequest request, Authentication authentication) {
         return commentService.createCommentAnswer(request, authentication);
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "/question/edit",
+            method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> editCommentAnswer(@RequestBody CommentQuestionEditRequest request, Authentication authentication) {
+        return commentService.editCommentQuestion(request, authentication);
     }
 }

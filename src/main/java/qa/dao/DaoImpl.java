@@ -59,9 +59,9 @@ abstract class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor>
     }
 
     @Override
-    public void update(final Where where, final Entity entity, final String className) {
+    public void update(final Where where, final Entity entity) {
         try(Session session = sessionFactory.openSession()) {
-            daoUtil.update(where, entity, className, session);
+            daoUtil.update(where, entity, session);
         }
     }
 

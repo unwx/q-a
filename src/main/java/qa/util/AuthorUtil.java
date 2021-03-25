@@ -1,4 +1,5 @@
 package qa.util;
+
 import org.apache.logging.log4j.Logger;
 import qa.dao.Dao;
 import qa.dao.databasecomponents.Where;
@@ -16,27 +17,23 @@ public class AuthorUtil {
 
     }
 
-    public static <E extends HasAuthor> void checkIsRealAuthor(Long authenticationId,
-                                                               Where where,
-                                                               Class<E> clazz,
-                                                               Dao<E, ?> dao,
-                                                               PropertySetterFactory propertySetterFactory,
-                                                               Logger logger) {
+    public static <E extends HasAuthor> void checkIsRealAuthorAndIsEntityExist(Long authenticationId,
+                                                                               Where where,
+                                                                               Class<E> clazz,
+                                                                               Dao<E, ?> dao,
+                                                                               PropertySetterFactory propertySetterFactory,
+                                                                               Logger logger,
+                                                                               String entityName) {
 
         CheckAuthorResult result = AccessUtil.isRealAuthor(where, authenticationId, clazz, dao, propertySetterFactory);
         switch (result) {
-            case ENTITY_NOT_EXIST -> throw new BadRequestException(getEntityName(clazz) + " not exist. id: " + where.getFieldValue());
+            case ENTITY_NOT_EXIST -> throw new BadRequestException(entityName + " not exist. id: " + where.getFieldValue());
             case AUTHOR_NOT_EXIST -> {
-                String message = getEntityName(clazz) + where.getFieldValue() + ". Author not exist";
+                String message = entityName + where.getFieldValue() + ". Author not exist";
                 logger.error(message);
                 throw new AuthorNotExistException(message);
             }
-            case NOT_REAL_AUTHOR -> throw new AccessDeniedException("you do not have permission to this " + getEntityName(clazz));
+            case NOT_REAL_AUTHOR -> throw new AccessDeniedException("you do not have permission to this " + entityName);
         }
-    }
-
-    private static String getEntityName(Class<?> clazz) {
-        String clazzName = clazz.getSimpleName();
-        return Character.toUpperCase(clazzName.charAt(0)) + clazzName.substring(1);
     }
 }

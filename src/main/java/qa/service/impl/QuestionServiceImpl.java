@@ -95,13 +95,14 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     private void checkIsRealAuthor(Long id, Authentication authentication) {
-        AuthorUtil.checkIsRealAuthor(
+        AuthorUtil.checkIsRealAuthorAndIsEntityExist(
                 PrincipalUtil.getUserIdFromAuthentication(authentication),
                 new Where("id", id, WhereOperator.EQUALS),
                 Question.class,
                 questionDao,
                 propertySetterFactory,
-                logger);
+                logger,
+                "question");
     }
 
     private void saveEditedQuestion(QuestionEditRequest request) {
@@ -111,8 +112,8 @@ public class QuestionServiceImpl implements QuestionService {
                         .text(request.getText())
                         .tags(tagsArrayToString(request.getTags()))
                         .lastActivity(new Date())
-                        .build(),
-                "Question");
+                        .build()
+        );
     }
 
     private void deleteQuestionById(Long questionId) {

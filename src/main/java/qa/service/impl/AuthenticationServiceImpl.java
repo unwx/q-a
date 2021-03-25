@@ -117,7 +117,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .accessTokenExpirationDateAtMillis(jwtPair.getAccess().getExp())
                 .refreshTokenExpirationDateAtMillis(jwtPair.getRefresh().getExp())
                 .build();
-        authenticationDao.update(new Where("email", email, WhereOperator.EQUALS), data, "AuthenticationData");
+        authenticationDao.update(new Where("email", email, WhereOperator.EQUALS), data);
     }
 
     private boolean isUserAlreadyExist(RegistrationRequest request) {

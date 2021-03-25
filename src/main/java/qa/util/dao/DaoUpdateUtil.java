@@ -19,8 +19,8 @@ public class DaoUpdateUtil<Entity extends FieldExtractor> {
         this.hqlBuilder = hqlBuilder;
     }
 
-    public void update(Where where, Entity entity, String className, Session session) {
-        ImmutablePair<String, Field[]> pair = hqlBuilder.update(where, entity, className);
+    public void update(Where where, Entity entity, Session session) {
+        ImmutablePair<String, Field[]> pair = hqlBuilder.update(where, entity);
         updateProcess(pair.getLeft(), pair.getRight(), where.getFieldValue(), session);
     }
 

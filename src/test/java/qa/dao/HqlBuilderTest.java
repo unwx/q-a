@@ -162,7 +162,7 @@ public class HqlBuilderTest {
     @Test
     public void updateTest() {
         Entity entity = new Entity(null, "test", true, null);
-        ImmutablePair<String, Field[]> pair = entityHqlBuilder.update(new Where("id", 5L, WhereOperator.EQUALS), entity, "Entity");
+        ImmutablePair<String, Field[]> pair = entityHqlBuilder.update(new Where("id", 5L, WhereOperator.EQUALS), entity);
         String required =
                 """
                 update Entity a\s\
@@ -190,7 +190,7 @@ public class HqlBuilderTest {
                 true, null, true, false, false, true, true, true, true
         );
         HqlBuilder hqlBuilder = new HqlBuilder();
-        ImmutablePair<String, Field[]> pair = hqlBuilder.update(new Where("id", 5L, WhereOperator.EQUALS), bigEntity, "BigEntity");
+        ImmutablePair<String, Field[]> pair = hqlBuilder.update(new Where("id", 5L, WhereOperator.EQUALS), bigEntity);
         String required =
                 """
                 update BigEntity a\s\

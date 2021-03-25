@@ -130,21 +130,21 @@ public class AnswerServiceImpl implements AnswerService {
                 .text(request.getText())
                 .build();
 
-        answerDao.update(new Where("id", request.getId(), WhereOperator.EQUALS), answer, "Answer");
+        answerDao.update(new Where("id", request.getId(), WhereOperator.EQUALS), answer);
     }
 
     private void saveAnswered(AnswerAnsweredRequest request) {
         answerDao.update(
                 new Where("id", request.getId(), WhereOperator.EQUALS),
-                new Answer.Builder().answered(true).build(),
-                "Answer");
+                new Answer.Builder().answered(true).build()
+        );
     }
 
     private void saveNotAnswered(AnswerAnsweredRequest request) {
         answerDao.update(
                 new Where("id", request.getId(), WhereOperator.EQUALS),
-                new Answer.Builder().answered(false).build(),
-                "Answer");
+                new Answer.Builder().answered(false).build()
+        );
     }
 
     private void deleteAnswerFromDatabase(AnswerDeleteRequest request) {
@@ -152,13 +152,14 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     private void checkIsRealAuthor(Long id, Authentication authentication) {
-        AuthorUtil.checkIsRealAuthor(
+        AuthorUtil.checkIsRealAuthorAndIsEntityExist(
                 PrincipalUtil.getUserIdFromAuthentication(authentication),
                 new Where("id", id, WhereOperator.EQUALS),
                 Answer.class,
                 answerDao,
                 propertySetterFactory,
-                logger);
+                logger,
+                "answer");
     }
 
     private void throwBadRequestExIfQuestionNotExist(Long questionId) {

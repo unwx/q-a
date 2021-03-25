@@ -2,6 +2,7 @@ package qa.domain;
 
 import qa.dao.databasecomponents.FieldDataSetterExtractor;
 import qa.dao.databasecomponents.FieldExtractor;
+import qa.util.access.HasAuthor;
 
 import javax.persistence.*;
 
@@ -9,7 +10,7 @@ import javax.persistence.*;
 @Table
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name="comment_type", discriminatorType = DiscriminatorType.STRING)
-public abstract class Comment implements FieldExtractor, FieldDataSetterExtractor {
+public abstract class Comment implements FieldExtractor, FieldDataSetterExtractor, HasAuthor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -56,7 +57,8 @@ public abstract class Comment implements FieldExtractor, FieldDataSetterExtracto
         this.text = text;
     }
 
-    protected User getAuthor() {
+    @Override
+    public User getAuthor() {
         return author;
     }
 

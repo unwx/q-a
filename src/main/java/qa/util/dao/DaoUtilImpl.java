@@ -42,8 +42,8 @@ public class DaoUtilImpl<Entity extends FieldExtractor & FieldDataSetterExtracto
     }
 
     @Override
-    public void update(final Where where, final Entity entity, final String className, final Session session) {
-        daoUpdateUtil.update(where, entity, className, session);
+    public void update(final Where where, final Entity entity, final Session session) {
+        daoUpdateUtil.update(where, entity, session);
     }
 
     @Override

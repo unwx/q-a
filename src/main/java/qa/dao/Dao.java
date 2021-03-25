@@ -33,7 +33,7 @@ public interface Dao<Entity, Key> {
 
     List<Entity> readMany(final Where where, final Table target);
 
-    void update(final Where where, final Entity entity, final String className);
+    void update(final Where where, final Entity entity);
 
     void updateEager(final Entity entity);
 

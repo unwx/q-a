@@ -38,9 +38,9 @@ public class HqlBuilder {
      * @return String - hql query;
      * Field[] - :params; ("param.name":"param.value")
      */
-    public ImmutablePair<String, Field[]> update(Where where, FieldExtractor entity, String className) {
+    public ImmutablePair<String, Field[]> update(Where where, FieldExtractor entity) {
         StringBuilder hqlBuilder = new StringBuilder();
-        prepareForUpdate(className, hqlBuilder);
+        prepareForUpdate(entity.getClass().getSimpleName(), hqlBuilder);
         Field[] fields = setParameterMarks(entity, hqlBuilder);
         where(where, hqlBuilder);
         return new ImmutablePair<>(hqlBuilder.toString(), fields);
