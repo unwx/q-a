@@ -37,5 +37,5 @@ public interface Dao<Entity, Key> {
 
     void updateEager(final Entity entity);
 
-    void delete(final Class<Entity> clazz, final Where where);
+    void delete(final Where where);
 }

@@ -15,10 +15,7 @@ import qa.dao.databasecomponents.WhereOperator;
 import qa.domain.*;
 import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.comment.*;
-import qa.dto.validation.wrapper.comment.CommentAnswerCreateRequestValidationWrapper;
-import qa.dto.validation.wrapper.comment.CommentAnswerEditRequestValidationWrapper;
-import qa.dto.validation.wrapper.comment.CommentQuestionCreateRequestValidationWrapper;
-import qa.dto.validation.wrapper.comment.CommentQuestionEditRequestValidationWrapper;
+import qa.dto.validation.wrapper.comment.*;
 import qa.exceptions.rest.BadRequestException;
 import qa.service.CommentService;
 import qa.source.ValidationPropertyDataSource;
@@ -79,7 +76,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public ResponseEntity<HttpStatus> deleteCommentQuestion(CommentQuestionDeleteRequest request, Authentication authentication) {
-        return null;
+        deleteCommentQuestionProcess(request, authentication);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
@@ -111,6 +109,12 @@ public class CommentServiceImpl implements CommentService {
         saveEditedCommentAnswer(request);
     }
 
+    private void deleteCommentQuestionProcess(CommentQuestionDeleteRequest request, Authentication authentication) {
+        validate(request);
+        checkIsRealAuthorCommentQuestion(PrincipalUtil.getUserIdFromAuthentication(authentication), request.getId());
+        deleteCommentQuestionFromDatabase(request);
+    }
+
     private Long saveNewCommentQuestion(CommentQuestionCreateRequest request, Authentication authentication) {
         CommentQuestion commentQuestion = new CommentQuestion(
                 request.getText(),
@@ -137,6 +141,10 @@ public class CommentServiceImpl implements CommentService {
         CommentAnswer commentAnswer = new CommentAnswer();
         commentAnswer.setText(request.getText());
         commentAnswerDao.update(new Where("id", request.getId(), WhereOperator.EQUALS), commentAnswer);
+    }
+
+    private void deleteCommentQuestionFromDatabase(CommentQuestionDeleteRequest request) {
+        commentQuestionDao.delete(new Where("id", request.getId(), WhereOperator.EQUALS));
     }
 
     private void checkIsRealAuthorCommentQuestion(Long authenticationId, Long commentId) {
@@ -193,5 +201,9 @@ public class CommentServiceImpl implements CommentService {
 
     private void validate(CommentAnswerEditRequest request) {
         ValidationUtil.validate(new CommentAnswerEditRequestValidationWrapper(request, validationPropertyDataSource), validationChain);
+    }
+
+    private void validate(CommentQuestionDeleteRequest request) {
+        ValidationUtil.validate(new CommentQuestionDeleteRequestValidationWrapper(request), validationChain);
     }
 }

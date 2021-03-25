@@ -148,7 +148,7 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     private void deleteAnswerFromDatabase(AnswerDeleteRequest request) {
-        answerDao.delete(Answer.class, new Where("id", request.getId(), WhereOperator.EQUALS));
+        answerDao.delete(new Where("id", request.getId(), WhereOperator.EQUALS));
     }
 
     private void checkIsRealAuthor(Long id, Authentication authentication) {

@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import qa.dto.request.comment.CommentAnswerCreateRequest;
-import qa.dto.request.comment.CommentAnswerEditRequest;
-import qa.dto.request.comment.CommentQuestionCreateRequest;
-import qa.dto.request.comment.CommentQuestionEditRequest;
+import qa.dto.request.comment.*;
 import qa.service.CommentService;
 
 @RestController
@@ -94,6 +91,32 @@ public class CommentRestController {
         return commentService.createCommentAnswer(request, authentication);
     }
 
+
+    /**
+     * @uri
+     * /api/v1/comment/question/edit
+     *
+     * @method
+     * put
+     *
+     * @request
+     * dto {
+     *     id: long
+     *     text: string
+     * }
+     *
+     * @response
+     * OK: (200)
+     * id: long (NOT JSON)
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
     @PreAuthorize("hasAuthority('USER')")
     @RequestMapping(
             value = "/question/edit",
@@ -103,6 +126,32 @@ public class CommentRestController {
         return commentService.editCommentQuestion(request, authentication);
     }
 
+
+    /**
+     * @uri
+     * /api/v1/comment/answer/edit
+     *
+     * @method
+     * put
+     *
+     * @request
+     * dto {
+     *     id: long
+     *     text: string
+     * }
+     *
+     * @response
+     * OK: (200)
+     * id: long (NOT JSON)
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
     @PreAuthorize("hasAuthority('USER')")
     @RequestMapping(
             value = "/answer/edit",
@@ -110,5 +159,39 @@ public class CommentRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpStatus> editCommentAnswer(@RequestBody CommentAnswerEditRequest request, Authentication authentication) {
         return commentService.editCommentAnswer(request, authentication);
+    }
+
+
+    /**
+     * @uri
+     * /api/v1/comment/question/edit
+     *
+     * @method
+     * delete
+     *
+     * @request
+     * dto {
+     *     id: long
+     * }
+     *
+     * @response
+     * OK: (200)
+     * id: long (NOT JSON)
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "/question/delete",
+            method = RequestMethod.DELETE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> deleteCommentAnswer(@RequestBody CommentQuestionDeleteRequest request, Authentication authentication) {
+        return commentService.deleteCommentQuestion(request, authentication);
     }
 }

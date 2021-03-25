@@ -117,7 +117,7 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     private void deleteQuestionById(Long questionId) {
-        questionDao.delete(Question.class, new Where("id", questionId, WhereOperator.EQUALS));
+        questionDao.delete(new Where("id", questionId, WhereOperator.EQUALS));
     }
 
     private String tagsArrayToString(String[] tags) {

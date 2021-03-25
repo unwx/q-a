@@ -16,13 +16,14 @@ abstract class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor>
 
     private final SessionFactory sessionFactory;
     private final DaoUtil<Entity> daoUtil;
-
+    private final Entity emptyEntity;
 
     protected DaoImpl(SessionFactory sessionFactory,
                    Entity emptyEntity,
                    PropertySetter propertySetter) {
         this.sessionFactory = sessionFactory;
-        daoUtil = new DaoUtilImpl<>(emptyEntity, propertySetter);
+        this.daoUtil = new DaoUtilImpl<>(emptyEntity, propertySetter);
+        this.emptyEntity = emptyEntity;
     }
 
     @Override
@@ -75,9 +76,9 @@ abstract class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor>
     }
 
     @Override
-    public void delete(final Class<Entity> clazz, final Where where) {
+    public void delete(final Where where) {
         try(Session session = sessionFactory.openSession()) {
-            daoUtil.delete(clazz.getName(), where, session);
+            daoUtil.delete(emptyEntity.getClass().getSimpleName(), where, session);
         }
     }
 }
