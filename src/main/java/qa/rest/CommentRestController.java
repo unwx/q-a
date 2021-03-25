@@ -191,7 +191,41 @@ public class CommentRestController {
             value = "/question/delete",
             method = RequestMethod.DELETE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpStatus> deleteCommentAnswer(@RequestBody CommentQuestionDeleteRequest request, Authentication authentication) {
+    public ResponseEntity<HttpStatus> deleteCommentQuestion(@RequestBody CommentQuestionDeleteRequest request, Authentication authentication) {
         return commentService.deleteCommentQuestion(request, authentication);
+    }
+
+
+    /**
+     * @uri
+     * /api/v1/comment/answer/edit
+     *
+     * @method
+     * delete
+     *
+     * @request
+     * dto {
+     *     id: long
+     * }
+     *
+     * @response
+     * OK: (200)
+     * id: long (NOT JSON)
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "/answer/delete",
+            method = RequestMethod.DELETE,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> deleteCommentAnswer(@RequestBody CommentAnswerDeleteRequest request, Authentication authentication) {
+        return commentService.deleteCommentAnswer(request, authentication);
     }
 }

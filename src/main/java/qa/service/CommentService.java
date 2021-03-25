@@ -16,5 +16,5 @@ public interface CommentService {
 
     ResponseEntity<HttpStatus> deleteCommentQuestion(CommentQuestionDeleteRequest request, Authentication authentication);
 
-    ResponseEntity<HttpStatus> deleteCommentAnswer(CommentAnswerCreateRequest request, Authentication authentication);
+    ResponseEntity<HttpStatus> deleteCommentAnswer(CommentAnswerDeleteRequest request, Authentication authentication);
 }

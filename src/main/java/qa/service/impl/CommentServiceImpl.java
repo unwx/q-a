@@ -81,8 +81,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public ResponseEntity<HttpStatus> deleteCommentAnswer(CommentAnswerCreateRequest request, Authentication authentication) {
-        return null;
+    public ResponseEntity<HttpStatus> deleteCommentAnswer(CommentAnswerDeleteRequest request, Authentication authentication) {
+        deleteCommentAnswerProcess(request, authentication);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     private Long createCommentQuestionProcess(CommentQuestionCreateRequest request, Authentication authentication) {
@@ -115,6 +116,12 @@ public class CommentServiceImpl implements CommentService {
         deleteCommentQuestionFromDatabase(request);
     }
 
+    private void deleteCommentAnswerProcess(CommentAnswerDeleteRequest request, Authentication authentication) {
+        validate(request);
+        checkIsRealAuthorCommentAnswer(PrincipalUtil.getUserIdFromAuthentication(authentication), request.getId());
+        deleteCommentAnswerFromDatabase(request);
+    }
+
     private Long saveNewCommentQuestion(CommentQuestionCreateRequest request, Authentication authentication) {
         CommentQuestion commentQuestion = new CommentQuestion(
                 request.getText(),
@@ -145,6 +152,10 @@ public class CommentServiceImpl implements CommentService {
 
     private void deleteCommentQuestionFromDatabase(CommentQuestionDeleteRequest request) {
         commentQuestionDao.delete(new Where("id", request.getId(), WhereOperator.EQUALS));
+    }
+
+    private void deleteCommentAnswerFromDatabase(CommentAnswerDeleteRequest request) {
+        commentAnswerDao.delete(new Where("id", request.getId(), WhereOperator.EQUALS));
     }
 
     private void checkIsRealAuthorCommentQuestion(Long authenticationId, Long commentId) {
@@ -205,5 +216,9 @@ public class CommentServiceImpl implements CommentService {
 
     private void validate(CommentQuestionDeleteRequest request) {
         ValidationUtil.validate(new CommentQuestionDeleteRequestValidationWrapper(request), validationChain);
+    }
+
+    private void validate(CommentAnswerDeleteRequest request) {
+        ValidationUtil.validate(new CommentAnswerDeleteRequestValidationWrapper(request), validationChain);
     }
 }
