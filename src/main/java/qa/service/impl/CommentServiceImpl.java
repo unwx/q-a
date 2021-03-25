@@ -16,6 +16,7 @@ import qa.domain.*;
 import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.comment.*;
 import qa.dto.validation.wrapper.comment.CommentAnswerCreateRequestValidationWrapper;
+import qa.dto.validation.wrapper.comment.CommentAnswerEditRequestValidationWrapper;
 import qa.dto.validation.wrapper.comment.CommentQuestionCreateRequestValidationWrapper;
 import qa.dto.validation.wrapper.comment.CommentQuestionEditRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
@@ -72,7 +73,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public ResponseEntity<HttpStatus> editCommentAnswer(CommentAnswerEditRequest request, Authentication authentication) {
-        return null;
+        editCommentAnswerProcess(request, authentication);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
@@ -103,6 +105,12 @@ public class CommentServiceImpl implements CommentService {
         saveEditedCommentQuestion(request);
     }
 
+    private void editCommentAnswerProcess(CommentAnswerEditRequest request, Authentication authentication) {
+        validate(request);
+        checkIsRealAuthorCommentAnswer(PrincipalUtil.getUserIdFromAuthentication(authentication), request.getId());
+        saveEditedCommentAnswer(request);
+    }
+
     private Long saveNewCommentQuestion(CommentQuestionCreateRequest request, Authentication authentication) {
         CommentQuestion commentQuestion = new CommentQuestion(
                 request.getText(),
@@ -125,12 +133,29 @@ public class CommentServiceImpl implements CommentService {
         commentQuestionDao.update(new Where("id", request.getId(), WhereOperator.EQUALS), commentQuestion);
     }
 
+    private void saveEditedCommentAnswer(CommentAnswerEditRequest request) {
+        CommentAnswer commentAnswer = new CommentAnswer();
+        commentAnswer.setText(request.getText());
+        commentAnswerDao.update(new Where("id", request.getId(), WhereOperator.EQUALS), commentAnswer);
+    }
+
     private void checkIsRealAuthorCommentQuestion(Long authenticationId, Long commentId) {
         AuthorUtil.checkIsRealAuthorAndIsEntityExist(
                 authenticationId,
                 new Where("id", commentId, WhereOperator.EQUALS),
                 CommentQuestion.class,
                 commentQuestionDao,
+                propertySetterFactory,
+                logger,
+                "comment");
+    }
+
+    private void checkIsRealAuthorCommentAnswer(Long authenticationId, Long commentId) {
+        AuthorUtil.checkIsRealAuthorAndIsEntityExist(
+                authenticationId,
+                new Where("id", commentId, WhereOperator.EQUALS),
+                CommentAnswer.class,
+                commentAnswerDao,
                 propertySetterFactory,
                 logger,
                 "comment");
@@ -164,5 +189,9 @@ public class CommentServiceImpl implements CommentService {
 
     private void validate(CommentQuestionEditRequest request) {
         ValidationUtil.validate(new CommentQuestionEditRequestValidationWrapper(request, validationPropertyDataSource), validationChain);
+    }
+
+    private void validate(CommentAnswerEditRequest request) {
+        ValidationUtil.validate(new CommentAnswerEditRequestValidationWrapper(request, validationPropertyDataSource), validationChain);
     }
 }

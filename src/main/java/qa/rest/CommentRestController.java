@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import qa.dto.request.comment.CommentAnswerCreateRequest;
+import qa.dto.request.comment.CommentAnswerEditRequest;
 import qa.dto.request.comment.CommentQuestionCreateRequest;
 import qa.dto.request.comment.CommentQuestionEditRequest;
 import qa.service.CommentService;
@@ -98,7 +99,16 @@ public class CommentRestController {
             value = "/question/edit",
             method = RequestMethod.PUT,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpStatus> editCommentAnswer(@RequestBody CommentQuestionEditRequest request, Authentication authentication) {
+    public ResponseEntity<HttpStatus> editCommentQuestion(@RequestBody CommentQuestionEditRequest request, Authentication authentication) {
         return commentService.editCommentQuestion(request, authentication);
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "/answer/edit",
+            method = RequestMethod.PUT,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> editCommentAnswer(@RequestBody CommentAnswerEditRequest request, Authentication authentication) {
+        return commentService.editCommentAnswer(request, authentication);
     }
 }
