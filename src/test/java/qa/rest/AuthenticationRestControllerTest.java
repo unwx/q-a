@@ -8,6 +8,7 @@ import io.restassured.specification.RequestSpecification;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
 import qa.dto.response.JwtPairResponseDto;
 import qa.exceptions.rest.ErrorMessage;
+import qa.security.PasswordEncryptorFactory;
 import qa.security.jwt.entity.JwtData;
 import qa.security.jwt.service.JwtProvider;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
@@ -39,6 +41,9 @@ public class AuthenticationRestControllerTest {
 
     @Autowired
     private JwtProvider jwtProvider;
+
+    @Autowired
+    private PasswordEncryptorFactory PasswordEncryptorFactory;
 
     @BeforeEach
     void truncate() {
@@ -182,6 +187,7 @@ public class AuthenticationRestControllerTest {
     }
 
     private void createUser() {
+        PooledPBEStringEncryptor encryptor = PasswordEncryptorFactory.create();
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             String sqlUser =
@@ -194,7 +200,7 @@ public class AuthenticationRestControllerTest {
                     """
                     insert into authentication (id, access_token_exp_date, email, enabled, password, refresh_token_exp_date, user_id)\s\
                     values (1, 1, '%s', true, '%s', 1, 1); \
-                    """.formatted(defaultUserEmail, defaultUserPassword);
+                    """.formatted(defaultUserEmail, encryptor.encrypt(defaultUserPassword));
             session.createSQLQuery(sqlUser).executeUpdate();
             session.createSQLQuery(sqlAuthentication).executeUpdate();
             transaction.commit();
@@ -202,6 +208,7 @@ public class AuthenticationRestControllerTest {
     }
 
     private void createUserWithRefreshToken(long tokenExp) {
+        PooledPBEStringEncryptor encryptor = PasswordEncryptorFactory.create();
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             String sqlUser =
@@ -214,7 +221,7 @@ public class AuthenticationRestControllerTest {
                     """
                     insert into authentication (id, access_token_exp_date, email, enabled, password, refresh_token_exp_date, user_id)\s\
                     values (1, 1, '%s', true, '%s', %s, 1); \
-                    """.formatted(defaultUserEmail, defaultUserPassword, tokenExp);
+                    """.formatted(defaultUserEmail, encryptor.encrypt(defaultUserPassword), tokenExp);
             String sqlRoles =
                     """
                     insert into user_role (auth_id, roles) VALUES (1, 'USER');\

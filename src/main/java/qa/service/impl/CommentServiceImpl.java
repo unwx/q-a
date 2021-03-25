@@ -34,7 +34,7 @@ public class CommentServiceImpl implements CommentService {
     private final ValidationPropertyDataSource validationPropertyDataSource;
     private final ValidationChainAdditional validationChain;
     private final PropertySetterFactory propertySetterFactory;
-    private final Logger logger = LogManager.getLogger(CommentServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(CommentServiceImpl.class);
 
     public CommentServiceImpl(CommentQuestionDao commentQuestionDao,
                               CommentAnswerDao commentAnswerDao,

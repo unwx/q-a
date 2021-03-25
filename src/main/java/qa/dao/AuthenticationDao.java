@@ -4,6 +4,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,16 +32,18 @@ public class AuthenticationDao extends DaoImpl<AuthenticationData> {
         return (Long) super.create(e);
     }
 
-    public boolean isEmailPasswordCorrect(String email, String password) {
+    public boolean isEmailPasswordCorrect(String email, String password, PooledPBEStringEncryptor passwordEncryptor) {
         try(Session session = sessionFactory.openSession()) {
-            String hql = "select a.id from AuthenticationData a where a.email=:a and a.password=:b";
+            String hql = "select a.password from AuthenticationData a where a.email=:a";
             Transaction transaction = session.beginTransaction();
-            Object obj = session.createQuery(hql)
+            String pass = (String) session.createQuery(hql)
                     .setParameter("a", email)
-                    .setParameter("b", password)
                     .uniqueResult();
             transaction.commit();
-            return obj != null;
+            if (pass == null)
+                return false;
+
+            return passwordEncryptor.decrypt(pass).equals(password);
         }
     }
 

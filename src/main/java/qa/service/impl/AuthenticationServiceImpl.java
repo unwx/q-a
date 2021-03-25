@@ -1,5 +1,6 @@
 package qa.service.impl;
 
+import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import qa.dto.validation.wrapper.authentication.AuthenticationRequestValidationW
 import qa.dto.validation.wrapper.authentication.RegistrationRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.exceptions.rest.UnauthorizedException;
+import qa.security.PasswordEncryptorFactory;
 import qa.service.AuthenticationService;
 import qa.source.ValidationPropertyDataSource;
 import qa.util.JwtUtil;
@@ -35,16 +37,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final ValidationPropertyDataSource propertiesDataSource;
     private final ValidationChainAdditional chainValidator;
     private final JwtUtil jwtUtil;
+    private final PooledPBEStringEncryptor passwordEncryptor;
 
     @Autowired
     public AuthenticationServiceImpl(AuthenticationDao authenticationDao,
                                      ValidationPropertyDataSource propertiesDataSource,
                                      ValidationChainAdditional chainValidator,
-                                     JwtUtil jwtUtil) {
+                                     JwtUtil jwtUtil,
+                                     PasswordEncryptorFactory passwordEncryptorFactory) {
         this.authenticationDao = authenticationDao;
         this.propertiesDataSource = propertiesDataSource;
         this.chainValidator = chainValidator;
         this.jwtUtil = jwtUtil;
+        this.passwordEncryptor = passwordEncryptorFactory.create();
     }
 
     @Override
@@ -89,7 +94,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         AuthenticationData data = new AuthenticationData.Builder()
                 .email(request.getEmail())
-                .password(request.getPassword())
+                .password(passwordEncryptor.encrypt(request.getPassword()))
                 .enabled(true)
                 .accessTokenExpirationDateAtMillis(dto.getAccess().getExp())
                 .refreshTokenExpirationDateAtMillis(dto.getRefresh().getExp())
@@ -106,7 +111,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private void authenticate(AuthenticationData data) {
-        if (!authenticationDao.isEmailPasswordCorrect(data.getEmail(), data.getPassword())) {
+        if (!authenticationDao.isEmailPasswordCorrect(data.getEmail(), data.getPassword(), passwordEncryptor)) {
             throw new UnauthorizedException("incorrect login or password");
         }
     }
