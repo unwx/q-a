@@ -1,5 +1,6 @@
 package qa.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ public class QuestionRestController {
 
     private final QuestionService questionService;
 
+    @Autowired
     public QuestionRestController(QuestionService questionService) {
         this.questionService = questionService;
     }
@@ -33,7 +35,7 @@ public class QuestionRestController {
      *
      * @request
      * Dto {
-     *     title: string|length(min = 10; max = 50). regex = ^(?![_.\- ()])(?!.*[_.-]{2})[a-zA-Z0-9а-я._\-() ]+(?<![_.\- ()])$
+     *     title: string|length(min = 10; max = 50).
      *     text: string|length(min = 50; max = 2000)
      *     tags: string[] -> (for each tag: |length(min = 2; max = 20).regex = ^(?![_.\- ])(?!.*[_.-]{2})[a-zA-Z0-9._\-]+(?<![_.\- ])$
      *           tags|length(min = 1; max = 7)
@@ -70,7 +72,6 @@ public class QuestionRestController {
      *
      * @request
      * Dto {
-     *     title: string|length(min = 10; max = 50). regex = ^(?![_.\- ()])(?!.*[_.-]{2})[a-zA-Z0-9а-я._\-() ]+(?<![_.\- ()])$
      *     text: string|length(min = 50; max = 2000)
      *     tags: string[] -> (for each tag: |length(min = 2; max = 20).regex = ^(?![_.\- ])(?!.*[_.-]{2})[a-zA-Z0-9._\-]+(?<![_.\- ])$
      *           tags|length(min = 1; max = 7)

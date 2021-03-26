@@ -37,7 +37,6 @@ public class PasswordEncryptorFactory {
             config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
             config.setStringOutputType("base64");
             pooledPBEStringEncryptor.setConfig(config);
-            return pooledPBEStringEncryptor;
         }
         return pooledPBEStringEncryptor;
     }
