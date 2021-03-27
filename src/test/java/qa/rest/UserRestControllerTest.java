@@ -57,7 +57,7 @@ public class UserRestControllerTest {
             }\
             ]\
             }\
-            """.formatted(username);
+            """.formatted(username); //not sorted by date because they are created at the same time.
 
     @BeforeEach
     void truncate() {
@@ -77,6 +77,18 @@ public class UserRestControllerTest {
         createUserWithQuestionsAndAnswers();
         RequestSpecification request = RestAssured.given();
         Response response = request.get("get/" + username);
+        assertThat(response.getStatusCode(), equalTo(200));
+        assertThat(response.getBody().asString(), equalTo(requiredResult));
+    }
+
+    @Test
+    void getUser_Success_ByJson() {
+        createUserWithQuestionsAndAnswers();
+        RequestSpecification request = RestAssured.given();
+        request.header("Content-Type", "application/json");
+        request.body("{\"username\":\"" + username + "\"}");
+
+        Response response = request.get("get");
         assertThat(response.getStatusCode(), equalTo(200));
         assertThat(response.getBody().asString(), equalTo(requiredResult));
     }
