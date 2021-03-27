@@ -16,7 +16,7 @@ import qa.dto.internal.JwtDataDto;
 import qa.dto.internal.JwtPairDataDto;
 import qa.dto.request.authentication.AuthenticationRequest;
 import qa.dto.request.authentication.RegistrationRequest;
-import qa.dto.response.JwtPairResponseDto;
+import qa.dto.response.JwtPairResponse;
 import qa.dto.validation.wrapper.authentication.AuthenticationRequestValidationWrapper;
 import qa.dto.validation.wrapper.authentication.RegistrationRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
@@ -53,21 +53,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public ResponseEntity<JwtPairResponseDto> login(AuthenticationRequest request) {
+    public ResponseEntity<JwtPairResponse> login(AuthenticationRequest request) {
         return new ResponseEntity<>(loginProcess(request), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<JwtPairResponseDto> registration(RegistrationRequest request) {
+    public ResponseEntity<JwtPairResponse> registration(RegistrationRequest request) {
         return new ResponseEntity<>(registrationProcess(request), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<JwtPairResponseDto> refreshTokens(String email) {
+    public ResponseEntity<JwtPairResponse> refreshTokens(String email) {
         return new ResponseEntity<>(refreshTokensProcess(email), HttpStatus.OK);
     }
 
-    private JwtPairResponseDto loginProcess(AuthenticationRequest request) {
+    private JwtPairResponse loginProcess(AuthenticationRequest request) {
         validate(request);
         AuthenticationData data = new AuthenticationData.Builder()
                 .email(request.getEmail())
@@ -76,15 +76,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         authenticate(data);
         JwtPairDataDto dto = getTokens(request.getEmail());
         refreshUserTokensExpirationTime(request.getEmail(), dto);
-        return new JwtPairResponseDto(dto.getAccess().getToken(), dto.getRefresh().getToken());
+        return new JwtPairResponse(dto.getAccess().getToken(), dto.getRefresh().getToken());
     }
 
-    private JwtPairResponseDto registrationProcess(RegistrationRequest request) {
+    private JwtPairResponse registrationProcess(RegistrationRequest request) {
         validate(request);
         alreadyExistException(request);
         JwtPairDataDto dto = getTokens(request.getEmail());
         saveNewUser(request, dto);
-        return new JwtPairResponseDto(dto.getAccess().getToken(), dto.getRefresh().getToken());
+        return new JwtPairResponse(dto.getAccess().getToken(), dto.getRefresh().getToken());
     }
 
     private void saveNewUser(RegistrationRequest request, JwtPairDataDto dto) {
@@ -104,10 +104,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         authenticationDao.create(data);
     }
 
-    private JwtPairResponseDto refreshTokensProcess(String email) {
+    private JwtPairResponse refreshTokensProcess(String email) {
         JwtPairDataDto dto = getTokens(email);
         refreshUserTokensExpirationTime(email, dto);
-        return new JwtPairResponseDto(dto.getAccess().getToken(), dto.getRefresh().getToken());
+        return new JwtPairResponse(dto.getAccess().getToken(), dto.getRefresh().getToken());
     }
 
     private void authenticate(AuthenticationData data) {
@@ -146,7 +146,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         };
         AuthenticationData data = authenticationDao.read(
                 new Where("username", request.getUsername(), WhereOperator.EQUALS),
-                new Table(fieldsName, "AuthenticationData"));
+                new Table(fieldsName, "User"));
         return data != null;
     }
 

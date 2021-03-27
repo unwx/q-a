@@ -18,7 +18,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
-import qa.dto.response.JwtPairResponseDto;
+import qa.dto.response.JwtPairResponse;
 import qa.exceptions.rest.ErrorMessage;
 import qa.security.PasswordEncryptorFactory;
 import qa.security.jwt.entity.JwtData;
@@ -71,7 +71,7 @@ public class AuthenticationRestControllerTest {
 
         String body = response.getBody().asString();
         ObjectMapper mapper = new ObjectMapper();
-        JwtPairResponseDto tokens = mapper.readValue(body, JwtPairResponseDto.class);
+        JwtPairResponse tokens = mapper.readValue(body, JwtPairResponse.class);
 
         assertThat(tokens.getAccess().length(), greaterThan(25));
         assertThat(tokens.getRefresh().length(), greaterThan(25));
@@ -112,7 +112,7 @@ public class AuthenticationRestControllerTest {
 
         String body = response.getBody().asString();
         ObjectMapper mapper = new ObjectMapper();
-        JwtPairResponseDto tokens = mapper.readValue(body, JwtPairResponseDto.class);
+        JwtPairResponse tokens = mapper.readValue(body, JwtPairResponse.class);
 
         assertThat(tokens.getAccess().length(), greaterThan(25));
         assertThat(tokens.getRefresh().length(), greaterThan(25));
@@ -153,7 +153,7 @@ public class AuthenticationRestControllerTest {
 
         String body = response.getBody().asString();
         ObjectMapper mapper = new ObjectMapper();
-        JwtPairResponseDto tokens = mapper.readValue(body, JwtPairResponseDto.class);
+        JwtPairResponse tokens = mapper.readValue(body, JwtPairResponse.class);
 
         assertThat(tokens.getAccess().length(), greaterThan(25));
         assertThat(tokens.getRefresh().length(), greaterThan(25));

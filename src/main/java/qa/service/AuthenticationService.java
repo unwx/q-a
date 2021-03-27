@@ -3,12 +3,12 @@ package qa.service;
 import org.springframework.http.ResponseEntity;
 import qa.dto.request.authentication.AuthenticationRequest;
 import qa.dto.request.authentication.RegistrationRequest;
-import qa.dto.response.JwtPairResponseDto;
+import qa.dto.response.JwtPairResponse;
 
 public interface AuthenticationService {
-    ResponseEntity<JwtPairResponseDto> login(AuthenticationRequest request);
+    ResponseEntity<JwtPairResponse> login(AuthenticationRequest request);
 
-    ResponseEntity<JwtPairResponseDto> registration(RegistrationRequest request);
+    ResponseEntity<JwtPairResponse> registration(RegistrationRequest request);
 
-    ResponseEntity<JwtPairResponseDto> refreshTokens(String email);
+    ResponseEntity<JwtPairResponse> refreshTokens(String email);
 }

@@ -1,15 +1,15 @@
 package qa.dto.response;
 
-public class JwtPairResponseDto {
+public class JwtPairResponse {
     private final String access;
     private final String refresh;
 
-    public JwtPairResponseDto(String access, String refresh) {
+    public JwtPairResponse(String access, String refresh) {
         this.access = access;
         this.refresh = refresh;
     }
 
-    protected JwtPairResponseDto() {
+    protected JwtPairResponse() {
         this.access = null;
         this.refresh = null;
     }

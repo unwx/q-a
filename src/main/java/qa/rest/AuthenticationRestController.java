@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import qa.dto.request.authentication.AuthenticationRequest;
 import qa.dto.request.authentication.RegistrationRequest;
-import qa.dto.response.JwtPairResponseDto;
+import qa.dto.response.JwtPairResponse;
 import qa.security.jwt.entity.JwtClaims;
 import qa.service.AuthenticationService;
 
@@ -62,7 +62,7 @@ public class AuthenticationRestController {
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<JwtPairResponseDto> registration(@RequestBody RegistrationRequest request) {
+    public ResponseEntity<JwtPairResponse> registration(@RequestBody RegistrationRequest request) {
         return authenticationService.registration(request);
     }
 
@@ -100,7 +100,7 @@ public class AuthenticationRestController {
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<JwtPairResponseDto> login(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<JwtPairResponse> login(@RequestBody AuthenticationRequest request) {
         return authenticationService.login(request);
     }
 
@@ -136,7 +136,7 @@ public class AuthenticationRestController {
             method = RequestMethod.POST,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<JwtPairResponseDto> refresh(ServletRequest servletRequest) {
+    public ResponseEntity<JwtPairResponse> refresh(ServletRequest servletRequest) {
         JwtClaims claims = (JwtClaims) servletRequest.getAttribute("claims");
         String email = claims.getSub();
         return authenticationService.refreshTokens(email);
