@@ -16,7 +16,7 @@ public class User implements FieldExtractor, FieldDataSetterExtractor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username", length = 30, nullable = false)
+    @Column(name = "username", length = 30, nullable = false, unique = true)
     private String username;
 
     @Column(name = "about", length = 1024)

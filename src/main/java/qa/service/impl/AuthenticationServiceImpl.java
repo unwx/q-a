@@ -140,9 +140,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return data != null;
     }
 
+    private boolean isUsernameAlreadyExist(RegistrationRequest request) {
+        String[] fieldsName = new String[] {
+                "id"
+        };
+        AuthenticationData data = authenticationDao.read(
+                new Where("username", request.getUsername(), WhereOperator.EQUALS),
+                new Table(fieldsName, "AuthenticationData"));
+        return data != null;
+    }
+
     private void alreadyExistException(RegistrationRequest request) {
         if (isUserAlreadyExist(request))
             throw new BadRequestException("user already exist.");
+        if (isUsernameAlreadyExist(request))
+            throw new BadRequestException("user with this username already exist");
     }
 
     private void validate(AuthenticationRequest request) {
