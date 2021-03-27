@@ -66,7 +66,7 @@ public class CommentRestController {
      *
      * @request
      * dto {
-     *     question_id: long
+     *     answer_id: long
      *     text: string
      * }
      *
