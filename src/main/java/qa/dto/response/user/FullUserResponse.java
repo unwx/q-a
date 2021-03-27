@@ -1,10 +1,13 @@
 package qa.dto.response.user;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import qa.domain.Answer;
 import qa.domain.Question;
+import qa.serializer.FullUserSerializer;
 
 import java.util.List;
 
+@JsonSerialize(using = FullUserSerializer.class)
 public class FullUserResponse {
 
     private final String username;

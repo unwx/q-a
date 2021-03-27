@@ -1,8 +1,14 @@
 package qa.propertySetter;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.web.WebAppConfiguration;
 import qa.Entity;
 import qa.NestedEntity;
+import qa.config.spring.SpringConfig;
 import qa.domain.setters.PropertySetter;
 import qa.domain.setters.PropertySetterFactory;
 import qa.exceptions.domain.SetterNotImplementedException;
@@ -16,9 +22,13 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@WebAppConfiguration
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = SpringConfig.class)
 public class PropertySetterTest {
 
-    private final PropertySetterFactory propertySetterFactory = new PropertySetterFactory();
+    @Autowired
+    private PropertySetterFactory propertySetterFactory;
 
     @Test
     public void entityNullAttributes() {

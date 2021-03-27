@@ -12,7 +12,7 @@ import java.util.HashMap;
 public class PropertySetterFactory {
 
     private final static Logger logger = LogManager.getLogger(PropertySetterFactory.class);
-    public PropertySetterFactory() {}
+    protected PropertySetterFactory() {}
 
     private final HashMap<String, PropertySetter> propertySetters = new HashMap<>();
 
