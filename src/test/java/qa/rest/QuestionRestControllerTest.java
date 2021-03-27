@@ -19,11 +19,11 @@ import qa.security.jwt.entity.JwtData;
 import qa.security.jwt.service.JwtProvider;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
+import java.math.BigInteger;
 import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.*;
 
 @WebAppConfiguration
 @ExtendWith(SpringExtension.class)
@@ -34,6 +34,18 @@ public class QuestionRestControllerTest {
     private final static String defaultUserPassword = "ho3kLS4hl2dp-asd";
     private final static String defaultUserUsername = "user471293";
     private final static String defaultUserEmail = "yahoo@yahoo.com";
+
+    private final static String text = """
+                What are Null Pointer Exceptions (java.lang.NullPointerException) and what causes them?
+                What methods/tools can be used to determine the cause so that you stop the exception from causing the program to terminate prematurely?\
+                """;
+    private final static String secondText =
+            """
+            The NullPointerException (NPE) occurs when you declare a variable but did not create an object and assign it to the variable before trying to\s\
+            use the contents of the variable (called dereferencing). So you are pointing to something that does not actually exist.\
+            """;
+    private final static String[] tags = new String[]{"null", "java"};
+    private final static String title = "null pointer exception at . . .";
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -53,34 +65,6 @@ public class QuestionRestControllerTest {
     }
 
     @Test
-    void tokenSecurityTest_WithoutToken() {
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.body("{\"test\":123}");
-        Response response = request.post("create");
-        assertThat(response.getStatusCode(), equalTo(403));
-
-        Response response1 = request.put("edit");
-        assertThat(response1.getStatusCode(), equalTo(403));
-
-        Response response2 = request.delete("delete");
-        assertThat(response2.getStatusCode(), equalTo(403));
-    }
-
-    @Test
-    void tokenSecurityTest_InvalidToken() {
-        JwtData data = jwtProvider.createAccess(defaultUserEmail);
-        String token = data.getToken();
-
-        RequestSpecification request = RestAssured.given();
-        request.header("Authorization", "Bearer_" + token);
-
-        Response response = request.post("create");
-        assertThat(response.getStatusCode(), equalTo(401));
-    }
-
-
-    @Test
     void createQuestionSuccess() {
         JwtData data = jwtProvider.createAccess(defaultUserEmail);
         String token = data.getToken();
@@ -97,6 +81,13 @@ public class QuestionRestControllerTest {
         assertThat(response.getStatusCode(), equalTo(200));
         String body = response.getBody().asString();
         assertThat(body.length(), greaterThan(0));
+
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            BigInteger result = (BigInteger) session.createSQLQuery("select id from question where text = :a").setParameter("a", text).uniqueResult();
+            transaction.commit();
+            assertThat(result.longValue(), equalTo(Long.parseLong(body)));
+        }
     }
 
     @Test
@@ -116,6 +107,13 @@ public class QuestionRestControllerTest {
 
         Response response = request.put("edit");
         assertThat(response.getStatusCode(), equalTo(200));
+
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            Object result = session.createSQLQuery("select id from question where text = :a").setParameter("a", secondText).uniqueResult();
+            transaction.commit();
+            assertThat(result, notNullValue());
+        }
     }
 
     @Test
@@ -133,6 +131,13 @@ public class QuestionRestControllerTest {
 
         Response response = request.delete("delete");
         assertThat(response.getStatusCode(), equalTo(200));
+
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            Object result = session.createSQLQuery("select id from question where id = :a").setParameter("a", 1L).uniqueResult();
+            transaction.commit();
+            assertThat(result, equalTo(null));
+        }
     }
 
     @Test
@@ -149,8 +154,30 @@ public class QuestionRestControllerTest {
         request.header("Authorization", "Bearer_" + token);
         request.body("{\"id\":1}");
 
+        RequestSpecification request1 = RestAssured.given();
+        request1.header("Content-Type", "application/json");
+        request1.header("Authorization", "Bearer_" + token);
+        request1.body(editQuestionJson().toString());
+
         Response response = request.delete("delete");
         assertThat(response.getStatusCode(), equalTo(403));
+
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            Object result = session.createSQLQuery("select id from question where text = :a").setParameter("a", text).uniqueResult();
+            transaction.commit();
+            assertThat(result, notNullValue());
+        }
+
+        Response response1 = request1.put("edit");
+        assertThat(response1.getStatusCode(), equalTo(403));
+
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            Object result = session.createSQLQuery("select id from question where text = :a").setParameter("a", text).uniqueResult();
+            transaction.commit();
+            assertThat(result, notNullValue());
+        }
     }
 
     private void createQuestionDB() {
@@ -158,7 +185,7 @@ public class QuestionRestControllerTest {
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("" +
                     "insert into question (id, creation_date, last_activity, tags, text, title, author_id) " +
-                    "values (1, '%s', '%s', 'java, etc', 'text dsfdsfdsf', 'title dgfsdf', 1)".formatted(new Date(), new Date())).executeUpdate();
+                    "values (1, '%s', '%s', 'java, etc', '%s', '%s', 1)".formatted(new Date(), new Date(), text, title)).executeUpdate();
             transaction.commit();
         }
     }
@@ -189,20 +216,16 @@ public class QuestionRestControllerTest {
 
     private JSONObject createQuestionJson() {
         JSONObject requestParams = new JSONObject();
-        requestParams.put("title", "null pointer exception at . . .");
-        requestParams.put("text", """
-                What are Null Pointer Exceptions (java.lang.NullPointerException) and what causes them?
-                What methods/tools can be used to determine the cause so that you stop the exception from causing the program to terminate prematurely?""");
-        requestParams.put("tags", new String[]{"null", "java"});
+        requestParams.put("title", title);
+        requestParams.put("text", text);
+        requestParams.put("tags", tags);
         return requestParams;
     }
 
     private JSONObject editQuestionJson() {
         JSONObject requestParams = new JSONObject();
-        requestParams.put("text", """
-                What are Null Pointer Exceptions (java.lang.NullPointerException) and what causes them?
-                What methods/tools can be used to determine the cause so that you stop the exception from causing the program to terminate prematurely?""");
-        requestParams.put("tags", new String[]{"null", "java"});
+        requestParams.put("text", secondText);
+        requestParams.put("tags", tags);
         requestParams.put("id", 1);
         return requestParams;
     }
