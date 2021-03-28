@@ -7,25 +7,25 @@ import qa.validators.abstraction.ValidationField;
  * <h3>field '-1' = ignore</h3>
  */
 public class ValidationNumberField implements ValidationField {
-    private final Long num;
-    private final Long max;
-    private final Long min;
+    private final Number num;
+    private final Number max;
+    private final Number min;
 
-    public ValidationNumberField(Long num, Long max, Long min) {
+    public ValidationNumberField(Number num, Number max, Number min) {
         this.num = num;
         this.max = max;
         this.min = min;
     }
 
-    public Long getNum() {
+    public Number getNum() {
         return num;
     }
 
-    public Long getMax() {
+    public Number getMax() {
         return max;
     }
 
-    public Long getMin() {
+    public Number getMin() {
         return min;
     }
 
