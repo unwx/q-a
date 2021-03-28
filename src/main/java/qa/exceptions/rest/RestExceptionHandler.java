@@ -44,9 +44,19 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(AuthorNotExistException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorMessage authorNotExist(AuthorNotExistException ex, WebRequest request) {
+    public ErrorMessage authorNotExistHandle(AuthorNotExistException ex, WebRequest request) {
         return new ErrorMessage(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                new Date(),
+                ex.getMessage(),
+                request.getDescription(false));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorMessage resourceNotFoundHandle(ResourceNotFoundException ex, WebRequest request) {
+        return new ErrorMessage(
+                HttpStatus.NOT_FOUND.value(),
                 new Date(),
                 ex.getMessage(),
                 request.getDescription(false));

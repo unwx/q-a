@@ -1,5 +1,7 @@
 package qa.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -13,12 +15,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
+import qa.dto.response.user.UserQuestionsResponse;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
 
 @WebAppConfiguration
 @ExtendWith(SpringExtension.class)
@@ -94,6 +98,89 @@ public class UserRestControllerTest {
         assertThat(response.getBody().asString(), equalTo(requiredResult));
     }
 
+    @Test
+    void getUserQuestions_Success_ByJson() throws JsonProcessingException {
+        createUserWithManyQuestions();
+        RequestSpecification request = RestAssured.given();
+        request.header("Content-Type", "application/json");
+        request.body("{\"id\":1, \"page\":1}");
+
+        Response response = request.get("questions/get");
+        assertThat(response.getStatusCode(), equalTo(200));
+        ObjectMapper mapper = new ObjectMapper();
+        UserQuestionsResponse[] questionsResponse = mapper.readValue(response.body().asString(), UserQuestionsResponse[].class);
+        assertThat(questionsResponse.length, notNullValue());
+
+        for (long i = 0; i < questionsResponse.length; i++) {
+            assertThat(questionsResponse[(int) i].getId(), equalTo(i));
+            assertThat(questionsResponse[(int) i].getTitle(), equalTo("title"));
+        }
+    }
+
+    @Test
+    void getUserQuestions_Success_ByPathVariable() throws JsonProcessingException {
+        createUserWithManyQuestions();
+        RequestSpecification request = RestAssured.given();
+
+        Response response = request.get("questions/get/1/1");
+        assertThat(response.getStatusCode(), equalTo(200));
+        ObjectMapper mapper = new ObjectMapper();
+        UserQuestionsResponse[] questionsResponse = mapper.readValue(response.body().asString(), UserQuestionsResponse[].class);
+        assertThat(questionsResponse.length, notNullValue());
+
+        for (long i = 0; i < questionsResponse.length; i++) {
+            assertThat(questionsResponse[(int) i].getId(), equalTo(i));
+            assertThat(questionsResponse[(int) i].getTitle(), equalTo("title"));
+        }
+    }
+
+    @Test
+    void getUserQuestions_Failure_ByJson() {
+        createUserWithManyQuestions();
+        RequestSpecification request = RestAssured.given();
+        request.header("Content-Type", "application/json");
+        request.body("{\"id\":1, \"page\":0}");
+
+        Response response = request.get("questions/get");
+        assertThat(response.getStatusCode(), equalTo(400));
+    }
+
+    @Test
+    void getUserQuestions_Failure_ByPathVariable() {
+        createUserWithManyQuestions();
+        RequestSpecification request = RestAssured.given();
+
+        Response response = request.get("questions/get/1/0");
+        assertThat(response.getStatusCode(), equalTo(400));
+    }
+
+    @Test
+    void getUserQuestions_NotFound_ByJson() {
+        RequestSpecification request = RestAssured.given();
+        request.header("Content-Type", "application/json");
+        request.body("{\"id\":1, \"page\":5}");
+
+        Response response = request.get("questions/get");
+        assertThat(response.getStatusCode(), equalTo(404));
+
+        request.body("{\"id\":234, \"page\":1}");
+
+        Response response1 = request.get("questions/get");
+        assertThat(response1.getStatusCode(), equalTo(404));
+    }
+
+    @Test
+    void getUserQuestions_NotFound_PathVariable() {
+        createUserWithManyQuestions();
+        RequestSpecification request = RestAssured.given();
+
+        Response response = request.get("questions/get/1/5");
+        assertThat(response.getStatusCode(), equalTo(404));
+
+        Response response1 = request.get("questions/get/234/1");
+        assertThat(response1.getStatusCode(), equalTo(404));
+    }
+
     private void createUserWithQuestionsAndAnswers() {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
@@ -118,6 +205,30 @@ public class UserRestControllerTest {
             }
             for (long i = 1; i < 3; i++) {
                 session.createSQLQuery(answerSql).setParameter("id", i).executeUpdate();
+            }
+            transaction.commit();
+        }
+    }
+
+    private void createUserWithManyQuestions() {
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String userSql =
+                    """
+                    insert into usr (id, about, username) values (1, 'about', '%s')
+                    """.formatted(username);
+            String questionSql =
+                    """
+                    insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
+                    values (:id, '%s', '%s', 'tag, tag', :text, 'title', 1)
+                    """.formatted(new Date(), new Date());
+
+            session.createSQLQuery(userSql).executeUpdate();
+            for (long i = 0; i < 50; i++) {
+                session.createSQLQuery(questionSql)
+                        .setParameter("id", i)
+                        .setParameter("text", String.valueOf(i))
+                        .executeUpdate();
             }
             transaction.commit();
         }

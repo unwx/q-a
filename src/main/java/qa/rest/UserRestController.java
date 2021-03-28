@@ -5,8 +5,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import qa.dto.request.user.UserGetFullRequest;
+import qa.dto.request.user.UserGetQuestionsRequest;
 import qa.dto.response.user.FullUserResponse;
+import qa.dto.response.user.UserQuestionsResponse;
 import qa.service.UserService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user/")
@@ -118,5 +122,21 @@ public class UserRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<FullUserResponse> getUser(@RequestBody UserGetFullRequest request) {
         return userService.getFullUser(request);
+    }
+
+    @RequestMapping(
+            value = "questions/get/{userId}/{startPage}",
+            method = RequestMethod.GET)
+    public ResponseEntity<List<UserQuestionsResponse>> getUserQuestions(@PathVariable("userId") Long userId,
+                                                                  @PathVariable("startPage") Integer startPage) {
+        return userService.getUserQuestions(userId, startPage);
+    }
+
+    @RequestMapping(
+            value = "questions/get",
+            method = RequestMethod.GET,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<UserQuestionsResponse>> getUserQuestions(@RequestBody UserGetQuestionsRequest request) {
+        return userService.getUserQuestions(request);
     }
 }
