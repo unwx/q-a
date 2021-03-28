@@ -49,6 +49,7 @@ public class UserDao extends DaoImpl<User> {
 
             User user = new User();
             user.setUsername(username);
+            user.setId(userId);
 
             if (!questions.isEmpty()) {
                 user.setQuestions(questions);
@@ -87,6 +88,8 @@ public class UserDao extends DaoImpl<User> {
                 """;
         return session.createSQLQuery(getUserLastAnswers).setParameter("a", id);
     }
+
+//    private Query<?> readQuestionsQuery(Session session,)
 
     private List<Question> objToQuestion(List<Object[]> questionsObj) {
         List<Question> questions = new ArrayList<>(questionsObj.size());

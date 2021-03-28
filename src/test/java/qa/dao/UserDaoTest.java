@@ -57,6 +57,10 @@ public class UserDaoTest {
         assertThat(user.getQuestions().size(), greaterThan(0));
 
         assertThat(user.getAnswers().get(0).getText(), equalTo("text"));
+        assertThat(user.getAnswers().get(0).getAnswered(), equalTo(null));
+
+        assertThat(user.getUsername(), notNullValue());
+        assertThat(user.getId(), notNullValue());
     }
 
     private void createUserWithQuestionsAndAnswers() {

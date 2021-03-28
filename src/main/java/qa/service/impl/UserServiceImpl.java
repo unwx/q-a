@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 import qa.dao.UserDao;
 import qa.domain.User;
 import qa.dto.request.user.UserGetFullRequest;
+import qa.dto.request.user.UserGetQuestionsRequest;
 import qa.dto.response.user.FullUserResponse;
+import qa.dto.response.user.UserQuestionsResponse;
 import qa.dto.validation.wrapper.user.UserGetFullRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.exceptions.validator.ValidationException;
@@ -39,10 +41,15 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>(getFullUserProcess(request.getUsername()), HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<UserQuestionsResponse> getUserQuestions(UserGetQuestionsRequest request) {
+        return null;
+    }
+
     private FullUserResponse getFullUserProcess(String username) {
         validate(username);
         User user = getFullUserFromDatabase(username);
-        return new FullUserResponse(username, user.getAbout(), user.getQuestions(), user.getAnswers());
+        return new FullUserResponse(user.getId(), username, user.getAbout(), user.getQuestions(), user.getAnswers());
     }
 
     private User getFullUserFromDatabase(String username) {

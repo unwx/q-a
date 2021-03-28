@@ -30,6 +30,7 @@ public class UserRestControllerTest {
     private static final String requiredResult =
             """
             {\
+            "id":1,\
             "username":"%s",\
             "about":null,\
             "questions":[\

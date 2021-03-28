@@ -24,6 +24,7 @@ public class FullUserSerializer extends JsonSerializer<FullUserResponse> {
     }
 
     private void writeUserData(FullUserResponse fullUserResponse, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeNumberField("id", fullUserResponse.getId());
         jsonGenerator.writeStringField("username", fullUserResponse.getUsername());
         jsonGenerator.writeStringField("about", fullUserResponse.getAbout());
     }

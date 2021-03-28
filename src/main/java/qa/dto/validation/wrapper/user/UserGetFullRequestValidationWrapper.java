@@ -23,7 +23,8 @@ public class UserGetFullRequestValidationWrapper extends UserGetFullRequest impl
     }
 
     @Override
-    public @Nullable ValidationStringField[] getStringFields() {
+    @Nullable
+    public ValidationStringField[] getStringFields() {
         return new ValidationStringField[] {
                 new ValidationStringField(
                         getUsername(),
