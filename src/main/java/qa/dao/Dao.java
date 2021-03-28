@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * <b>create:</b>
- * creates an entity based on ALL fields
+ * creates an entity
  * <p></p>
  * <b>read / readList</b>
  * read fields which you indicated.
@@ -20,7 +20,7 @@ import java.util.List;
  * updates the fields of the entity
  * <p></p>
  * <b>delete:</b>
- * removes entity (removes orphans by parameter orphanRemoval)
+ * removes entity
  */
 public interface Dao<Entity, Key> {
     Key create(final Entity entity);
