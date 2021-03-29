@@ -11,6 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
+import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
@@ -80,12 +81,9 @@ public class UserDaoTest {
 
     @Test
     void readUserQuestions_IncorrectPage() {
+        createUserWithManyQuestions();
         List<Question> questions = userDao.readUserQuestions(1L, 12312);
         assertThat(questions, equalTo(null));
-
-        createUser();
-        List<Question> questions1 = userDao.readUserQuestions(1L, 12312);
-        assertThat(questions1, equalTo(null));
     }
 
     @Test
@@ -108,6 +106,100 @@ public class UserDaoTest {
         all.addAll(questions1);
         List<Question> filtered = all.stream().distinct().collect(Collectors.toList());
         assertThat(filtered.size(), equalTo(resultSize * 2));
+    }
+
+    @Test
+    void readUserQuestions_AssertCorrectData() throws NoSuchFieldException, IllegalAccessException {
+        Field resultSizeField = UserDao.class.getDeclaredField("resultSize");
+        resultSizeField.setAccessible(true);
+        int resultSize = (int) resultSizeField.get(userDao);
+
+        createUserWithManyQuestions();
+
+        List<Question> questions = userDao.readUserQuestions(1L, 0);
+        assertThat(questions, notNullValue());
+        assertThat(questions.size(), equalTo(resultSize));
+
+        List<Question> questions1 = userDao.readUserQuestions(1L, 1);
+
+        assertThat(questions1, notNullValue());
+        assertThat(questions1.size(), equalTo(resultSize));
+
+        for (int i = 0; i < resultSize; i++) {
+            assertThat(questions.get(i).getId(), equalTo((long) i));
+            assertThat(questions.get(i).getTitle(), equalTo(String.valueOf(i)));
+        }
+
+        for (int i = 0; i < resultSize; i++) {
+            assertThat(questions1.get(i).getId(), equalTo((long) i + 25));
+            assertThat(questions1.get(i).getTitle(), equalTo(String.valueOf(i + 25)));
+        }
+    }
+
+    @Test
+    void readUserAnswers_NotFound() {
+        List<Answer> answers = userDao.readUserAnswers(1L, 0);
+        assertThat(answers, equalTo(null));
+
+        createUser();
+        List<Answer> answers1 = userDao.readUserAnswers(1L, 0);
+        assertThat(answers1, equalTo(null));
+    }
+
+    @Test
+    void readUserAnswers_IncorrectPage() {
+        createUserWithManyAnswers();
+        List<Answer> answers = userDao.readUserAnswers(1L, 121233);
+        assertThat(answers, equalTo(null));
+    }
+
+    @Test
+    void readUserAnswers_AssertNoDuplicates() throws NoSuchFieldException, IllegalAccessException {
+        Field resultSizeField = UserDao.class.getDeclaredField("resultSize");
+        resultSizeField.setAccessible(true);
+        int resultSize = (int) resultSizeField.get(userDao);
+
+        createUserWithManyAnswers();
+
+        List<Answer> answers = userDao.readUserAnswers(1L, 0);
+        assertThat(answers, notNullValue());
+        assertThat(answers.size(), equalTo(resultSize));
+
+        List<Answer> answers1 = userDao.readUserAnswers(1L, 1);
+        assertThat(answers1, notNullValue());
+        assertThat(answers1.size(), equalTo(resultSize));
+
+        List<Answer> all = new LinkedList<>(answers);
+        all.addAll(answers1);
+        List<Answer> filtered = all.stream().distinct().collect(Collectors.toList());
+        assertThat(filtered.size(), equalTo(resultSize * 2));
+    }
+
+    @Test
+    void readUserAnswers_AssertCorrectData() throws NoSuchFieldException, IllegalAccessException {
+        Field resultSizeField = UserDao.class.getDeclaredField("resultSize");
+        resultSizeField.setAccessible(true);
+        int resultSize = (int) resultSizeField.get(userDao);
+
+        createUserWithManyAnswers();
+
+        List<Answer> answers = userDao.readUserAnswers(1L, 0);
+        assertThat(answers, notNullValue());
+        assertThat(answers.size(), equalTo(resultSize));
+
+        List<Answer> answers1 = userDao.readUserAnswers(1L, 1);
+        assertThat(answers1, notNullValue());
+        assertThat(answers1.size(), equalTo(resultSize));
+
+        for (int i = 0; i < resultSize; i++) {
+            assertThat(answers.get(i).getId(), equalTo((long) i));
+            assertThat(answers.get(i).getText(), equalTo((String.valueOf(i))));
+        }
+
+        for (int i = 0; i < resultSize; i++) {
+            assertThat(answers1.get(i).getId(), equalTo((long) i + 25));
+            assertThat(answers1.get(i).getText(), equalTo((String.valueOf(i + 25))));
+        }
     }
 
     private void createUserWithQuestionsAndAnswers() {
@@ -161,12 +253,42 @@ public class UserDaoTest {
             String questionSql =
                     """
                     insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
-                    values (:id, '%s', '%s', 'tag, tag', :text, 'title', 1)
+                    values (:id, '%s', '%s', 'tag, tag', 'text', :title, 1)
                     """.formatted(new Date(), new Date());
 
             session.createSQLQuery(userSql).executeUpdate();
             for (long i = 0; i < 50; i++) {
                 session.createSQLQuery(questionSql)
+                        .setParameter("id", i)
+                        .setParameter("title", String.valueOf(i))
+                        .executeUpdate();
+            }
+            transaction.commit();
+        }
+    }
+
+    private void createUserWithManyAnswers() {
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String userSql =
+                    """
+                    insert into usr (id, about, username) values (1, 'about', '%s')
+                    """.formatted(username);
+            String questionSql =
+                    """
+                    insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
+                    values (1, '%s', '%s', 'tag, tag', 'text', 'title', 1)
+                    """.formatted(new Date(), new Date());
+            String answerSql =
+                    """
+                    insert into answer (id, answered, creation_date, text, author_id, question_id)\s\
+                    values (:id, false, '%s', :text, 1, 1)
+                    """.formatted(new Date());
+
+            session.createSQLQuery(userSql).executeUpdate();
+            session.createSQLQuery(questionSql).executeUpdate();
+            for (long i = 0; i < 50; i++) {
+                session.createSQLQuery(answerSql)
                         .setParameter("id", i)
                         .setParameter("text", String.valueOf(i))
                         .executeUpdate();

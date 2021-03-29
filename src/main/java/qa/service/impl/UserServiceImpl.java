@@ -5,12 +5,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import qa.dao.UserDao;
+import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
+import qa.dto.request.user.UserGetAnswersRequest;
 import qa.dto.request.user.UserGetFullRequest;
 import qa.dto.request.user.UserGetQuestionsRequest;
 import qa.dto.response.user.FullUserResponse;
+import qa.dto.response.user.UserAnswersResponse;
 import qa.dto.response.user.UserQuestionsResponse;
+import qa.dto.validation.wrapper.user.UserGetAnswersRequestValidationWrapper;
 import qa.dto.validation.wrapper.user.UserGetFullRequestValidationWrapper;
 import qa.dto.validation.wrapper.user.UserGetQuestionsRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
@@ -58,6 +62,16 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>(getUserQuestionsProcess(request), HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<List<UserAnswersResponse>> getUserAnswers(Long userId, Integer startPage) {
+        return new ResponseEntity<>(getUserAnswersProcess(userId, startPage), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<List<UserAnswersResponse>> getUserAnswers(UserGetAnswersRequest request) {
+        return new ResponseEntity<>(getUserAnswersProcess(request), HttpStatus.OK);
+    }
+
     private FullUserResponse getFullUserProcess(String username) {
         validate(username);
         User user = getFullUserFromDatabase(username);
@@ -65,14 +79,23 @@ public class UserServiceImpl implements UserService {
     }
 
     private List<UserQuestionsResponse> getUserQuestionsProcess(Long userId, Integer startPage) {
-        UserGetQuestionsRequest request = new UserGetQuestionsRequest(userId, startPage);
-        return getUserQuestionsProcess(request);
+        return getUserQuestionsProcess(new UserGetQuestionsRequest(userId, startPage));
     }
 
     private List<UserQuestionsResponse> getUserQuestionsProcess(UserGetQuestionsRequest request) {
         validate(request);
-        List<Question> questions = getUserQuestionsFromDatabase(request.getId(), request.getPage());
+        List<Question> questions = getUserQuestionsFromDatabase(request.getUserId(), request.getPage());
         return convertQuestionsToResponseDto(questions);
+    }
+
+    private List<UserAnswersResponse> getUserAnswersProcess(Long userId, Integer startPage) {
+        return getUserAnswersProcess(new UserGetAnswersRequest(userId, startPage));
+    }
+
+    private List<UserAnswersResponse> getUserAnswersProcess(UserGetAnswersRequest request) {
+        validate(request);
+        List<Answer> answers = getUserAnswersFromDatabase(request.getUserId(), request.getPage());
+        return convertAnswersToResponseDto(answers);
     }
 
     private User getFullUserFromDatabase(String username) {
@@ -89,9 +112,22 @@ public class UserServiceImpl implements UserService {
         return questions;
     }
 
+    private List<Answer> getUserAnswersFromDatabase(Long userId, Integer startPage) {
+        List<Answer> answers = userDao.readUserAnswers(userId, startPage - 1); //client page start with 1. backend with 0
+        if (answers == null)
+            throw new ResourceNotFoundException("answers not found. userId: " + userId + ". startPage: " + startPage);
+        return answers;
+    }
+
     private List<UserQuestionsResponse> convertQuestionsToResponseDto(@NotNull List<Question> questions) {
         List<UserQuestionsResponse> response = new ArrayList<>(questions.size());
         questions.forEach((q) -> response.add(new UserQuestionsResponse(q.getId(), q.getTitle())));
+        return response;
+    }
+
+    private List<UserAnswersResponse> convertAnswersToResponseDto(@NotNull List<Answer> answers) {
+        List<UserAnswersResponse> response = new ArrayList<>(answers.size());
+        answers.forEach((a) -> response.add(new UserAnswersResponse(a.getId(), a.getText())));
         return response;
     }
 
@@ -100,6 +136,10 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validate(UserGetQuestionsRequest request) {
-        ValidationUtil.validate(new UserGetQuestionsRequestValidationWrapper(request, validationPropertyDataSource), validationChain);
+        ValidationUtil.validate(new UserGetQuestionsRequestValidationWrapper(request), validationChain);
+    }
+
+    private void validate(UserGetAnswersRequest request) {
+        ValidationUtil.validate(new UserGetAnswersRequestValidationWrapper(request), validationChain);
     }
 }

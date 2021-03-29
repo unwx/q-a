@@ -64,7 +64,7 @@ public class UserDao extends DaoImpl<User> {
 
     @Nullable
     @SuppressWarnings("unchecked")
-    public List<Question> readUserQuestions(Long userId, int startPage) {
+    public List<Question> readUserQuestions(long userId, int startPage) {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             List<Question> questions = objToQuestion((List<Object[]>) readQuestionsQuery(session, userId, startPage).list());
@@ -74,6 +74,17 @@ public class UserDao extends DaoImpl<User> {
         }
     }
 
+    @Nullable
+    @SuppressWarnings("unchecked")
+    public List<Answer> readUserAnswers(long userId, int startPage) {
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            List<Answer> answers = objToAnswer((List<Object[]>) readAnswersQuery(session, userId, startPage).list());
+            transaction.commit();
+
+            return answers.size() > 0 ? answers : null;
+        }
+    }
 
     private Query<?> readUserQuery(Session session, String username) {
         String getUserHql = "select id, about from User where username=:a";
@@ -85,14 +96,7 @@ public class UserDao extends DaoImpl<User> {
     }
 
     private Query<?> readAnswersQuery(Session session, long userId) {
-        String getUserLastAnswers =
-                """
-                select a.id, substring(a.text, 1, 50) from answer as a\s\
-                where a.author_id=:a\s\
-                order by a.creation_date desc\s\
-                limit 25\
-                """;
-        return session.createSQLQuery(getUserLastAnswers).setParameter("a", userId);
+        return readAnswersQuery(session, userId, 0);
     }
 
     private Query<?> readQuestionsQuery(Session session, long userId, int startPage) {
@@ -105,6 +109,21 @@ public class UserDao extends DaoImpl<User> {
                 """;
         return session
                 .createSQLQuery(getUserLastQuestions)
+                .setParameter("a", userId)
+                .setParameter("p", resultSize)
+                .setParameter("p1", startPage * resultSize);
+    }
+
+    private Query<?> readAnswersQuery(Session session, long userId, int startPage) {
+        String getUserLastAnswers =
+                """
+                select a.id, substring(a.text, 1, 50) from answer as a\s\
+                where a.author_id=:a\s\
+                order by a.creation_date desc\s\
+                limit :p offset :p1\
+                """;
+        return session
+                .createSQLQuery(getUserLastAnswers)
                 .setParameter("a", userId)
                 .setParameter("p", resultSize)
                 .setParameter("p1", startPage * resultSize);

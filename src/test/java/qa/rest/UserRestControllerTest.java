@@ -15,6 +15,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
+import qa.dto.response.user.UserAnswersResponse;
 import qa.dto.response.user.UserQuestionsResponse;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
@@ -113,7 +114,7 @@ public class UserRestControllerTest {
 
         for (long i = 0; i < questionsResponse.length; i++) {
             assertThat(questionsResponse[(int) i].getId(), equalTo(i));
-            assertThat(questionsResponse[(int) i].getTitle(), equalTo("title"));
+            assertThat(questionsResponse[(int) i].getTitle(), equalTo(String.valueOf(i)));
         }
     }
 
@@ -128,9 +129,9 @@ public class UserRestControllerTest {
         UserQuestionsResponse[] questionsResponse = mapper.readValue(response.body().asString(), UserQuestionsResponse[].class);
         assertThat(questionsResponse.length, notNullValue());
 
-        for (long i = 0; i < questionsResponse.length; i++) {
-            assertThat(questionsResponse[(int) i].getId(), equalTo(i));
-            assertThat(questionsResponse[(int) i].getTitle(), equalTo("title"));
+        for (int i = 0; i < questionsResponse.length; i++) {
+            assertThat(questionsResponse[i].getId(), equalTo((long) i));
+            assertThat(questionsResponse[i].getTitle(), equalTo(String.valueOf(i)));
         }
     }
 
@@ -181,6 +182,87 @@ public class UserRestControllerTest {
         assertThat(response1.getStatusCode(), equalTo(404));
     }
 
+    @Test
+    void getUserAnswersSuccess_ByJson() throws JsonProcessingException {
+        createUserWithManyAnswers();
+        RequestSpecification request = RestAssured.given();
+        request.header("Content-Type", "application/json");
+        request.body("{\"id\":1, \"page\":1}");
+
+        Response response = request.get("answers/get");
+        assertThat(response.getStatusCode(), equalTo(200));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserAnswersResponse[] answersResponse = objectMapper.readValue(response.getBody().asString(), UserAnswersResponse[].class);
+        for (int i = 0; i < answersResponse.length; i++) {
+            assertThat(answersResponse[i].getId(), equalTo((long) i));
+            assertThat(answersResponse[i].getText(), equalTo(String.valueOf(i)));
+        }
+    }
+
+    @Test
+    void getUserAnswersSuccess_PathVariable() throws JsonProcessingException {
+        createUserWithManyAnswers();
+        RequestSpecification request = RestAssured.given();
+
+        Response response = request.get("answers/get/1/1");
+        assertThat(response.getStatusCode(), equalTo(200));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserAnswersResponse[] answersResponse = objectMapper.readValue(response.getBody().asString(), UserAnswersResponse[].class);
+        for (int i = 0; i < answersResponse.length; i++) {
+            assertThat(answersResponse[i].getId(), equalTo((long) i));
+            assertThat(answersResponse[i].getText(), equalTo(String.valueOf(i)));
+        }
+    }
+
+    @Test
+    void getUserAnswers_Failure_ByJson() {
+        createUserWithManyAnswers();
+        RequestSpecification request = RestAssured.given();
+        request.header("Content-Type", "application/json");
+        request.body("{\"id\":1, \"page\":0}");
+
+        Response response = request.get("answers/get");
+        assertThat(response.getStatusCode(), equalTo(400));
+    }
+
+    @Test
+    void getUserAnswers_Failure_PathVariable() {
+        createUserWithManyAnswers();
+        RequestSpecification request = RestAssured.given();
+
+        Response response = request.get("answers/get/1/0");
+        assertThat(response.getStatusCode(), equalTo(400));
+    }
+
+    @Test
+    void getUserAnswers_NotFound_ByJson() {
+        createUserWithManyAnswers();
+        RequestSpecification request = RestAssured.given();
+        request.header("Content-Type", "application/json");
+        request.body("{\"id\":1, \"page\":5}");
+
+        Response response = request.get("answers/get");
+        assertThat(response.getStatusCode(), equalTo(404));
+
+        request.body("{\"id\":123, \"page\":1}");
+        Response response1 = request.get("answers/get");
+        assertThat(response1.getStatusCode(), equalTo(404));
+    }
+
+    @Test
+    void getUserAnswers_NotFound_PathVariable() {
+        createUserWithManyAnswers();
+        RequestSpecification request = RestAssured.given();
+
+        Response response = request.get("answers/get/1/123");
+        assertThat(response.getStatusCode(), equalTo(404));
+
+        Response response1 = request.get("answers/get/123/1");
+        assertThat(response1.getStatusCode(), equalTo(404));
+    }
+
     private void createUserWithQuestionsAndAnswers() {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
@@ -220,12 +302,42 @@ public class UserRestControllerTest {
             String questionSql =
                     """
                     insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
-                    values (:id, '%s', '%s', 'tag, tag', :text, 'title', 1)
+                    values (:id, '%s', '%s', 'tag, tag', 'text', :title, 1)
                     """.formatted(new Date(), new Date());
 
             session.createSQLQuery(userSql).executeUpdate();
             for (long i = 0; i < 50; i++) {
                 session.createSQLQuery(questionSql)
+                        .setParameter("id", i)
+                        .setParameter("title", String.valueOf(i))
+                        .executeUpdate();
+            }
+            transaction.commit();
+        }
+    }
+
+    private void createUserWithManyAnswers() {
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String userSql =
+                    """
+                    insert into usr (id, about, username) values (1, 'about', '%s')
+                    """.formatted(username);
+            String questionSql =
+                    """
+                    insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
+                    values (1, '%s', '%s', 'tag, tag', 'text', 'title', 1)
+                    """.formatted(new Date(), new Date());
+            String answerSql =
+                    """
+                    insert into answer (id, answered, creation_date, text, author_id, question_id)\s\
+                    values (:id, false, '%s', :text, 1, 1)
+                    """.formatted(new Date());
+
+            session.createSQLQuery(userSql).executeUpdate();
+            session.createSQLQuery(questionSql).executeUpdate();
+            for (long i = 0; i < 50; i++) {
+                session.createSQLQuery(answerSql)
                         .setParameter("id", i)
                         .setParameter("text", String.valueOf(i))
                         .executeUpdate();

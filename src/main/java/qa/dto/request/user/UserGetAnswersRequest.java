@@ -2,19 +2,19 @@ package qa.dto.request.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class UserGetQuestionsRequest {
+public class UserGetAnswersRequest {
 
     @JsonProperty("id")
     private final Long userId;
     private final Integer page;
 
-    public UserGetQuestionsRequest(Long userId,
-                                   Integer page) {
+    public UserGetAnswersRequest(Long userId,
+                                 Integer page) {
         this.userId = userId;
         this.page = page;
     }
 
-    protected UserGetQuestionsRequest() {
+    protected UserGetAnswersRequest() {
         this.userId = null;
         this.page = null;
     }
