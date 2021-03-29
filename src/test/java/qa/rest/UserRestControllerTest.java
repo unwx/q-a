@@ -113,7 +113,7 @@ public class UserRestControllerTest {
         assertThat(questionsResponse.length, notNullValue());
 
         for (long i = 0; i < questionsResponse.length; i++) {
-            assertThat(questionsResponse[(int) i].getId(), equalTo(i));
+            assertThat(questionsResponse[(int) i].getQuestionId(), equalTo(i));
             assertThat(questionsResponse[(int) i].getTitle(), equalTo(String.valueOf(i)));
         }
     }
@@ -130,7 +130,7 @@ public class UserRestControllerTest {
         assertThat(questionsResponse.length, notNullValue());
 
         for (int i = 0; i < questionsResponse.length; i++) {
-            assertThat(questionsResponse[i].getId(), equalTo((long) i));
+            assertThat(questionsResponse[i].getQuestionId(), equalTo((long) i));
             assertThat(questionsResponse[i].getTitle(), equalTo(String.valueOf(i)));
         }
     }
@@ -195,7 +195,7 @@ public class UserRestControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         UserAnswersResponse[] answersResponse = objectMapper.readValue(response.getBody().asString(), UserAnswersResponse[].class);
         for (int i = 0; i < answersResponse.length; i++) {
-            assertThat(answersResponse[i].getId(), equalTo((long) i));
+            assertThat(answersResponse[i].getAnswerId(), equalTo((long) i));
             assertThat(answersResponse[i].getText(), equalTo(String.valueOf(i)));
         }
     }
@@ -211,7 +211,7 @@ public class UserRestControllerTest {
         ObjectMapper objectMapper = new ObjectMapper();
         UserAnswersResponse[] answersResponse = objectMapper.readValue(response.getBody().asString(), UserAnswersResponse[].class);
         for (int i = 0; i < answersResponse.length; i++) {
-            assertThat(answersResponse[i].getId(), equalTo((long) i));
+            assertThat(answersResponse[i].getAnswerId(), equalTo((long) i));
             assertThat(answersResponse[i].getText(), equalTo(String.valueOf(i)));
         }
     }

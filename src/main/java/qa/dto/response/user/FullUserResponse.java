@@ -10,18 +10,18 @@ import java.util.List;
 @JsonSerialize(using = FullUserSerializer.class)
 public class FullUserResponse {
 
-    private final Long id;
+    private final Long userId;
     private final String username;
     private final String about;
     private final List<Question> questions;
     private final List<Answer> answers;
 
-    public FullUserResponse(Long id,
+    public FullUserResponse(Long userId,
                             String username,
                             String about,
                             List<Question> questions,
                             List<Answer> answers) {
-        this.id = id;
+        this.userId = userId;
         this.username = username;
         this.about = about;
         this.questions = questions;
@@ -29,15 +29,15 @@ public class FullUserResponse {
     }
 
     protected FullUserResponse() {
-        this.id = null;
+        this.userId = null;
         this.username = null;
         this.about = null;
         this.questions = null;
         this.answers = null;
     }
 
-    public Long getId() {
-        return id;
+    public Long getUserId() {
+        return userId;
     }
 
     public String getUsername() {

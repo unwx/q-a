@@ -2,22 +2,22 @@ package qa.dto.response.user;
 
 public class UserAnswersResponse {
 
-    private final Long id;
+    private final Long answerId;
     private final String text;
 
-    public UserAnswersResponse(Long id,
+    public UserAnswersResponse(Long answerId,
                                String text) {
-        this.id = id;
+        this.answerId = answerId;
         this.text = text;
     }
 
     protected UserAnswersResponse() {
-        this.id = null;
+        this.answerId = null;
         this.text = null;
     }
 
-    public Long getId() {
-        return id;
+    public Long getAnswerId() {
+        return answerId;
     }
 
     public String getText() {
