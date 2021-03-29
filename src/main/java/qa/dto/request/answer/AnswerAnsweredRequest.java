@@ -1,18 +1,21 @@
 package qa.dto.request.answer;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AnswerAnsweredRequest {
 
-    private final Long id;
+    @JsonProperty("id")
+    private final Long answerId;
 
-    public AnswerAnsweredRequest(Long id) {
-        this.id = id;
+    public AnswerAnsweredRequest(Long answerId) {
+        this.answerId = answerId;
     }
 
     protected AnswerAnsweredRequest() {
-        this.id = null;
+        this.answerId = null;
     }
 
-    public Long getId() {
-        return id;
+    public Long getAnswerId() {
+        return answerId;
     }
 }

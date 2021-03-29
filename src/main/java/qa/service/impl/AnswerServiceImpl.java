@@ -86,31 +86,31 @@ public class AnswerServiceImpl implements AnswerService {
 
     private Long createAnswerProcess(AnswerCreateRequest request, Authentication authentication) {
         validate(request);
-        throwBadRequestExIfQuestionNotExist(request.getId());
+        throwBadRequestExIfQuestionNotExist(request.getQuestionId());
         return saveNewAnswer(request, authentication);
     }
 
     private void editAnswerProcess(AnswerEditRequest request, Authentication authentication) {
         validate(request);
-        checkIsRealAuthor(request.getId(), authentication);
+        checkIsRealAuthor(request.getAnswerId(), authentication);
         saveEditedAnswer(request);
     }
 
     private void setAnsweredProcess(AnswerAnsweredRequest request, Authentication authentication) {
         validate(request);
-        checkIsRealAuthor(request.getId(), authentication);
+        checkIsRealAuthor(request.getAnswerId(), authentication);
         saveAnswered(request);
     }
 
     private void removeAnsweredProcess(AnswerAnsweredRequest request, Authentication authentication) {
         validate(request);
-        checkIsRealAuthor(request.getId(), authentication);
+        checkIsRealAuthor(request.getAnswerId(), authentication);
         saveNotAnswered(request);
     }
 
     private void deleteAnswerProcess(AnswerDeleteRequest request, Authentication authentication) {
         validate(request);
-        checkIsRealAuthor(request.getId(), authentication);
+        checkIsRealAuthor(request.getAnswerId(), authentication);
         deleteAnswerFromDatabase(request);
     }
 
@@ -120,7 +120,7 @@ public class AnswerServiceImpl implements AnswerService {
                 .answered(false)
                 .creationDate(new Date())
                 .author(new User(PrincipalUtil.getUserIdFromAuthentication(authentication)))
-                .question(new Question(request.getId()))
+                .question(new Question(request.getQuestionId()))
                 .build();
         return answerDao.create(answer);
     }
@@ -130,31 +130,31 @@ public class AnswerServiceImpl implements AnswerService {
                 .text(request.getText())
                 .build();
 
-        answerDao.update(new Where("id", request.getId(), WhereOperator.EQUALS), answer);
+        answerDao.update(new Where("id", request.getAnswerId(), WhereOperator.EQUALS), answer);
     }
 
     private void saveAnswered(AnswerAnsweredRequest request) {
         answerDao.update(
-                new Where("id", request.getId(), WhereOperator.EQUALS),
+                new Where("id", request.getAnswerId(), WhereOperator.EQUALS),
                 new Answer.Builder().answered(true).build()
         );
     }
 
     private void saveNotAnswered(AnswerAnsweredRequest request) {
         answerDao.update(
-                new Where("id", request.getId(), WhereOperator.EQUALS),
+                new Where("id", request.getAnswerId(), WhereOperator.EQUALS),
                 new Answer.Builder().answered(false).build()
         );
     }
 
     private void deleteAnswerFromDatabase(AnswerDeleteRequest request) {
-        answerDao.delete(new Where("id", request.getId(), WhereOperator.EQUALS));
+        answerDao.delete(new Where("id", request.getAnswerId(), WhereOperator.EQUALS));
     }
 
-    private void checkIsRealAuthor(Long id, Authentication authentication) {
+    private void checkIsRealAuthor(Long answerId, Authentication authentication) {
         AuthorUtil.checkIsRealAuthorAndIsEntityExist(
                 PrincipalUtil.getUserIdFromAuthentication(authentication),
-                new Where("id", id, WhereOperator.EQUALS),
+                new Where("id", answerId, WhereOperator.EQUALS),
                 Answer.class,
                 answerDao,
                 propertySetterFactory,

@@ -100,25 +100,25 @@ public class CommentServiceImpl implements CommentService {
 
     private void editCommentQuestionProcess(CommentQuestionEditRequest request, Authentication authentication) {
         validate(request);
-        checkIsRealAuthorCommentQuestion(PrincipalUtil.getUserIdFromAuthentication(authentication), request.getId());
+        checkIsRealAuthorCommentQuestion(PrincipalUtil.getUserIdFromAuthentication(authentication), request.getCommentId());
         saveEditedCommentQuestion(request);
     }
 
     private void editCommentAnswerProcess(CommentAnswerEditRequest request, Authentication authentication) {
         validate(request);
-        checkIsRealAuthorCommentAnswer(PrincipalUtil.getUserIdFromAuthentication(authentication), request.getId());
+        checkIsRealAuthorCommentAnswer(PrincipalUtil.getUserIdFromAuthentication(authentication), request.getCommentId());
         saveEditedCommentAnswer(request);
     }
 
     private void deleteCommentQuestionProcess(CommentQuestionDeleteRequest request, Authentication authentication) {
         validate(request);
-        checkIsRealAuthorCommentQuestion(PrincipalUtil.getUserIdFromAuthentication(authentication), request.getId());
+        checkIsRealAuthorCommentQuestion(PrincipalUtil.getUserIdFromAuthentication(authentication), request.getCommentId());
         deleteCommentQuestionFromDatabase(request);
     }
 
     private void deleteCommentAnswerProcess(CommentAnswerDeleteRequest request, Authentication authentication) {
         validate(request);
-        checkIsRealAuthorCommentAnswer(PrincipalUtil.getUserIdFromAuthentication(authentication), request.getId());
+        checkIsRealAuthorCommentAnswer(PrincipalUtil.getUserIdFromAuthentication(authentication), request.getCommentId());
         deleteCommentAnswerFromDatabase(request);
     }
 
@@ -141,21 +141,21 @@ public class CommentServiceImpl implements CommentService {
     private void saveEditedCommentQuestion(CommentQuestionEditRequest request) {
         CommentQuestion commentQuestion = new CommentQuestion();
         commentQuestion.setText(request.getText());
-        commentQuestionDao.update(new Where("id", request.getId(), WhereOperator.EQUALS), commentQuestion);
+        commentQuestionDao.update(new Where("id", request.getCommentId(), WhereOperator.EQUALS), commentQuestion);
     }
 
     private void saveEditedCommentAnswer(CommentAnswerEditRequest request) {
         CommentAnswer commentAnswer = new CommentAnswer();
         commentAnswer.setText(request.getText());
-        commentAnswerDao.update(new Where("id", request.getId(), WhereOperator.EQUALS), commentAnswer);
+        commentAnswerDao.update(new Where("id", request.getCommentId(), WhereOperator.EQUALS), commentAnswer);
     }
 
     private void deleteCommentQuestionFromDatabase(CommentQuestionDeleteRequest request) {
-        commentQuestionDao.delete(new Where("id", request.getId(), WhereOperator.EQUALS));
+        commentQuestionDao.delete(new Where("id", request.getCommentId(), WhereOperator.EQUALS));
     }
 
     private void deleteCommentAnswerFromDatabase(CommentAnswerDeleteRequest request) {
-        commentAnswerDao.delete(new Where("id", request.getId(), WhereOperator.EQUALS));
+        commentAnswerDao.delete(new Where("id", request.getCommentId(), WhereOperator.EQUALS));
     }
 
     private void checkIsRealAuthorCommentQuestion(Long authenticationId, Long commentId) {

@@ -5,22 +5,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class AnswerCreateRequest {
 
     @JsonProperty("question_id")
-    private final Long id;
+    private final Long questionId;
     private final String text;
 
-    public AnswerCreateRequest(Long id,
+    public AnswerCreateRequest(Long questionId,
                                String text) {
-        this.id = id;
+        this.questionId = questionId;
         this.text = text;
     }
 
     protected AnswerCreateRequest() {
-        this.id = null;
+        this.questionId = null;
         this.text = null;
     }
 
-    public Long getId() {
-        return id;
+    public Long getQuestionId() {
+        return questionId;
     }
 
     public String getText() {

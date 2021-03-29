@@ -5,7 +5,9 @@ import qa.dto.request.question.QuestionEditRequest;
 import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.ValidationWrapper;
 import qa.validators.additional.TagsValidator;
-import qa.validators.entities.*;
+import qa.validators.entities.ValidationAdditional;
+import qa.validators.entities.ValidationNumberField;
+import qa.validators.entities.ValidationStringField;
 
 public class QuestionEditRequestValidationWrapper extends QuestionEditRequest implements ValidationWrapper {
 
@@ -13,7 +15,7 @@ public class QuestionEditRequestValidationWrapper extends QuestionEditRequest im
 
     public QuestionEditRequestValidationWrapper(QuestionEditRequest request,
                                                 ValidationPropertyDataSource propertyDataSource) {
-        super(request.getId(), request.getText(), request.getTags());
+        super(request.getQuestionId(), request.getText(), request.getTags());
         this.propertyDataSource = propertyDataSource;
     }
 
@@ -32,7 +34,7 @@ public class QuestionEditRequestValidationWrapper extends QuestionEditRequest im
     @Nullable
     public ValidationNumberField[] getNumberFields() {
         return new ValidationNumberField[]{
-                new ValidationNumberField(getId(), -1L, 0L)
+                new ValidationNumberField(getQuestionId(), -1L, 0L)
         };
     }
 

@@ -1,23 +1,26 @@
 package qa.dto.request.comment;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CommentAnswerEditRequest {
 
-    private final Long id;
+    @JsonProperty("id")
+    private final Long commentId;
     private final String text;
 
-    public CommentAnswerEditRequest(Long id,
+    public CommentAnswerEditRequest(Long commentId,
                                     String text) {
-        this.id = id;
+        this.commentId = commentId;
         this.text = text;
     }
 
     protected CommentAnswerEditRequest() {
-        this.id = null;
+        this.commentId = null;
         this.text = null;
     }
 
-    public Long getId() {
-        return id;
+    public Long getCommentId() {
+        return commentId;
     }
 
     public String getText() {

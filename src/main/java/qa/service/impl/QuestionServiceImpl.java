@@ -72,14 +72,14 @@ public class QuestionServiceImpl implements QuestionService {
 
     private void editQuestionProcess(QuestionEditRequest request, Authentication authentication) {
         validate(request);
-        checkIsRealAuthor(request.getId(), authentication);
+        checkIsRealAuthor(request.getQuestionId(), authentication);
         saveEditedQuestion(request);
     }
 
     private void deleteQuestionProcess(QuestionDeleteRequest request, Authentication authentication) {
         validate(request);
-        checkIsRealAuthor(request.getId(), authentication);
-        deleteQuestionById(request.getId());
+        checkIsRealAuthor(request.getQuestionId(), authentication);
+        deleteQuestionById(request.getQuestionId());
     }
 
     private Long saveNewQuestion(QuestionCreateRequest request, Authentication authentication) {
@@ -107,7 +107,7 @@ public class QuestionServiceImpl implements QuestionService {
 
     private void saveEditedQuestion(QuestionEditRequest request) {
         questionDao.update(
-                new Where("id", request.getId(), WhereOperator.EQUALS),
+                new Where("id", request.getQuestionId(), WhereOperator.EQUALS),
                 new Question.Builder()
                         .text(request.getText())
                         .tags(tagsArrayToString(request.getTags()))

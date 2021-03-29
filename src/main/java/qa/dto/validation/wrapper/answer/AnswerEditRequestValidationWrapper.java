@@ -13,7 +13,7 @@ public class AnswerEditRequestValidationWrapper extends AnswerEditRequest implem
 
     public AnswerEditRequestValidationWrapper(AnswerEditRequest request,
                                               ValidationPropertyDataSource propertyDataSource) {
-        super(request.getId(), request.getText());
+        super(request.getAnswerId(), request.getText());
         this.propertyDataSource = propertyDataSource;
     }
 
@@ -30,7 +30,7 @@ public class AnswerEditRequestValidationWrapper extends AnswerEditRequest implem
     @Override
     public @Nullable ValidationNumberField[] getNumberFields() {
         return new ValidationNumberField[] {
-                new ValidationNumberField(getId(), -1L, 0L)
+                new ValidationNumberField(getAnswerId(), -1L, 0L)
         };
     }
 }

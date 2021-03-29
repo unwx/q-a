@@ -8,13 +8,13 @@ import qa.validators.entities.ValidationNumberField;
 public class AnswerAnsweredRequestValidationWrapper extends AnswerAnsweredRequest implements ValidationWrapper {
 
     public AnswerAnsweredRequestValidationWrapper(AnswerAnsweredRequest request) {
-        super(request.getId());
+        super(request.getAnswerId());
     }
 
     @Override
     public @Nullable ValidationNumberField[] getNumberFields() {
         return new ValidationNumberField[] {
-                new ValidationNumberField(getId(), -1L, 0L)
+                new ValidationNumberField(getAnswerId(), -1L, 0L)
         };
     }
 }

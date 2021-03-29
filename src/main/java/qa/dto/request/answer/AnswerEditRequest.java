@@ -1,23 +1,26 @@
 package qa.dto.request.answer;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class AnswerEditRequest {
 
-    private final Long id;
+    @JsonProperty("id")
+    private final Long answerId;
     private final String text;
 
-    public AnswerEditRequest(Long id,
+    public AnswerEditRequest(Long answerId,
                              String text) {
-        this.id = id;
+        this.answerId = answerId;
         this.text = text;
     }
 
     protected AnswerEditRequest() {
-        this.id = null;
+        this.answerId = null;
         this.text = null;
     }
 
-    public Long getId() {
-        return id;
+    public Long getAnswerId() {
+        return answerId;
     }
 
     public String getText() {

@@ -13,7 +13,7 @@ public class AnswerCreateRequestValidationWrapper extends AnswerCreateRequest im
 
     public AnswerCreateRequestValidationWrapper(AnswerCreateRequest request,
                                                 ValidationPropertyDataSource propertyDataSource) {
-        super(request.getId(), request.getText());
+        super(request.getQuestionId(), request.getText());
         this.propertyDataSource = propertyDataSource;
     }
 
@@ -31,7 +31,7 @@ public class AnswerCreateRequestValidationWrapper extends AnswerCreateRequest im
     public @Nullable ValidationNumberField[] getNumberFields() {
         return new ValidationNumberField[] {
                 new ValidationNumberField(
-                        getId(), -1L, 0L)
+                        getQuestionId(), -1L, 0L)
         };
     }
 }

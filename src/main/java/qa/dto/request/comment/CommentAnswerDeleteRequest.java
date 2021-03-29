@@ -1,18 +1,21 @@
 package qa.dto.request.comment;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CommentAnswerDeleteRequest {
 
-    private final Long id;
+    @JsonProperty("id")
+    private final Long commentId;
 
-    public CommentAnswerDeleteRequest(Long id) {
-        this.id = id;
+    public CommentAnswerDeleteRequest(Long commentId) {
+        this.commentId = commentId;
     }
 
     protected CommentAnswerDeleteRequest() {
-        this.id = null;
+        this.commentId = null;
     }
 
-    public Long getId() {
-        return id;
+    public Long getCommentId() {
+        return commentId;
     }
 }

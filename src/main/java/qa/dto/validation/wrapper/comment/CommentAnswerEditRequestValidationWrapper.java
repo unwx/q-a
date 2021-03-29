@@ -13,7 +13,7 @@ public class CommentAnswerEditRequestValidationWrapper extends CommentAnswerEdit
 
     public CommentAnswerEditRequestValidationWrapper(CommentAnswerEditRequest request,
                                                      ValidationPropertyDataSource propertyDataSource) {
-        super(request.getId(), request.getText());
+        super(request.getCommentId(), request.getText());
         this.propertyDataSource = propertyDataSource;
     }
 
@@ -30,7 +30,7 @@ public class CommentAnswerEditRequestValidationWrapper extends CommentAnswerEdit
     @Override
     public @Nullable ValidationNumberField[] getNumberFields() {
         return new ValidationNumberField[] {
-                new ValidationNumberField(getId(), -1L, 0L)
+                new ValidationNumberField(getCommentId(), -1L, 0L)
         };
     }
 }

@@ -8,13 +8,13 @@ import qa.validators.entities.ValidationNumberField;
 public class CommentAnswerDeleteRequestValidationWrapper extends CommentAnswerDeleteRequest implements ValidationWrapper {
 
     public CommentAnswerDeleteRequestValidationWrapper(CommentAnswerDeleteRequest request) {
-        super(request.getId());
+        super(request.getCommentId());
     }
 
     @Override
     public @Nullable ValidationNumberField[] getNumberFields() {
         return new ValidationNumberField[] {
-                new ValidationNumberField(getId(), -1L, 0L)
+                new ValidationNumberField(getCommentId(), -1L, 0L)
         };
     }
 }
