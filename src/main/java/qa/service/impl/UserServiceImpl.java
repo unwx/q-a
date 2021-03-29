@@ -17,7 +17,6 @@ import qa.dto.response.user.UserQuestionsResponse;
 import qa.dto.validation.wrapper.user.UserGetAnswersRequestValidationWrapper;
 import qa.dto.validation.wrapper.user.UserGetFullRequestValidationWrapper;
 import qa.dto.validation.wrapper.user.UserGetQuestionsRequestValidationWrapper;
-import qa.exceptions.rest.BadRequestException;
 import qa.exceptions.rest.ResourceNotFoundException;
 import qa.service.UserService;
 import qa.source.ValidationPropertyDataSource;
@@ -49,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public ResponseEntity<FullUserResponse> getFullUser(UserGetFullRequest request) {
-        return new ResponseEntity<>(getFullUserProcess(request.getUsername()), HttpStatus.OK);
+        return new ResponseEntity<>(getFullUserProcess(request), HttpStatus.OK);
     }
 
     @Override
@@ -73,9 +72,13 @@ public class UserServiceImpl implements UserService {
     }
 
     private FullUserResponse getFullUserProcess(String username) {
-        validate(username);
-        User user = getFullUserFromDatabase(username);
-        return new FullUserResponse(user.getId(), username, user.getAbout(), user.getQuestions(), user.getAnswers());
+        return getFullUserProcess(new UserGetFullRequest(username));
+    }
+
+    private FullUserResponse getFullUserProcess(UserGetFullRequest request) {
+        validate(request);
+        User user = getFullUserFromDatabase(request.getUsername());
+        return new FullUserResponse(user.getId(), request.getUsername(), user.getAbout(), user.getQuestions(), user.getAnswers());
     }
 
     private List<UserQuestionsResponse> getUserQuestionsProcess(Long userId, Integer startPage) {
@@ -101,7 +104,7 @@ public class UserServiceImpl implements UserService {
     private User getFullUserFromDatabase(String username) {
         User user = userDao.readFullUser(username);
         if (user == null)
-            throw new BadRequestException("user not exist. username: " + username);
+            throw new ResourceNotFoundException("user not exist. username: " + username);
         return user;
     }
 
@@ -131,8 +134,8 @@ public class UserServiceImpl implements UserService {
         return response;
     }
 
-    private void validate(String username) {
-        ValidationUtil.validate(new UserGetFullRequestValidationWrapper(username, validationPropertyDataSource), validationChain);
+    private void validate(UserGetFullRequest request) {
+        ValidationUtil.validate(new UserGetFullRequestValidationWrapper(request, validationPropertyDataSource), validationChain);
     }
 
     private void validate(UserGetQuestionsRequest request) {
