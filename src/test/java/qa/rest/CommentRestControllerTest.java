@@ -64,7 +64,7 @@ public class CommentRestControllerTest {
         String token = data.getToken();
         long exp = data.getExpirationAtMillis();
         createUserWithToken(exp);
-        createAnswerDB(true);
+        createAnswerDB();
 
         RequestSpecification request = RestAssured.given();
         request.header("Content-Type", "application/json");
@@ -89,7 +89,7 @@ public class CommentRestControllerTest {
         String token = data.getToken();
         long exp = data.getExpirationAtMillis();
         createUserWithToken(exp);
-        createAnswerDB(true);
+        createAnswerDB();
 
         RequestSpecification request = RestAssured.given();
         request.header("Content-Type", "application/json");
@@ -297,7 +297,7 @@ public class CommentRestControllerTest {
         }
     }
 
-    private void createAnswerDB(Boolean answered) {
+    private void createAnswerDB() {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("" +
@@ -305,7 +305,7 @@ public class CommentRestControllerTest {
                     "values (1, '%s', '%s', 'java, etc', 'text dsfdsfdsf', 'title dgfsdf', 1)".formatted(new Date(), new Date())).executeUpdate();
             session.createSQLQuery(
                     "insert into answer (id, answered, creation_date, text, author_id, question_id)" +
-                            " values (1, %s, '%s', '%s', 1, 1)".formatted(answered, new Date(), text)).executeUpdate();
+                            " values (1, %s, '%s', '%s', 1, 1)".formatted(true, new Date(), text)).executeUpdate();
             transaction.commit();
         }
     }
@@ -321,11 +321,11 @@ public class CommentRestControllerTest {
     }
 
     private void createCommentAnswerDB() {
-        createAnswerDB(true);
+        createAnswerDB();
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createSQLQuery("insert into comment (comment_type, id, text, author_id, answer_id, question_id) " +
-                    "values ('answer', 1, '%s', 1, 1, null)".formatted(text)).executeUpdate();
+            session.createSQLQuery("insert into comment (comment_type, id, text, author_id, answer_id, question_id, creation_date) " +
+                    "values ('answer', 1, '%s', 1, 1, null, '%s')".formatted(text, new Date())).executeUpdate();
             transaction.commit();
         }
     }
@@ -334,8 +334,8 @@ public class CommentRestControllerTest {
         createQuestionDB();
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createSQLQuery("insert into comment (comment_type, id, text, author_id, answer_id, question_id) " +
-                    "values ('question', 1, '%s', 1, null, 1)".formatted(text)).executeUpdate();
+            session.createSQLQuery("insert into comment (comment_type, id, text, author_id, answer_id, question_id, creation_date) " +
+                    "values ('question', 1, '%s', 1, null, 1, '%s')".formatted(text, new Date())).executeUpdate();
             transaction.commit();
         }
     }

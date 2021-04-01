@@ -4,6 +4,7 @@ import qa.dao.databasecomponents.Field;
 import qa.domain.setters.SetterField;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @DiscriminatorValue("answer")
@@ -16,7 +17,7 @@ public class CommentAnswer extends Comment {
     public CommentAnswer(String text,
                          User author,
                          Answer answer) {
-        super(text, author);
+        super(text, new Date(), author);
         this.answer = answer;
     }
 
@@ -79,5 +80,15 @@ public class CommentAnswer extends Comment {
     @Override
     public void setAuthor(User author) {
         super.setAuthor(author);
+    }
+
+    @Override
+    public Date getCreationDate() {
+        return super.getCreationDate();
+    }
+
+    @Override
+    public void setCreationDate(Date creationDate) {
+        super.setCreationDate(creationDate);
     }
 }

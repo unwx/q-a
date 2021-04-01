@@ -15,9 +15,12 @@ import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.question.QuestionCreateRequest;
 import qa.dto.request.question.QuestionDeleteRequest;
 import qa.dto.request.question.QuestionEditRequest;
+import qa.dto.request.question.QuestionGetFullRequest;
+import qa.dto.response.question.QuestionFullResponse;
 import qa.dto.validation.wrapper.question.QuestionCreateRequestValidationWrapper;
 import qa.dto.validation.wrapper.question.QuestionDeleteRequestValidationWrapper;
 import qa.dto.validation.wrapper.question.QuestionEditRequestValidationWrapper;
+import qa.dto.validation.wrapper.question.QuestionGetFullRequestValidationWrapper;
 import qa.service.QuestionService;
 import qa.source.ValidationPropertyDataSource;
 import qa.util.AuthorUtil;
@@ -63,6 +66,16 @@ public class QuestionServiceImpl implements QuestionService {
     public ResponseEntity<HttpStatus> deleteQuestion(QuestionDeleteRequest request, Authentication authentication) {
         deleteQuestionProcess(request, authentication);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<QuestionFullResponse> getFullQuestion(Long questionId) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<QuestionFullResponse> getFullQuestion(QuestionGetFullRequest request) {
+        return null;
     }
 
     private Long createQuestionProcess(QuestionCreateRequest request, Authentication authentication) {
@@ -137,5 +150,9 @@ public class QuestionServiceImpl implements QuestionService {
 
     private void validate(QuestionDeleteRequest request) {
         ValidationUtil.validate(new QuestionDeleteRequestValidationWrapper(request), validationChain);
+    }
+
+    private void validate(QuestionGetFullRequest request) {
+        ValidationUtil.validate(new QuestionGetFullRequestValidationWrapper(request), validationChain);
     }
 }

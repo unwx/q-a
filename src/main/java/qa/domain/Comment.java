@@ -5,11 +5,12 @@ import qa.dao.databasecomponents.FieldExtractor;
 import qa.util.access.HasAuthor;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name="comment_type", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "comment_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Comment implements FieldExtractor, FieldDataSetterExtractor, HasAuthor {
 
     @Id
@@ -19,21 +20,28 @@ public abstract class Comment implements FieldExtractor, FieldDataSetterExtracto
     @Column(name = "text", length = 500, nullable = false)
     protected String text;
 
+    @Column(name = "creation_date", nullable = false)
+    protected Date creationDate;
+
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class, cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "author_id", nullable = false, updatable = false)
     protected User author;
 
     protected Comment(Long id,
-                   String text,
-                   User author) {
+                      String text,
+                      Date creationDate,
+                      User author) {
         this.id = id;
         this.text = text;
+        this.creationDate = creationDate;
         this.author = author;
     }
 
     protected Comment(String text,
-                   User author) {
+                      Date creationDate,
+                      User author) {
         this.text = text;
+        this.creationDate = creationDate;
         this.author = author;
     }
 
@@ -47,6 +55,14 @@ public abstract class Comment implements FieldExtractor, FieldDataSetterExtracto
 
     protected void setId(Long id) {
         this.id = id;
+    }
+
+    protected Date getCreationDate() {
+        return creationDate;
+    }
+
+    protected void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 
     protected String getText() {
