@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import qa.dto.request.user.UserGetAnswersRequest;
 import qa.dto.request.user.UserGetFullRequest;
 import qa.dto.request.user.UserGetQuestionsRequest;
-import qa.dto.response.user.FullUserResponse;
 import qa.dto.response.user.UserAnswersResponse;
+import qa.dto.response.user.UserFullResponse;
 import qa.dto.response.user.UserQuestionsResponse;
 import qa.service.UserService;
 
@@ -26,7 +26,7 @@ public class UserRestController {
     }
 
     @RequestMapping(value = "test/{username}", method = RequestMethod.GET)
-    public ResponseEntity<FullUserResponse> test(@PathVariable String username) {
+    public ResponseEntity<UserFullResponse> test(@PathVariable String username) {
         return userService.getFullUser(username);
     }
 
@@ -73,7 +73,7 @@ public class UserRestController {
     @RequestMapping(
             value = "get/{username}",
             method = RequestMethod.GET)
-    public ResponseEntity<FullUserResponse> getUser(@PathVariable("username") String username) {
+    public ResponseEntity<UserFullResponse> getUser(@PathVariable("username") String username) {
         return userService.getFullUser(username);
     }
 
@@ -122,7 +122,7 @@ public class UserRestController {
     @RequestMapping(value = "get",
             method = RequestMethod.GET,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<FullUserResponse> getUser(@RequestBody UserGetFullRequest request) {
+    public ResponseEntity<UserFullResponse> getUser(@RequestBody UserGetFullRequest request) {
         return userService.getFullUser(request);
     }
 

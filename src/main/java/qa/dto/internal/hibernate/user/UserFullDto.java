@@ -1,23 +1,40 @@
 package qa.dto.internal.hibernate.user;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class UserFullDto {
 
-    private Long userId;
-    private String about;
+    private final Long userId;
+    private final String about;
+
+    private final List<UserQuestionDto> questions = new ArrayList<>();
+    private final List<UserAnswerDto> answers = new ArrayList<>();
+
+    public static final String ID = "u_id";
+    public static final String ABOUT = "u_about";
+
+    public UserFullDto(Object[] tuples,
+                       Map<String, Integer> aliasToIndexMap) {
+        this.userId = ((BigInteger) tuples[aliasToIndexMap.get(ID)]).longValue();
+        this.about = (String) tuples[aliasToIndexMap.get(ABOUT)];
+    }
 
     public Long getUserId() {
         return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
     }
 
     public String getAbout() {
         return about;
     }
 
-    public void setAbout(String about) {
-        this.about = about;
+    public List<UserQuestionDto> getQuestions() {
+        return questions;
+    }
+
+    public List<UserAnswerDto> getAnswers() {
+        return answers;
     }
 }

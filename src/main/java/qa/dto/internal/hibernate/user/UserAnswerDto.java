@@ -1,9 +1,21 @@
 package qa.dto.internal.hibernate.user;
 
+import java.math.BigInteger;
+import java.util.Map;
+
 public class UserAnswerDto {
 
-    private Long answerId;
-    private String text;
+    private final Long answerId;
+    private final String text;
+
+    public static final String ID = "u_a_id";
+    public static final String TEXT = "u_a_text";
+
+    public UserAnswerDto(Object[] tuples,
+                         Map<String, Integer> aliasToIndexMap) {
+        this.answerId = ((BigInteger) tuples[aliasToIndexMap.get(ID)]).longValue();
+        this.text = (String) tuples[aliasToIndexMap.get(TEXT)];
+    }
 
     public Long getAnswerId() {
         return answerId;
@@ -11,13 +23,5 @@ public class UserAnswerDto {
 
     public String getText() {
         return text;
-    }
-
-    public void setAnswerId(Long answerId) {
-        this.answerId = answerId;
-    }
-
-    public void setText(String text) {
-        this.text = text;
     }
 }

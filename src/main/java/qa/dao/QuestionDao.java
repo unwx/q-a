@@ -53,8 +53,10 @@ public class QuestionDao extends DaoImpl<Question> {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             QuestionFullDto questionResult = getFullQuestionQuery(session, questionId).uniqueResult();
-            if (questionResult == null)
+            if (questionResult == null) {
+                transaction.rollback();
                 return null;
+            }
 
             transaction.commit();
             return convertDtoToQuestion(questionResult, questionId);
@@ -65,7 +67,7 @@ public class QuestionDao extends DaoImpl<Question> {
     private Query<QuestionFullDto> getFullQuestionQuery(Session session, Long questionId) {
         String getQuestionSql =
                 """
-                WITH
+                WITH\s\
                  answ AS (\
                     SELECT\s\
                         a.id,\s\
@@ -74,9 +76,9 @@ public class QuestionDao extends DaoImpl<Question> {
                         a.creation_date,\s\
                         a.question_id,\s\
                         u.username,\s\
-                        ROW_NUMBER() OVER (PARTITION BY question_id ORDER BY creation_date DESC) rn\s\
+                        ROW_NUMBER() OVER (PARTITION BY a.question_id ORDER BY a.creation_date DESC) rn\s\
                     FROM answer AS a\s\
-                        INNER JOIN usr u ON u.id = a.author_id),\s\
+                    INNER JOIN usr u ON u.id = a.author_id),\s\
                  comm AS (\
                     SELECT\s\
                         c.id,\s\
@@ -86,7 +88,7 @@ public class QuestionDao extends DaoImpl<Question> {
                         u.username,\s\
                         ROW_NUMBER() OVER (PARTITION BY c.answer_id ORDER BY c.creation_date DESC) rn\s\
                     FROM comment AS c\s\
-                        INNER JOIN usr u ON u.id = c.author_id)\s\
+                    INNER JOIN usr u ON u.id = c.author_id)\s\
                 SELECT\s\
                     q.title AS q_title, q.text AS q_text,\s\
                     q.tags AS q_tags, q.creation_date AS q_c_date,\s\

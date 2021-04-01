@@ -11,8 +11,8 @@ import qa.domain.User;
 import qa.dto.request.user.UserGetAnswersRequest;
 import qa.dto.request.user.UserGetFullRequest;
 import qa.dto.request.user.UserGetQuestionsRequest;
-import qa.dto.response.user.FullUserResponse;
 import qa.dto.response.user.UserAnswersResponse;
+import qa.dto.response.user.UserFullResponse;
 import qa.dto.response.user.UserQuestionsResponse;
 import qa.dto.validation.wrapper.user.UserGetAnswersRequestValidationWrapper;
 import qa.dto.validation.wrapper.user.UserGetFullRequestValidationWrapper;
@@ -42,12 +42,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<FullUserResponse> getFullUser(String username) {
+    public ResponseEntity<UserFullResponse> getFullUser(String username) {
         return new ResponseEntity<>(getFullUserProcess(username), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<FullUserResponse> getFullUser(UserGetFullRequest request) {
+    public ResponseEntity<UserFullResponse> getFullUser(UserGetFullRequest request) {
         return new ResponseEntity<>(getFullUserProcess(request), HttpStatus.OK);
     }
 
@@ -71,14 +71,14 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<>(getUserAnswersProcess(request), HttpStatus.OK);
     }
 
-    private FullUserResponse getFullUserProcess(String username) {
+    private UserFullResponse getFullUserProcess(String username) {
         return getFullUserProcess(new UserGetFullRequest(username));
     }
 
-    private FullUserResponse getFullUserProcess(UserGetFullRequest request) {
+    private UserFullResponse getFullUserProcess(UserGetFullRequest request) {
         validate(request);
         User user = getFullUserFromDatabase(request.getUsername());
-        return new FullUserResponse(user.getId(), request.getUsername(), user.getAbout(), user.getQuestions(), user.getAnswers());
+        return new UserFullResponse(user.getId(), request.getUsername(), user.getAbout(), user.getQuestions(), user.getAnswers());
     }
 
     private List<UserQuestionsResponse> getUserQuestionsProcess(Long userId, Integer startPage) {

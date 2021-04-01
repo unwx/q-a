@@ -1,23 +1,27 @@
 package qa.dto.internal.hibernate.user;
 
+import java.math.BigInteger;
+import java.util.Map;
+
 public class UserQuestionDto {
 
-    private Long questionId;
-    private String title;
+    private final Long questionId;
+    private final String title;
+
+    public static final String ID = "u_q_id";
+    public static final String TITLE = "u_q_title";
+
+    public UserQuestionDto(Object[] tuples,
+                           Map<String, Integer> aliasToIndexMap) {
+        this.questionId = ((BigInteger) tuples[aliasToIndexMap.get(ID)]).longValue();
+        this.title = (String) tuples[aliasToIndexMap.get(TITLE)];
+    }
 
     public Long getQuestionId() {
         return questionId;
     }
 
-    public void setQuestionId(Long questionId) {
-        this.questionId = questionId;
-    }
-
     public String getTitle() {
         return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
     }
 }

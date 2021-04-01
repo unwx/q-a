@@ -4,7 +4,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
-import org.hibernate.transform.Transformers;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,6 +11,9 @@ import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
+import qa.dto.internal.hibernate.transformer.UserAnswerTransformer;
+import qa.dto.internal.hibernate.transformer.UserFullDtoTransformer;
+import qa.dto.internal.hibernate.transformer.UserQuestionTransformer;
 import qa.dto.internal.hibernate.user.UserAnswerDto;
 import qa.dto.internal.hibernate.user.UserFullDto;
 import qa.dto.internal.hibernate.user.UserQuestionDto;
@@ -25,7 +27,7 @@ import java.util.List;
 public class UserDao extends DaoImpl<User> {
 
     private final SessionFactory sessionFactory;
-    private final int resultSize = 25;
+    private final int resultSize = 10;
 
     @Autowired
     public UserDao(PropertySetterFactory propertySetterFactory) {
@@ -42,22 +44,50 @@ public class UserDao extends DaoImpl<User> {
     public User readFullUser(String username) {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            User userResult = convertDtoToUser(readUserQuery(session, username).uniqueResult(), username);
-            if (userResult == null)
+            UserFullDto userResult = getFullUserQuery(session, username).uniqueResult();
+            if (userResult == null) {
+                transaction.rollback();
                 return null;
-
-            List<Answer> answers = convertDtoToAnswers(readAnswersQuery(session, userResult.getId()).list());
-            List<Question> questions = convertDtoToQuestion(readQuestionsQuery(session, userResult.getId()).list());
+            }
             transaction.commit();
 
-            return new User.Builder()
-                    .id(userResult.getId())
-                    .username(username)
-                    .about(userResult.getAbout())
-                    .answers(answers.size() > 0 ? answers : null)
-                    .questions(questions.size() > 0 ? questions : null)
-                    .build();
+            return convertDtoToUser(userResult, username);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Query<UserFullDto> getFullUserQuery(Session session, String username) {
+        String getFullUserSql =
+                """
+                WITH\s\
+                 answ AS (\
+                    SELECT\s\
+                        a.id,\s\
+                        SUBSTRING(a.text, 1, 50) as text,\s\
+                        a.author_id,\s\
+                        ROW_NUMBER() OVER (PARTITION BY a.author_id ORDER BY a.creation_date DESC) rn\s\
+                    FROM answer AS a),\s\
+                 ques AS (\
+                    SELECT\s\
+                        q.id,\s\
+                        q.title,\s\
+                        q.author_id,\s\
+                        ROW_NUMBER() OVER (PARTITION BY q.author_id ORDER BY q.last_activity DESC) rn\s\
+                    FROM question AS q)\s\
+                SELECT\s\
+                 u.id AS u_id, u.about AS u_about,\s\
+                 a.id AS u_a_id, a.text AS u_a_text,\s\
+                 q.id AS u_q_id, q.title AS u_q_title\s\
+                FROM usr as u\s\
+                INNER JOIN answ AS a ON u.id = a.author_id AND a.rn <= :resultSize\s\
+                INNER JOIN ques AS q ON u.id = q.author_id AND q.rn <= :resultSize\s\
+                WHERE u.username = :username\
+                """;
+        return session.createSQLQuery(getFullUserSql)
+                .unwrap(Query.class)
+                .setParameter("username", username)
+                .setParameter("resultSize", resultSize)
+                .setResultTransformer(new UserFullDtoTransformer());
     }
 
     @Nullable
@@ -82,69 +112,49 @@ public class UserDao extends DaoImpl<User> {
         }
     }
 
-    private Query<UserQuestionDto> readQuestionsQuery(Session session, long userId) {
-        return readQuestionsQuery(session, userId, 0);
-    }
-
-    private Query<UserAnswerDto> readAnswersQuery(Session session, long userId) {
-        return readAnswersQuery(session, userId, 0);
-    }
-
-    @SuppressWarnings("unchecked")
-    private Query<UserFullDto> readUserQuery(Session session, String username) {
-        String getUserHql = "select id as userId, about as about from User where username = :a";
-        return session
-                .createQuery(getUserHql)
-                .setParameter("a", username)
-                .unwrap(Query.class)
-                .setResultTransformer(Transformers.aliasToBean(UserFullDto.class));
-    }
-
     @SuppressWarnings("unchecked")
     private Query<UserQuestionDto> readQuestionsQuery(Session session, long userId, int startPage) {
         String getUserLastQuestions =
                 """
-                select q.id as questionId, q.title as title from Question as q\s\
-                inner join q.author u\s\
-                where u.id = :userId\s\
-                order by q.lastActivity desc\
+                SELECT q.id as u_q_id, q.title AS u_q_title FROM question AS q\s\
+                INNER JOIN usr AS u ON q.author_id = u.id\s\
+                WHERE u.id = :userId\s\
+                ORDER BY q.last_activity DESC\
                 """;
         return session
-                .createQuery(getUserLastQuestions)
+                .createSQLQuery(getUserLastQuestions)
+                .unwrap(Query.class)
                 .setParameter("userId", userId)
                 .setFirstResult(startPage * resultSize)
                 .setMaxResults(resultSize)
-                .unwrap(Query.class)
-                .setResultTransformer(Transformers.aliasToBean(UserQuestionDto.class));
+                .setResultTransformer(new UserQuestionTransformer());
     }
 
     @SuppressWarnings("unchecked")
     private Query<UserAnswerDto> readAnswersQuery(Session session, long userId, int startPage) {
         String getUserLastAnswers =
                 """
-                select a.id as answerId, substring(a.text, 1, 50) as text from Answer as a\s\
-                inner join a.author u\s\
-                where u.id = :userId\s\
-                order by a.creationDate desc\
+                SELECT a.id AS u_a_id, substring(a.text, 1, 50) AS u_a_text FROM answer AS a\s\
+                INNER JOIN usr AS u ON a.author_id = u.id\s\
+                WHERE u.id = :userId\s\
+                ORDER BY a.creation_date DESC\
                 """;
         return session
-                .createQuery(getUserLastAnswers)
+                .createSQLQuery(getUserLastAnswers)
+                .unwrap(Query.class)
                 .setParameter("userId", userId)
                 .setFirstResult(startPage * resultSize)
                 .setMaxResults(resultSize)
-                .unwrap(Query.class)
-                .setResultTransformer(Transformers.aliasToBean(UserAnswerDto.class));
+                .setResultTransformer(new UserAnswerTransformer());
     }
 
-    @Nullable
-    private User convertDtoToUser(@Nullable UserFullDto dto, String username) {
-        if (dto == null)
-            return null;
-
+    private User convertDtoToUser(UserFullDto dto, String username) {
         return new User.Builder()
                 .id(dto.getUserId())
                 .username(username)
                 .about(dto.getAbout())
+                .questions(dto.getQuestions().size() > 0 ? convertDtoToQuestion(dto.getQuestions()) : null)
+                .answers(dto.getAnswers().size() > 0 ? convertDtoToAnswers(dto.getAnswers()) : null)
                 .build();
     }
 

@@ -1,5 +1,6 @@
 package qa.dto.response.user;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import qa.domain.Answer;
 import qa.domain.Question;
@@ -8,15 +9,16 @@ import qa.serializer.FullUserSerializer;
 import java.util.List;
 
 @JsonSerialize(using = FullUserSerializer.class)
-public class FullUserResponse {
+public class UserFullResponse {
 
+    @JsonProperty("id")
     private final Long userId;
     private final String username;
     private final String about;
     private final List<Question> questions;
     private final List<Answer> answers;
 
-    public FullUserResponse(Long userId,
+    public UserFullResponse(Long userId,
                             String username,
                             String about,
                             List<Question> questions,
@@ -28,7 +30,7 @@ public class FullUserResponse {
         this.answers = answers;
     }
 
-    protected FullUserResponse() {
+    protected UserFullResponse() {
         this.userId = null;
         this.username = null;
         this.about = null;

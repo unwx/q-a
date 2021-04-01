@@ -7,26 +7,26 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import qa.domain.Answer;
 import qa.domain.Question;
-import qa.dto.response.user.FullUserResponse;
+import qa.dto.response.user.UserFullResponse;
 
 import java.io.IOException;
 import java.util.List;
 
-public class FullUserSerializer extends JsonSerializer<FullUserResponse> {
+public class FullUserSerializer extends JsonSerializer<UserFullResponse> {
 
     @Override
-    public void serialize(@NotNull FullUserResponse fullUserResponse, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(@NotNull UserFullResponse userFullResponse, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        writeUserData(fullUserResponse, jsonGenerator);
-        writeQuestionsData(fullUserResponse.getQuestions(), jsonGenerator);
-        writeAnswersData(fullUserResponse.getAnswers(), jsonGenerator);
+        writeUserData(userFullResponse, jsonGenerator);
+        writeQuestionsData(userFullResponse.getQuestions(), jsonGenerator);
+        writeAnswersData(userFullResponse.getAnswers(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
-    private void writeUserData(FullUserResponse fullUserResponse, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeNumberField("id", fullUserResponse.getUserId());
-        jsonGenerator.writeStringField("username", fullUserResponse.getUsername());
-        jsonGenerator.writeStringField("about", fullUserResponse.getAbout());
+    private void writeUserData(UserFullResponse userFullResponse, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeNumberField("id", userFullResponse.getUserId());
+        jsonGenerator.writeStringField("username", userFullResponse.getUsername());
+        jsonGenerator.writeStringField("about", userFullResponse.getAbout());
     }
 
     private void writeQuestionsData(@Nullable List<Question> questions, JsonGenerator jsonGenerator) throws IOException {

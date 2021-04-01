@@ -15,7 +15,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
+import qa.domain.Answer;
+import qa.domain.Question;
 import qa.dto.response.user.UserAnswersResponse;
+import qa.dto.response.user.UserFullResponse;
 import qa.dto.response.user.UserQuestionsResponse;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
@@ -32,38 +35,6 @@ public class UserRestControllerTest {
 
     private final SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
     private static final String username = "user123";
-    private static final String requiredResult =
-            """
-            {\
-            "id":1,\
-            "username":"%s",\
-            "about":null,\
-            "questions":[\
-            {\
-            "id":1,\
-            "title":"title"\
-            },\
-            {\
-            "id":2,\
-            "title":"title"\
-            },\
-            {\
-            "id":3,\
-            "title":"title"\
-            }\
-            ],\
-            "answers":[\
-            {\
-            "id":1,\
-            "text":"text"\
-            },\
-            {\
-            "id":2,\
-            "text":"text"\
-            }\
-            ]\
-            }\
-            """.formatted(username); //not sorted by date because they are created at the same time.
 
     @BeforeEach
     void truncate() {
@@ -79,16 +50,32 @@ public class UserRestControllerTest {
     }
 
     @Test
-    void getUser_Success_ByPathVariable() {
+    void getUser_Success_ByPathVariable() throws JsonProcessingException {
         createUserWithQuestionsAndAnswers();
         RequestSpecification request = RestAssured.given();
         Response response = request.get("get/" + username);
         assertThat(response.getStatusCode(), equalTo(200));
-        assertThat(response.getBody().asString(), equalTo(requiredResult));
+        ObjectMapper mapper = new ObjectMapper();
+        UserFullResponse userFullResponse = mapper.readValue(response.getBody().asString(), UserFullResponse.class);
+
+        assertThat(userFullResponse, notNullValue());
+        assertThat(userFullResponse.getUserId(), notNullValue());
+        assertThat(userFullResponse.getAbout(), notNullValue());
+        assertThat(userFullResponse.getUsername(), notNullValue());
+
+        for (Question q : userFullResponse.getQuestions()) {
+            assertThat(q.getId(), notNullValue());
+            assertThat(q.getTitle(), notNullValue());
+        }
+
+        for (Answer a : userFullResponse.getAnswers()) {
+            assertThat(a.getId(), notNullValue());
+            assertThat(a.getText(), notNullValue());
+        }
     }
 
     @Test
-    void getUser_Success_ByJson() {
+    void getUser_Success_ByJson() throws JsonProcessingException {
         createUserWithQuestionsAndAnswers();
         RequestSpecification request = RestAssured.given();
         request.header("Content-Type", "application/json");
@@ -96,7 +83,23 @@ public class UserRestControllerTest {
 
         Response response = request.get("get");
         assertThat(response.getStatusCode(), equalTo(200));
-        assertThat(response.getBody().asString(), equalTo(requiredResult));
+        ObjectMapper mapper = new ObjectMapper();
+        UserFullResponse userFullResponse = mapper.readValue(response.getBody().asString(), UserFullResponse.class);
+
+        assertThat(userFullResponse, notNullValue());
+        assertThat(userFullResponse.getUserId(), notNullValue());
+        assertThat(userFullResponse.getAbout(), notNullValue());
+        assertThat(userFullResponse.getUsername(), notNullValue());
+
+        for (Question q : userFullResponse.getQuestions()) {
+            assertThat(q.getId(), notNullValue());
+            assertThat(q.getTitle(), notNullValue());
+        }
+
+        for (Answer a : userFullResponse.getAnswers()) {
+            assertThat(a.getId(), notNullValue());
+            assertThat(a.getText(), notNullValue());
+        }
     }
 
     @Test
@@ -112,9 +115,9 @@ public class UserRestControllerTest {
         UserQuestionsResponse[] questionsResponse = mapper.readValue(response.body().asString(), UserQuestionsResponse[].class);
         assertThat(questionsResponse.length, notNullValue());
 
-        for (long i = 0; i < questionsResponse.length; i++) {
-            assertThat(questionsResponse[(int) i].getQuestionId(), equalTo(i));
-            assertThat(questionsResponse[(int) i].getTitle(), equalTo(String.valueOf(i)));
+        for (UserQuestionsResponse userQuestionsResponse : questionsResponse) {
+            assertThat(userQuestionsResponse, notNullValue());
+            assertThat(userQuestionsResponse, notNullValue());
         }
     }
 
@@ -129,9 +132,9 @@ public class UserRestControllerTest {
         UserQuestionsResponse[] questionsResponse = mapper.readValue(response.body().asString(), UserQuestionsResponse[].class);
         assertThat(questionsResponse.length, notNullValue());
 
-        for (int i = 0; i < questionsResponse.length; i++) {
-            assertThat(questionsResponse[i].getQuestionId(), equalTo((long) i));
-            assertThat(questionsResponse[i].getTitle(), equalTo(String.valueOf(i)));
+        for (UserQuestionsResponse userQuestionsResponse : questionsResponse) {
+            assertThat(userQuestionsResponse.getQuestionId(), notNullValue());
+            assertThat(userQuestionsResponse.getTitle(), notNullValue());
         }
     }
 
@@ -175,7 +178,7 @@ public class UserRestControllerTest {
         createUserWithManyQuestions();
         RequestSpecification request = RestAssured.given();
 
-        Response response = request.get("questions/get/1/5");
+        Response response = request.get("questions/get/1/5123");
         assertThat(response.getStatusCode(), equalTo(404));
 
         Response response1 = request.get("questions/get/234/1");
@@ -194,9 +197,9 @@ public class UserRestControllerTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         UserAnswersResponse[] answersResponse = objectMapper.readValue(response.getBody().asString(), UserAnswersResponse[].class);
-        for (int i = 0; i < answersResponse.length; i++) {
-            assertThat(answersResponse[i].getAnswerId(), equalTo((long) i));
-            assertThat(answersResponse[i].getText(), equalTo(String.valueOf(i)));
+        for (UserAnswersResponse userAnswersResponse : answersResponse) {
+            assertThat(userAnswersResponse.getAnswerId(), notNullValue());
+            assertThat(userAnswersResponse.getText(), notNullValue());
         }
     }
 
@@ -210,9 +213,9 @@ public class UserRestControllerTest {
 
         ObjectMapper objectMapper = new ObjectMapper();
         UserAnswersResponse[] answersResponse = objectMapper.readValue(response.getBody().asString(), UserAnswersResponse[].class);
-        for (int i = 0; i < answersResponse.length; i++) {
-            assertThat(answersResponse[i].getAnswerId(), equalTo((long) i));
-            assertThat(answersResponse[i].getText(), equalTo(String.valueOf(i)));
+        for (UserAnswersResponse userAnswersResponse : answersResponse) {
+            assertThat(userAnswersResponse.getAnswerId(), notNullValue());
+            assertThat(userAnswersResponse.getText(), notNullValue());
         }
     }
 
@@ -241,7 +244,7 @@ public class UserRestControllerTest {
         createUserWithManyAnswers();
         RequestSpecification request = RestAssured.given();
         request.header("Content-Type", "application/json");
-        request.body("{\"id\":1, \"page\":5}");
+        request.body("{\"id\":1, \"page\":5123}");
 
         Response response = request.get("answers/get");
         assertThat(response.getStatusCode(), equalTo(404));
@@ -268,7 +271,7 @@ public class UserRestControllerTest {
             Transaction transaction = session.beginTransaction();
             String userSql =
                     """
-                    insert into usr (id, about, username) values (1, null, '%s')
+                    insert into usr (id, about, username) values (1, 'about', '%s')
                     """.formatted(username);
             String questionSql =
                     """

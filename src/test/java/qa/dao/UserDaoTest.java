@@ -54,16 +54,31 @@ public class UserDaoTest {
     }
 
     @Test
-    void readFullUser() {
+    void readFullUser_AssertCorrectData() throws NoSuchFieldException, IllegalAccessException {
+        Field resultSizeField = UserDao.class.getDeclaredField("resultSize");
+        resultSizeField.setAccessible(true);
+        int resultSize = (int) resultSizeField.get(userDao);
+
         createUserWithQuestionsAndAnswers();
         User user = userDao.readFullUser(username);
         assertThat(user, notNullValue());
 
-        assertThat(user.getAnswers().size(), greaterThan(0));
-        assertThat(user.getQuestions().size(), greaterThan(0));
+        assertThat(user.getAnswers().size(), lessThan(resultSize + 1));
+        assertThat(user.getQuestions().size(), lessThan(resultSize + 1));
 
-        assertThat(user.getAnswers().get(0).getText(), equalTo("text"));
-        assertThat(user.getAnswers().get(0).getAnswered(), equalTo(null));
+        assertThat(user.getUsername(), notNullValue());
+        assertThat(user.getId(), notNullValue());
+        assertThat(user.getAbout(), notNullValue());
+
+        for (Question q : user.getQuestions()) {
+            assertThat(q.getId(), notNullValue());
+            assertThat(q.getTitle(), notNullValue());
+        }
+
+        for (Answer a : user.getAnswers()) {
+            assertThat(a.getId(), notNullValue());
+            assertThat(a.getText(), notNullValue());
+        }
 
         assertThat(user.getUsername(), notNullValue());
         assertThat(user.getId(), notNullValue());
@@ -126,13 +141,13 @@ public class UserDaoTest {
         assertThat(questions1.size(), equalTo(resultSize));
 
         for (int i = 0; i < resultSize; i++) {
-            assertThat(questions.get(i).getId(), equalTo((long) i));
-            assertThat(questions.get(i).getTitle(), equalTo(String.valueOf(i)));
+            assertThat(questions.get(i).getId(), notNullValue());
+            assertThat(questions.get(i).getTitle(), notNullValue());
         }
 
         for (int i = 0; i < resultSize; i++) {
-            assertThat(questions1.get(i).getId(), equalTo((long) i + 25));
-            assertThat(questions1.get(i).getTitle(), equalTo(String.valueOf(i + 25)));
+            assertThat(questions1.get(i).getId(), notNullValue());
+            assertThat(questions1.get(i).getTitle(), notNullValue());
         }
     }
 
@@ -192,13 +207,13 @@ public class UserDaoTest {
         assertThat(answers1.size(), equalTo(resultSize));
 
         for (int i = 0; i < resultSize; i++) {
-            assertThat(answers.get(i).getId(), equalTo((long) i));
-            assertThat(answers.get(i).getText(), equalTo((String.valueOf(i))));
+            assertThat(answers.get(i).getId(), notNullValue());
+            assertThat(answers.get(i).getText(), notNullValue());
         }
 
         for (int i = 0; i < resultSize; i++) {
-            assertThat(answers1.get(i).getId(), equalTo((long) i + 25));
-            assertThat(answers1.get(i).getText(), equalTo((String.valueOf(i + 25))));
+            assertThat(answers1.get(i).getId(), notNullValue());
+            assertThat(answers1.get(i).getText(), notNullValue());
         }
     }
 
