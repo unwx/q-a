@@ -13,11 +13,13 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
+import qa.domain.CommentQuestion;
 import qa.domain.Question;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.lang.reflect.Field;
 import java.util.Date;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -93,6 +95,39 @@ public class QuestionDaoTest {
             assertThat(q.getComments().get(i).getText(), notNullValue());
             assertThat(q.getComments().get(i).getCreationDate(), notNullValue());
         }
+    }
+
+    @Test
+    void getFullQuestion_NotFound() {
+        createQuestionWithCommentAndAnswer();
+        assertThat(questionDao.getFullQuestion(123432L), equalTo(null));
+    }
+
+    @Test
+    void getQuestionCommentsPages_AssertCorrectData() throws NoSuchFieldException, IllegalAccessException {
+        Field commentStartResultSizeField = QuestionDao.class.getDeclaredField("commentResultSize");
+        commentStartResultSizeField.setAccessible(true);
+        int commentStartResultSize = (int) commentStartResultSizeField.get(questionDao);
+
+        createQuestionWithCommentAndAnswer();
+        for (int i = 0; i < 15 / commentStartResultSize; i++) {
+            List<CommentQuestion> comments = questionDao.getQuestionComments(1L, i);
+            for (int y = 0; y < commentStartResultSize; y++) {
+                assertThat(comments, notNullValue());
+                assertThat(comments.get(y), notNullValue());
+                assertThat(comments.get(y).getId(), notNullValue());
+                assertThat(comments.get(y).getText(), notNullValue());
+                assertThat(comments.get(y).getCreationDate(), notNullValue());
+                assertThat(comments.get(y).getAuthor(), notNullValue());
+            }
+        }
+    }
+
+    @Test
+    void getQuestionCommentsPages_NotFound() {
+        createQuestionWithCommentAndAnswer();
+        assertThat(questionDao.getQuestionComments(123L, 0), equalTo(null));
+        assertThat(questionDao.getQuestionComments(1L, 234234), equalTo(null));
     }
 
     private void createQuestionWithCommentAndAnswer() {

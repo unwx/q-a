@@ -13,6 +13,7 @@ import qa.dto.internal.hibernate.question.QuestionAnswerCommentDto;
 import qa.dto.internal.hibernate.question.QuestionAnswerDto;
 import qa.dto.internal.hibernate.question.QuestionCommentDto;
 import qa.dto.internal.hibernate.question.QuestionFullDto;
+import qa.dto.internal.hibernate.transformer.QuestionCommentTransformer;
 import qa.dto.internal.hibernate.transformer.QuestionFullDtoTransformer;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
@@ -60,6 +61,20 @@ public class QuestionDao extends DaoImpl<Question> {
 
             transaction.commit();
             return convertDtoToQuestion(questionResult, questionId);
+        }
+    }
+
+    @Nullable
+    public List<CommentQuestion> getQuestionComments(Long questionId, int startPage) {
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            List<QuestionCommentDto> commentsResult = getQuestionCommentsQuery(session, questionId, startPage).list();
+            if (commentsResult.isEmpty()) {
+                transaction.rollback();
+                return null;
+            }
+            transaction.commit();
+            return convertDtoToCommentQuestionList(commentsResult);
         }
     }
 
@@ -120,6 +135,25 @@ public class QuestionDao extends DaoImpl<Question> {
                 .setParameter("commentLimit", commentResultSize)
                 .setMaxResults(commentResultSize)
                 .setResultTransformer(new QuestionFullDtoTransformer());
+    }
+
+    @SuppressWarnings("unchecked")
+    private Query<QuestionCommentDto> getQuestionCommentsQuery(Session session, Long questionId, int startPage) {
+        String getQuestionCommentsSql =
+                """
+                SELECT c.id AS q_c_id, c.text AS q_c_text, c.creation_date AS q_c_c_date,\s\
+                u.username AS q_c_a_username\s\
+                FROM comment AS c\s\
+                INNER JOIN usr AS u ON c.author_id = u.id\s\
+                INNER JOIN question q ON c.question_id = q.id\s\
+                WHERE q.id = :questionId
+                """;
+        return session.createSQLQuery(getQuestionCommentsSql)
+                .unwrap(Query.class)
+                .setParameter("questionId", questionId)
+                .setFirstResult(startPage * commentResultSize)
+                .setMaxResults(commentResultSize)
+                .setResultTransformer(new QuestionCommentTransformer());
     }
 
     private Question convertDtoToQuestion(QuestionFullDto dto, Long questionId) {

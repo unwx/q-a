@@ -12,6 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+//SQL
 public class UserFullDtoTransformer implements ResultTransformer {
 
     @Serial
@@ -32,7 +33,7 @@ public class UserFullDtoTransformer implements ResultTransformer {
     }
 
     @Override
-    public List transformList(List list) {
+    public List<UserFullDto> transformList(List list) {
         return new ArrayList<>(dtoMap.values());
     }
 }

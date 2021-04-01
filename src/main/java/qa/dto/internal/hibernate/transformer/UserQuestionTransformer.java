@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+//SQL
 public class UserQuestionTransformer implements ResultTransformer {
 
     @Serial
@@ -27,7 +28,7 @@ public class UserQuestionTransformer implements ResultTransformer {
     }
 
     @Override
-    public List transformList(List list) {
+    public List<UserQuestionDto> transformList(List list) {
         return new ArrayList<>(dtoMap.values());
     }
 }
