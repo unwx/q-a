@@ -1,4 +1,4 @@
-package perfomance;
+package performance;
 
 
 import com.jamonapi.Monitor;

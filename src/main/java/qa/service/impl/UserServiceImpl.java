@@ -52,8 +52,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<List<UserQuestionsResponse>> getUserQuestions(Long userId, Integer startPage) {
-        return new ResponseEntity<>(getUserQuestionsProcess(userId, startPage), HttpStatus.OK);
+    public ResponseEntity<List<UserQuestionsResponse>> getUserQuestions(Long userId, Integer page) {
+        return new ResponseEntity<>(getUserQuestionsProcess(userId, page), HttpStatus.OK);
     }
 
     @Override
@@ -62,8 +62,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<List<UserAnswersResponse>> getUserAnswers(Long userId, Integer startPage) {
-        return new ResponseEntity<>(getUserAnswersProcess(userId, startPage), HttpStatus.OK);
+    public ResponseEntity<List<UserAnswersResponse>> getUserAnswers(Long userId, Integer page) {
+        return new ResponseEntity<>(getUserAnswersProcess(userId, page), HttpStatus.OK);
     }
 
     @Override
@@ -81,8 +81,8 @@ public class UserServiceImpl implements UserService {
         return new UserFullResponse(user.getId(), request.getUsername(), user.getAbout(), user.getQuestions(), user.getAnswers());
     }
 
-    private List<UserQuestionsResponse> getUserQuestionsProcess(Long userId, Integer startPage) {
-        return getUserQuestionsProcess(new UserGetQuestionsRequest(userId, startPage));
+    private List<UserQuestionsResponse> getUserQuestionsProcess(Long userId, Integer page) {
+        return getUserQuestionsProcess(new UserGetQuestionsRequest(userId, page));
     }
 
     private List<UserQuestionsResponse> getUserQuestionsProcess(UserGetQuestionsRequest request) {
@@ -91,8 +91,8 @@ public class UserServiceImpl implements UserService {
         return convertQuestionsToResponseDto(questions);
     }
 
-    private List<UserAnswersResponse> getUserAnswersProcess(Long userId, Integer startPage) {
-        return getUserAnswersProcess(new UserGetAnswersRequest(userId, startPage));
+    private List<UserAnswersResponse> getUserAnswersProcess(Long userId, Integer page) {
+        return getUserAnswersProcess(new UserGetAnswersRequest(userId, page));
     }
 
     private List<UserAnswersResponse> getUserAnswersProcess(UserGetAnswersRequest request) {
@@ -108,17 +108,17 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    private List<Question> getUserQuestionsFromDatabase(Long userId, Integer startPage) {
-        List<Question> questions = userDao.readUserQuestions(userId, startPage - 1); //client page start with 1. backend with 0
+    private List<Question> getUserQuestionsFromDatabase(Long userId, Integer page) {
+        List<Question> questions = userDao.readUserQuestions(userId, page - 1); //client page start with 1. backend with 0
         if (questions == null)
-            throw new ResourceNotFoundException("questions not found. userId: " + userId + ". startPage: " + startPage);
+            throw new ResourceNotFoundException("questions not found. userId: " + userId + ". page: " + page);
         return questions;
     }
 
-    private List<Answer> getUserAnswersFromDatabase(Long userId, Integer startPage) {
-        List<Answer> answers = userDao.readUserAnswers(userId, startPage - 1); //client page start with 1. backend with 0
+    private List<Answer> getUserAnswersFromDatabase(Long userId, Integer page) {
+        List<Answer> answers = userDao.readUserAnswers(userId, page - 1); //client page start with 1. backend with 0
         if (answers == null)
-            throw new ResourceNotFoundException("answers not found. userId: " + userId + ". startPage: " + startPage);
+            throw new ResourceNotFoundException("answers not found. userId: " + userId + ". page: " + page);
         return answers;
     }
 

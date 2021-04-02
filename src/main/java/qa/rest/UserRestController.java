@@ -157,11 +157,11 @@ public class UserRestController {
      * }
      */
     @RequestMapping(
-            value = "questions/get/{userId}/{startPage}",
+            value = "questions/get/{userId}/{page}",
             method = RequestMethod.GET)
     public ResponseEntity<List<UserQuestionsResponse>> getUserQuestions(@PathVariable("userId") Long userId,
-                                                                  @PathVariable("startPage") Integer startPage) {
-        return userService.getUserQuestions(userId, startPage);
+                                                                  @PathVariable("page") Integer page) {
+        return userService.getUserQuestions(userId, page);
     }
 
     /**
@@ -213,7 +213,7 @@ public class UserRestController {
      *
      * @path_variable
      * userId: long
-     * startPage: int
+     * page: int
      *
      * @response
      * OK:
@@ -234,11 +234,11 @@ public class UserRestController {
      * }
      */
     @RequestMapping(
-            value = "answers/get/{userId}/{startPage}",
+            value = "answers/get/{userId}/{page}",
             method = RequestMethod.GET)
     public ResponseEntity<List<UserAnswersResponse>> getUserAnswers(@PathVariable("userId") Long userId,
-                                                                    @PathVariable("startPage") Integer startPage) {
-        return userService.getUserAnswers(userId, startPage);
+                                                                    @PathVariable("page") Integer page) {
+        return userService.getUserAnswers(userId, page);
     }
 
 

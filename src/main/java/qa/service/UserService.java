@@ -15,11 +15,11 @@ public interface UserService {
 
     ResponseEntity<UserFullResponse> getFullUser(UserGetFullRequest request);
 
-    ResponseEntity<List<UserQuestionsResponse>> getUserQuestions(Long userId, Integer startPage);
+    ResponseEntity<List<UserQuestionsResponse>> getUserQuestions(Long userId, Integer page);
 
     ResponseEntity<List<UserQuestionsResponse>> getUserQuestions(UserGetQuestionsRequest request);
 
-    ResponseEntity<List<UserAnswersResponse>> getUserAnswers(Long userId, Integer startPage);
+    ResponseEntity<List<UserAnswersResponse>> getUserAnswers(Long userId, Integer page);
 
     ResponseEntity<List<UserAnswersResponse>> getUserAnswers(UserGetAnswersRequest request);
 }

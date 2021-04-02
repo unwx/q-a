@@ -69,10 +69,10 @@ public class QuestionDao extends DaoImpl<Question> {
     }
 
     @Nullable
-    public List<QuestionViewDto> getQuestionViewsDto(int startPage) {
+    public List<QuestionViewDto> getQuestionViewsDto(int page) {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            List<QuestionViewDto> views = getQuestionsViewsQuery(session, startPage).list();
+            List<QuestionViewDto> views = getQuestionsViewsQuery(session, page).list();
             if (views.isEmpty()) {
                 transaction.rollback();
                 return null;
@@ -82,10 +82,10 @@ public class QuestionDao extends DaoImpl<Question> {
     }
 
     @Nullable
-    public List<CommentQuestion> getQuestionComments(Long questionId, int startPage) {
+    public List<CommentQuestion> getQuestionComments(Long questionId, int page) {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            List<QuestionCommentDto> commentsResult = getQuestionCommentsQuery(session, questionId, startPage).list();
+            List<QuestionCommentDto> commentsResult = getQuestionCommentsQuery(session, questionId, page).list();
             if (commentsResult.isEmpty()) {
                 transaction.rollback();
                 return null;
@@ -96,10 +96,10 @@ public class QuestionDao extends DaoImpl<Question> {
     }
 
     @Nullable
-    public List<Answer> getQuestionAnswer(Long questionId, int startPage) {
+    public List<Answer> getQuestionAnswer(Long questionId, int page) {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            List<AnswerFullDto> answerResult = getQuestionAnswersQuery(session, questionId, startPage).list();
+            List<AnswerFullDto> answerResult = getQuestionAnswersQuery(session, questionId, page).list();
             if (answerResult.isEmpty()) {
                 transaction.rollback();
                 return null;
@@ -170,7 +170,7 @@ public class QuestionDao extends DaoImpl<Question> {
     }
 
     @SuppressWarnings("unchecked")
-    private Query<QuestionViewDto> getQuestionsViewsQuery(Session session, int startPage) {
+    private Query<QuestionViewDto> getQuestionsViewsQuery(Session session, int page) {
         String getQuestionViewsSql =
                 """
                 SELECT q.id AS que_id, q.title AS que_title, q.tags AS que_tags,\s\
@@ -187,13 +187,13 @@ public class QuestionDao extends DaoImpl<Question> {
                 """;
         return session.createSQLQuery(getQuestionViewsSql)
                 .unwrap(Query.class)
-                .setFirstResult(questionViewResultSize * startPage)
+                .setFirstResult(questionViewResultSize * page)
                 .setMaxResults(questionViewResultSize)
                 .setResultTransformer(new QuestionViewDtoTransformer());
     }
 
     @SuppressWarnings("unchecked")
-    private Query<QuestionCommentDto> getQuestionCommentsQuery(Session session, Long questionId, int startPage) {
+    private Query<QuestionCommentDto> getQuestionCommentsQuery(Session session, Long questionId, int page) {
         String getQuestionCommentsSql =
                 """
                 SELECT c.id AS que_c_id, c.text AS que_c_text, c.creation_date AS que_c_c_date,\s\
@@ -207,13 +207,13 @@ public class QuestionDao extends DaoImpl<Question> {
         return session.createSQLQuery(getQuestionCommentsSql)
                 .unwrap(Query.class)
                 .setParameter("questionId", questionId)
-                .setFirstResult(startPage * commentResultSize)
+                .setFirstResult(page * commentResultSize)
                 .setMaxResults(commentResultSize)
                 .setResultTransformer(new QuestionCommentDtoTransformer());
     }
 
     @SuppressWarnings("unchecked")
-    private Query<AnswerFullDto> getQuestionAnswersQuery(Session session, Long questionId, int startPage) {
+    private Query<AnswerFullDto> getQuestionAnswersQuery(Session session, Long questionId, int page) {
         String getQuestionAnswersSql =
                 """
                 WITH
@@ -255,9 +255,9 @@ public class QuestionDao extends DaoImpl<Question> {
         return session.createSQLQuery(getQuestionAnswersSql)
                 .unwrap(Query.class)
                 .setParameter("questionId", questionId)
-                .setParameter("answerRN", resultSize + startPage * resultSize)
+                .setParameter("answerRN", resultSize + page * resultSize)
                 .setParameter("commentRN", commentResultSize)
-                .setParameter("offset", startPage * resultSize)
+                .setParameter("offset", page * resultSize)
                 .setResultTransformer(new QuestionAnswerDtoTransformer());
     }
 

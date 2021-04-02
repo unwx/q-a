@@ -91,10 +91,10 @@ public class UserDao extends DaoImpl<User> {
     }
 
     @Nullable
-    public List<Question> readUserQuestions(long userId, int startPage) {
+    public List<Question> readUserQuestions(long userId, int page) {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            List<Question> questions = convertDtoToQuestion(readQuestionsQuery(session, userId, startPage).list());
+            List<Question> questions = convertDtoToQuestion(readQuestionsQuery(session, userId, page).list());
             transaction.commit();
 
             return questions.size() > 0 ? questions : null;
@@ -102,10 +102,10 @@ public class UserDao extends DaoImpl<User> {
     }
 
     @Nullable
-    public List<Answer> readUserAnswers(long userId, int startPage) {
+    public List<Answer> readUserAnswers(long userId, int page) {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            List<Answer> answers = convertDtoToAnswers(readAnswersQuery(session, userId, startPage).list());
+            List<Answer> answers = convertDtoToAnswers(readAnswersQuery(session, userId, page).list());
             transaction.commit();
 
             return answers.size() > 0 ? answers : null;
@@ -113,7 +113,7 @@ public class UserDao extends DaoImpl<User> {
     }
 
     @SuppressWarnings("unchecked")
-    private Query<UserQuestionDto> readQuestionsQuery(Session session, long userId, int startPage) {
+    private Query<UserQuestionDto> readQuestionsQuery(Session session, long userId, int page) {
         String getUserLastQuestions =
                 """
                 SELECT q.id as usr_q_id, q.title AS usr_q_title FROM question AS q\s\
@@ -125,13 +125,13 @@ public class UserDao extends DaoImpl<User> {
                 .createSQLQuery(getUserLastQuestions)
                 .unwrap(Query.class)
                 .setParameter("userId", userId)
-                .setFirstResult(startPage * resultSize)
+                .setFirstResult(page * resultSize)
                 .setMaxResults(resultSize)
                 .setResultTransformer(new UserQuestionDtoTransformer());
     }
 
     @SuppressWarnings("unchecked")
-    private Query<UserAnswerDto> readAnswersQuery(Session session, long userId, int startPage) {
+    private Query<UserAnswerDto> readAnswersQuery(Session session, long userId, int page) {
         String getUserLastAnswers =
                 """
                 SELECT a.id AS usr_a_id, substring(a.text, 1, 50) AS usr_a_text FROM answer AS a\s\
@@ -143,7 +143,7 @@ public class UserDao extends DaoImpl<User> {
                 .createSQLQuery(getUserLastAnswers)
                 .unwrap(Query.class)
                 .setParameter("userId", userId)
-                .setFirstResult(startPage * resultSize)
+                .setFirstResult(page * resultSize)
                 .setMaxResults(resultSize)
                 .setResultTransformer(new UserAnswerDtoTransformer());
     }
