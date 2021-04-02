@@ -6,7 +6,7 @@ public class QuestionCommentAuthorDto {
 
     private final String username;
 
-    public static final String USERNAME = "q_c_a_username";
+    public static final String USERNAME = "que_c_u_username";
 
     public QuestionCommentAuthorDto(Object[] tuples,
                                     Map<String, Integer> aliasToIndexMap) {

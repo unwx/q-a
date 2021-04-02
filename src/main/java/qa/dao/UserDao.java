@@ -11,9 +11,9 @@ import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
-import qa.dto.internal.hibernate.transformer.UserAnswerTransformer;
+import qa.dto.internal.hibernate.transformer.UserAnswerDtoTransformer;
 import qa.dto.internal.hibernate.transformer.UserFullDtoTransformer;
-import qa.dto.internal.hibernate.transformer.UserQuestionTransformer;
+import qa.dto.internal.hibernate.transformer.UserQuestionDtoTransformer;
 import qa.dto.internal.hibernate.user.UserAnswerDto;
 import qa.dto.internal.hibernate.user.UserFullDto;
 import qa.dto.internal.hibernate.user.UserQuestionDto;
@@ -75,18 +75,18 @@ public class UserDao extends DaoImpl<User> {
                         ROW_NUMBER() OVER (PARTITION BY q.author_id ORDER BY q.last_activity DESC) rn\s\
                     FROM question AS q)\s\
                 SELECT\s\
-                 u.id AS u_id, u.about AS u_about,\s\
-                 a.id AS u_a_id, a.text AS u_a_text,\s\
-                 q.id AS u_q_id, q.title AS u_q_title\s\
+                 u.id AS usr_id, u.about AS usr_about,\s\
+                 a.id AS usr_a_id, a.text AS usr_a_text,\s\
+                 q.id AS usr_q_id, q.title AS usr_q_title\s\
                 FROM usr as u\s\
-                INNER JOIN answ AS a ON u.id = a.author_id AND a.rn <= :resultSize\s\
-                INNER JOIN ques AS q ON u.id = q.author_id AND q.rn <= :resultSize\s\
+                INNER JOIN answ AS a ON u.id = a.author_id AND a.rn <= :RN\s\
+                INNER JOIN ques AS q ON u.id = q.author_id AND q.rn <= :RN\s\
                 WHERE u.username = :username\
                 """;
         return session.createSQLQuery(getFullUserSql)
                 .unwrap(Query.class)
                 .setParameter("username", username)
-                .setParameter("resultSize", resultSize)
+                .setParameter("RN", resultSize)
                 .setResultTransformer(new UserFullDtoTransformer());
     }
 
@@ -116,7 +116,7 @@ public class UserDao extends DaoImpl<User> {
     private Query<UserQuestionDto> readQuestionsQuery(Session session, long userId, int startPage) {
         String getUserLastQuestions =
                 """
-                SELECT q.id as u_q_id, q.title AS u_q_title FROM question AS q\s\
+                SELECT q.id as usr_q_id, q.title AS usr_q_title FROM question AS q\s\
                 INNER JOIN usr AS u ON q.author_id = u.id\s\
                 WHERE u.id = :userId\s\
                 ORDER BY q.last_activity DESC\
@@ -127,14 +127,14 @@ public class UserDao extends DaoImpl<User> {
                 .setParameter("userId", userId)
                 .setFirstResult(startPage * resultSize)
                 .setMaxResults(resultSize)
-                .setResultTransformer(new UserQuestionTransformer());
+                .setResultTransformer(new UserQuestionDtoTransformer());
     }
 
     @SuppressWarnings("unchecked")
     private Query<UserAnswerDto> readAnswersQuery(Session session, long userId, int startPage) {
         String getUserLastAnswers =
                 """
-                SELECT a.id AS u_a_id, substring(a.text, 1, 50) AS u_a_text FROM answer AS a\s\
+                SELECT a.id AS usr_a_id, substring(a.text, 1, 50) AS usr_a_text FROM answer AS a\s\
                 INNER JOIN usr AS u ON a.author_id = u.id\s\
                 WHERE u.id = :userId\s\
                 ORDER BY a.creation_date DESC\
@@ -145,7 +145,7 @@ public class UserDao extends DaoImpl<User> {
                 .setParameter("userId", userId)
                 .setFirstResult(startPage * resultSize)
                 .setMaxResults(resultSize)
-                .setResultTransformer(new UserAnswerTransformer());
+                .setResultTransformer(new UserAnswerDtoTransformer());
     }
 
     private User convertDtoToUser(UserFullDto dto, String username) {

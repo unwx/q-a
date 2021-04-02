@@ -13,8 +13,8 @@ public class UserFullDto {
     private final List<UserQuestionDto> questions = new ArrayList<>();
     private final List<UserAnswerDto> answers = new ArrayList<>();
 
-    public static final String ID = "u_id";
-    public static final String ABOUT = "u_about";
+    public static final String ID = "usr_id";
+    public static final String ABOUT = "usr_about";
 
     public UserFullDto(Object[] tuples,
                        Map<String, Integer> aliasToIndexMap) {

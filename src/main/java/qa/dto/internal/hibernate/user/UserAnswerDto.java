@@ -8,8 +8,8 @@ public class UserAnswerDto {
     private final Long answerId;
     private final String text;
 
-    public static final String ID = "u_a_id";
-    public static final String TEXT = "u_a_text";
+    public static final String ID = "usr_a_id";
+    public static final String TEXT = "usr_a_text";
 
     public UserAnswerDto(Object[] tuples,
                          Map<String, Integer> aliasToIndexMap) {

@@ -2,7 +2,8 @@ package qa.dto.internal.hibernate.transformer;
 
 import org.hibernate.transform.ResultTransformer;
 import qa.dto.internal.hibernate.AliasUtil;
-import qa.dto.internal.hibernate.question.QuestionAnswerDto;
+import qa.dto.internal.hibernate.answer.AnswerCommentDto;
+import qa.dto.internal.hibernate.answer.AnswerFullDto;
 import qa.dto.internal.hibernate.question.QuestionCommentDto;
 import qa.dto.internal.hibernate.question.QuestionFullDto;
 
@@ -26,7 +27,9 @@ public class QuestionFullDtoTransformer implements ResultTransformer {
 
         String questionTitle = (String) objects[aliasToIndexMap.get(QuestionFullDto.TITLE)];
         QuestionFullDto dto = dtoMap.computeIfAbsent(questionTitle, title -> new QuestionFullDto(objects, aliasToIndexMap));
-        dto.getAnswers().add(new QuestionAnswerDto(objects, aliasToIndexMap));
+        dto.getAnswers().add(new AnswerFullDto(objects, aliasToIndexMap));
+        dto.getAnswers().get(dto.getAnswers().size() - 1).getComments().add(new AnswerCommentDto(objects, aliasToIndexMap));
+
         dto.getComments().add(new QuestionCommentDto(objects, aliasToIndexMap));
 
         return dto;

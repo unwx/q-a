@@ -6,7 +6,7 @@ public class QuestionAuthorDto {
 
     private final String username;
 
-    public static final String USERNAME = "q_a_username";
+    public static final String USERNAME = "que_u_username";
 
     public QuestionAuthorDto(Object[] tuples,
                                           Map<String, Integer> aliasToIndexMap) {
