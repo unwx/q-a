@@ -1,4 +1,4 @@
-package qa.util;
+package qa.util.user;
 
 import org.apache.logging.log4j.Logger;
 import qa.dao.Dao;
@@ -7,7 +7,7 @@ import qa.domain.setters.PropertySetterFactory;
 import qa.exceptions.rest.AccessDeniedException;
 import qa.exceptions.rest.BadRequestException;
 import qa.exceptions.service.internal.AuthorNotExistException;
-import qa.util.access.AccessUtil;
+import qa.util.access.ActionAccessUtil;
 import qa.util.access.CheckAuthorResult;
 import qa.util.access.HasAuthor;
 
@@ -25,7 +25,7 @@ public class AuthorUtil {
                                                                                Logger logger,
                                                                                String entityName) {
 
-        CheckAuthorResult result = AccessUtil.isRealAuthor(where, authenticationId, clazz, dao, propertySetterFactory);
+        CheckAuthorResult result = ActionAccessUtil.isRealAuthor(where, authenticationId, clazz, dao, propertySetterFactory);
         switch (result) {
             case ENTITY_NOT_EXIST -> throw new BadRequestException(entityName + " not exist. id: " + where.getFieldValue());
             case AUTHOR_NOT_EXIST -> {

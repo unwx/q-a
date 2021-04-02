@@ -1,4 +1,4 @@
-package qa.util;
+package qa.util.user;
 
 import org.springframework.security.core.Authentication;
 import qa.security.jwt.entity.JwtAuthenticationData;

@@ -25,9 +25,9 @@ import qa.dto.validation.wrapper.answer.AnswerEditRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.service.AnswerService;
 import qa.source.ValidationPropertyDataSource;
-import qa.util.AuthorUtil;
-import qa.util.PrincipalUtil;
 import qa.util.ValidationUtil;
+import qa.util.user.AuthorUtil;
+import qa.util.user.PrincipalUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 import java.util.Date;

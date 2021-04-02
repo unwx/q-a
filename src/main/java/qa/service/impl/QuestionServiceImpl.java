@@ -23,12 +23,12 @@ import qa.dto.validation.wrapper.question.QuestionEditRequestValidationWrapper;
 import qa.dto.validation.wrapper.question.QuestionGetFullRequestValidationWrapper;
 import qa.service.QuestionService;
 import qa.source.ValidationPropertyDataSource;
-import qa.util.AuthorUtil;
-import qa.util.PrincipalUtil;
+import qa.util.QuestionTagsUtil;
 import qa.util.ValidationUtil;
+import qa.util.user.AuthorUtil;
+import qa.util.user.PrincipalUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -130,7 +130,7 @@ public class QuestionServiceImpl implements QuestionService {
         Question question = new Question.Builder()
                 .creationDate(new Date())
                 .lastActivity(new Date())
-                .tags(tagsArrayToString(request.getTags()))
+                .tags(QuestionTagsUtil.tagsToString(request.getTags()))
                 .text(request.getText())
                 .title(request.getTitle())
                 .author(new User(PrincipalUtil.getUserIdFromAuthentication(authentication)))
@@ -154,7 +154,7 @@ public class QuestionServiceImpl implements QuestionService {
                 new Where("id", request.getQuestionId(), WhereOperator.EQUALS),
                 new Question.Builder()
                         .text(request.getText())
-                        .tags(tagsArrayToString(request.getTags()))
+                        .tags(QuestionTagsUtil.tagsToString(request.getTags()))
                         .lastActivity(new Date())
                         .build()
         );
@@ -162,13 +162,6 @@ public class QuestionServiceImpl implements QuestionService {
 
     private void deleteQuestionById(Long questionId) {
         questionDao.delete(new Where("id", questionId, WhereOperator.EQUALS));
-    }
-
-    private String tagsArrayToString(String[] tags) {
-        StringBuilder sb = new StringBuilder();
-        Arrays.stream(tags).forEach((t) -> sb.append(t).append(","));
-        sb.deleteCharAt(sb.length() - 1);
-        return sb.toString();
     }
 
     private void validate(QuestionCreateRequest request) {

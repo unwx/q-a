@@ -19,9 +19,9 @@ import qa.dto.validation.wrapper.comment.*;
 import qa.exceptions.rest.BadRequestException;
 import qa.service.CommentService;
 import qa.source.ValidationPropertyDataSource;
-import qa.util.AuthorUtil;
-import qa.util.PrincipalUtil;
 import qa.util.ValidationUtil;
+import qa.util.user.AuthorUtil;
+import qa.util.user.PrincipalUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 @Service

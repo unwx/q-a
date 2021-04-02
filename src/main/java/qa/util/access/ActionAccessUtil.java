@@ -9,9 +9,9 @@ import qa.domain.setters.PropertySetterFactory;
 
 import java.util.Collections;
 
-public class AccessUtil {
+public class ActionAccessUtil {
 
-    private AccessUtil() {
+    private ActionAccessUtil() {
     }
 
     public static <E extends HasAuthor> CheckAuthorResult isRealAuthor(Where where,
