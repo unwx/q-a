@@ -13,9 +13,11 @@ import qa.dto.internal.hibernate.answer.AnswerCommentDto;
 import qa.dto.internal.hibernate.answer.AnswerFullDto;
 import qa.dto.internal.hibernate.question.QuestionCommentDto;
 import qa.dto.internal.hibernate.question.QuestionFullDto;
-import qa.dto.internal.hibernate.transformer.QuestionAnswerDtoTransformer;
-import qa.dto.internal.hibernate.transformer.QuestionCommentDtoTransformer;
-import qa.dto.internal.hibernate.transformer.QuestionFullDtoTransformer;
+import qa.dto.internal.hibernate.question.QuestionViewDto;
+import qa.dto.internal.hibernate.transformer.question.QuestionAnswerDtoTransformer;
+import qa.dto.internal.hibernate.transformer.question.QuestionCommentDtoTransformer;
+import qa.dto.internal.hibernate.transformer.question.QuestionFullDtoTransformer;
+import qa.dto.internal.hibernate.transformer.question.QuestionViewDtoTransformer;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.util.ArrayList;
@@ -27,6 +29,7 @@ public class QuestionDao extends DaoImpl<Question> {
 
     private final SessionFactory sessionFactory;
     private static final int resultSize = 6;
+    private static final int questionViewResultSize = 20;
     private static final int commentResultSize = 3;
 
     @Autowired
@@ -62,6 +65,19 @@ public class QuestionDao extends DaoImpl<Question> {
 
             transaction.commit();
             return convertDtoToQuestion(questionResult, questionId);
+        }
+    }
+
+    @Nullable
+    public List<QuestionViewDto> getQuestionViewsDto(int startPage) {
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            List<QuestionViewDto> views = getQuestionsViewsQuery(session, startPage).list();
+            if (views.isEmpty()) {
+                transaction.rollback();
+                return null;
+            }
+            return views;
         }
     }
 
@@ -151,6 +167,29 @@ public class QuestionDao extends DaoImpl<Question> {
                 .setParameter("commentRN", commentResultSize)
                 .setMaxResults(commentResultSize)
                 .setResultTransformer(new QuestionFullDtoTransformer());
+    }
+
+    @SuppressWarnings("unchecked")
+    private Query<QuestionViewDto> getQuestionsViewsQuery(Session session, int startPage) {
+        String getQuestionViewsSql =
+                """
+                SELECT q.id AS que_id, q.title AS que_title, q.tags AS que_tags,\s\
+                q.creation_date AS que_c_date, q.last_activity AS que_l_activity,\s\
+                a.count AS que_a_count,\s\
+                u.username AS que_u_username\s\
+                FROM question AS q\s\
+                INNER JOIN (\
+                    SELECT a.question_id,\s\
+                    COUNT(a.id) AS count FROM answer AS a\s\
+                    GROUP BY a.question_id) AS a ON q.id = a.question_id\s\
+                INNER JOIN usr AS u ON q.author_id = u.id\s\
+                ORDER BY q.creation_date DESC\
+                """;
+        return session.createSQLQuery(getQuestionViewsSql)
+                .unwrap(Query.class)
+                .setFirstResult(questionViewResultSize * startPage)
+                .setMaxResults(questionViewResultSize)
+                .setResultTransformer(new QuestionViewDtoTransformer());
     }
 
     @SuppressWarnings("unchecked")

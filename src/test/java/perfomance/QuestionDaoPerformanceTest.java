@@ -16,9 +16,11 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
 import qa.dao.QuestionDao;
 import qa.domain.Question;
+import qa.dto.internal.hibernate.question.QuestionViewDto;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.util.Date;
+import java.util.List;
 
 @WebAppConfiguration
 @ExtendWith(SpringExtension.class)
@@ -87,6 +89,16 @@ public class QuestionDaoPerformanceTest {
             System.out.printf("TWO QUERY RESULT: %sms%n", twoQMon);
             transaction.commit();
         }
+    }
+
+    @Test
+    void getQuestionsPagesTest_ALL() {
+        createManyQuestionsWithManyAnswers();
+
+        Monitor monitor = MonitorFactory.start("get questions test");
+        List<QuestionViewDto> dtos = questionDao.getQuestionViewsDto(12);
+        monitor.stop();
+        System.out.printf("RESULT: %s", monitor);
     }
 
     private void createQuestionWithCommentAndAnswer() {
@@ -248,5 +260,45 @@ public class QuestionDaoPerformanceTest {
                 .setParameter("commentLimit", 3)
                 .setParameter("questionId", 1)
                 .list();
+    }
+
+    private void createManyQuestionsWithManyAnswers() {
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String createUserSql =
+                    """
+                    insert into usr (id, about, username) values (1, null, 'username')
+                    """;
+            String createQuestionSql =
+                    """
+                    insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
+                    values (:id, :date, :date, 'tags', 'text', 'title', 1)
+                    """;
+            String createAnswerSql =
+                    """
+                    insert into answer (id, answered, creation_date, text, author_id, question_id)\s\
+                    values (:id, false, :date, 'text', 1, :questionId)
+                    """;
+            session.createSQLQuery(createUserSql).executeUpdate();
+
+            int answerCounter = 0;
+            for (int i = 0; i < 300; i++) {
+                session.createSQLQuery(createQuestionSql)
+                        .setParameter("id", (long) i)
+                        .setParameter("date", new Date(123123123123L * i))
+                        .executeUpdate();
+                for (int y = 0; y < (int) (150 + Math.random() * 1500); y++) {
+                    session.createSQLQuery(createAnswerSql)
+                            .setParameter("id", answerCounter)
+                            .setParameter("date", new Date(9876654332L * i))
+                            .setParameter("questionId", (long) i)
+                            .executeUpdate();
+                    answerCounter++;
+                }
+                session.flush();
+                session.clear();
+            }
+            transaction.commit();
+        }
     }
 }

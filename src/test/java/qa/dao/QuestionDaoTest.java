@@ -15,6 +15,7 @@ import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.domain.CommentQuestion;
 import qa.domain.Question;
+import qa.dto.internal.hibernate.question.QuestionViewDto;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.lang.reflect.Field;
@@ -218,6 +219,58 @@ public class QuestionDaoTest {
         assertThat(answers2, equalTo(null));
     }
 
+    @Test
+    void getQuestionViewsPages_AssertCorrectData() throws NoSuchFieldException, IllegalAccessException {
+        Field resultSizeField = QuestionDao.class.getDeclaredField("questionViewResultSize");
+        resultSizeField.setAccessible(true);
+        int resultSize = (int) resultSizeField.get(questionDao);
+
+        createManyQuestionsWithManyAnswers();
+
+        for (int i = 0; i < 60 / resultSize; i++) {
+            List<QuestionViewDto> views = questionDao.getQuestionViewsDto(i);
+            assertThat(views, notNullValue());
+            for (QuestionViewDto v : views) {
+                assertThat(v.getQuestionId(), notNullValue());
+                assertThat(v.getTags(), notNullValue());
+                assertThat(v.getTitle(), notNullValue());
+                assertThat(v.getCreationDate(), notNullValue());
+                assertThat(v.getLastActivity(), notNullValue());
+                assertThat(v.getAuthor(), notNullValue());
+                assertThat(v.getAuthor().getUsername(), notNullValue());
+                assertThat(v.getAnswersCount(), notNullValue());
+            }
+        }
+    }
+
+    @Test
+    void getQuestionViewsPages_AssertNoDuplicates() {
+        createManyQuestionsWithManyAnswers();
+
+        List<QuestionViewDto> dto1 = questionDao.getQuestionViewsDto(0);
+        List<QuestionViewDto> dto2 = questionDao.getQuestionViewsDto(1);
+        assertThat(dto1, notNullValue());
+        assertThat(dto2, notNullValue());
+        assertThat(dto1.size(), equalTo(dto2.size()));
+        int size = dto1.size();
+        long[] ids = new long[size * 2];
+        for (int i = 0; i < size; i++) {
+            ids[i] = dto1.get(i).getQuestionId();
+        }
+        for (int i = size; i < size * 2; i++) {
+            ids[i] = dto2.get(i - size).getQuestionId();
+        }
+        assertThat(ids.length, equalTo(Arrays.stream(ids).distinct().toArray().length));
+    }
+
+    @Test
+    void getQuestionViewsPages_NotFound() {
+        createManyQuestionsWithManyAnswers();
+
+        List<QuestionViewDto> dto1 = questionDao.getQuestionViewsDto(1231230);
+        assertThat(dto1, equalTo(null));
+    }
+
     private void createQuestionWithCommentAndAnswer() {
         try(Session session = sessionFactory.openSession()) {
             String createUserSql =
@@ -270,6 +323,46 @@ public class QuestionDaoTest {
                     commentId++;
                 }
                 session.flush();
+            }
+            transaction.commit();
+        }
+    }
+
+    private void createManyQuestionsWithManyAnswers() {
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String createUserSql =
+                    """
+                    insert into usr (id, about, username) values (1, null, 'username')
+                    """;
+            String createQuestionSql =
+                    """
+                    insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
+                    values (:id, :date, :date, 'tags', 'text', 'title', 1)
+                    """;
+            String createAnswerSql =
+                    """
+                    insert into answer (id, answered, creation_date, text, author_id, question_id)\s\
+                    values (:id, false, :date, 'text', 1, :questionId)
+                    """;
+            session.createSQLQuery(createUserSql).executeUpdate();
+
+            int answerCounter = 0;
+            for (int i = 0; i < 60; i++) {
+                session.createSQLQuery(createQuestionSql)
+                        .setParameter("id", (long) i)
+                        .setParameter("date", new Date(123123123123L * i))
+                        .executeUpdate();
+                for (int y = 0; y < (int) (Math.random() * 15); y++) {
+                    session.createSQLQuery(createAnswerSql)
+                            .setParameter("id", answerCounter)
+                            .setParameter("date", new Date(9876654332L * i))
+                            .setParameter("questionId", (long) i)
+                            .executeUpdate();
+                    answerCounter++;
+                }
+                session.flush();
+                session.clear();
             }
             transaction.commit();
         }

@@ -1,4 +1,4 @@
-package qa.dto.internal.hibernate.transformer;
+package qa.dto.internal.hibernate.transformer.question;
 
 import org.hibernate.transform.ResultTransformer;
 import qa.dto.internal.hibernate.AliasUtil;
