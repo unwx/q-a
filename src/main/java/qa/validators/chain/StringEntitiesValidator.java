@@ -25,7 +25,7 @@ public class StringEntitiesValidator extends Validator {
                         (max length = %s;\s\
                         min length = %s)\
                         """.formatted(s.getS(), s.getMaxLen(), s.getMinLen()));
-                        logger.info("[validation unsuccessful]: " + message);
+                        logger.info(unsuccessful + message);
                 throw new ValidationException(message);
             }
         }

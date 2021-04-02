@@ -13,8 +13,6 @@ public class ValidationPropertyDataSource {
     private final AnswerPropertyDataSource answer;
     private final CommentPropertyDataSource comment;
 
-
-
     @Autowired
     public ValidationPropertyDataSource(AuthenticationPropertyDataSource authentication,
                                         UserPropertyDataSource user,

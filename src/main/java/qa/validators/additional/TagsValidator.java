@@ -22,7 +22,7 @@ public class TagsValidator extends Validator implements AdditionalValidator<Stri
     public void validate(String[] c) throws ValidationException {
         if (c == null) {
             String message = formatMessage("tags must not be null");
-            logger.info("[validation unsuccessful]: " + message);
+            logger.info(unsuccessful + message);
             throw new ValidationException(message);
         }
 
@@ -31,19 +31,19 @@ public class TagsValidator extends Validator implements AdditionalValidator<Stri
         for (String s : c) {
             if (s == null) {
                 String message = formatMessage("tag must not be null");
-                logger.info("[validation unsuccessful]: " + message);
+                logger.info(unsuccessful + message);
                 throw new ValidationException(message);
             }
             if (s.length() > propertiesDataSource.getQuestion().getQUESTION_TAG_LENGTH_MAX() ||
                 s.length() < propertiesDataSource.getQuestion().getQUESTION_TAG_LENGTH_MIN()) {
                 String message = formatMessage("tag length must be >= 2 and <= 20");
-                logger.info("[validation unsuccessful]: " + message);
+                logger.info(unsuccessful + message);
                 throw new ValidationException(message);
             }
             Matcher matcher = pattern.matcher(s);
             if (!matcher.find()) {
                 String message = formatMessage("the tag has unresolved characters");
-                logger.info("[validation unsuccessful]: " + message);
+                logger.info(unsuccessful + message);
                 throw new ValidationException(message);
             }
             counter++;
@@ -52,7 +52,7 @@ public class TagsValidator extends Validator implements AdditionalValidator<Stri
         if (counter > propertiesDataSource.getQuestion().getQUESTION_TAGS_COUNT_MAX() ||
             counter < propertiesDataSource.getQuestion().getQUESTION_TAGS_COUNT_MIN()) {
             String message = "tags count must be >= 1 and <= 7";
-            logger.info("[validation unsuccessful]: " + message);
+            logger.info(unsuccessful + message);
             throw new ValidationException(message);
         }
     }

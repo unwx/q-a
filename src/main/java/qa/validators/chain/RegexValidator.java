@@ -32,7 +32,7 @@ public class RegexValidator extends Validator {
                             regex: %s\
                             """.formatted(s, f.getRegex())
                     );
-                    logger.info("[validation unsuccessful]: " + message);
+                    logger.info(unsuccessful + message);
                     throw new ValidationException(message);
                 }
             }

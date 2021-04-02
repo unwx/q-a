@@ -4,7 +4,7 @@ import qa.dao.databasecomponents.FieldDataSetterExtractor;
 
 import java.lang.invoke.*;
 
-public class SetterMethodBuilder {
+public final class SetterMethodBuilder {
 
     private SetterMethodBuilder() {
     }

@@ -6,7 +6,7 @@ import qa.validators.abstraction.ValidationChain;
 import qa.validators.abstraction.ValidationChainAdditional;
 import qa.validators.abstraction.ValidationWrapper;
 
-public class ValidationUtil {
+public final class ValidationUtil {
 
     private ValidationUtil() {}
 

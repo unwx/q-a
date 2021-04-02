@@ -5,14 +5,14 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-public class HibernateSessionFactoryUtil {
-
-    private HibernateSessionFactoryUtil() {
-    }
+public final class HibernateSessionFactoryUtil {
 
     private static SessionFactory sessionFactory;
 
     private static final Logger logger = LogManager.getLogger(HibernateSessionFactoryUtil.class);
+
+    private HibernateSessionFactoryUtil() {
+    }
 
     private static SessionFactory buildSessionFactory() {
         try {

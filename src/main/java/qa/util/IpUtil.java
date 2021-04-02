@@ -2,7 +2,7 @@ package qa.util;
 
 import javax.servlet.http.HttpServletRequest;
 
-public class IpUtil {
+public final class IpUtil {
 
     private IpUtil() {
     }

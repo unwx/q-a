@@ -3,8 +3,8 @@ package qa.validators.chain;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import qa.exceptions.validator.ValidationException;
-import qa.validators.abstraction.ValidationWrapper;
 import qa.validators.abstraction.ValidationField;
+import qa.validators.abstraction.ValidationWrapper;
 import qa.validators.abstraction.Validator;
 import qa.validators.entities.*;
 
@@ -63,7 +63,7 @@ public class NullValidator extends Validator {
             for (Object o : f.getField()) {
                 if (o == null) {
                     String message = formatMessage("required field = null.");
-                    logger.info("[validation unsuccessful]: " + message);
+                    logger.info(unsuccessful + message);
                     throw new ValidationException(message);
                 }
             }

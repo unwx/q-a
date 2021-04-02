@@ -67,7 +67,7 @@ public class NumberEntitiesValidator extends Validator {
                 (max value = %s\s\
                 min value = %s)\
                 """.formatted(num, max, min));
-        logger.info("[validation unsuccessful]: " + message);
+        logger.info(unsuccessful + message);
         throw new ValidationException(message);
     }
 }

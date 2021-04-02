@@ -2,14 +2,14 @@ package qa.util;
 
 import java.util.Arrays;
 
-public class QuestionTagsUtil {
+public final class QuestionTagsUtil {
 
     private QuestionTagsUtil() {
     }
 
     public static String tagsToString(String[] tags) {
         StringBuilder sb = new StringBuilder();
-        Arrays.stream(tags).forEach((t) -> sb.append(t).append(","));
+        Arrays.stream(tags).forEach((t) -> sb.append(t).append(','));
         sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
     }

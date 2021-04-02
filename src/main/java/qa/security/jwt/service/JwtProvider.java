@@ -3,6 +3,7 @@ package qa.security.jwt.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Map;
 
 @Component
 public class JwtProvider {
@@ -71,23 +73,33 @@ public class JwtProvider {
     }
 
     public JwtIntermediateDateTransport validate(String cleanToken) {
+        long expAtMillis;
+        JwtType type;
+        JwtAuthenticationData data;
+        JwtStatus status;
+        Map<String, Claim> claimMap;
         try {
             DecodedJWT jwtDecoded = JWT.require(algorithm)
                     .withIssuer("qa")
                     .build()
                     .verify(cleanToken);
-            long expAtMillis = Long.parseLong(jwtDecoded.getClaim("expm").asString());
-            JwtType type = jwtDecoded.getClaim("type").asString().equals("access") ? JwtType.ACCESS : JwtType.REFRESH;
+            expAtMillis = Long.parseLong(jwtDecoded.getClaim("expm").asString());
+            type = jwtDecoded.getClaim("type").asString().equals("access") ? JwtType.ACCESS : JwtType.REFRESH;
 
-            JwtAuthenticationData data = (JwtAuthenticationData) jwtUserDetailsService.loadUserByUsername(jwtDecoded.getSubject());
+            data = (JwtAuthenticationData) jwtUserDetailsService.loadUserByUsername(jwtDecoded.getSubject());
             if (data == null)
                 return new JwtIntermediateDateTransport(JwtStatus.INVALID);
 
-            JwtStatus status = validateExpiration(expAtMillis, data, type);
-            return new JwtIntermediateDateTransport(status, type, new JwtClaims(jwtDecoded.getClaims()), data);
+            status = validateExpiration(expAtMillis, data, type);
+            if (status == JwtStatus.EXPIRED) {
+                return new JwtIntermediateDateTransport(JwtStatus.EXPIRED);
+            }
+
+            claimMap = jwtDecoded.getClaims();
         } catch (JWTVerificationException e) {
             return new JwtIntermediateDateTransport(JwtStatus.INVALID);
         }
+        return new JwtIntermediateDateTransport(status, type, new JwtClaims(claimMap), data);
     }
 
     private JwtStatus validateExpiration(Long tokenExpirationAtMills,

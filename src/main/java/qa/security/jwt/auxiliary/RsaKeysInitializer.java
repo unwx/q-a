@@ -14,8 +14,8 @@ import java.security.interfaces.RSAPublicKey;
 @Component
 public class RsaKeysInitializer {
 
-    private RSAPublicKey publicKey = null;
-    private RSAPrivateKey privateKey = null;
+    private RSAPublicKey publicKey;
+    private RSAPrivateKey privateKey;
     private final RSAPropertyDataSource propertiesDataSource;
 
     private final static Logger logger = LogManager.getLogger(RsaKeysInitializer.class);

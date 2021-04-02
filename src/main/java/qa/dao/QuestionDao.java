@@ -32,6 +32,8 @@ public class QuestionDao extends DaoImpl<Question> {
     private static final int questionViewResultSize = 20;
     private static final int commentResultSize = 3;
 
+    private static final String QUESTION_ID_PARAMETER = "questionId";
+
     @Autowired
     public QuestionDao(PropertySetterFactory propertySetterFactory) {
         super(HibernateSessionFactoryUtil.getSessionFactory(), new Question(), propertySetterFactory.getSetter(new Question()));
@@ -162,7 +164,7 @@ public class QuestionDao extends DaoImpl<Question> {
                 """;
         return session.createSQLQuery(getQuestionSql)
                 .unwrap(Query.class)
-                .setParameter("questionId", questionId)
+                .setParameter(QUESTION_ID_PARAMETER, questionId)
                 .setParameter("answerRN", resultSize)
                 .setParameter("commentRN", commentResultSize)
                 .setMaxResults(commentResultSize)
@@ -206,7 +208,7 @@ public class QuestionDao extends DaoImpl<Question> {
                 """;
         return session.createSQLQuery(getQuestionCommentsSql)
                 .unwrap(Query.class)
-                .setParameter("questionId", questionId)
+                .setParameter(QUESTION_ID_PARAMETER, questionId)
                 .setFirstResult(page * commentResultSize)
                 .setMaxResults(commentResultSize)
                 .setResultTransformer(new QuestionCommentDtoTransformer());
@@ -254,7 +256,7 @@ public class QuestionDao extends DaoImpl<Question> {
                 """;
         return session.createSQLQuery(getQuestionAnswersSql)
                 .unwrap(Query.class)
-                .setParameter("questionId", questionId)
+                .setParameter(QUESTION_ID_PARAMETER, questionId)
                 .setParameter("answerRN", resultSize + page * resultSize)
                 .setParameter("commentRN", commentResultSize)
                 .setParameter("offset", page * resultSize)

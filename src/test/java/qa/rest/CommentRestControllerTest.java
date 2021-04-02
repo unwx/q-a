@@ -300,7 +300,7 @@ public class CommentRestControllerTest {
     private void createAnswerDB() {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createSQLQuery("" +
+            session.createSQLQuery(
                     "insert into question (id, creation_date, last_activity, tags, text, title, author_id) " +
                     "values (1, '%s', '%s', 'java, etc', 'text dsfdsfdsf', 'title dgfsdf', 1)".formatted(new Date(), new Date())).executeUpdate();
             session.createSQLQuery(
@@ -313,7 +313,7 @@ public class CommentRestControllerTest {
     private void createQuestionDB() {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            session.createSQLQuery("" +
+            session.createSQLQuery(
                     "insert into question (id, creation_date, last_activity, tags, text, title, author_id) " +
                     "values (1, '%s', '%s', 'java, etc', '%s', '%s', 1)".formatted(new Date(), new Date(), "text", "title")).executeUpdate();
             transaction.commit();

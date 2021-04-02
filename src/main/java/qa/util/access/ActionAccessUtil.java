@@ -9,7 +9,7 @@ import qa.domain.setters.PropertySetterFactory;
 
 import java.util.Collections;
 
-public class ActionAccessUtil {
+public final class ActionAccessUtil {
 
     private ActionAccessUtil() {
     }
