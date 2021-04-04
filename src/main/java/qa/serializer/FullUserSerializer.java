@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import qa.domain.Answer;
 import qa.domain.Question;
 import qa.dto.response.user.UserFullResponse;
@@ -29,10 +28,7 @@ public class FullUserSerializer extends JsonSerializer<UserFullResponse> {
         jsonGenerator.writeStringField("about", userFullResponse.getAbout());
     }
 
-    private void writeQuestionsData(@Nullable List<Question> questions, JsonGenerator jsonGenerator) throws IOException {
-        if (questions == null)
-            return;
-
+    private void writeQuestionsData(List<Question> questions, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeArrayFieldStart("questions");
         for (Question q : questions) {
             jsonGenerator.writeStartObject();
@@ -45,10 +41,7 @@ public class FullUserSerializer extends JsonSerializer<UserFullResponse> {
         jsonGenerator.writeEndArray();
     }
 
-    private void writeAnswersData(@Nullable List<Answer> answers, JsonGenerator jsonGenerator) throws IOException {
-        if (answers == null)
-            return;
-
+    private void writeAnswersData(List<Answer> answers, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeArrayFieldStart("answers");
         for (Answer a : answers) {
             jsonGenerator.writeStartObject();

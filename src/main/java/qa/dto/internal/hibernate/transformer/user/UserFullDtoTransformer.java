@@ -7,6 +7,7 @@ import qa.dto.internal.hibernate.user.UserFullDto;
 import qa.dto.internal.hibernate.user.UserQuestionDto;
 
 import java.io.Serial;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -18,16 +19,19 @@ public class UserFullDtoTransformer implements ResultTransformer {
     @Serial
     private static final long serialVersionUID = -5293402281360788622L;
 
-    private final Map<String, UserFullDto> dtoMap = new LinkedHashMap<>();
+    private final Map<Long, UserFullDto> dtoMap = new LinkedHashMap<>();
 
     @Override
     public Object transformTuple(Object[] objects, String[] strings) {
         Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
 
-        String about = (String) objects[aliasToIndexMap.get(UserFullDto.ABOUT)];
-        UserFullDto dto = dtoMap.computeIfAbsent(about, a -> new UserFullDto(objects, aliasToIndexMap));
-        dto.getAnswers().add(new UserAnswerDto(objects, aliasToIndexMap));
-        dto.getQuestions().add(new UserQuestionDto(objects, aliasToIndexMap));
+        Long id = ((BigInteger) objects[aliasToIndexMap.get(UserFullDto.ID)]).longValue();
+        UserFullDto dto = dtoMap.computeIfAbsent(id, i -> new UserFullDto(objects, aliasToIndexMap));
+
+        if (objects[aliasToIndexMap.get(UserAnswerDto.ID)] != null)
+            dto.getAnswers().add(new UserAnswerDto(objects, aliasToIndexMap)); // nullable
+        if (objects[aliasToIndexMap.get(UserQuestionDto.ID)] != null)
+            dto.getQuestions().add(new UserQuestionDto(objects, aliasToIndexMap)); // nullable
 
         return dto;
     }

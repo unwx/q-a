@@ -1,5 +1,7 @@
 package qa.dto.internal.hibernate.user;
 
+import qa.dto.internal.hibernate.AliasUtil;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +21,7 @@ public class UserFullDto {
     public UserFullDto(Object[] tuples,
                        Map<String, Integer> aliasToIndexMap) {
         this.userId = ((BigInteger) tuples[aliasToIndexMap.get(ID)]).longValue();
-        this.about = (String) tuples[aliasToIndexMap.get(ABOUT)];
+        this.about = AliasUtil.setIfNotNull(ABOUT, aliasToIndexMap, tuples);
     }
 
     public Long getUserId() {

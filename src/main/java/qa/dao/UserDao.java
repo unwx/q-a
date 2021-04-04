@@ -59,29 +59,20 @@ public class UserDao extends DaoImpl<User> {
     private Query<UserFullDto> getFullUserQuery(Session session, String username) {
         String getFullUserSql =
                 """
-                WITH\s\
-                 answ AS (\
-                    SELECT\s\
-                        a.id,\s\
-                        SUBSTRING(a.text, 1, 50) as text,\s\
-                        a.author_id,\s\
-                        ROW_NUMBER() OVER (PARTITION BY a.author_id ORDER BY a.creation_date DESC) rn\s\
-                    FROM answer AS a),\s\
-                 ques AS (\
-                    SELECT\s\
-                        q.id,\s\
-                        q.title,\s\
-                        q.author_id,\s\
-                        ROW_NUMBER() OVER (PARTITION BY q.author_id ORDER BY q.last_activity DESC) rn\s\
-                    FROM question AS q)\s\
                 SELECT\s\
-                 u.id AS usr_id, u.about AS usr_about,\s\
-                 a.id AS usr_a_id, a.text AS usr_a_text,\s\
-                 q.id AS usr_q_id, q.title AS usr_q_title\s\
-                FROM usr as u\s\
-                INNER JOIN answ AS a ON u.id = a.author_id AND a.rn <= :RN\s\
-                INNER JOIN ques AS q ON u.id = q.author_id AND q.rn <= :RN\s\
-                WHERE u.username = :username\
+                    u.id AS usr_id, u.about AS usr_about,\s\
+                    a.id AS usr_a_id, a.text AS usr_a_text,\s\
+                    q.id AS usr_q_id, q.title AS usr_q_title\s\
+                FROM usr AS u\s\
+                LEFT JOIN LATERAL 
+                    (SELECT id, SUBSTRING(a.text, 1, 50) AS text, author_id\s\
+                    FROM answer AS a\s\
+                    WHERE author_id = u.id LIMIT :RN) AS a ON TRUE
+                LEFT JOIN LATERAL 
+                    (SELECT id, title, author_id\s\
+                    FROM question AS q\s\
+                    WHERE a.author_id = u.id LIMIT :RN) AS q ON TRUE
+                WHERE u.username = :username   
                 """;
         return session.createSQLQuery(getFullUserSql)
                 .unwrap(Query.class)
@@ -153,8 +144,8 @@ public class UserDao extends DaoImpl<User> {
                 .id(dto.getUserId())
                 .username(username)
                 .about(dto.getAbout())
-                .questions(dto.getQuestions().size() > 0 ? convertDtoToQuestion(dto.getQuestions()) : null)
-                .answers(dto.getAnswers().size() > 0 ? convertDtoToAnswers(dto.getAnswers()) : null)
+                .questions(convertDtoToQuestion(dto.getQuestions()))
+                .answers(convertDtoToAnswers(dto.getAnswers()))
                 .build();
     }
 

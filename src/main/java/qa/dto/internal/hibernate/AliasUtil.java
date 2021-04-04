@@ -16,4 +16,11 @@ public class AliasUtil {
         }
         return aliasToIndexMap;
     }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T setIfNotNull(String as, Map<String, Integer> aliasToIndexMap, Object[] tuples) {
+        if (aliasToIndexMap.containsKey(as))
+            return (T) tuples[aliasToIndexMap.get(as)];
+        return null;
+    }
 }

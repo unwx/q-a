@@ -22,6 +22,7 @@ import qa.dto.response.user.UserFullResponse;
 import qa.dto.response.user.UserQuestionsResponse;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
+import java.util.Collections;
 import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -100,6 +101,30 @@ public class UserRestControllerTest {
             assertThat(a.getId(), notNullValue());
             assertThat(a.getText(), notNullValue());
         }
+    }
+
+    @Test
+    void getUser_AssertCollectionsEmptyIfNotFound() throws JsonProcessingException {
+        createUser();
+        RequestSpecification request = RestAssured.given();
+        request.header("Content-Type", "application/json");
+        request.body("{\"username\":\"" + username + "\"}");
+
+        Response response = request.get("get");
+        assertThat(response.getStatusCode(), equalTo(200));
+        ObjectMapper mapper = new ObjectMapper();
+        UserFullResponse userFullResponse = mapper.readValue(response.getBody().asString(), UserFullResponse.class);
+
+        assertThat(userFullResponse, notNullValue());
+        assertThat(userFullResponse.getUserId(), notNullValue());
+        assertThat(userFullResponse.getAbout(), notNullValue());
+        assertThat(userFullResponse.getUsername(), notNullValue());
+
+        assertThat(userFullResponse.getQuestions(), notNullValue());
+        assertThat(userFullResponse.getQuestions(), equalTo(Collections.emptyList()));
+
+        assertThat(userFullResponse.getAnswers(), notNullValue());
+        assertThat(userFullResponse.getAnswers(), equalTo(Collections.emptyList()));
     }
 
     @Test
@@ -345,6 +370,18 @@ public class UserRestControllerTest {
                         .setParameter("text", String.valueOf(i))
                         .executeUpdate();
             }
+            transaction.commit();
+        }
+    }
+
+    private void createUser() {
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String userSql =
+                    """
+                    insert into usr (id, about, username) values (1, 'about', '%s')
+                    """.formatted(username);
+            session.createSQLQuery(userSql).executeUpdate();
             transaction.commit();
         }
     }

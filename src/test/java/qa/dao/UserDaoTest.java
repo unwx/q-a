@@ -85,6 +85,21 @@ public class UserDaoTest {
     }
 
     @Test
+    void readFullUser_AssertNoNPE() {
+        createUser();
+        User u = userDao.readFullUser(username);
+        assertThat(u, notNullValue());
+        assertThat(u.getQuestions(), notNullValue());
+        assertThat(u.getAnswers(), notNullValue());
+    }
+
+    @Test
+    void readFullUser_AssertNoNPE1() {
+        User u = userDao.readFullUser(username);
+        assertThat(u, equalTo(null));
+    }
+
+    @Test
     void readUserQuestions_NotFound() {
         List<Question> questions = userDao.readUserQuestions(1L, 0);
         assertThat(questions, equalTo(null));
