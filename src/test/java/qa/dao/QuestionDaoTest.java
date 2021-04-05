@@ -16,12 +16,11 @@ import qa.domain.CommentAnswer;
 import qa.domain.CommentQuestion;
 import qa.domain.Question;
 import qa.dto.internal.hibernate.question.QuestionViewDto;
+import qa.util.QuestionDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -50,12 +49,8 @@ public class QuestionDaoTest {
     }
 
     @Test
-    void getFullQuestion_AssertCorrectData() throws IllegalAccessException, NoSuchFieldException {
-        Field commentResultSizeField = QuestionDao.class.getDeclaredField("commentResultSize");
-        commentResultSizeField.setAccessible(true);
-        int commentResultSize = (int) commentResultSizeField.get(questionDao);
-
-        createQuestionWithCommentAndAnswer();
+    void getFullQuestion_AssertCorrectData() {
+        QuestionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(sessionFactory, 6, 3);
         Question q = questionDao.getFullQuestion(1L);
 
         assertThat(q, notNullValue());
@@ -79,7 +74,7 @@ public class QuestionDaoTest {
             assertThat(a.getAuthor().getUsername(), notNullValue());
 
             assertThat(a.getComments(), notNullValue());
-            assertThat(a.getComments().size(), lessThan(commentResultSize + 1));
+            assertThat(a.getComments().size(), lessThan(QuestionDaoTestUtil.commentResultSize + 1));
             for (CommentAnswer c : a.getComments()) {
                 assertThat(c.getId(), notNullValue());
                 assertThat(c.getText(), notNullValue());
@@ -90,8 +85,8 @@ public class QuestionDaoTest {
         }
 
         assertThat(q.getComments(), notNullValue());
-        assertThat(q.getComments().size(), lessThan(commentResultSize + 1));
-        for (int i = 0; i < commentResultSize; i++) {
+        assertThat(q.getComments().size(), lessThan(QuestionDaoTestUtil.commentResultSize + 1));
+        for (int i = 0; i < q.getComments().size(); i++) {
             assertThat(q.getComments().get(i).getAuthor(), notNullValue());
             assertThat(q.getComments().get(i).getAuthor().getUsername(), notNullValue());
             assertThat(q.getComments().get(i).getId(), notNullValue());
@@ -102,34 +97,41 @@ public class QuestionDaoTest {
 
     @Test
     void getFullQuestion_AssertNoDuplicates() {
-        createQuestionWithCommentAndAnswer();
+        QuestionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(sessionFactory, 6, 3);
         Question q = questionDao.getFullQuestion(1L);
 
         assertThat(q, notNullValue());
         assertThat(q.getAnswers().size(), greaterThan(0));
         assertThat(q.getComments().size(), greaterThan(0));
 
-        long[] answerIds = new long[q.getAnswers().size()];
-        long[] commentIds = new long[q.getComments().size()];
+        List<Answer> answers = q.getAnswers();
+        List<CommentQuestion> comments = q.getComments();
+
+        int answerSize = answers.size();
+        int commentSize = comments.size();
+
+        long[] answerIds = new long[answerSize];
+        long[] commentIds = new long[commentSize];
 
         int answerCommentIdsSize =0;
-        for (int i = 0; i < q.getAnswers().size(); i++) {
-            answerCommentIdsSize += q.getAnswers().get(i).getComments().size();
+        for (Answer answer : answers) {
+            answerCommentIdsSize += answer.getComments().size();
         }
+
         long[] answerCommentIds = new long[answerCommentIdsSize];
         int answerCommentIdsIndex = 0;
 
-        for (int i = 0; i < q.getAnswers().size(); i++) {
-            answerIds[i] = q.getAnswers().get(i).getId();
-            for (int y = 0; y < q.getAnswers().get(i).getComments().size(); y++) {
+        for (int i = 0; i < answerSize; i++) {
+            answerIds[i] = answers.get(i).getId();
+            for (int y = 0; y < answers.get(i).getComments().size(); y++) {
                 List<CommentAnswer> commentAnswers = q.getAnswers().get(i).getComments();
                 answerCommentIds[answerCommentIdsIndex] = commentAnswers.get(y).getId();
                 answerCommentIdsIndex++;
             }
         }
 
-        for (int i = 0; i < q.getComments().size(); i++) {
-            commentIds[i] = q.getComments().get(i).getId();
+        for (int i = 0; i < commentSize; i++) {
+            commentIds[i] = comments.get(i).getId();
         }
 
         assertThat(answerIds, equalTo(Arrays.stream(answerIds).distinct().toArray()));
@@ -139,7 +141,6 @@ public class QuestionDaoTest {
 
     @Test
     void getFullQuestion_NotFound() {
-        createQuestionWithCommentAndAnswer();
         assertThat(questionDao.getFullQuestion(123432L), equalTo(null));
     }
 
@@ -162,15 +163,11 @@ public class QuestionDaoTest {
     }
 
     @Test
-    void getQuestionCommentsPages_AssertCorrectData() throws NoSuchFieldException, IllegalAccessException {
-        Field commentResultSizeField = QuestionDao.class.getDeclaredField("commentResultSize");
-        commentResultSizeField.setAccessible(true);
-        int commentResultSize = (int) commentResultSizeField.get(questionDao);
-
-        createQuestionWithCommentAndAnswer();
-        for (int i = 0; i < 15 / commentResultSize; i++) {
+    void getQuestionCommentsPages_AssertCorrectData() {
+        QuestionDaoTestUtil.createQuestionWithComments(sessionFactory, (int) (QuestionDaoTestUtil.commentResultSize * 1.5));
+        for (int i = 0; i < 2; i++) {
             List<CommentQuestion> comments = questionDao.getQuestionComments(1L, i);
-            for (int y = 0; y < commentResultSize; y++) {
+            for (int y = 0; y < comments.size(); y++) {
                 assertThat(comments, notNullValue());
                 assertThat(comments.get(y), notNullValue());
                 assertThat(comments.get(y).getId(), notNullValue());
@@ -183,7 +180,7 @@ public class QuestionDaoTest {
 
     @Test
     void getQuestionCommentsPages_AssertNoDuplicates() {
-        createQuestionWithCommentAndAnswer();
+        QuestionDaoTestUtil.createQuestionWithComments(sessionFactory, (int) (QuestionDaoTestUtil.commentResultSize * 1.5));
 
         List<CommentQuestion> comments1 = questionDao.getQuestionComments(1L, 0);
         List<CommentQuestion> comments2 = questionDao.getQuestionComments(1L, 1);
@@ -191,33 +188,34 @@ public class QuestionDaoTest {
         assertThat(comments2, notNullValue());
         assertThat(comments1.size(), equalTo(comments2.size()));
 
-        int size = comments1.size();
-        long[] ids = new long[size * 2];
-        for (int i = 0; i < size; i++) {
-            ids[i] = comments1.get(i).getId();
+        int size1 = comments1.size();
+        int size2 = comments1.size();
+        long[] ids1 = new long[size1];
+        long[] ids2 = new long[size2];
+        for (int i = 0; i < size1; i++) {
+            ids1[i] = comments1.get(i).getId();
         }
-        for (int i = size; i < size * 2; i++) {
-            ids[i] = comments2.get(i - size).getId();
+        for (int i = 0; i < size2; i++) {
+            ids2[i] = comments2.get(i).getId();
         }
-        assertThat(ids.length, equalTo(Arrays.stream(ids).distinct().toArray().length));
+        assertThat(ids1, equalTo(Arrays.stream(ids1).distinct().toArray()));
+        assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
     }
 
     @Test
     void getQuestionCommentsPages_NotFound() {
-        createQuestionWithCommentAndAnswer();
         assertThat(questionDao.getQuestionComments(123L, 0), equalTo(Collections.emptyList()));
         assertThat(questionDao.getQuestionComments(1L, 234234), equalTo(Collections.emptyList()));
     }
 
     @Test
-    void getQuestionAnswersPages_AssertCorrectData() throws NoSuchFieldException, IllegalAccessException {
-        Field resultSizeField = QuestionDao.class.getDeclaredField("resultSize");
-        resultSizeField.setAccessible(true);
-        int resultSize = (int) resultSizeField.get(questionDao);
+    void getQuestionAnswersPages_AssertCorrectData() {
+        QuestionDaoTestUtil.createQuestionWithAnswersWithComments(
+                sessionFactory,
+                (int) (QuestionDaoTestUtil.resultSize * 1.5),
+                QuestionDaoTestUtil.commentResultSize);
 
-        createQuestionWithCommentAndAnswer();
-
-        for (int i = 0; i < 15 / resultSize; i++) {
+        for (int i = 0; i < 2; i++) {
             List<Answer> answers = questionDao.getQuestionAnswer(1L, i);
             assertThat(answers, notNullValue());
             for (Answer a : answers) {
@@ -246,29 +244,33 @@ public class QuestionDaoTest {
 
     @Test
     void getQuestionAnswersPages_AssertNoDuplicates() {
-        createQuestionWithCommentAndAnswer();
+        QuestionDaoTestUtil.createQuestionWithAnswersWithComments(
+                sessionFactory,
+                (int) (QuestionDaoTestUtil.resultSize * 1.5),
+                QuestionDaoTestUtil.commentResultSize);
 
         List<Answer> answers1 = questionDao.getQuestionAnswer(1L, 0);
         List<Answer> answers2 = questionDao.getQuestionAnswer(1L, 1);
         assertThat(answers1, notNullValue());
         assertThat(answers2, notNullValue());
-        assertThat(answers1.size(), equalTo(answers2.size()));
 
-        int size = answers1.size();
+        int size1 = answers1.size();
+        int size2 = answers2.size();
 
-        long[] ids = new long[size * 2];
-        for (int i = 0; i < size; i++) {
-            ids[i] = answers1.get(i).getId();
+        long[] ids1 = new long[size1];
+        long[] ids2 = new long[size2];
+        for (int i = 0; i < size1; i++) {
+            ids1[i] = answers1.get(i).getId();
         }
-        for (int i = size; i < size * 2; i++) {
-            ids[i] = answers2.get(i - size).getId();
+        for (int i = 0; i < size2; i++) {
+            ids2[i] = answers2.get(i).getId();
         }
-        assertThat(ids.length, equalTo(Arrays.stream(ids).distinct().toArray().length));
+        assertThat(ids1, equalTo(Arrays.stream(ids1).distinct().toArray()));
+        assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
     }
 
     @Test
     void getQuestionAnswersPages_NotFound() {
-        createQuestionWithCommentAndAnswer();
         List<Answer> answers1 = questionDao.getQuestionAnswer(1L, 123123);
         List<Answer> answers2 = questionDao.getQuestionAnswer(1123123L, 1);
         assertThat(answers1, equalTo(Collections.emptyList()));
@@ -291,14 +293,12 @@ public class QuestionDaoTest {
     }
 
     @Test
-    void getQuestionViewsPages_AssertCorrectData() throws NoSuchFieldException, IllegalAccessException {
-        Field resultSizeField = QuestionDao.class.getDeclaredField("questionViewResultSize");
-        resultSizeField.setAccessible(true);
-        int resultSize = (int) resultSizeField.get(questionDao);
-
-        createManyQuestionsWithManyAnswers();
-
-        for (int i = 0; i < 60 / resultSize; i++) {
+    void getQuestionViewsPages_AssertCorrectData() {
+        QuestionDaoTestUtil.createManyQuestionsWithManyAnswers(
+                sessionFactory,
+                (int) (QuestionDaoTestUtil.questionViewResultSize * 1.5),
+                QuestionDaoTestUtil.resultSize);
+        for (int i = 0; i < 2; i++) {
             List<QuestionViewDto> views = questionDao.getQuestionViewsDto(i);
             assertThat(views, notNullValue());
             for (QuestionViewDto v : views) {
@@ -316,127 +316,33 @@ public class QuestionDaoTest {
 
     @Test
     void getQuestionViewsPages_AssertNoDuplicates() {
-        createManyQuestionsWithManyAnswers();
+        QuestionDaoTestUtil.createManyQuestionsWithManyAnswers(
+                sessionFactory,
+                (int) (QuestionDaoTestUtil.questionViewResultSize * 1.5),
+                QuestionDaoTestUtil.resultSize);
 
         List<QuestionViewDto> dto1 = questionDao.getQuestionViewsDto(0);
         List<QuestionViewDto> dto2 = questionDao.getQuestionViewsDto(1);
         assertThat(dto1, notNullValue());
         assertThat(dto2, notNullValue());
-        assertThat(dto1.size(), equalTo(dto2.size()));
-        int size = dto1.size();
-        long[] ids = new long[size * 2];
-        for (int i = 0; i < size; i++) {
-            ids[i] = dto1.get(i).getQuestionId();
+        int size1 = dto1.size();
+        int size2 = dto2.size();
+        long[] ids1 = new long[size1];
+        long[] ids2 = new long[size2];
+        for (int i = 0; i < size1; i++) {
+            ids1[i] = dto1.get(i).getQuestionId();
         }
-        for (int i = size; i < size * 2; i++) {
-            ids[i] = dto2.get(i - size).getQuestionId();
+        for (int i = 0; i < size2; i++) {
+            ids2[i] = dto2.get(i).getQuestionId();
         }
-        assertThat(ids.length, equalTo(Arrays.stream(ids).distinct().toArray().length));
+        assertThat(ids1, equalTo(Arrays.stream(ids1).distinct().toArray()));
+        assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
     }
 
     @Test
     void getQuestionViewsPages_NotFound() {
-        createManyQuestionsWithManyAnswers();
-
         List<QuestionViewDto> dto1 = questionDao.getQuestionViewsDto(1231230);
         assertThat(dto1, equalTo(Collections.emptyList()));
-    }
-
-    private void createQuestionWithCommentAndAnswer() {
-        try(Session session = sessionFactory.openSession()) {
-            String createUserSql =
-                    """
-                    insert into usr (id, about, username) values (1, null, 'username')
-                    """;
-            String createQuestionSql =
-                    """
-                    insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
-                    values (1, :date, :date, 'tags', 'text', 'title', 1)
-                    """;
-            String createAnswerSql =
-                    """
-                    insert into answer (id, answered, creation_date, text, author_id, question_id)\s\
-                    values (:id, false, :date, 'text', 1, 1)
-                    """;
-            String createQuestionCommentSql =
-                    """
-                    insert into comment (comment_type, id, text, author_id, answer_id, creation_date, question_id)\s\
-                    values ('question', :id, 'text', 1, null, :date, 1)
-                    """;
-            String createAnswerCommentSql =
-                    """
-                    insert into comment (comment_type, id, text, author_id, answer_id, creation_date, question_id)\s\
-                    values ('answer', :id, 'text', 1, :answerId, :date, null)
-                    """;
-            Transaction transaction = session.beginTransaction();
-            session.createSQLQuery(createUserSql).executeUpdate();
-            session.createSQLQuery(createQuestionSql)
-                    .setParameter("date", new Date(648912731231L))
-                    .executeUpdate();
-
-            long commentId = 0;
-            for (int i = 0; i < 15; i++) {
-                session.createSQLQuery(createAnswerSql)
-                        .setParameter("id", (long) i)
-                        .setParameter("date", new Date(i * 123456788L))
-                        .executeUpdate();
-                session.createSQLQuery(createQuestionCommentSql)
-                        .setParameter("id", commentId)
-                        .setParameter("date", new Date(i * 123456789L))
-                        .executeUpdate();
-                commentId++;
-                for (int y = 0; y < 20; y++) {
-                    session.createSQLQuery(createAnswerCommentSql)
-                            .setParameter("answerId", i)
-                            .setParameter("id", commentId)
-                            .setParameter("date", new Date(y + 100000000L))
-                            .executeUpdate();
-                    commentId++;
-                }
-                session.flush();
-            }
-            transaction.commit();
-        }
-    }
-
-    private void createManyQuestionsWithManyAnswers() {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            String createUserSql =
-                    """
-                    insert into usr (id, about, username) values (1, null, 'username')
-                    """;
-            String createQuestionSql =
-                    """
-                    insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
-                    values (:id, :date, :date, 'tags', 'text', 'title', 1)
-                    """;
-            String createAnswerSql =
-                    """
-                    insert into answer (id, answered, creation_date, text, author_id, question_id)\s\
-                    values (:id, false, :date, 'text', 1, :questionId)
-                    """;
-            session.createSQLQuery(createUserSql).executeUpdate();
-
-            int answerCounter = 0;
-            for (int i = 0; i < 60; i++) {
-                session.createSQLQuery(createQuestionSql)
-                        .setParameter("id", (long) i)
-                        .setParameter("date", new Date(123123123123L * i))
-                        .executeUpdate();
-                for (int y = 0; y < (int) (Math.random() * 15); y++) {
-                    session.createSQLQuery(createAnswerSql)
-                            .setParameter("id", answerCounter)
-                            .setParameter("date", new Date(9876654332L * i))
-                            .setParameter("questionId", (long) i)
-                            .executeUpdate();
-                    answerCounter++;
-                }
-                session.flush();
-                session.clear();
-            }
-            transaction.commit();
-        }
     }
 
     private void createQuestion() {
@@ -444,13 +350,13 @@ public class QuestionDaoTest {
             Transaction transaction = session.beginTransaction();
             String createUserSql =
                     """
-                            insert into usr (id, about, username) values (1, null, 'username')\
-                            """;
+                    insert into usr (id, about, username) values (1, null, 'username')\
+                    """;
             String createQuestionSql =
                     """
-                            insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
-                            values (1, '2021-04-05', '2021-04-05', 'tags', 'text', 'title', 1)\
-                            """;
+                    insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
+                    values (1, '2021-04-05', '2021-04-05', 'tags', 'text', 'title', 1)\
+                    """;
             session.createSQLQuery(createUserSql).executeUpdate();
             session.createSQLQuery(createQuestionSql).executeUpdate();
             transaction.commit();
