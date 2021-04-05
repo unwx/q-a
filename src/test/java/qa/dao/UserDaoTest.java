@@ -17,9 +17,7 @@ import qa.domain.User;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.lang.reflect.Field;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -85,6 +83,26 @@ public class UserDaoTest {
     }
 
     @Test
+    void readFullUser_AssertNoDuplicates() {
+        createUserWithQuestionsAndAnswers();
+        User user = userDao.readFullUser(username);
+        assertThat(user, notNullValue());
+
+        long[] answersId = new long[user.getAnswers().size()];
+        long[] questionsId = new long[user.getQuestions().size()];
+        for (int i = 0; i < user.getAnswers().size(); i++) {
+            answersId[i] = user.getAnswers().get(i).getId();
+        }
+
+        for (int i = 0; i < user.getQuestions().size(); i++) {
+            questionsId[i] = user.getQuestions().get(i).getId();
+        }
+
+        assertThat(answersId, equalTo(Arrays.stream(answersId).distinct().toArray()));
+        assertThat(questionsId, equalTo(Arrays.stream(questionsId).distinct().toArray()));
+    }
+
+    @Test
     void readFullUser_AssertNoNPE() {
         createUser();
         User u = userDao.readFullUser(username);
@@ -102,18 +120,18 @@ public class UserDaoTest {
     @Test
     void readUserQuestions_NotFound() {
         List<Question> questions = userDao.readUserQuestions(1L, 0);
-        assertThat(questions, equalTo(null));
+        assertThat(questions, equalTo(Collections.emptyList()));
 
         createUser();
         List<Question> questions1 = userDao.readUserQuestions(1L, 0);
-        assertThat(questions1, equalTo(null));
+        assertThat(questions1, equalTo(Collections.emptyList()));
     }
 
     @Test
     void readUserQuestions_IncorrectPage() {
         createUserWithManyQuestions();
         List<Question> questions = userDao.readUserQuestions(1L, 12312);
-        assertThat(questions, equalTo(null));
+        assertThat(questions, equalTo(Collections.emptyList()));
     }
 
     @Test
@@ -169,18 +187,18 @@ public class UserDaoTest {
     @Test
     void readUserAnswers_NotFound() {
         List<Answer> answers = userDao.readUserAnswers(1L, 0);
-        assertThat(answers, equalTo(null));
+        assertThat(answers, equalTo(Collections.emptyList()));
 
         createUser();
         List<Answer> answers1 = userDao.readUserAnswers(1L, 0);
-        assertThat(answers1, equalTo(null));
+        assertThat(answers1, equalTo(Collections.emptyList()));
     }
 
     @Test
     void readUserAnswers_IncorrectPage() {
         createUserWithManyAnswers();
         List<Answer> answers = userDao.readUserAnswers(1L, 121233);
-        assertThat(answers, equalTo(null));
+        assertThat(answers, equalTo(Collections.emptyList()));
     }
 
     @Test

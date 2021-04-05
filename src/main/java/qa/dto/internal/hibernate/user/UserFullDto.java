@@ -4,6 +4,7 @@ import qa.dto.internal.hibernate.AliasUtil;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,9 @@ public class UserFullDto {
 
     public static final String ID = "usr_id";
     public static final String ABOUT = "usr_about";
+
+    private final HashSet<Long> questionIds = new HashSet<>();
+    private final HashSet<Long> answerIds = new HashSet<>();
 
     public UserFullDto(Object[] tuples,
                        Map<String, Integer> aliasToIndexMap) {
@@ -38,5 +42,19 @@ public class UserFullDto {
 
     public List<UserAnswerDto> getAnswers() {
         return answers;
+    }
+
+    public void addAnswerIfAbsent(UserAnswerDto dto) {
+        if (!answerIds.contains(dto.getAnswerId())) {
+            answers.add(dto);
+            answerIds.add(dto.getAnswerId());
+        }
+    }
+
+    public void addQuestionIfAbsent(UserQuestionDto dto) {
+        if (!questionIds.contains(dto.getQuestionId())) {
+            questions.add(dto);
+            questionIds.add(dto.getQuestionId());
+        }
     }
 }

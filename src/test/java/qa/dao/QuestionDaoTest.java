@@ -20,6 +20,7 @@ import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -100,9 +101,64 @@ public class QuestionDaoTest {
     }
 
     @Test
+    void getFullQuestion_AssertNoDuplicates() {
+        createQuestionWithCommentAndAnswer();
+        Question q = questionDao.getFullQuestion(1L);
+
+        assertThat(q, notNullValue());
+        assertThat(q.getAnswers().size(), greaterThan(0));
+        assertThat(q.getComments().size(), greaterThan(0));
+
+        long[] answerIds = new long[q.getAnswers().size()];
+        long[] commentIds = new long[q.getComments().size()];
+
+        int answerCommentIdsSize =0;
+        for (int i = 0; i < q.getAnswers().size(); i++) {
+            answerCommentIdsSize += q.getAnswers().get(i).getComments().size();
+        }
+        long[] answerCommentIds = new long[answerCommentIdsSize];
+        int answerCommentIdsIndex = 0;
+
+        for (int i = 0; i < q.getAnswers().size(); i++) {
+            answerIds[i] = q.getAnswers().get(i).getId();
+            for (int y = 0; y < q.getAnswers().get(i).getComments().size(); y++) {
+                List<CommentAnswer> commentAnswers = q.getAnswers().get(i).getComments();
+                answerCommentIds[answerCommentIdsIndex] = commentAnswers.get(y).getId();
+                answerCommentIdsIndex++;
+            }
+        }
+
+        for (int i = 0; i < q.getComments().size(); i++) {
+            commentIds[i] = q.getComments().get(i).getId();
+        }
+
+        assertThat(answerIds, equalTo(Arrays.stream(answerIds).distinct().toArray()));
+        assertThat(commentIds, equalTo(Arrays.stream(commentIds).distinct().toArray()));
+        assertThat(answerCommentIds, equalTo(Arrays.stream(answerCommentIds).distinct().toArray()));
+    }
+
+    @Test
     void getFullQuestion_NotFound() {
         createQuestionWithCommentAndAnswer();
         assertThat(questionDao.getFullQuestion(123432L), equalTo(null));
+    }
+
+    @Test
+    void getFullQuestion_AssertNoNPE() {
+        createQuestion();
+        Question q = questionDao.getFullQuestion(1L);
+        assertThat(q, notNullValue());
+        assertThat(q.getAnswers(), notNullValue());
+        assertThat(q.getComments(), notNullValue());
+    }
+
+    @Test
+    void getFullQuestion_AssertNoNPE1() {
+        createAnswer();
+        Question q = questionDao.getFullQuestion(1L);
+        assertThat(q, notNullValue());
+        assertThat(q.getAnswers(), notNullValue());
+        assertThat(q.getComments(), notNullValue());
     }
 
     @Test
@@ -149,8 +205,8 @@ public class QuestionDaoTest {
     @Test
     void getQuestionCommentsPages_NotFound() {
         createQuestionWithCommentAndAnswer();
-        assertThat(questionDao.getQuestionComments(123L, 0), equalTo(null));
-        assertThat(questionDao.getQuestionComments(1L, 234234), equalTo(null));
+        assertThat(questionDao.getQuestionComments(123L, 0), equalTo(Collections.emptyList()));
+        assertThat(questionDao.getQuestionComments(1L, 234234), equalTo(Collections.emptyList()));
     }
 
     @Test
@@ -215,8 +271,23 @@ public class QuestionDaoTest {
         createQuestionWithCommentAndAnswer();
         List<Answer> answers1 = questionDao.getQuestionAnswer(1L, 123123);
         List<Answer> answers2 = questionDao.getQuestionAnswer(1123123L, 1);
-        assertThat(answers1, equalTo(null));
-        assertThat(answers2, equalTo(null));
+        assertThat(answers1, equalTo(Collections.emptyList()));
+        assertThat(answers2, equalTo(Collections.emptyList()));
+    }
+
+    @Test
+    void getQuestionAnswersPages_AssertNoNPE() {
+        createQuestion();
+        List<Answer> a = questionDao.getQuestionAnswer(1L, 1);
+        assertThat(a, equalTo(Collections.emptyList()));
+    }
+
+    @Test
+    void getQuestionAnswersPages_AssertNoNPE1() {
+        createAnswer();
+        List<Answer> a1 = questionDao.getQuestionAnswer(1L, 0);
+        assertThat(a1, notNullValue());
+        assertThat(a1.size(), equalTo(1));
     }
 
     @Test
@@ -268,7 +339,7 @@ public class QuestionDaoTest {
         createManyQuestionsWithManyAnswers();
 
         List<QuestionViewDto> dto1 = questionDao.getQuestionViewsDto(1231230);
-        assertThat(dto1, equalTo(null));
+        assertThat(dto1, equalTo(Collections.emptyList()));
     }
 
     private void createQuestionWithCommentAndAnswer() {
@@ -364,6 +435,49 @@ public class QuestionDaoTest {
                 session.flush();
                 session.clear();
             }
+            transaction.commit();
+        }
+    }
+
+    private void createQuestion() {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String createUserSql =
+                    """
+                            insert into usr (id, about, username) values (1, null, 'username')\
+                            """;
+            String createQuestionSql =
+                    """
+                            insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
+                            values (1, '2021-04-05', '2021-04-05', 'tags', 'text', 'title', 1)\
+                            """;
+            session.createSQLQuery(createUserSql).executeUpdate();
+            session.createSQLQuery(createQuestionSql).executeUpdate();
+            transaction.commit();
+        }
+    }
+
+    private void createAnswer() {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String createUserSql =
+                    """
+                    insert into usr (id, about, username) values (1, null, 'username')\
+                    """;
+            String createQuestionSql =
+                    """
+                     insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
+                     values (1, '2021-04-05', '2021-04-05', 'tags', 'text', 'title', 1)\
+                     """;
+            String createAnswerSql =
+                    """
+                    insert into answer (id, answered, creation_date, text, author_id, question_id)\s\
+                    values (1, false, '2021-04-05', 'text', 1, 1)\
+                    """;
+            session.createSQLQuery(createUserSql).executeUpdate();
+            session.createSQLQuery(createQuestionSql).executeUpdate();
+            session.createSQLQuery(createAnswerSql).executeUpdate();
+
             transaction.commit();
         }
     }

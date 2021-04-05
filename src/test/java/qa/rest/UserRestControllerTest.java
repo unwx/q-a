@@ -190,12 +190,12 @@ public class UserRestControllerTest {
         request.body("{\"id\":1, \"page\":5}");
 
         Response response = request.get("questions/get");
-        assertThat(response.getStatusCode(), equalTo(404));
+        assertThat(response.getStatusCode(), equalTo(200));
 
         request.body("{\"id\":234, \"page\":1}");
 
         Response response1 = request.get("questions/get");
-        assertThat(response1.getStatusCode(), equalTo(404));
+        assertThat(response1.getStatusCode(), equalTo(200));
     }
 
     @Test
@@ -204,10 +204,10 @@ public class UserRestControllerTest {
         RequestSpecification request = RestAssured.given();
 
         Response response = request.get("questions/get/1/5123");
-        assertThat(response.getStatusCode(), equalTo(404));
+        assertThat(response.getStatusCode(), equalTo(200));
 
         Response response1 = request.get("questions/get/234/1");
-        assertThat(response1.getStatusCode(), equalTo(404));
+        assertThat(response1.getStatusCode(), equalTo(200));
     }
 
     @Test
@@ -272,11 +272,11 @@ public class UserRestControllerTest {
         request.body("{\"id\":1, \"page\":5123}");
 
         Response response = request.get("answers/get");
-        assertThat(response.getStatusCode(), equalTo(404));
+        assertThat(response.getStatusCode(), equalTo(200));
 
         request.body("{\"id\":123, \"page\":1}");
         Response response1 = request.get("answers/get");
-        assertThat(response1.getStatusCode(), equalTo(404));
+        assertThat(response1.getStatusCode(), equalTo(200));
     }
 
     @Test
@@ -285,10 +285,10 @@ public class UserRestControllerTest {
         RequestSpecification request = RestAssured.given();
 
         Response response = request.get("answers/get/1/123");
-        assertThat(response.getStatusCode(), equalTo(404));
+        assertThat(response.getStatusCode(), equalTo(200));
 
         Response response1 = request.get("answers/get/123/1");
-        assertThat(response1.getStatusCode(), equalTo(404));
+        assertThat(response1.getStatusCode(), equalTo(200));
     }
 
     private void createUserWithQuestionsAndAnswers() {

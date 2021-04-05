@@ -29,9 +29,9 @@ public class UserFullDtoTransformer implements ResultTransformer {
         UserFullDto dto = dtoMap.computeIfAbsent(id, i -> new UserFullDto(objects, aliasToIndexMap));
 
         if (objects[aliasToIndexMap.get(UserAnswerDto.ID)] != null)
-            dto.getAnswers().add(new UserAnswerDto(objects, aliasToIndexMap)); // nullable
+            dto.addQuestionIfAbsent(new UserQuestionDto(objects, aliasToIndexMap));
         if (objects[aliasToIndexMap.get(UserQuestionDto.ID)] != null)
-            dto.getQuestions().add(new UserQuestionDto(objects, aliasToIndexMap)); // nullable
+            dto.addAnswerIfAbsent(new UserAnswerDto(objects, aliasToIndexMap));
 
         return dto;
     }

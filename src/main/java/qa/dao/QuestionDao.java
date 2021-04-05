@@ -4,6 +4,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -12,12 +13,12 @@ import qa.domain.setters.PropertySetterFactory;
 import qa.dto.internal.hibernate.answer.AnswerCommentDto;
 import qa.dto.internal.hibernate.answer.AnswerFullDto;
 import qa.dto.internal.hibernate.question.QuestionCommentDto;
-import qa.dto.internal.hibernate.question.QuestionFullDto;
 import qa.dto.internal.hibernate.question.QuestionViewDto;
-import qa.dto.internal.hibernate.transformer.question.QuestionAnswerDtoTransformer;
+import qa.dto.internal.hibernate.question.QuestionWithCommentsDto;
+import qa.dto.internal.hibernate.transformer.question.QuestionAnswerFullDtoTransformer;
 import qa.dto.internal.hibernate.transformer.question.QuestionCommentDtoTransformer;
-import qa.dto.internal.hibernate.transformer.question.QuestionFullDtoTransformer;
 import qa.dto.internal.hibernate.transformer.question.QuestionViewDtoTransformer;
+import qa.dto.internal.hibernate.transformer.question.QuestionWithCommentsDtoTransformer;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.util.ArrayList;
@@ -59,116 +60,126 @@ public class QuestionDao extends DaoImpl<Question> {
     public Question getFullQuestion(Long questionId) {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            QuestionFullDto questionResult = getFullQuestionQuery(session, questionId).uniqueResult();
+
+            QuestionWithCommentsDto questionResult = getQuestionWithCommentsQuery(session, questionId).uniqueResult();
             if (questionResult == null) {
                 transaction.rollback();
                 return null;
             }
-
+            List<Answer> answers = convertDtoToAnswerList(getQuestionAnswersWithCommentsQuery(session, questionId).list());
             transaction.commit();
-            return convertDtoToQuestion(questionResult, questionId);
+            Question question = convertDtoToQuestion(questionResult, questionId);
+            question.setAnswers(answers);
+            return question;
         }
     }
 
-    @Nullable
+    @NotNull
     public List<QuestionViewDto> getQuestionViewsDto(int page) {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             List<QuestionViewDto> views = getQuestionsViewsQuery(session, page).list();
-            if (views.isEmpty()) {
-                transaction.rollback();
-                return null;
-            }
+            transaction.commit();
             return views;
         }
     }
 
-    @Nullable
+    @NotNull
     public List<CommentQuestion> getQuestionComments(Long questionId, int page) {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             List<QuestionCommentDto> commentsResult = getQuestionCommentsQuery(session, questionId, page).list();
-            if (commentsResult.isEmpty()) {
-                transaction.rollback();
-                return null;
-            }
             transaction.commit();
             return convertDtoToCommentQuestionList(commentsResult);
         }
     }
 
-    @Nullable
+    @NotNull
     public List<Answer> getQuestionAnswer(Long questionId, int page) {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            List<AnswerFullDto> answerResult = getQuestionAnswersQuery(session, questionId, page).list();
-            if (answerResult.isEmpty()) {
-                transaction.rollback();
-                return null;
-            }
+            List<AnswerFullDto> answerResult = getQuestionAnswersWithCommentsQuery(session, questionId, page).list();
             transaction.commit();
             return convertDtoToAnswerList(answerResult);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private Query<QuestionFullDto> getFullQuestionQuery(Session session, Long questionId) {
-        String getQuestionSql =
+    private Query<QuestionWithCommentsDto> getQuestionWithCommentsQuery(Session session, Long questionId) {
+        String sql =
                 """
-                WITH\s\
-                 answ AS (\
-                    SELECT\s\
-                        a.id,\s\
-                        a.text,\s\
-                        a.answered,\s\
-                        a.creation_date,\s\
-                        a.question_id,\s\
-                        u.username,\s\
-                        ROW_NUMBER() OVER (PARTITION BY a.question_id ORDER BY a.creation_date DESC) rn\s\
-                    FROM answer AS a\s\
-                    INNER JOIN usr u ON u.id = a.author_id),\s\
-                 comm AS (\
-                    SELECT\s\
-                        c.id,\s\
-                        c.text,\s\
-                        c.creation_date,\s\
-                        c.comment_type,\s\
-                        c.answer_id,\s\
-                        u.username,\s\
-                        ROW_NUMBER() OVER (PARTITION BY c.answer_id ORDER BY c.creation_date DESC) rn\s\
-                    FROM comment AS c\s\
-                    INNER JOIN usr u ON u.id = c.author_id)\s\
+                 SELECT\s\
+                     ques.title AS que_title, ques.text AS que_text,\s\
+                     ques.tags AS que_tags, ques.creation_date AS que_c_date,\s\
+                     ques.last_activity AS que_l_activity,\s\
+                     
+                     ques_comm.id AS que_c_id, ques_comm.text AS que_c_text, ques_comm.creation_date AS que_c_c_date,\s\
+                     ques_comm.username AS que_c_u_username,\s\
+                     
+                     u.username AS que_u_username\s\
+                 FROM question AS ques\s\
+                 LEFT JOIN LATERAL\s\
+                     (\
+                     SELECT c.id, c.text, c.creation_date, c.question_id, c.author_id, u.username\s\
+                     FROM comment AS c\s\
+                     INNER JOIN usr AS u ON c.author_id = u.id\s\
+                     WHERE c.question_id = ques.id\s\
+                     ORDER BY c.creation_date\s\
+                     LIMIT :commentRN\s\
+                     ) AS ques_comm ON TRUE\s\
+                 INNER JOIN usr AS u ON ques.author_id = u.id\s\
+                 WHERE ques.id = :questionId\
+                 """;
+        return session.createSQLQuery(sql)
+                .unwrap(Query.class)
+                .setParameter(QUESTION_ID_PARAMETER, questionId)
+                .setParameter("commentRN", commentResultSize)
+                .setResultTransformer(new QuestionWithCommentsDtoTransformer());
+    }
+
+    private Query<AnswerFullDto> getQuestionAnswersWithCommentsQuery(Session session, Long questionId) {
+        return getQuestionAnswersWithCommentsQuery(session, questionId, 0);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Query<AnswerFullDto> getQuestionAnswersWithCommentsQuery(Session session, Long questionId, int page) {
+        String sql =
+                """
                 SELECT\s\
-                    q.title AS que_title, q.text AS que_text,\s\
-                    q.tags AS que_tags, q.creation_date AS que_c_date,\s\
-                    q.last_activity AS que_l_activity,\s\
-                    
-                    c.id AS que_c_id, c.text AS que_c_text, c.creation_date AS que_c_c_date,\s\
-                    u.username AS que_u_username,\s\
-                    cu.username AS que_c_u_username,\s\
-                    
                     answ.id AS ans_id, answ.text AS ans_text,\s\
                     answ.answered AS ans_answered, answ.creation_date AS ans_c_date,\s\
                     answ.username AS ans_u_username,\s\
-                    
-                    comm.id AS ans_c_id, comm.text AS ans_c_text,\s\
-                    comm.creation_date AS ans_c_c_date, comm.username AS ans_c_u_username\s\
-                FROM question AS q\s\
-                INNER JOIN comment AS c ON q.id = c.question_id\s\
-                INNER JOIN usr AS u ON q.author_id = u.id\s\
-                INNER JOIN usr AS cu ON c.author_id = cu.id\s\
-                INNER JOIN answ ON q.id = answ.question_id AND answ.rn <= :answerRN\s\
-                INNER JOIN comm ON answ.id = comm.answer_id AND comm.rn <= :commentRN\s\
-                WHERE q.id = :questionId AND c.comment_type = 'question' AND comm.comment_type = 'answer'\s\
-                ORDER BY c.creation_date desc\
+
+                    answ_comm.id AS ans_c_id, answ_comm.text AS ans_c_text,\s\
+                    answ_comm.creation_date AS ans_c_c_date, answ_comm.username AS ans_c_u_username\s\
+                FROM question AS ques\s\
+                LEFT JOIN LATERAL\s\
+                    (\
+                    SELECT a.id, a.text, a.answered, a.creation_date, a.question_id, a.author_id, u.username\s\
+                    FROM answer AS a\s\
+                    INNER JOIN usr AS u ON a.author_id = u.id\s\
+                    WHERE a.question_id = ques.id\s\
+                    ORDER BY a.creation_date\s\
+                    LIMIT :answerLimit OFFSET :offset\s\
+                    ) AS answ ON TRUE\s\
+                LEFT JOIN LATERAL \s\
+                    (\
+                    SELECT c.id, c.text, c.creation_date, c.answer_id, c.author_id, u.username\s\
+                    FROM comment AS c\s\
+                    INNER JOIN usr AS u ON c.author_id = u.id\s\
+                    WHERE c.answer_id = answ.id\s\
+                    ORDER BY c.creation_date\s\
+                    LIMIT :commentLimit\s\
+                    ) AS answ_comm ON TRUE\s\
+                WHERE ques.id = :questionId\
                 """;
-        return session.createSQLQuery(getQuestionSql)
+        return session.createSQLQuery(sql)
                 .unwrap(Query.class)
                 .setParameter(QUESTION_ID_PARAMETER, questionId)
-                .setParameter("answerRN", resultSize)
-                .setParameter("commentRN", commentResultSize)
-                .setMaxResults(commentResultSize)
-                .setResultTransformer(new QuestionFullDtoTransformer());
+                .setParameter("commentLimit", commentResultSize)
+                .setParameter("answerLimit", resultSize)
+                .setParameter("offset", resultSize * page)
+                .setResultTransformer(new QuestionAnswerFullDtoTransformer());
     }
 
     @SuppressWarnings("unchecked")
@@ -214,69 +225,6 @@ public class QuestionDao extends DaoImpl<Question> {
                 .setResultTransformer(new QuestionCommentDtoTransformer());
     }
 
-    @SuppressWarnings("unchecked")
-    private Query<AnswerFullDto> getQuestionAnswersQuery(Session session, Long questionId, int page) {
-        String getQuestionAnswersSql =
-                """
-                WITH
-                 answ AS (\
-                    SELECT\s\
-                        a.id,\s\
-                        a.text,\s\
-                        a.answered,\s\
-                        a.creation_date,\s\
-                        a.question_id,\s\
-                        u.username,\s\
-                        ROW_NUMBER() OVER (PARTITION BY question_id ORDER BY creation_date DESC) rn\s\
-                    FROM answer AS a\s\
-                    INNER JOIN usr u ON a.author_id = u.id\s\
-                    OFFSET :offset),\s\
-                 comm AS (\
-                    SELECT\s\
-                        c.id,\s\
-                        c.text,\s\
-                        c.creation_date,\s\
-                        c.answer_id,\s\
-                        c.comment_type,\s\
-                        u.username,\s\
-                        ROW_NUMBER() OVER (PARTITION BY c.answer_id ORDER BY c.creation_date DESC) rn\s\
-                    FROM comment AS c\s\
-                    INNER JOIN usr AS u ON u.id = c.author_id)\s\
-                SELECT\s\
-                    answ.id AS ans_id, answ.text AS ans_text,\s\
-                    answ.answered AS ans_answered, answ.creation_date as ans_c_date,\s\
-                    answ.username AS ans_u_username,\s\
-                    
-                    comm.id AS ans_c_id, comm.text AS ans_c_text,\s\
-                    comm.creation_date AS ans_c_c_date, comm.username AS ans_c_u_username\s\
-                FROM question AS q\s\
-                INNER JOIN answ ON q.id = answ.question_id AND answ.rn <= :answerRN\s\
-                INNER JOIN comm ON answ.id = comm.answer_id AND comm.rn <= :commentRN\s\
-                WHERE q.id = :questionId AND comm.comment_type = 'answer'\s\
-                """;
-        return session.createSQLQuery(getQuestionAnswersSql)
-                .unwrap(Query.class)
-                .setParameter(QUESTION_ID_PARAMETER, questionId)
-                .setParameter("answerRN", resultSize + page * resultSize)
-                .setParameter("commentRN", commentResultSize)
-                .setParameter("offset", page * resultSize)
-                .setResultTransformer(new QuestionAnswerDtoTransformer());
-    }
-
-    private Question convertDtoToQuestion(QuestionFullDto dto, Long questionId) {
-        return new Question.Builder()
-                .id(questionId)
-                .title(dto.getTitle())
-                .text(dto.getText())
-                .tags(dto.getTags())
-                .creationDate(dto.getCreationDate())
-                .lastActivity(dto.getLastActivity())
-                .author(convertUsernameToAuthor(dto.getAuthor().getUsername()))
-                .answers(convertDtoToAnswerList(dto.getAnswers()))
-                .comments(convertDtoToCommentQuestionList(dto.getComments()))
-                .build();
-    }
-
     private List<Answer> convertDtoToAnswerList(List<AnswerFullDto> dto) {
         List<Answer> answers = new ArrayList<>(dto.size());
         dto.forEach((d) -> answers.add(convertDtoToAnswer(d)));
@@ -293,6 +241,19 @@ public class QuestionDao extends DaoImpl<Question> {
         List<CommentAnswer> commentAnswers = new ArrayList<>(dto.size());
         dto.forEach((d) -> commentAnswers.add(convertDtoToCommentAnswer(d)));
         return commentAnswers;
+    }
+
+    private Question convertDtoToQuestion(QuestionWithCommentsDto dto, Long questionId) {
+        return new Question.Builder()
+                .id(questionId)
+                .title(dto.getTitle())
+                .text(dto.getText())
+                .tags(dto.getTags())
+                .creationDate(dto.getCreationDate())
+                .lastActivity(dto.getLastActivity())
+                .author(convertUsernameToAuthor(dto.getAuthor().getUsername()))
+                .comments(convertDtoToCommentQuestionList(dto.getComments()))
+                .build();
     }
 
     private Answer convertDtoToAnswer(AnswerFullDto dto) {

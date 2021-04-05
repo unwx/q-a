@@ -9,7 +9,7 @@ public class QuestionAuthorDto {
     public static final String USERNAME = "que_u_username";
 
     public QuestionAuthorDto(Object[] tuples,
-                                          Map<String, Integer> aliasToIndexMap) {
+                             Map<String, Integer> aliasToIndexMap) {
         this.username = (String) tuples[aliasToIndexMap.get(USERNAME)];
     }
 

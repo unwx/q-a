@@ -109,17 +109,11 @@ public class UserServiceImpl implements UserService {
     }
 
     private List<Question> getUserQuestionsFromDatabase(Long userId, Integer page) {
-        List<Question> questions = userDao.readUserQuestions(userId, page - 1); //client page start with 1. backend with 0
-        if (questions == null)
-            throw new ResourceNotFoundException("questions not found. userId: " + userId + ". page: " + page);
-        return questions;
+        return userDao.readUserQuestions(userId, page - 1);
     }
 
     private List<Answer> getUserAnswersFromDatabase(Long userId, Integer page) {
-        List<Answer> answers = userDao.readUserAnswers(userId, page - 1); //client page start with 1. backend with 0
-        if (answers == null)
-            throw new ResourceNotFoundException("answers not found. userId: " + userId + ". page: " + page);
-        return answers;
+        return userDao.readUserAnswers(userId, page - 1);
     }
 
     private List<UserQuestionsResponse> convertQuestionsToResponseDto(@NotNull List<Question> questions) {

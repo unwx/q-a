@@ -1,13 +1,11 @@
 package qa.dto.internal.hibernate.question;
 
-import qa.dto.internal.hibernate.answer.AnswerFullDto;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class QuestionFullDto {
+public class QuestionWithCommentsDto {
 
     private final String title;
     private final String text;
@@ -18,7 +16,6 @@ public class QuestionFullDto {
     private final QuestionAuthorDto author;
 
     private final List<QuestionCommentDto> comments = new ArrayList<>();
-    private final List<AnswerFullDto> answers = new ArrayList<>();
 
     public static final String TITLE = "que_title";
     public static final String TEXT = "que_text";
@@ -26,7 +23,7 @@ public class QuestionFullDto {
     public static final String CREATION_DATE = "que_c_date";
     public static final String LAST_ACTIVITY = "que_l_activity";
 
-    public QuestionFullDto(Object[] tuples,
+    public QuestionWithCommentsDto(Object[] tuples,
                            Map<String, Integer> aliasToIndexMap) {
         this.title = (String) tuples[aliasToIndexMap.get(TITLE)];
         this.text = (String) tuples[aliasToIndexMap.get(TEXT)];
@@ -62,9 +59,5 @@ public class QuestionFullDto {
 
     public List<QuestionCommentDto> getComments() {
         return comments;
-    }
-
-    public List<AnswerFullDto> getAnswers() {
-        return answers;
     }
 }

@@ -4,6 +4,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -55,6 +56,28 @@ public class UserDao extends DaoImpl<User> {
         }
     }
 
+    @NotNull
+    public List<Question> readUserQuestions(long userId, int page) {
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            List<Question> questions = convertDtoToQuestion(readQuestionsQuery(session, userId, page).list());
+            transaction.commit();
+
+            return questions;
+        }
+    }
+
+    @NotNull
+    public List<Answer> readUserAnswers(long userId, int page) {
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            List<Answer> answers = convertDtoToAnswers(readAnswersQuery(session, userId, page).list());
+            transaction.commit();
+
+            return answers;
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private Query<UserFullDto> getFullUserQuery(Session session, String username) {
         String getFullUserSql =
@@ -79,28 +102,6 @@ public class UserDao extends DaoImpl<User> {
                 .setParameter("username", username)
                 .setParameter("RN", resultSize)
                 .setResultTransformer(new UserFullDtoTransformer());
-    }
-
-    @Nullable
-    public List<Question> readUserQuestions(long userId, int page) {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            List<Question> questions = convertDtoToQuestion(readQuestionsQuery(session, userId, page).list());
-            transaction.commit();
-
-            return questions.size() > 0 ? questions : null;
-        }
-    }
-
-    @Nullable
-    public List<Answer> readUserAnswers(long userId, int page) {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            List<Answer> answers = convertDtoToAnswers(readAnswersQuery(session, userId, page).list());
-            transaction.commit();
-
-            return answers.size() > 0 ? answers : null;
-        }
     }
 
     @SuppressWarnings("unchecked")
