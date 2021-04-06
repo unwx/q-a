@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
-import qa.Entity;
-import qa.NestedEntity;
 import qa.config.spring.SpringConfig;
 import qa.domain.setters.PropertySetter;
 import qa.domain.setters.PropertySetterFactory;
+import qa.entities.Entity;
+import qa.entities.NestedEntity;
 import qa.exceptions.domain.SetterNotImplementedException;
 import qa.exceptions.domain.SetterTargetIsNullException;
 
