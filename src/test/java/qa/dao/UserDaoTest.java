@@ -5,14 +5,12 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
-import qa.config.spring.SpringConfig;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
+import qa.domain.setters.PropertySetterFactory;
 import qa.util.UserDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
@@ -23,16 +21,20 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@WebAppConfiguration
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = SpringConfig.class)
+@ExtendWith(MockitoExtension.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class UserDaoTest {
 
-    @Autowired
     private UserDao userDao;
+    private SessionFactory sessionFactory;
 
-    private final SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+    @BeforeAll
+    void init() {
+        PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
+        userDao = new UserDao(propertySetterFactory);
+        sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+    }
 
     @BeforeEach
     void truncate() {
