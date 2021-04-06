@@ -29,9 +29,9 @@ import java.util.List;
 public class QuestionDao extends DaoImpl<Question> {
 
     private final SessionFactory sessionFactory;
-    private static final int resultSize = 6;
-    private static final int questionViewResultSize = 20;
-    private static final int commentResultSize = 3;
+    private static final int RESULT_SIZE = 6;
+    private static final int QUESTION_VIEW_RESULT_SIZE = 20;
+    private static final int COMMENT_RESULT_SIZE = 3;
 
     private static final String QUESTION_ID_PARAMETER = "questionId";
 
@@ -133,7 +133,7 @@ public class QuestionDao extends DaoImpl<Question> {
         return session.createSQLQuery(sql)
                 .unwrap(Query.class)
                 .setParameter(QUESTION_ID_PARAMETER, questionId)
-                .setParameter("commentRN", commentResultSize)
+                .setParameter("commentRN", COMMENT_RESULT_SIZE)
                 .setResultTransformer(new QuestionWithCommentsDtoTransformer());
     }
 
@@ -176,9 +176,9 @@ public class QuestionDao extends DaoImpl<Question> {
         return session.createSQLQuery(sql)
                 .unwrap(Query.class)
                 .setParameter(QUESTION_ID_PARAMETER, questionId)
-                .setParameter("commentLimit", commentResultSize)
-                .setParameter("answerLimit", resultSize)
-                .setParameter("offset", resultSize * page)
+                .setParameter("commentLimit", COMMENT_RESULT_SIZE)
+                .setParameter("answerLimit", RESULT_SIZE)
+                .setParameter("offset", RESULT_SIZE * page)
                 .setResultTransformer(new QuestionAnswerFullDtoTransformer());
     }
 
@@ -200,8 +200,8 @@ public class QuestionDao extends DaoImpl<Question> {
                 """;
         return session.createSQLQuery(getQuestionViewsSql)
                 .unwrap(Query.class)
-                .setFirstResult(questionViewResultSize * page)
-                .setMaxResults(questionViewResultSize)
+                .setFirstResult(QUESTION_VIEW_RESULT_SIZE * page)
+                .setMaxResults(QUESTION_VIEW_RESULT_SIZE)
                 .setResultTransformer(new QuestionViewDtoTransformer());
     }
 
@@ -220,8 +220,8 @@ public class QuestionDao extends DaoImpl<Question> {
         return session.createSQLQuery(getQuestionCommentsSql)
                 .unwrap(Query.class)
                 .setParameter(QUESTION_ID_PARAMETER, questionId)
-                .setFirstResult(page * commentResultSize)
-                .setMaxResults(commentResultSize)
+                .setFirstResult(page * COMMENT_RESULT_SIZE)
+                .setMaxResults(COMMENT_RESULT_SIZE)
                 .setResultTransformer(new QuestionCommentDtoTransformer());
     }
 

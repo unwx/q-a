@@ -10,10 +10,9 @@ public class QuestionDaoTestUtil {
 
     private static final long dateAtMillisDefault = 360000000000L;
 
-    public static final int commentResultSize = 3;
-    public static final int resultSize = 6;
-
-    public static final int questionViewResultSize = 20;
+    public static final int COMMENT_RESULT_SIZE = 3;
+    public static final int RESULT_SIZE = 6;
+    public static final int QUESTION_VIEW_RESULT_SIZE = 20;
 
     public static void createQuestionWithCommentsAndAnswersWithComments(SessionFactory sessionFactory, int answers, int comments) {
         try(Session session = sessionFactory.openSession()) {
@@ -187,6 +186,49 @@ public class QuestionDaoTestUtil {
                 session.flush();
                 session.clear();
             }
+            transaction.commit();
+        }
+    }
+
+    public static void createQuestion(SessionFactory sessionFactory) {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String createUserSql =
+                    """
+                    insert into usr (id, about, username) values (1, null, 'username')\
+                    """;
+            String createQuestionSql =
+                    """
+                    insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
+                    values (1, '2021-04-05', '2021-04-05', 'tags', 'text', 'title', 1)\
+                    """;
+            session.createSQLQuery(createUserSql).executeUpdate();
+            session.createSQLQuery(createQuestionSql).executeUpdate();
+            transaction.commit();
+        }
+    }
+
+    public static void createAnswer(SessionFactory sessionFactory) {
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            String createUserSql =
+                    """
+                    insert into usr (id, about, username) values (1, null, 'username')\
+                    """;
+            String createQuestionSql =
+                    """
+                     insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
+                     values (1, '2021-04-05', '2021-04-05', 'tags', 'text', 'title', 1)\
+                     """;
+            String createAnswerSql =
+                    """
+                    insert into answer (id, answered, creation_date, text, author_id, question_id)\s\
+                    values (1, false, '2021-04-05', 'text', 1, 1)\
+                    """;
+            session.createSQLQuery(createUserSql).executeUpdate();
+            session.createSQLQuery(createQuestionSql).executeUpdate();
+            session.createSQLQuery(createAnswerSql).executeUpdate();
+
             transaction.commit();
         }
     }
