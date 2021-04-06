@@ -18,14 +18,7 @@ public class PropertySetterFactory {
 
     public PropertySetter getSetter(FieldDataSetterExtractor target) {
         String targetClazzName = target.getClass().getName();
-        if (propertySetters.containsKey(targetClazzName)) {
-            return propertySetters.get(targetClazzName);
-        }
-        else {
-            PropertySetter propertySetter = createPropertySetter(target);
-            propertySetters.put(targetClazzName, propertySetter);
-            return propertySetter;
-        }
+        return propertySetters.computeIfAbsent(targetClazzName, c -> createPropertySetter(target));
     }
 
     private PropertySetter createPropertySetter(FieldDataSetterExtractor target) {
