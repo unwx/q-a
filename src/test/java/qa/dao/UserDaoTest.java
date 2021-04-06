@@ -3,8 +3,7 @@ package qa.dao;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -14,11 +13,12 @@ import qa.config.spring.SpringConfig;
 import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
+import qa.util.UserDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -26,17 +26,17 @@ import static org.hamcrest.Matchers.*;
 @WebAppConfiguration
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = SpringConfig.class)
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class UserDaoTest {
 
     @Autowired
     private UserDao userDao;
 
     private final SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-    private final static String username = "username";
 
     @BeforeEach
     void truncate() {
-        try(Session session = sessionFactory.openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("truncate table question cascade").executeUpdate();
             session.createSQLQuery("truncate table authentication cascade").executeUpdate();
@@ -45,303 +45,192 @@ public class UserDaoTest {
         }
     }
 
-    @Test
-    void readFullUserNotFound() {
-        User user = userDao.readFullUser(username);
-        assertThat(user, equalTo(null));
-    }
+    @Nested
+    class get_full_user {
+        @Test
+        void assert_correct_result() {
+            UserDaoTestUtil.createUserWithQuestionsAndAnswers(sessionFactory, UserDaoTestUtil.RESULT_SIZE, 1);
+            User user = userDao.readFullUser(UserDaoTestUtil.USERNAME);
+            assertThat(user, notNullValue());
 
-    @Test
-    void readFullUser_AssertCorrectData() throws NoSuchFieldException, IllegalAccessException {
-        Field resultSizeField = UserDao.class.getDeclaredField("resultSize");
-        resultSizeField.setAccessible(true);
-        int resultSize = (int) resultSizeField.get(userDao);
+            assertThat(user.getAnswers().size(), greaterThan(0));
+            assertThat(user.getQuestions().size(), greaterThan(0));
 
-        createUserWithQuestionsAndAnswers();
-        User user = userDao.readFullUser(username);
-        assertThat(user, notNullValue());
+            assertThat(user.getUsername(), notNullValue());
+            assertThat(user.getId(), notNullValue());
+            assertThat(user.getAbout(), notNullValue());
 
-        assertThat(user.getAnswers().size(), lessThan(resultSize + 1));
-        assertThat(user.getQuestions().size(), lessThan(resultSize + 1));
-
-        assertThat(user.getUsername(), notNullValue());
-        assertThat(user.getId(), notNullValue());
-        assertThat(user.getAbout(), notNullValue());
-
-        for (Question q : user.getQuestions()) {
-            assertThat(q.getId(), notNullValue());
-            assertThat(q.getTitle(), notNullValue());
-        }
-
-        for (Answer a : user.getAnswers()) {
-            assertThat(a.getId(), notNullValue());
-            assertThat(a.getText(), notNullValue());
-        }
-
-        assertThat(user.getUsername(), notNullValue());
-        assertThat(user.getId(), notNullValue());
-    }
-
-    @Test
-    void readFullUser_AssertNoDuplicates() {
-        createUserWithQuestionsAndAnswers();
-        User user = userDao.readFullUser(username);
-        assertThat(user, notNullValue());
-
-        long[] answersId = new long[user.getAnswers().size()];
-        long[] questionsId = new long[user.getQuestions().size()];
-        for (int i = 0; i < user.getAnswers().size(); i++) {
-            answersId[i] = user.getAnswers().get(i).getId();
-        }
-
-        for (int i = 0; i < user.getQuestions().size(); i++) {
-            questionsId[i] = user.getQuestions().get(i).getId();
-        }
-
-        assertThat(answersId, equalTo(Arrays.stream(answersId).distinct().toArray()));
-        assertThat(questionsId, equalTo(Arrays.stream(questionsId).distinct().toArray()));
-    }
-
-    @Test
-    void readFullUser_AssertNoNPE() {
-        createUser();
-        User u = userDao.readFullUser(username);
-        assertThat(u, notNullValue());
-        assertThat(u.getQuestions(), notNullValue());
-        assertThat(u.getAnswers(), notNullValue());
-    }
-
-    @Test
-    void readFullUser_AssertNoNPE1() {
-        User u = userDao.readFullUser(username);
-        assertThat(u, equalTo(null));
-    }
-
-    @Test
-    void readUserQuestions_NotFound() {
-        List<Question> questions = userDao.readUserQuestions(1L, 0);
-        assertThat(questions, equalTo(Collections.emptyList()));
-
-        createUser();
-        List<Question> questions1 = userDao.readUserQuestions(1L, 0);
-        assertThat(questions1, equalTo(Collections.emptyList()));
-    }
-
-    @Test
-    void readUserQuestions_IncorrectPage() {
-        createUserWithManyQuestions();
-        List<Question> questions = userDao.readUserQuestions(1L, 12312);
-        assertThat(questions, equalTo(Collections.emptyList()));
-    }
-
-    @Test
-    void readUserQuestions_AssertNoDuplicates() throws NoSuchFieldException, IllegalAccessException {
-        Field resultSizeField = UserDao.class.getDeclaredField("resultSize");
-        resultSizeField.setAccessible(true);
-        int resultSize = (int) resultSizeField.get(userDao);
-
-        createUserWithManyQuestions();
-        List<Question> questions = userDao.readUserQuestions(1L, 0);
-
-        assertThat(questions, notNullValue());
-        assertThat(questions.size(), equalTo(resultSize));
-
-        List<Question> questions1 = userDao.readUserQuestions(1L, 1);
-        assertThat(questions1, notNullValue());
-        assertThat(questions1.size(), equalTo(resultSize));
-
-        List<Question> all = new LinkedList<>(questions);
-        all.addAll(questions1);
-        List<Question> filtered = all.stream().distinct().collect(Collectors.toList());
-        assertThat(filtered.size(), equalTo(resultSize * 2));
-    }
-
-    @Test
-    void readUserQuestions_AssertCorrectData() throws NoSuchFieldException, IllegalAccessException {
-        Field resultSizeField = UserDao.class.getDeclaredField("resultSize");
-        resultSizeField.setAccessible(true);
-        int resultSize = (int) resultSizeField.get(userDao);
-
-        createUserWithManyQuestions();
-
-        List<Question> questions = userDao.readUserQuestions(1L, 0);
-        assertThat(questions, notNullValue());
-        assertThat(questions.size(), equalTo(resultSize));
-
-        List<Question> questions1 = userDao.readUserQuestions(1L, 1);
-
-        assertThat(questions1, notNullValue());
-        assertThat(questions1.size(), equalTo(resultSize));
-
-        for (int i = 0; i < resultSize; i++) {
-            assertThat(questions.get(i).getId(), notNullValue());
-            assertThat(questions.get(i).getTitle(), notNullValue());
-        }
-
-        for (int i = 0; i < resultSize; i++) {
-            assertThat(questions1.get(i).getId(), notNullValue());
-            assertThat(questions1.get(i).getTitle(), notNullValue());
-        }
-    }
-
-    @Test
-    void readUserAnswers_NotFound() {
-        List<Answer> answers = userDao.readUserAnswers(1L, 0);
-        assertThat(answers, equalTo(Collections.emptyList()));
-
-        createUser();
-        List<Answer> answers1 = userDao.readUserAnswers(1L, 0);
-        assertThat(answers1, equalTo(Collections.emptyList()));
-    }
-
-    @Test
-    void readUserAnswers_IncorrectPage() {
-        createUserWithManyAnswers();
-        List<Answer> answers = userDao.readUserAnswers(1L, 121233);
-        assertThat(answers, equalTo(Collections.emptyList()));
-    }
-
-    @Test
-    void readUserAnswers_AssertNoDuplicates() throws NoSuchFieldException, IllegalAccessException {
-        Field resultSizeField = UserDao.class.getDeclaredField("resultSize");
-        resultSizeField.setAccessible(true);
-        int resultSize = (int) resultSizeField.get(userDao);
-
-        createUserWithManyAnswers();
-
-        List<Answer> answers = userDao.readUserAnswers(1L, 0);
-        assertThat(answers, notNullValue());
-        assertThat(answers.size(), equalTo(resultSize));
-
-        List<Answer> answers1 = userDao.readUserAnswers(1L, 1);
-        assertThat(answers1, notNullValue());
-        assertThat(answers1.size(), equalTo(resultSize));
-
-        List<Answer> all = new LinkedList<>(answers);
-        all.addAll(answers1);
-        List<Answer> filtered = all.stream().distinct().collect(Collectors.toList());
-        assertThat(filtered.size(), equalTo(resultSize * 2));
-    }
-
-    @Test
-    void readUserAnswers_AssertCorrectData() throws NoSuchFieldException, IllegalAccessException {
-        Field resultSizeField = UserDao.class.getDeclaredField("resultSize");
-        resultSizeField.setAccessible(true);
-        int resultSize = (int) resultSizeField.get(userDao);
-
-        createUserWithManyAnswers();
-
-        List<Answer> answers = userDao.readUserAnswers(1L, 0);
-        assertThat(answers, notNullValue());
-        assertThat(answers.size(), equalTo(resultSize));
-
-        List<Answer> answers1 = userDao.readUserAnswers(1L, 1);
-        assertThat(answers1, notNullValue());
-        assertThat(answers1.size(), equalTo(resultSize));
-
-        for (int i = 0; i < resultSize; i++) {
-            assertThat(answers.get(i).getId(), notNullValue());
-            assertThat(answers.get(i).getText(), notNullValue());
-        }
-
-        for (int i = 0; i < resultSize; i++) {
-            assertThat(answers1.get(i).getId(), notNullValue());
-            assertThat(answers1.get(i).getText(), notNullValue());
-        }
-    }
-
-    private void createUserWithQuestionsAndAnswers() {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            String userSql =
-                    """
-                    insert into usr (id, about, username) values (1, 'about', '%s')
-                    """.formatted(username);
-            String questionSql =
-                    """
-                    insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
-                    values (:id, '%s', '%s', 'tag, tag', 'text', 'title', 1)
-                    """.formatted(new Date(), new Date());
-            String answerSql =
-                    """
-                    insert into answer (id, answered, creation_date, text, author_id, question_id)\s\
-                    values (:id, false, '%s', 'text', 1, :id)
-                    """.formatted(new Date());
-            session.createSQLQuery(userSql).executeUpdate();
-
-            for (long i = 0; i < 3; i++) {
-                session.createSQLQuery(questionSql).setParameter("id", i).executeUpdate();
+            for (Question q : user.getQuestions()) {
+                assertThat(q.getId(), notNullValue());
+                assertThat(q.getTitle(), notNullValue());
             }
-            for (long i = 0; i < 2; i++) {
-                session.createSQLQuery(answerSql).setParameter("id", i).executeUpdate();
+
+            for (Answer a : user.getAnswers()) {
+                assertThat(a.getId(), notNullValue());
+                assertThat(a.getText(), notNullValue());
             }
-            transaction.commit();
+
+            assertThat(user.getUsername(), notNullValue());
+            assertThat(user.getId(), notNullValue());
+        }
+
+        @Test
+        void assert_no_duplicates() {
+            UserDaoTestUtil.createUserWithQuestionsAndAnswers(sessionFactory, UserDaoTestUtil.RESULT_SIZE, 1);
+            User user = userDao.readFullUser(UserDaoTestUtil.USERNAME);
+            assertThat(user, notNullValue());
+
+            List<Answer> answers = user.getAnswers();
+            List<Question> questions = user.getQuestions();
+
+            int answersSize = answers.size();
+            int questionsSize = questions.size();
+
+            long[] answersId = new long[answersSize];
+            long[] questionsId = new long[questionsSize];
+
+            for (int i = 0; i < answersSize; i++) {
+                answersId[i] = answers.get(i).getId();
+            }
+
+            for (int i = 0; i < questionsSize; i++) {
+                questionsId[i] = questions.get(i).getId();
+            }
+
+            assertThat(answersId, equalTo(Arrays.stream(answersId).distinct().toArray()));
+            assertThat(questionsId, equalTo(Arrays.stream(questionsId).distinct().toArray()));
+        }
+
+        @Test
+        void assert_no_null_pointer_exception_user_created_only() {
+            UserDaoTestUtil.createUser(sessionFactory);
+            User u = userDao.readFullUser(UserDaoTestUtil.USERNAME);
+            assertThat(u, notNullValue());
+            assertThat(u.getQuestions(), notNullValue());
+            assertThat(u.getAnswers(), notNullValue());
+        }
+
+        @Test
+        void assert_not_found_result_equal_null() {
+            User user = userDao.readFullUser(UserDaoTestUtil.USERNAME);
+            assertThat(user, equalTo(null));
         }
     }
 
-    private void createUser() {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            String userSql =
-                    """
-                    insert into usr (id, about, username) values (1, 'about', '%s')
-                    """.formatted(username);
-            session.createSQLQuery(userSql).executeUpdate();
-            transaction.commit();
+    @Nested
+    class get_user_questions {
+
+        @Test
+        void assert_correct_result() {
+            UserDaoTestUtil.createUserWithManyQuestions(sessionFactory, UserDaoTestUtil.RESULT_SIZE);
+
+            List<Question> questions = userDao.readUserQuestions(1L, 0);
+            assertThat(questions, notNullValue());
+
+            for (Question q : questions) {
+                assertThat(q, notNullValue());
+                assertThat(q.getId(), notNullValue());
+                assertThat(q.getTitle(), notNullValue());
+            }
+        }
+
+        @Test
+        void assert_no_duplicates() {
+            UserDaoTestUtil.createUserWithManyQuestions(sessionFactory, (int) (UserDaoTestUtil.RESULT_SIZE * 1.5));
+
+            List<Question> questions1 = userDao.readUserQuestions(1L, 0);
+            assertThat(questions1, notNullValue());
+
+            List<Question> questions2 = userDao.readUserQuestions(1L, 1);
+            assertThat(questions2, notNullValue());
+
+            int questions1Size = questions1.size();
+            int questions2Size = questions2.size();
+
+            long[] ids1 = new long[questions1Size];
+            long[] ids2 = new long[questions2Size];
+
+            for (int i = 0; i < questions1Size; i++) {
+                ids1[i] = questions1.get(i).getId();
+            }
+
+            for (int i = 0; i < questions2Size; i++) {
+                ids2[i] = questions2.get(i).getId();
+            }
+
+            assertThat(ids1, equalTo(Arrays.stream(ids1).distinct().toArray()));
+            assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
+        }
+
+        @Test
+        void assert_not_found_result_user_not_exist_equal_empty_list() {
+            List<Question> questions = userDao.readUserQuestions(1L, 0);
+            assertThat(questions, equalTo(Collections.emptyList()));
+        }
+
+        @Test
+        void assert_not_found_result_questions_not_exist_equal_empty_list() {
+            UserDaoTestUtil.createUser(sessionFactory);
+            List<Question> questions = userDao.readUserQuestions(1L, 12312);
+            assertThat(questions, equalTo(Collections.emptyList()));
         }
     }
 
-    private void createUserWithManyQuestions() {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            String userSql =
-                    """
-                    insert into usr (id, about, username) values (1, 'about', '%s')
-                    """.formatted(username);
-            String questionSql =
-                    """
-                    insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
-                    values (:id, '%s', '%s', 'tag, tag', 'text', :title, 1)
-                    """.formatted(new Date(), new Date());
+    @Nested
+    class get_user_answers {
+        @Test
+        void assert_correct_result() {
+            UserDaoTestUtil.createUserWithManyAnswers(sessionFactory, UserDaoTestUtil.RESULT_SIZE);
 
-            session.createSQLQuery(userSql).executeUpdate();
-            for (long i = 0; i < 50; i++) {
-                session.createSQLQuery(questionSql)
-                        .setParameter("id", i)
-                        .setParameter("title", String.valueOf(i))
-                        .executeUpdate();
+            List<Answer> answers = userDao.readUserAnswers(1L, 0);
+            assertThat(answers, notNullValue());
+
+            for (Answer a : answers) {
+                assertThat(a, notNullValue());
+                assertThat(a.getId(), notNullValue());
+                assertThat(a.getText(), notNullValue());
             }
-            transaction.commit();
         }
-    }
 
-    private void createUserWithManyAnswers() {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            String userSql =
-                    """
-                    insert into usr (id, about, username) values (1, 'about', '%s')
-                    """.formatted(username);
-            String questionSql =
-                    """
-                    insert into question (id, creation_date, last_activity, tags, text, title, author_id)\s\
-                    values (1, '%s', '%s', 'tag, tag', 'text', 'title', 1)
-                    """.formatted(new Date(), new Date());
-            String answerSql =
-                    """
-                    insert into answer (id, answered, creation_date, text, author_id, question_id)\s\
-                    values (:id, false, '%s', :text, 1, 1)
-                    """.formatted(new Date());
+        @Test
+        void assert_no_duplicates() {
+            UserDaoTestUtil.createUserWithManyAnswers(sessionFactory, (int) (UserDaoTestUtil.RESULT_SIZE * 1.5));
 
-            session.createSQLQuery(userSql).executeUpdate();
-            session.createSQLQuery(questionSql).executeUpdate();
-            for (long i = 0; i < 50; i++) {
-                session.createSQLQuery(answerSql)
-                        .setParameter("id", i)
-                        .setParameter("text", String.valueOf(i))
-                        .executeUpdate();
+            List<Answer> answers1 = userDao.readUserAnswers(1L, 0);
+            assertThat(answers1, notNullValue());
+
+            List<Answer> answers2 = userDao.readUserAnswers(1L, 1);
+            assertThat(answers2, notNullValue());
+
+            int answer1Size = answers1.size();
+            int answer2Size = answers2.size();
+
+            long[] ids1 = new long[answer1Size];
+            long[] ids2 = new long[answer2Size];
+
+            for (int i = 0; i < answer1Size; i++) {
+                ids1[i] = answers1.get(i).getId();
             }
-            transaction.commit();
+
+            for (int i = 0; i < answer2Size; i++) {
+                ids2[i] = answers2.get(i).getId();
+            }
+
+            assertThat(ids1, equalTo(Arrays.stream(ids1).distinct().toArray()));
+            assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
+        }
+
+        @Test
+        void assert_not_found_result_user_not_exist_equal_empty_list() {
+            List<Answer> answers = userDao.readUserAnswers(1L, 0);
+            assertThat(answers, equalTo(Collections.emptyList()));
+        }
+
+        @Test
+        void assert_not_found_result_answers_not_exist_equal_empty_list() {
+            UserDaoTestUtil.createUser(sessionFactory);
+            List<Answer> answers1 = userDao.readUserAnswers(1L, 0);
+            assertThat(answers1, equalTo(Collections.emptyList()));
         }
     }
 }
