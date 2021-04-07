@@ -13,7 +13,8 @@ import qa.domain.CommentQuestion;
 import qa.domain.Question;
 import qa.domain.setters.PropertySetterFactory;
 import qa.dto.internal.hibernate.question.QuestionViewDto;
-import qa.util.QuestionDaoTestUtil;
+import qa.util.dao.AnswerDaoTestUtil;
+import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.util.Arrays;
@@ -30,12 +31,16 @@ public class QuestionDaoTest {
 
     private QuestionDao questionDao;
     private SessionFactory sessionFactory;
+    private QuestionDaoTestUtil questionDaoTestUtil;
+    private AnswerDaoTestUtil answerDaoTestUtil;
 
     @BeforeAll
     void init() {
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
         questionDao = new QuestionDao(propertySetterFactory);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
+        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
     }
 
     @BeforeEach
@@ -55,7 +60,7 @@ public class QuestionDaoTest {
     class get_full_question {
         @Test
         void assert_correct_result() {
-            QuestionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(sessionFactory, 6, 3);
+            questionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(6, 3);
             Question q = questionDao.getFullQuestion(1L);
 
             assertThat(q, notNullValue());
@@ -102,7 +107,7 @@ public class QuestionDaoTest {
 
         @Test
         void assert_no_duplicates() {
-            QuestionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(sessionFactory, 6, 3);
+            questionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(6, 3);
             Question q = questionDao.getFullQuestion(1L);
 
             assertThat(q, notNullValue());
@@ -151,7 +156,7 @@ public class QuestionDaoTest {
 
         @Test
         void assert_no_null_pointer_exception_question_created_only() {
-            QuestionDaoTestUtil.createQuestion(sessionFactory);
+            questionDaoTestUtil.createQuestion();
             Question q = questionDao.getFullQuestion(1L);
             assertThat(q, notNullValue());
             assertThat(q.getAnswers(), notNullValue());
@@ -160,7 +165,7 @@ public class QuestionDaoTest {
 
         @Test
         void assert_no_null_pointer_exception_question_answer_created_only() {
-            QuestionDaoTestUtil.createAnswer(sessionFactory);
+            answerDaoTestUtil.createAnswer();
             Question q = questionDao.getFullQuestion(1L);
             assertThat(q, notNullValue());
             assertThat(q.getAnswers(), notNullValue());
@@ -172,7 +177,7 @@ public class QuestionDaoTest {
     class get_question_comments {
         @Test
         void assert_correct_result() {
-            QuestionDaoTestUtil.createQuestionWithComments(sessionFactory, (int) (QuestionDaoTestUtil.COMMENT_RESULT_SIZE * 1.5));
+            questionDaoTestUtil.createQuestionWithComments((int) (QuestionDaoTestUtil.COMMENT_RESULT_SIZE * 1.5));
             for (int i = 0; i < 2; i++) {
                 List<CommentQuestion> comments = questionDao.getQuestionComments(1L, i);
                 for (int y = 0; y < comments.size(); y++) {
@@ -188,16 +193,15 @@ public class QuestionDaoTest {
 
         @Test
         void assert_no_duplicates() {
-            QuestionDaoTestUtil.createQuestionWithComments(sessionFactory, (int) (QuestionDaoTestUtil.COMMENT_RESULT_SIZE * 1.5));
+            questionDaoTestUtil.createQuestionWithComments((int) (QuestionDaoTestUtil.COMMENT_RESULT_SIZE * 1.5));
 
             List<CommentQuestion> comments1 = questionDao.getQuestionComments(1L, 0);
             List<CommentQuestion> comments2 = questionDao.getQuestionComments(1L, 1);
             assertThat(comments1, notNullValue());
             assertThat(comments2, notNullValue());
-            assertThat(comments1.size(), equalTo(comments2.size()));
 
             int size1 = comments1.size();
-            int size2 = comments1.size();
+            int size2 = comments2.size();
             long[] ids1 = new long[size1];
             long[] ids2 = new long[size2];
             for (int i = 0; i < size1; i++) {
@@ -221,8 +225,7 @@ public class QuestionDaoTest {
     class get_question_answers {
         @Test
         void assert_correct_result() {
-            QuestionDaoTestUtil.createQuestionWithAnswersWithComments(
-                    sessionFactory,
+            questionDaoTestUtil.createQuestionWithAnswersWithComments(
                     (int) (QuestionDaoTestUtil.RESULT_SIZE * 1.5),
                     QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
 
@@ -255,8 +258,7 @@ public class QuestionDaoTest {
 
         @Test
         void assert_no_duplicates() {
-            QuestionDaoTestUtil.createQuestionWithAnswersWithComments(
-                    sessionFactory,
+            questionDaoTestUtil.createQuestionWithAnswersWithComments(
                     (int) (QuestionDaoTestUtil.RESULT_SIZE * 1.5),
                     QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
 
@@ -290,14 +292,14 @@ public class QuestionDaoTest {
 
         @Test
         void assert_no_null_pointer_exception_question_created_only() {
-            QuestionDaoTestUtil.createQuestion(sessionFactory);
+            questionDaoTestUtil.createQuestion();
             List<Answer> a = questionDao.getQuestionAnswer(1L, 1);
             assertThat(a, equalTo(Collections.emptyList()));
         }
 
         @Test
         void assert_no_null_pointer_exception_question_answer_created_only() {
-            QuestionDaoTestUtil.createAnswer(sessionFactory);
+            answerDaoTestUtil.createAnswer();
             List<Answer> a1 = questionDao.getQuestionAnswer(1L, 0);
             assertThat(a1, notNullValue());
             assertThat(a1.size(), equalTo(1));
@@ -308,8 +310,7 @@ public class QuestionDaoTest {
     class get_question_views {
         @Test
         void assert_correct_result() {
-            QuestionDaoTestUtil.createManyQuestionsWithManyAnswers(
-                    sessionFactory,
+            questionDaoTestUtil.createManyQuestionsWithManyAnswers(
                     (int) (QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE * 1.5),
                     QuestionDaoTestUtil.RESULT_SIZE);
             for (int i = 0; i < 2; i++) {
@@ -330,8 +331,7 @@ public class QuestionDaoTest {
 
         @Test
         void assert_no_duplicates() {
-            QuestionDaoTestUtil.createManyQuestionsWithManyAnswers(
-                    sessionFactory,
+            questionDaoTestUtil.createManyQuestionsWithManyAnswers(
                     (int) (QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE * 1.5),
                     QuestionDaoTestUtil.RESULT_SIZE);
 
