@@ -171,18 +171,20 @@ public class QueryBuilder {
         return this;
     }
 
-    public void commentAnswer(Long id,
+    public QueryBuilder commentAnswer(Long id,
                               Long answerId,
                               Date date) {
         commentAnswerQueryBuilder
                 .with(session)
                 .commentAnswer(id, date, answerId);
+        return this;
     }
 
-    public void commentAnswer(Long id,
+    public QueryBuilder commentAnswer(Long id,
                               Date date) {
         commentAnswerQueryBuilder
                 .with(session)
                 .commentAnswer(id, date);
+        return this;
     }
 }

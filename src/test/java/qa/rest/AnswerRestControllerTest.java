@@ -42,6 +42,8 @@ public class AnswerRestControllerTest {
     @Autowired
     private JwtProvider jwtProvider;
 
+    private static final String jsonId = "{\"id\":1}";
+
     @BeforeAll
     void init() {
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
@@ -101,7 +103,7 @@ public class AnswerRestControllerTest {
 
             assertThat(getId(AnswerQueryParameters.TEXT), notNullValue());
 
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt("{\"id\":1}", token);
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(jsonId, token);
 
             Response response = request.delete("delete");
             assertThat(response.getStatusCode(), equalTo(200));
@@ -114,7 +116,7 @@ public class AnswerRestControllerTest {
             String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser();
 
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt("{\"id\":1}", token);
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(jsonId, token);
 
             Response response = request.post("answered");
             assertThat(response.getStatusCode(), equalTo(200));
@@ -127,7 +129,7 @@ public class AnswerRestControllerTest {
             String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser(false);
 
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt("{\"id\":1}", token);
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(jsonId, token);
 
             Response response = request.post("not-answered");
             assertThat(response.getStatusCode(), equalTo(200));
@@ -159,7 +161,7 @@ public class AnswerRestControllerTest {
 
             answerDaoTestUtil.createAnswerNoUser();
 
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt("{\"id\":1}", token);
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(jsonId, token);
             Response response = request.post("answered");
             assertThat(response.getStatusCode(), equalTo(403));
         }
@@ -171,7 +173,7 @@ public class AnswerRestControllerTest {
 
             answerDaoTestUtil.createAnswerNoUser(false);
 
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt("{\"id\":1}", token);
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(jsonId, token);
             Response response = request.post("not-answered");
             assertThat(response.getStatusCode(), equalTo(403));
         }
@@ -183,7 +185,7 @@ public class AnswerRestControllerTest {
 
             answerDaoTestUtil.createAnswerNoUser();
 
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt("{\"id\":1}", token);
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(jsonId, token);
             Response response = request.delete("delete");
             assertThat(response.getStatusCode(), equalTo(403));
         }

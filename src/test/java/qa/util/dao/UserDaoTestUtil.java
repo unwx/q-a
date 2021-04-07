@@ -13,7 +13,6 @@ public class UserDaoTestUtil {
         this.queryBuilder = new QueryBuilder(sessionFactory);
     }
 
-
     public void createUser() {
         queryBuilder
                 .openSession()

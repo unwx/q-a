@@ -41,11 +41,11 @@ public class AuthenticationData implements FieldExtractor, FieldDataSetterExtrac
     @JsonIgnore
     private Long refreshTokenExpirationDateAtMillis;
 
-    @ElementCollection(targetClass = UserRoles.class, fetch = FetchType.EAGER)
+    @ElementCollection(targetClass = UserRole.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "auth_id"))
     @Enumerated(EnumType.STRING)
     @JsonIgnore
-    private List<UserRoles> roles;
+    private List<UserRole> roles;
 
 
     public AuthenticationData(User user,
@@ -54,7 +54,7 @@ public class AuthenticationData implements FieldExtractor, FieldDataSetterExtrac
                               Boolean enabled,
                               Long accessTokenExpirationDateAtMills,
                               Long refreshTokenExpirationDateAtMillis,
-                              List<UserRoles> roles) {
+                              List<UserRole> roles) {
         this.user = user;
         this.password = password;
         this.email = email;
@@ -71,7 +71,7 @@ public class AuthenticationData implements FieldExtractor, FieldDataSetterExtrac
                               Boolean enabled,
                               Long accessTokenExpirationDateAtMills,
                               Long refreshTokenExpirationDateAtMillis,
-                              List<UserRoles> roles) {
+                              List<UserRole> roles) {
         this.id = id;
         this.user = user;
         this.password = password;
@@ -142,11 +142,11 @@ public class AuthenticationData implements FieldExtractor, FieldDataSetterExtrac
         this.refreshTokenExpirationDateAtMillis = refreshTokenExpirationDateAtMillis;
     }
 
-    public List<UserRoles> getRoles() {
+    public List<UserRole> getRoles() {
         return roles;
     }
 
-    public void setRoles(List<UserRoles> roles) {
+    public void setRoles(List<UserRole> roles) {
         this.roles = roles;
     }
 
@@ -217,7 +217,7 @@ public class AuthenticationData implements FieldExtractor, FieldDataSetterExtrac
             return this;
         }
 
-        public Builder roles(List<UserRoles> roles) {
+        public Builder roles(List<UserRole> roles) {
             data.roles = roles;
             return this;
         }

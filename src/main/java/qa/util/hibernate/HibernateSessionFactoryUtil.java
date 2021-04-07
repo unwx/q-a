@@ -19,12 +19,12 @@ public final class HibernateSessionFactoryUtil {
             if (sessionFactory == null) {
                 sessionFactory = new Configuration().configure().buildSessionFactory();
             }
-            return sessionFactory;
         } catch (Throwable ex) {
             assert logger != null;
             logger.error("[hibernate sessionFactory initialization error]: " + ex.getMessage());
             throw new ExceptionInInitializerError(ex);
         }
+        return sessionFactory;
     }
 
     public static SessionFactory getSessionFactory() {

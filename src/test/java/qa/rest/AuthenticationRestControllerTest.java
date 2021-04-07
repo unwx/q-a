@@ -5,13 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -21,9 +20,14 @@ import qa.config.spring.SpringConfig;
 import qa.dto.response.JwtPairResponse;
 import qa.exceptions.rest.ErrorMessage;
 import qa.security.PasswordEncryptorFactory;
-import qa.security.jwt.entity.JwtData;
+import qa.security.jwt.entity.JwtStatus;
 import qa.security.jwt.service.JwtProvider;
+import qa.util.dao.UserDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.rest.AuthenticationRestTestUtil;
+import qa.util.rest.JwtTestUtil;
+
+import java.math.BigInteger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -32,18 +36,24 @@ import static org.hamcrest.Matchers.*;
 @WebAppConfiguration
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = SpringConfig.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class AuthenticationRestControllerTest {
 
-    private final SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-    private final static String defaultUserPassword = "ho3kLS4hl2dp-asd";
-    private final static String defaultUserUsername = "user471293";
-    private final static String defaultUserEmail = "yahoo@yahoo.com";
+    private SessionFactory sessionFactory;
+    private UserDaoTestUtil userDaoTestUtil;
 
     @Autowired
     private JwtProvider jwtProvider;
 
     @Autowired
-    private PasswordEncryptorFactory PasswordEncryptorFactory;
+    private PasswordEncryptorFactory passwordEncryptorFactory;
+
+    @BeforeAll
+    void init() {
+        sessionFactory =  HibernateSessionFactoryUtil.getSessionFactory();
+        userDaoTestUtil = new UserDaoTestUtil(sessionFactory);
+    }
 
     @BeforeEach
     void truncate() {
@@ -58,179 +68,159 @@ public class AuthenticationRestControllerTest {
         }
     }
 
-    @Test
-    void registrationSuccess() throws JsonProcessingException {
-        JSONObject requestParams = registrationJson();
+    @Nested
+    class registration {
+        @Test
+        void success_assert_valid_tokens() throws JsonProcessingException {
+            JSONObject json = AuthenticationRestTestUtil.getRegistrationJson();
 
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.body(requestParams.toString());
+            RequestSpecification request = AuthenticationRestTestUtil.getRequestJson(json.toString());
 
-        Response response = request.post("registration");
-        assertThat(response.getStatusCode(), equalTo(200));
+            Response response = request.post("registration");
+            assertThat(response.getStatusCode(), equalTo(200));
 
-        String body = response.getBody().asString();
-        ObjectMapper mapper = new ObjectMapper();
-        JwtPairResponse tokens = mapper.readValue(body, JwtPairResponse.class);
+            String body = response.getBody().asString();
+            ObjectMapper mapper = new ObjectMapper();
+            JwtPairResponse tokens = mapper.readValue(body, JwtPairResponse.class);
 
-        assertThat(tokens.getAccess().length(), greaterThan(25));
-        assertThat(tokens.getRefresh().length(), greaterThan(25));
+            assertThat(jwtProvider.validate(JwtTestUtil.resolveToken(tokens.getAccess())).getStatus(), equalTo(JwtStatus.VALID));
+            assertThat(jwtProvider.validate(JwtTestUtil.resolveToken(tokens.getRefresh())).getStatus(), equalTo(JwtStatus.VALID));
+        }
+
+        @Test
+        void failed_user_already_exist() throws JsonProcessingException {
+            userDaoTestUtil.createUser();
+
+            JSONObject json = AuthenticationRestTestUtil.getRegistrationJson();
+
+            RequestSpecification request = AuthenticationRestTestUtil.getRequestJson(json.toString());
+
+            Response response = request.post("registration");
+            assertThat(response.getStatusCode(), equalTo(400));
+
+            String body = response.getBody().asString();
+            ObjectMapper mapper = new ObjectMapper();
+            ErrorMessage errorMessage = mapper.readValue(body, ErrorMessage.class);
+
+            assertThat(errorMessage.getTimestamp(), notNullValue());
+            assertThat(errorMessage.getMessage(), notNullValue());
+            assertThat(errorMessage.getStatusCode(), equalTo(400));
+        }
     }
 
-    @Test
-    void registrationFailed_userAlreadyExist() throws JsonProcessingException {
-        createUser();
+    @Nested
+    class login {
+        @Test
+        void success_assert_valid_tokens() throws JsonProcessingException {
+            JwtTestUtil.createUserWithRefreshTokenAndEncryptedPassword(sessionFactory, jwtProvider, passwordEncryptorFactory.create());
 
-        JSONObject requestParams = registrationJson();
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.body(requestParams.toString());
+            JSONObject json = AuthenticationRestTestUtil.getLoginJson();
 
-        Response response = request.post("registration");
-        assertThat(response.getStatusCode(), equalTo(400));
+            RequestSpecification request = AuthenticationRestTestUtil.getRequestJson(json.toString());
 
-        String body = response.getBody().asString();
-        ObjectMapper mapper = new ObjectMapper();
-        ErrorMessage errorMessage = mapper.readValue(body, ErrorMessage.class);
+            Response response = request.post("login");
+            assertThat(response.getStatusCode(), equalTo(200));
 
-        assertThat(errorMessage.getTimestamp(), notNullValue());
-        assertThat(errorMessage.getMessage(), notNullValue());
-        assertThat(errorMessage.getStatusCode(), equalTo(400));
+            String body = response.getBody().asString();
+            ObjectMapper mapper = new ObjectMapper();
+            JwtPairResponse tokens = mapper.readValue(body, JwtPairResponse.class);
+
+            assertThat(jwtProvider.validate(JwtTestUtil.resolveToken(tokens.getAccess())).getStatus(), equalTo(JwtStatus.VALID));
+            assertThat(jwtProvider.validate(JwtTestUtil.resolveToken(tokens.getRefresh())).getStatus(), equalTo(JwtStatus.VALID));
+        }
+
+        @Test
+        void failed_wrong_login_or_password() throws JsonProcessingException {
+            JSONObject json = AuthenticationRestTestUtil.getLoginJson();
+
+            RequestSpecification request = AuthenticationRestTestUtil.getRequestJson(json.toString());
+
+            Response response = request.post("login");
+            assertThat(response.getStatusCode(), equalTo(401));
+
+            String body = response.getBody().asString();
+            ObjectMapper mapper = new ObjectMapper();
+            ErrorMessage errorMessage = mapper.readValue(body, ErrorMessage.class);
+
+            assertThat(errorMessage.getTimestamp(), notNullValue());
+            assertThat(errorMessage.getMessage(), notNullValue());
+            assertThat(errorMessage.getStatusCode(), equalTo(401));
+        }
     }
 
-    @Test
-    void loginSuccess() throws JsonProcessingException {
-        createUser();
+    @Nested
+    class refresh_tokens {
+        @Test
+        void success_assert_valid_tokens() throws JsonProcessingException {
+            ImmutablePair<String, Long> pair = JwtTestUtil.createUserWithRefreshTokenAndEncryptedPassword(
+                    sessionFactory,
+                    jwtProvider,
+                    passwordEncryptorFactory.create());
 
-        JSONObject requestParams = loginJson();
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.body(requestParams.toString());
+            String token = pair.left;
+            Long startExp = pair.right;
 
-        Response response = request.post("login");
-        assertThat(response.getStatusCode(), equalTo(200));
+            RequestSpecification request = AuthenticationRestTestUtil.getRequestJwt(token);
 
-        String body = response.getBody().asString();
-        ObjectMapper mapper = new ObjectMapper();
-        JwtPairResponse tokens = mapper.readValue(body, JwtPairResponse.class);
+            Response response = request.post("refresh-tokens");
+            assertThat(response.getStatusCode(), equalTo(200));
 
-        assertThat(tokens.getAccess().length(), greaterThan(25));
-        assertThat(tokens.getRefresh().length(), greaterThan(25));
+            String body = response.getBody().asString();
+            ObjectMapper mapper = new ObjectMapper();
+            JwtPairResponse tokens = mapper.readValue(body, JwtPairResponse.class);
+
+            assertThat(jwtProvider.validate(JwtTestUtil.resolveToken(tokens.getAccess())).getStatus(), equalTo(JwtStatus.VALID));
+            assertThat(jwtProvider.validate(JwtTestUtil.resolveToken(tokens.getRefresh())).getStatus(), equalTo(JwtStatus.VALID));
+
+            /* user tokenExp should change */
+            Long exp = getRefreshExp();
+            assertThat(exp, not(startExp));
+        }
+
+        @Test
+        void failed_invalid_refresh_token() throws JsonProcessingException {
+            ImmutablePair<String, Long> pair = JwtTestUtil.createUserWithRefreshTokenAndEncryptedPassword(
+                    sessionFactory,
+                    jwtProvider,
+                    passwordEncryptorFactory.create());
+
+            String invalidToken = pair.left.replaceAll("a", "b");
+            Long startExp = pair.right;
+
+            RequestSpecification request = AuthenticationRestTestUtil.getRequestJwt(invalidToken);
+
+            Response response = request.post("refresh-tokens");
+            assertThat(response.getStatusCode(), equalTo(401));
+
+            String body = response.getBody().asString();
+            ObjectMapper mapper = new ObjectMapper();
+            ErrorMessage errorMessage = mapper.readValue(body, ErrorMessage.class);
+
+            assertThat(errorMessage.getTimestamp(), notNullValue());
+            assertThat(errorMessage.getMessage(), notNullValue());
+            assertThat(errorMessage.getStatusCode(), equalTo(401));
+
+            /* user tokenExp should not change */
+            Long exp = getRefreshExp();
+            assertThat(exp, equalTo(startExp));
+        }
     }
 
-    @Test
-    void loginFailed_wrongLoginOrPassword() throws JsonProcessingException {
-        JSONObject requestParams = loginJson();
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.body(requestParams.toString());
-
-        Response response = request.post("login");
-        assertThat(response.getStatusCode(), equalTo(401));
-
-        String body = response.getBody().asString();
-        ObjectMapper mapper = new ObjectMapper();
-        ErrorMessage errorMessage = mapper.readValue(body, ErrorMessage.class);
-
-        assertThat(errorMessage.getTimestamp(), notNullValue());
-        assertThat(errorMessage.getMessage(), notNullValue());
-        assertThat(errorMessage.getStatusCode(), equalTo(401));
-    }
-
-    @Test
-    void refreshTokensSuccess() throws JsonProcessingException {
-        JwtData refreshTokenData = jwtProvider.createRefresh(defaultUserEmail);
-        String token = "Bearer_" + refreshTokenData.getToken();
-        long tokenExpiration = refreshTokenData.getExpirationAtMillis();
-        createUserWithRefreshToken(tokenExpiration);
-
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.header("Authorization", token);
-
-        Response response = request.post("refresh-tokens");
-        assertThat(response.getStatusCode(), equalTo(200));
-
-        String body = response.getBody().asString();
-        ObjectMapper mapper = new ObjectMapper();
-        JwtPairResponse tokens = mapper.readValue(body, JwtPairResponse.class);
-
-        assertThat(tokens.getAccess().length(), greaterThan(25));
-        assertThat(tokens.getRefresh().length(), greaterThan(25));
-
-        /* user tokenExp should change */
+    private Long getRefreshExp() {
+        String sql =
+                """
+                SELECT a.refresh_token_exp_date\s\
+                FROM authentication AS a\s\
+                WHERE a.id = :id\
+                """;
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            Long exp = (Long) session
-                    .createQuery("select a.refreshTokenExpirationDateAtMillis from AuthenticationData a where a.id=:a")
-                    .setParameter("a", 1L)
+            BigInteger exp = (BigInteger) session
+                    .createSQLQuery(sql)
+                    .setParameter("id", 1L)
                     .uniqueResult();
             transaction.commit();
-
-            assertThat(exp, not(tokenExpiration));
-        }
-    }
-
-    private JSONObject registrationJson() {
-        JSONObject requestParams = new JSONObject();
-        requestParams.put("email", defaultUserEmail);
-        requestParams.put("username", defaultUserUsername);
-        requestParams.put("password", defaultUserPassword);
-        return requestParams;
-    }
-
-    private JSONObject loginJson() {
-        JSONObject requestParams = new JSONObject();
-        requestParams.put("email", defaultUserEmail);
-        requestParams.put("password", defaultUserPassword);
-        return requestParams;
-    }
-
-    private void createUser() {
-        PooledPBEStringEncryptor encryptor = PasswordEncryptorFactory.create();
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            String sqlUser =
-                    """
-                    insert into usr\s\
-                    (id, username)\s\
-                    values (1, '%s');\
-                    """.formatted(defaultUserUsername);
-            String sqlAuthentication =
-                    """
-                    insert into authentication (id, access_token_exp_date, email, enabled, password, refresh_token_exp_date, user_id)\s\
-                    values (1, 1, '%s', true, '%s', 1, 1); \
-                    """.formatted(defaultUserEmail, encryptor.encrypt(defaultUserPassword));
-            session.createSQLQuery(sqlUser).executeUpdate();
-            session.createSQLQuery(sqlAuthentication).executeUpdate();
-            transaction.commit();
-        }
-    }
-
-    private void createUserWithRefreshToken(long tokenExp) {
-        PooledPBEStringEncryptor encryptor = PasswordEncryptorFactory.create();
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            String sqlUser =
-                    """
-                    insert into usr\s\
-                    (id, username)\s\
-                    values (1, '%s');\
-                    """.formatted(defaultUserUsername);
-            String sqlAuthentication =
-                    """
-                    insert into authentication (id, access_token_exp_date, email, enabled, password, refresh_token_exp_date, user_id)\s\
-                    values (1, 1, '%s', true, '%s', %s, 1); \
-                    """.formatted(defaultUserEmail, encryptor.encrypt(defaultUserPassword), tokenExp);
-            String sqlRoles =
-                    """
-                    insert into user_role (auth_id, roles) VALUES (1, 'USER');\
-                    """;
-
-            session.createSQLQuery(sqlUser).executeUpdate();
-            session.createSQLQuery(sqlAuthentication).executeUpdate();
-            session.createSQLQuery(sqlRoles).executeUpdate();
-            transaction.commit();
+            return exp == null ? null : exp.longValue();
         }
     }
 }

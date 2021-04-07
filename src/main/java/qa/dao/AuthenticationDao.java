@@ -9,10 +9,11 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import qa.domain.AuthenticationData;
-import qa.domain.UserRoles;
+import qa.domain.UserRole;
 import qa.domain.setters.PropertySetterFactory;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
+import java.math.BigInteger;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -54,29 +55,38 @@ public class AuthenticationDao extends DaoImpl<AuthenticationData> {
             Transaction transaction = session.beginTransaction();
             String hql =
                     """
-                    select\s\
-                    a.id, a.enabled, a.password, a.accessTokenExpirationDateAtMills, a.refreshTokenExpirationDateAtMillis, b\s\
-                    from AuthenticationData a inner join a.roles as b\s\
-                    where a.email=:a
+                    SELECT\s\
+                    a.id, a.access_token_exp_date, a.refresh_token_exp_date, ur.roles\s\
+                    FROM authentication AS a\s\
+                    INNER JOIN user_role AS ur ON a.id = ur.auth_id\s\
+                    WHERE a.email=:a
                     """;
-            Query<?> query = session.createQuery(hql).setParameter("a", email);
+            Query<?> query = session.createSQLQuery(hql).setParameter("a", email);
             List<Object[]> result = (List<Object[]>) query.list();
-            List<UserRoles> roles = new LinkedList<>();
 
             transaction.commit();
             if (result.size() == 0)
                 return null;
 
-            result.forEach((r) -> roles.add((UserRoles) r[5]));
             return new AuthenticationData.Builder()
-                    .id((Long) result.get(0)[0])
-                    .enabled((Boolean) result.get(0)[1])
-                    .password((String) result.get(0)[2])
-                    .accessTokenExpirationDateAtMillis((Long) result.get(0)[3])
-                    .refreshTokenExpirationDateAtMillis((Long) result.get(0)[4])
-                    .roles(roles)
+                    .id(((BigInteger) result.get(0)[0]).longValue())
+                    .accessTokenExpirationDateAtMillis(((BigInteger) result.get(0)[1]).longValue())
+                    .refreshTokenExpirationDateAtMillis(((BigInteger) result.get(0)[2]).longValue())
+                    .roles(convertStringToRoles((String) result.get(0)[3]))
                     .email(email)
                     .build();
         }
+    }
+
+    private List<UserRole> convertStringToRoles(String rolesStr) {
+        List<UserRole> roles = new LinkedList<>();
+        for (String s : rolesStr.split(",")) {
+            switch (s) {
+                case "USER" -> roles.add(UserRole.USER);
+                case "MODERATOR" -> roles.add(UserRole.MODERATOR);
+                case "ADMIN" -> roles.add(UserRole.ADMIN);
+            }
+        }
+        return roles;
     }
 }

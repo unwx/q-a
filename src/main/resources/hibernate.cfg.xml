@@ -12,7 +12,7 @@
         <property name="hibernate.hbm2ddl.auto">update</property>
 
         <mapping class="qa.domain.User" />
-        <mapping class="qa.domain.UserRoles" />
+        <mapping class="qa.domain.UserRole" />
         <mapping class="qa.domain.AuthenticationData" />
         <mapping class="qa.domain.Answer" />
         <mapping class="qa.domain.Question" />

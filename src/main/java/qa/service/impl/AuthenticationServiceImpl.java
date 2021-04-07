@@ -11,7 +11,7 @@ import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.domain.AuthenticationData;
 import qa.domain.User;
-import qa.domain.UserRoles;
+import qa.domain.UserRole;
 import qa.dto.internal.JwtDataDto;
 import qa.dto.internal.JwtPairDataDto;
 import qa.dto.request.authentication.AuthenticationRequest;
@@ -99,7 +99,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .accessTokenExpirationDateAtMillis(dto.getAccess().getExp())
                 .refreshTokenExpirationDateAtMillis(dto.getRefresh().getExp())
                 .user(user)
-                .roles(Collections.singletonList(UserRoles.USER))
+                .roles(Collections.singletonList(UserRole.USER))
                 .build();
         authenticationDao.create(data);
     }
