@@ -90,6 +90,19 @@ public class QuestionDaoTestUtil {
         queryBuilder.closeSession();
     }
 
+    public void createManyQuestions(int questions) {
+        queryBuilder
+                .openSession()
+                .user();
+        for (int i = 0; i < questions; i++) {
+            queryBuilder.question((long) i, new Date(i * dateAtMillisDefault));
+            if (i % 20 == 0) {
+                queryBuilder.flushAndClear();
+            }
+        }
+        queryBuilder.closeSession();
+    }
+
     public void createQuestion() {
         queryBuilder
                 .openSession()

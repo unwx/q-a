@@ -11,7 +11,10 @@ import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
-import qa.util.UserDaoTestUtil;
+import qa.util.dao.AnswerDaoTestUtil;
+import qa.util.dao.QuestionDaoTestUtil;
+import qa.util.dao.UserDaoTestUtil;
+import qa.util.dao.query.params.UserQueryParameters;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.util.Arrays;
@@ -28,12 +31,18 @@ public class UserDaoTest {
 
     private UserDao userDao;
     private SessionFactory sessionFactory;
+    private QuestionDaoTestUtil questionDaoTestUtil;
+    private AnswerDaoTestUtil answersDaoTestUtil;
+    private UserDaoTestUtil userDaoTestUtil;
 
     @BeforeAll
     void init() {
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
         userDao = new UserDao(propertySetterFactory);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
+        answersDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
+        userDaoTestUtil = new UserDaoTestUtil(sessionFactory);
     }
 
     @BeforeEach
@@ -51,8 +60,8 @@ public class UserDaoTest {
     class get_full_user {
         @Test
         void assert_correct_result() {
-            UserDaoTestUtil.createUserWithQuestionsAndAnswers(sessionFactory, UserDaoTestUtil.RESULT_SIZE, 1);
-            User user = userDao.readFullUser(UserDaoTestUtil.USERNAME);
+            questionDaoTestUtil.createManyQuestionsWithManyAnswers(UserDaoTestUtil.RESULT_SIZE, 1);
+            User user = userDao.readFullUser(UserQueryParameters.USERNAME);
             assertThat(user, notNullValue());
 
             assertThat(user.getAnswers().size(), greaterThan(0));
@@ -78,8 +87,8 @@ public class UserDaoTest {
 
         @Test
         void assert_no_duplicates() {
-            UserDaoTestUtil.createUserWithQuestionsAndAnswers(sessionFactory, UserDaoTestUtil.RESULT_SIZE, 1);
-            User user = userDao.readFullUser(UserDaoTestUtil.USERNAME);
+            questionDaoTestUtil.createManyQuestionsWithManyAnswers(UserDaoTestUtil.RESULT_SIZE, 1);
+            User user = userDao.readFullUser(UserQueryParameters.USERNAME);
             assertThat(user, notNullValue());
 
             List<Answer> answers = user.getAnswers();
@@ -105,8 +114,8 @@ public class UserDaoTest {
 
         @Test
         void assert_no_null_pointer_exception_user_created_only() {
-            UserDaoTestUtil.createUser(sessionFactory);
-            User u = userDao.readFullUser(UserDaoTestUtil.USERNAME);
+            userDaoTestUtil.createUser();
+            User u = userDao.readFullUser(UserQueryParameters.USERNAME);
             assertThat(u, notNullValue());
             assertThat(u.getQuestions(), notNullValue());
             assertThat(u.getAnswers(), notNullValue());
@@ -114,7 +123,7 @@ public class UserDaoTest {
 
         @Test
         void assert_not_found_result_equal_null() {
-            User user = userDao.readFullUser(UserDaoTestUtil.USERNAME);
+            User user = userDao.readFullUser(UserQueryParameters.USERNAME);
             assertThat(user, equalTo(null));
         }
     }
@@ -124,7 +133,7 @@ public class UserDaoTest {
 
         @Test
         void assert_correct_result() {
-            UserDaoTestUtil.createUserWithManyQuestions(sessionFactory, UserDaoTestUtil.RESULT_SIZE);
+            questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
 
             List<Question> questions = userDao.readUserQuestions(1L, 0);
             assertThat(questions, notNullValue());
@@ -138,7 +147,7 @@ public class UserDaoTest {
 
         @Test
         void assert_no_duplicates() {
-            UserDaoTestUtil.createUserWithManyQuestions(sessionFactory, (int) (UserDaoTestUtil.RESULT_SIZE * 1.5));
+            questionDaoTestUtil.createManyQuestions((int) (UserDaoTestUtil.RESULT_SIZE * 1.5));
 
             List<Question> questions1 = userDao.readUserQuestions(1L, 0);
             assertThat(questions1, notNullValue());
@@ -172,7 +181,7 @@ public class UserDaoTest {
 
         @Test
         void assert_not_found_result_questions_not_exist_equal_empty_list() {
-            UserDaoTestUtil.createUser(sessionFactory);
+            userDaoTestUtil.createUser();
             List<Question> questions = userDao.readUserQuestions(1L, 12312);
             assertThat(questions, equalTo(Collections.emptyList()));
         }
@@ -182,7 +191,7 @@ public class UserDaoTest {
     class get_user_answers {
         @Test
         void assert_correct_result() {
-            UserDaoTestUtil.createUserWithManyAnswers(sessionFactory, UserDaoTestUtil.RESULT_SIZE);
+            answersDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
 
             List<Answer> answers = userDao.readUserAnswers(1L, 0);
             assertThat(answers, notNullValue());
@@ -196,7 +205,7 @@ public class UserDaoTest {
 
         @Test
         void assert_no_duplicates() {
-            UserDaoTestUtil.createUserWithManyAnswers(sessionFactory, (int) (UserDaoTestUtil.RESULT_SIZE * 1.5));
+            answersDaoTestUtil.createManyAnswers((int) (UserDaoTestUtil.RESULT_SIZE * 1.5));
 
             List<Answer> answers1 = userDao.readUserAnswers(1L, 0);
             assertThat(answers1, notNullValue());
@@ -230,7 +239,7 @@ public class UserDaoTest {
 
         @Test
         void assert_not_found_result_answers_not_exist_equal_empty_list() {
-            UserDaoTestUtil.createUser(sessionFactory);
+            userDaoTestUtil.createUser();
             List<Answer> answers1 = userDao.readUserAnswers(1L, 0);
             assertThat(answers1, equalTo(Collections.emptyList()));
         }
