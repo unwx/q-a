@@ -5,6 +5,9 @@ import qa.util.dao.query.params.AnswerQueryParameters;
 
 public class AnswerRestTestUtil extends RestTestUtil {
 
+    private AnswerRestTestUtil() {
+    }
+
     public static JSONObject createAnswerJson() {
         JSONObject json = new JSONObject();
         json.put("question_id", 1L);

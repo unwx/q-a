@@ -110,4 +110,11 @@ public class QuestionDaoTestUtil {
                 .question()
                 .closeSession();
     }
+
+    public void createQuestionNoUser() {
+        queryBuilder
+                .openSession()
+                .question()
+                .closeSession();
+    }
 }

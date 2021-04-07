@@ -7,20 +7,22 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.json.JSONObject;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
-import qa.security.jwt.entity.JwtData;
 import qa.security.jwt.service.JwtProvider;
+import qa.util.dao.AnswerDaoTestUtil;
+import qa.util.dao.QuestionDaoTestUtil;
+import qa.util.dao.query.params.AnswerQueryParameters;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.rest.AnswerRestTestUtil;
+import qa.util.rest.JwtTestUtil;
 
 import java.math.BigInteger;
-import java.util.Date;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -29,36 +31,23 @@ import static org.hamcrest.Matchers.notNullValue;
 @WebAppConfiguration
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = SpringConfig.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class AnswerRestControllerTest {
 
-    private final SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-    private final static String defaultUserPassword = "ho3kLS4hl2dp-asd";
-    private final static String defaultUserUsername = "user471293";
-    private final static String defaultUserEmail = "yahoo@yahoo.com";
-
-    private final static String text =
-                """
-                The first line declares a variable named num, but it does not\s\
-                actually contain a primitive value yet. Instead, it contains a\s\
-                pointer (because the type is Integer which is a reference type)\s\
-                Since you have not yet said what to point to, Java sets it to nu\
-                """;
-    private final static String secondText =
-            """
-             at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:1074)
-                 at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:988)
-                 at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:974)
-                 at com.mysql.jdbc.SQLError.createSQLException(SQLError.java:919)
-                 at com.mysql.jdbc.ConnectionImpl.buildCollationMapping(ConnectionImpl.java:1062)
-                 at com.mysql.jdbc.ConnectionImpl.initializePropsFromServer(ConnectionImpl.java:3556)
-                 at com.mysql.jdbc.ConnectionImpl.connectOneTryOnly(ConnectionImpl.java:2513)
-                 at com.mysql.jdbc.ConnectionImpl.createNewIO(ConnectionImpl.java:2283)
-                 at com.mysql.jdbc.ConnectionImpl.<init>(ConnectionImpl.java:822)
-                 at com.mysql.jdbc.JDBC4Connection.<init>(JDBC4Connection.java:47)\
-             """;
+    private SessionFactory sessionFactory;
+    private QuestionDaoTestUtil questionDaoTestUtil;
+    private AnswerDaoTestUtil answerDaoTestUtil;
 
     @Autowired
     private JwtProvider jwtProvider;
+
+    @BeforeAll
+    void init() {
+        sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
+        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
+    }
 
     @BeforeEach
     void truncate() {
@@ -75,222 +64,148 @@ public class AnswerRestControllerTest {
         }
     }
 
-    @Test
-    void createAnswer_Success() {
-        JwtData data = jwtProvider.createAccess(defaultUserEmail);
-        String token = data.getToken();
-        long exp = data.getExpirationAtMillis();
-        createUserWithToken(exp);
-        createQuestionDB();
+    @Nested
+    class success {
+        @Test
+        void create() {
+            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            questionDaoTestUtil.createQuestionNoUser();
 
-        JSONObject json = createAnswerJson();
+            JSONObject json = AnswerRestTestUtil.createAnswerJson();
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.header("Authorization", "Bearer_" + token);
-        request.body(json.toString());
+            Response response = request.post("create");
+            assertThat(response.getStatusCode(), equalTo(200));
 
-        Response response = request.post("create");
-        assertThat(response.getStatusCode(), equalTo(200));
+            assertThat(getId(AnswerQueryParameters.TEXT), equalTo(Long.parseLong(response.getBody().asString())));
+        }
 
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            BigInteger result = (BigInteger) session.createSQLQuery("select id from answer where text = :text").setParameter("text", text).uniqueResult();
-            transaction.commit();
-            assertThat(result.longValue(), equalTo(Long.parseLong(response.getBody().asString())));
+        @Test
+        void edit() {
+            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            answerDaoTestUtil.createAnswerNoUser();
+
+            JSONObject json = AnswerRestTestUtil.editAnswerJson();
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+
+            Response response = request.put("edit");
+            assertThat(response.getStatusCode(), equalTo(200));
+
+            assertThat(getId(AnswerQueryParameters.SECOND_TEXT), notNullValue());
+        }
+
+        @Test
+        void delete() {
+            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            answerDaoTestUtil.createAnswerNoUser();
+
+            assertThat(getId(AnswerQueryParameters.TEXT), notNullValue());
+
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt("{\"id\":1}", token);
+
+            Response response = request.delete("delete");
+            assertThat(response.getStatusCode(), equalTo(200));
+
+            assertThat(getId(AnswerQueryParameters.TEXT), equalTo(null));
+        }
+
+        @Test
+        void answered() {
+            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            answerDaoTestUtil.createAnswerNoUser();
+
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt("{\"id\":1}", token);
+
+            Response response = request.post("answered");
+            assertThat(response.getStatusCode(), equalTo(200));
+
+            assertThat(getAnswered(), equalTo(true));
+        }
+
+        @Test
+        void removeAnswered() {
+            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            answerDaoTestUtil.createAnswerNoUser(false);
+
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt("{\"id\":1}", token);
+
+            Response response = request.post("not-answered");
+            assertThat(response.getStatusCode(), equalTo(200));
+
+            assertThat(getAnswered(), equalTo(false));
         }
     }
 
-    @Test
-    void editAnswer_Success() {
-        JwtData data = jwtProvider.createAccess(defaultUserEmail);
-        String token = data.getToken();
-        long exp = data.getExpirationAtMillis();
-        createUserWithToken(exp);
-        createAnswerDB(false);
+    @Nested
+    class access_denied {
+        @Test
+        void edit() {
+            String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+            JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.header("Authorization", "Bearer_" + token);
-        request.body(editAnswerJson().toString());
+            answerDaoTestUtil.createAnswerNoUser();
 
-        Response response = request.put("edit");
-        assertThat(response.getStatusCode(), equalTo(200));
+            JSONObject json = AnswerRestTestUtil.editAnswerJson();
 
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            Object result = session.createSQLQuery("select id from answer where text = :text").setParameter("text", secondText).uniqueResult();
-            transaction.commit();
-            assertThat(result, notNullValue());
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            Response response = request.put("edit");
+            assertThat(response.getStatusCode(), equalTo(403));
+        }
+
+        @Test
+        void answered() {
+            String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+            JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+
+            answerDaoTestUtil.createAnswerNoUser();
+
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt("{\"id\":1}", token);
+            Response response = request.post("answered");
+            assertThat(response.getStatusCode(), equalTo(403));
+        }
+
+        @Test
+        void not_answered() {
+            String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+            JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+
+            answerDaoTestUtil.createAnswerNoUser(false);
+
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt("{\"id\":1}", token);
+            Response response = request.post("not-answered");
+            assertThat(response.getStatusCode(), equalTo(403));
+        }
+
+        @Test
+        void delete() {
+            String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+            JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+
+            answerDaoTestUtil.createAnswerNoUser();
+
+            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt("{\"id\":1}", token);
+            Response response = request.delete("delete");
+            assertThat(response.getStatusCode(), equalTo(403));
         }
     }
 
-    @Test
-    void deleteAnswer_Success() {
-        JwtData data = jwtProvider.createAccess(defaultUserEmail);
-        String token = data.getToken();
-        long exp = data.getExpirationAtMillis();
-        createUserWithToken(exp);
-        createAnswerDB(false);
-
-        try(Session session = sessionFactory.openSession()) {
+    private Long getId(String text) {
+        try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            Object result = session.createSQLQuery("select id from answer where text = :text").setParameter("text", text).uniqueResult();
+            BigInteger result = (BigInteger) session.createSQLQuery("SELECT id FROM answer WHERE text = :text")
+                    .setParameter("text", text).uniqueResult();
             transaction.commit();
-            assertThat(result, notNullValue());
-        }
-
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.header("Authorization", "Bearer_" + token);
-        request.body("{\"id\":1}");
-
-        Response response = request.delete("delete");
-        assertThat(response.getStatusCode(), equalTo(200));
-
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            Object result = session.createSQLQuery("select id from answer where text = :text").setParameter("text", text).uniqueResult();
-            transaction.commit();
-            assertThat(result, equalTo(null));
+            return result == null ? null : result.longValue();
         }
     }
 
-    @Test
-    void setAnswered_Success() {
-        JwtData data = jwtProvider.createAccess(defaultUserEmail);
-        String token = data.getToken();
-        long exp = data.getExpirationAtMillis();
-        createUserWithToken(exp);
-        createAnswerDB(false);
-
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.header("Authorization", "Bearer_" + token);
-        request.body("{\"id\":1}");
-
-        Response response = request.post("answered");
-        assertThat(response.getStatusCode(), equalTo(200));
-
+    private Boolean getAnswered() {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            Boolean result = (Boolean) session.createSQLQuery("select answered from answer where text = :text").setParameter("text", text).uniqueResult();
+            Boolean result = (Boolean) session.createSQLQuery("SELECT answered FROM answer WHERE text = :text")
+                    .setParameter("text", AnswerQueryParameters.TEXT).uniqueResult();
             transaction.commit();
-            assertThat(result, equalTo(true));
-        }
-    }
-
-    @Test
-    void removeAnswered_Success() {
-        JwtData data = jwtProvider.createAccess(defaultUserEmail);
-        String token = data.getToken();
-        long exp = data.getExpirationAtMillis();
-        createUserWithToken(exp);
-        createAnswerDB(true);
-
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.header("Authorization", "Bearer_" + token);
-        request.body("{\"id\":1}");
-
-        Response response = request.post("not-answered");
-        assertThat(response.getStatusCode(), equalTo(200));
-
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            Boolean result = (Boolean) session.createSQLQuery("select answered from answer where text = :text").setParameter("text", text).uniqueResult();
-            transaction.commit();
-            assertThat(result, equalTo(false));
-        }
-    }
-
-    @Test
-    void notRealAuthor_AccessDenied() {
-        JwtData data = jwtProvider.createAccess("second@yahoo.com");
-        String token = data.getToken();
-        long exp = data.getExpirationAtMillis();
-        createSecondUserWithToken(exp);
-        createUserWithToken(1L);
-        createAnswerDB(false);
-
-        RequestSpecification request = RestAssured.given();
-        request.header("Content-Type", "application/json");
-        request.header("Authorization", "Bearer_" + token);
-        request.body(editAnswerJson().toString());
-
-        Response response = request.put("edit");
-        assertThat(response.getStatusCode(), equalTo(403));
-
-        request.body("{\"id\":1}");
-
-        Response response1Del = request.delete("delete");
-        assertThat(response1Del.getStatusCode(), equalTo(403));
-
-        Response response2Answered = request.post("answered");
-        assertThat(response2Answered.getStatusCode(), equalTo(403));
-
-        Response response3NotAnswered = request.post("not-answered");
-        assertThat(response3NotAnswered.getStatusCode(), equalTo(403));
-    }
-
-    private JSONObject createAnswerJson() {
-        JSONObject json = new JSONObject();
-        json.put("question_id", 1L);
-        json.put("text", text);
-        return json;
-    }
-
-    private JSONObject editAnswerJson() {
-        JSONObject json = new JSONObject();
-        json.put("id", 1L);
-        json.put("text", secondText);
-        return json;
-    }
-
-    private void createUserWithToken(long tokenExp) {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createSQLQuery("insert into usr (id, about, username) values (1, null, '%s')".formatted(defaultUserUsername)).executeUpdate();
-            session.createSQLQuery(
-                    "insert into authentication (id, access_token_exp_date, email, enabled, password, refresh_token_exp_date, user_id)" +
-                            " values (1, %s, '%s', true, '%s', 1, 1)".formatted(tokenExp, defaultUserEmail, defaultUserPassword)).executeUpdate();
-            session.createSQLQuery("insert into user_role (auth_id, roles) values (1, 'USER')").executeUpdate();
-            transaction.commit();
-        }
-    }
-
-    private void createSecondUserWithToken(long tokenExp) {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createSQLQuery("insert into usr (id, about, username) values (2, null, '%s')".formatted("user987654231")).executeUpdate();
-            session.createSQLQuery(
-                    "insert into authentication (id, access_token_exp_date, email, enabled, password, refresh_token_exp_date, user_id)" +
-                            " values (2, %s, '%s', true, '%s', 1, 2)".formatted(tokenExp, "second@yahoo.com", defaultUserPassword)).executeUpdate();
-            session.createSQLQuery("insert into user_role (auth_id, roles) values (2, 'USER')").executeUpdate();
-            transaction.commit();
-        }
-    }
-
-    private void createAnswerDB(Boolean answered) {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createSQLQuery("" +
-                    "insert into question (id, creation_date, last_activity, tags, text, title, author_id) " +
-                    "values (1, '%s', '%s', 'java, etc', 'text dsfdsfdsf', 'title dgfsdf', 1)".formatted(new Date(), new Date())).executeUpdate();
-            session.createSQLQuery(
-                    "insert into answer (id, answered, creation_date, text, author_id, question_id)" +
-                    " values (1, %s, '%s', '%s', 1, 1)".formatted(answered, new Date(), text)).executeUpdate();
-            transaction.commit();
-        }
-    }
-
-    private void createQuestionDB() {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createSQLQuery("" +
-                    "insert into question (id, creation_date, last_activity, tags, text, title, author_id) " +
-                    "values (1, '%s', '%s', 'java, etc', '%s', '%s', 1)".formatted(new Date(), new Date(), "text", "title")).executeUpdate();
-            transaction.commit();
+            return result;
         }
     }
 }

@@ -24,6 +24,22 @@ public class AnswerDaoTestUtil {
                 .closeSession();
     }
 
+    public void createAnswerNoUser(Boolean answered) {
+        queryBuilder
+                .openSession()
+                .question()
+                .answer(1L, answered)
+                .closeSession();
+    }
+
+    public void createAnswerNoUser() {
+        queryBuilder
+                .openSession()
+                .question()
+                .answer(1L)
+                .closeSession();
+    }
+
     public void createManyAnswers(int answers) {
         queryBuilder
                 .openSession()

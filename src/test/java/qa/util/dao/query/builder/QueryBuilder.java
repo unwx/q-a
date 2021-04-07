@@ -105,6 +105,14 @@ public class QueryBuilder {
     }
 
     public QueryBuilder answer(Long id,
+                               Boolean answered) {
+        answerQueryBuilder
+                .with(session)
+                .answer(id, answered);
+        return this;
+    }
+
+    public QueryBuilder answer(Long id,
                                Long questionId,
                                Date date) {
         answerQueryBuilder

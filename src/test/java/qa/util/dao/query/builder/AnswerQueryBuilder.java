@@ -55,6 +55,17 @@ public class AnswerQueryBuilder implements SessionInitializer {
     }
 
     public void answer(Long id,
+                       Boolean answered) {
+        createAnswerQuery(
+                id,
+                answered,
+                AnswerQueryParameters.DATE,
+                AnswerQueryParameters.TEXT,
+                AnswerQueryParameters.QUESTION_ID,
+                session).executeUpdate();
+    }
+
+    public void answer(Long id,
                        Date date) {
         createAnswerQuery(
                 id,
