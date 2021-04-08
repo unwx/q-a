@@ -4,6 +4,7 @@ import org.hibernate.transform.ResultTransformer;
 import qa.dto.internal.hibernate.AliasUtil;
 import qa.dto.internal.hibernate.answer.AnswerCommentDto;
 import qa.dto.internal.hibernate.answer.AnswerFullDto;
+import qa.exceptions.dao.NullResultException;
 
 import java.io.Serial;
 import java.math.BigInteger;
@@ -24,7 +25,7 @@ public class QuestionAnswerFullDtoTransformer implements ResultTransformer {
     public Object transformTuple(Object[] objects, String[] strings) {
         Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
         if (objects[aliasToIndexMap.get(AnswerFullDto.ID)] == null)
-            return null;
+            throw new NullResultException("answers not exist");
 
         Long answerId = ((BigInteger) objects[aliasToIndexMap.get(AnswerFullDto.ID)]).longValue();
         AnswerFullDto dto = dtoMap.computeIfAbsent(answerId, id -> new AnswerFullDto(objects, aliasToIndexMap));

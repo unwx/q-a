@@ -19,6 +19,7 @@ import qa.dto.internal.hibernate.transformer.question.QuestionAnswerFullDtoTrans
 import qa.dto.internal.hibernate.transformer.question.QuestionCommentDtoTransformer;
 import qa.dto.internal.hibernate.transformer.question.QuestionViewDtoTransformer;
 import qa.dto.internal.hibernate.transformer.question.QuestionWithCommentsDtoTransformer;
+import qa.exceptions.dao.NullResultException;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.util.ArrayList;
@@ -58,6 +59,12 @@ public class QuestionDao extends DaoImpl<Question> {
 
     @Nullable
     public Question getFullQuestion(Long questionId) {
+
+        /*
+         *  if question not exist: - return null
+         *  if answers not exist: NullResultException - return question with answers (empty list)
+         */
+
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
 
@@ -66,7 +73,13 @@ public class QuestionDao extends DaoImpl<Question> {
                 transaction.rollback();
                 return null;
             }
-            List<Answer> answers = convertDtoToAnswerList(getQuestionAnswersWithCommentsQuery(session, questionId).list());
+
+            List<Answer> answers = new ArrayList<>();
+            try {
+                answers = convertDtoToAnswerList(getQuestionAnswersWithCommentsQuery(session, questionId).list());
+            }
+            catch (NullResultException ignored) {}
+
             transaction.commit();
             Question question = convertDtoToQuestion(questionResult, questionId);
             question.setAnswers(answers);
@@ -84,23 +97,65 @@ public class QuestionDao extends DaoImpl<Question> {
         }
     }
 
-    @NotNull
+    @Nullable
     public List<CommentQuestion> getQuestionComments(Long questionId, int page) {
+
+        /*
+         *  if question not exist: comments.size() = 0; (NullResultException will not be thrown) - return null
+         *  if comments not exist: NullResultException - return empty list.
+         *  if exist: return result.
+         */
+
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            List<QuestionCommentDto> commentsResult = getQuestionCommentsQuery(session, questionId, page).list();
+            List<CommentQuestion> comments = new ArrayList<>();
+
+            try {
+                comments = convertDtoToCommentQuestionList(getQuestionCommentsQuery(session, questionId, page).list());
+            }
+            catch (NullResultException ex) { // comments not exist
+                transaction.rollback();
+                return comments;
+            }
+
+            if (comments.isEmpty()) { // question not exist
+                transaction.rollback();
+                return null;
+            }
+
             transaction.commit();
-            return convertDtoToCommentQuestionList(commentsResult);
+            return comments;
         }
     }
 
-    @NotNull
-    public List<Answer> getQuestionAnswer(Long questionId, int page) {
+    @Nullable
+    public List<Answer> getQuestionAnswers(Long questionId, int page) {
+
+        /*
+         *  if question not exist: answers.size() = 0; (NullResultException will not be thrown) - return null
+         *  if answers not exist: NullResultException - return empty list.
+         *  if exist: return result.
+         */
+
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            List<AnswerFullDto> answerResult = getQuestionAnswersWithCommentsQuery(session, questionId, page).list();
+            List<Answer> answers = new ArrayList<>();
+
+            try {
+                answers = convertDtoToAnswerList(getQuestionAnswersWithCommentsQuery(session, questionId, page).list());
+            }
+            catch (NullResultException ex) {
+                transaction.rollback();
+                return answers;
+            }
+
+            if (answers.isEmpty()) {
+                transaction.rollback();
+                return null;
+            }
+
             transaction.commit();
-            return convertDtoToAnswerList(answerResult);
+            return answers;
         }
     }
 
@@ -125,7 +180,7 @@ public class QuestionDao extends DaoImpl<Question> {
                      INNER JOIN usr AS u ON c.author_id = u.id\s\
                      WHERE c.question_id = ques.id\s\
                      ORDER BY c.creation_date\s\
-                     LIMIT :commentRN\s\
+                     LIMIT :commentLimit\s\
                      ) AS ques_comm ON TRUE\s\
                  INNER JOIN usr AS u ON ques.author_id = u.id\s\
                  WHERE ques.id = :questionId\
@@ -133,7 +188,7 @@ public class QuestionDao extends DaoImpl<Question> {
         return session.createSQLQuery(sql)
                 .unwrap(Query.class)
                 .setParameter(QUESTION_ID_PARAMETER, questionId)
-                .setParameter("commentRN", COMMENT_RESULT_SIZE)
+                .setParameter("commentLimit", COMMENT_RESULT_SIZE)
                 .setResultTransformer(new QuestionWithCommentsDtoTransformer());
     }
 
@@ -209,19 +264,26 @@ public class QuestionDao extends DaoImpl<Question> {
     private Query<QuestionCommentDto> getQuestionCommentsQuery(Session session, Long questionId, int page) {
         String getQuestionCommentsSql =
                 """
-                SELECT c.id AS que_c_id, c.text AS que_c_text, c.creation_date AS que_c_c_date,\s\
-                u.username AS que_c_u_username\s\
-                FROM comment AS c\s\
-                INNER JOIN usr AS u ON c.author_id = u.id\s\
-                INNER JOIN question AS q ON c.question_id = q.id\s\
-                WHERE q.id = :questionId AND c.comment_type = 'question'\s\
-                ORDER BY c.creation_date DESC\
+                SELECT\s\
+                    c.id AS que_c_id, c.text AS que_c_text, c.creation_date AS que_c_c_date,\s\
+                    c.username AS que_c_u_username\s\
+                FROM question AS q\s\
+                LEFT JOIN LATERAL\s\
+                    (\
+                    SELECT c.id, c.text, c.creation_date, u.username\s\
+                    FROM comment AS c\s\
+                    INNER JOIN usr AS u ON c.author_id = u.id\s\
+                    WHERE c.question_id = q.id\s\
+                    ORDER BY c.creation_date\s\
+                    LIMIT :limit OFFSET :offset\s\
+                    ) AS c ON TRUE\s\
+                WHERE q.id = :questionId\
                 """;
         return session.createSQLQuery(getQuestionCommentsSql)
                 .unwrap(Query.class)
                 .setParameter(QUESTION_ID_PARAMETER, questionId)
-                .setFirstResult(page * COMMENT_RESULT_SIZE)
-                .setMaxResults(COMMENT_RESULT_SIZE)
+                .setParameter("limit", COMMENT_RESULT_SIZE)
+                .setParameter("offset", page * COMMENT_RESULT_SIZE)
                 .setResultTransformer(new QuestionCommentDtoTransformer());
     }
 

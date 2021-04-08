@@ -180,6 +180,7 @@ public class QuestionDaoTest {
             questionDaoTestUtil.createQuestionWithComments((int) (QuestionDaoTestUtil.COMMENT_RESULT_SIZE * 1.5));
             for (int i = 0; i < 2; i++) {
                 List<CommentQuestion> comments = questionDao.getQuestionComments(1L, i);
+                assertThat(comments, notNullValue());
                 for (int y = 0; y < comments.size(); y++) {
                     assertThat(comments, notNullValue());
                     assertThat(comments.get(y), notNullValue());
@@ -214,10 +215,18 @@ public class QuestionDaoTest {
             assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
         }
 
-        @Test
-        void assert_not_found_result_equal_empty_list() {
-            assertThat(questionDao.getQuestionComments(123L, 0), equalTo(Collections.emptyList()));
-            assertThat(questionDao.getQuestionComments(1L, 234234), equalTo(Collections.emptyList()));
+        @Nested
+        class no_result {
+            @Test
+            void assert_result_equal_null_question_not_exist() {
+                assertThat(questionDao.getQuestionComments(1L, 1), equalTo(null));
+            }
+
+            @Test
+            void assert_result_equal_empty_list_question_exist() {
+                questionDaoTestUtil.createQuestion();
+                assertThat(questionDao.getQuestionComments(1L, 1), equalTo(Collections.emptyList()));
+            }
         }
     }
 
@@ -230,7 +239,7 @@ public class QuestionDaoTest {
                     QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
 
             for (int i = 0; i < 2; i++) {
-                List<Answer> answers = questionDao.getQuestionAnswer(1L, i);
+                List<Answer> answers = questionDao.getQuestionAnswers(1L, i);
                 assertThat(answers, notNullValue());
                 for (Answer a : answers) {
                     assertThat(a, notNullValue());
@@ -262,8 +271,8 @@ public class QuestionDaoTest {
                     (int) (QuestionDaoTestUtil.RESULT_SIZE * 1.5),
                     QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
 
-            List<Answer> answers1 = questionDao.getQuestionAnswer(1L, 0);
-            List<Answer> answers2 = questionDao.getQuestionAnswer(1L, 1);
+            List<Answer> answers1 = questionDao.getQuestionAnswers(1L, 0);
+            List<Answer> answers2 = questionDao.getQuestionAnswers(1L, 1);
             assertThat(answers1, notNullValue());
             assertThat(answers2, notNullValue());
 
@@ -282,27 +291,18 @@ public class QuestionDaoTest {
             assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
         }
 
-        @Test
-        void assert_not_found_result_equal_empty_list() {
-            List<Answer> answers1 = questionDao.getQuestionAnswer(1L, 123123);
-            List<Answer> answers2 = questionDao.getQuestionAnswer(1123123L, 1);
-            assertThat(answers1, equalTo(Collections.emptyList()));
-            assertThat(answers2, equalTo(Collections.emptyList()));
-        }
+        @Nested
+        class no_result {
+            @Test
+            void assert_result_equal_null_question_not_exist() {
+                assertThat(questionDao.getQuestionAnswers(1L, 1), equalTo(null));
+            }
 
-        @Test
-        void assert_no_null_pointer_exception_question_created_only() {
-            questionDaoTestUtil.createQuestion();
-            List<Answer> a = questionDao.getQuestionAnswer(1L, 1);
-            assertThat(a, equalTo(Collections.emptyList()));
-        }
-
-        @Test
-        void assert_no_null_pointer_exception_question_answer_created_only() {
-            answerDaoTestUtil.createAnswer();
-            List<Answer> a1 = questionDao.getQuestionAnswer(1L, 0);
-            assertThat(a1, notNullValue());
-            assertThat(a1.size(), equalTo(1));
+            @Test
+            void assert_result_equal_empty_list_question_exist() {
+                questionDaoTestUtil.createQuestion();
+                assertThat(questionDao.getQuestionAnswers(1L, 1), equalTo(Collections.emptyList()));
+            }
         }
     }
 

@@ -3,6 +3,7 @@ package qa.dto.internal.hibernate.transformer.question;
 import org.hibernate.transform.ResultTransformer;
 import qa.dto.internal.hibernate.AliasUtil;
 import qa.dto.internal.hibernate.question.QuestionCommentDto;
+import qa.exceptions.dao.NullResultException;
 
 import java.io.Serial;
 import java.math.BigInteger;
@@ -22,6 +23,9 @@ public class QuestionCommentDtoTransformer implements ResultTransformer {
     @Override
     public Object transformTuple(Object[] objects, String[] strings) {
         Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
+
+        if (objects[aliasToIndexMap.get(QuestionCommentDto.ID)] == null)
+            throw new NullResultException("comments not exist");
 
         Long id = ((BigInteger) objects[aliasToIndexMap.get(QuestionCommentDto.ID)]).longValue();
         return dtoMap.computeIfAbsent(id, i -> new QuestionCommentDto(objects, aliasToIndexMap));
