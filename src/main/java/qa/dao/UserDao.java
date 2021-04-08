@@ -4,7 +4,6 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,6 +17,7 @@ import qa.dto.internal.hibernate.transformer.user.UserQuestionDtoTransformer;
 import qa.dto.internal.hibernate.user.UserAnswerDto;
 import qa.dto.internal.hibernate.user.UserFullDto;
 import qa.dto.internal.hibernate.user.UserQuestionDto;
+import qa.exceptions.dao.NullResultException;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.util.ArrayList;
@@ -56,24 +56,64 @@ public class UserDao extends DaoImpl<User> {
         }
     }
 
-    @NotNull
+    @Nullable
     public List<Question> readUserQuestions(long userId, int page) {
+
+        /*
+         *  if user not exist: questions.size() = 0; (NullResultException will not be thrown) - return null
+         *  if questions not exist: NullResultException - return empty list.
+         *  if exist: return result.
+         */
+
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            List<Question> questions = convertDtoToQuestion(readQuestionsQuery(session, userId, page).list());
-            transaction.commit();
+            List<Question> questions = new ArrayList<>();
 
+            try {
+                questions = convertDtoToQuestion(readQuestionsQuery(session, userId, page).getResultList());
+            }
+            catch (NullResultException ex) { // questions not exist
+                transaction.rollback();
+                return questions;
+            }
+
+            if (questions.isEmpty()) { // author not exist
+                transaction.rollback();
+                return null;
+            }
+
+            transaction.commit();
             return questions;
         }
     }
 
-    @NotNull
+    @Nullable
     public List<Answer> readUserAnswers(long userId, int page) {
+
+        /*
+         *  if user not exist: answers.size() = 0; (NullResultException will not be thrown) - return null
+         *  if answers not exist: NullResultException - return empty list.
+         *  if exist: return result.
+         */
+
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            List<Answer> answers = convertDtoToAnswers(readAnswersQuery(session, userId, page).list());
-            transaction.commit();
+            List<Answer> answers = new ArrayList<>();
 
+            try {
+                answers = convertDtoToAnswers(readAnswersQuery(session, userId, page).list());
+            }
+            catch (NullResultException ex) { // answers not exist
+                transaction.rollback();
+                return answers;
+            }
+
+            if (answers.isEmpty()) { // author not exist
+                transaction.rollback();
+                return null;
+            }
+
+            transaction.commit();
             return answers;
         }
     }
@@ -87,20 +127,20 @@ public class UserDao extends DaoImpl<User> {
                     a.id AS usr_a_id, a.text AS usr_a_text,\s\
                     q.id AS usr_q_id, q.title AS usr_q_title\s\
                 FROM usr AS u\s\
-                LEFT JOIN LATERAL 
+                LEFT JOIN LATERAL\s\
                     (SELECT id, SUBSTRING(a.text, 1, 50) AS text, author_id\s\
                     FROM answer AS a\s\
-                    WHERE author_id = u.id LIMIT :RN) AS a ON TRUE
-                LEFT JOIN LATERAL 
+                    WHERE author_id = u.id LIMIT :limit) AS a ON TRUE\s\
+                LEFT JOIN LATERAL\s\
                     (SELECT id, title, author_id\s\
                     FROM question AS q\s\
-                    WHERE a.author_id = u.id LIMIT :RN) AS q ON TRUE
-                WHERE u.username = :username   
+                    WHERE a.author_id = u.id LIMIT :limit) AS q ON TRUE\s\
+                WHERE u.username = :username\
                 """;
         return session.createSQLQuery(getFullUserSql)
                 .unwrap(Query.class)
                 .setParameter("username", username)
-                .setParameter("RN", resultSize)
+                .setParameter("limit", resultSize)
                 .setResultTransformer(new UserFullDtoTransformer());
     }
 
@@ -108,17 +148,25 @@ public class UserDao extends DaoImpl<User> {
     private Query<UserQuestionDto> readQuestionsQuery(Session session, long userId, int page) {
         String getUserLastQuestions =
                 """
-                SELECT q.id as usr_q_id, q.title AS usr_q_title FROM question AS q\s\
-                INNER JOIN usr AS u ON q.author_id = u.id\s\
+                SELECT\s\
+                    q.id AS usr_q_id, q.title AS usr_q_title\s\
+                FROM usr AS u\s\
+                LEFT JOIN LATERAL\s\
+                    (\
+                    SELECT id, title, author_id\s\
+                    FROM question\s\
+                    WHERE author_id = u.id\s\
+                    ORDER BY last_activity DESC\s\
+                    LIMIT :limit OFFSET :offset\s\
+                    ) AS q ON TRUE\s\
                 WHERE u.id = :userId\s\
-                ORDER BY q.last_activity DESC\
                 """;
         return session
                 .createSQLQuery(getUserLastQuestions)
                 .unwrap(Query.class)
                 .setParameter("userId", userId)
-                .setFirstResult(page * resultSize)
-                .setMaxResults(resultSize)
+                .setParameter("limit", resultSize)
+                .setParameter("offset", page * resultSize)
                 .setResultTransformer(new UserQuestionDtoTransformer());
     }
 
@@ -126,17 +174,26 @@ public class UserDao extends DaoImpl<User> {
     private Query<UserAnswerDto> readAnswersQuery(Session session, long userId, int page) {
         String getUserLastAnswers =
                 """
-                SELECT a.id AS usr_a_id, substring(a.text, 1, 50) AS usr_a_text FROM answer AS a\s\
-                INNER JOIN usr AS u ON a.author_id = u.id\s\
+                SELECT\s\
+                    a.id AS usr_a_id, a.s_text AS usr_a_text\s\
+                FROM usr AS u\s\
+                LEFT JOIN LATERAL\s\
+                    (\
+                    SELECT id, SUBSTRING(text, 1, 50) AS s_text, author_id AS text\s\
+                    FROM answer\s\
+                    WHERE author_id = u.id\s\
+                    ORDER BY creation_date DESC\s\
+                    LIMIT :limit OFFSET :offset\s\
+                    ) AS a ON TRUE\s\
                 WHERE u.id = :userId\s\
-                ORDER BY a.creation_date DESC\
                 """;
+
         return session
                 .createSQLQuery(getUserLastAnswers)
                 .unwrap(Query.class)
                 .setParameter("userId", userId)
-                .setFirstResult(page * resultSize)
-                .setMaxResults(resultSize)
+                .setParameter("limit", resultSize)
+                .setParameter("offset", page * resultSize)
                 .setResultTransformer(new UserAnswerDtoTransformer());
     }
 

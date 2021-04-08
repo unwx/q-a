@@ -176,7 +176,7 @@ public class UserDaoTest {
         @Test
         void assert_not_found_result_user_not_exist_equal_empty_list() {
             List<Question> questions = userDao.readUserQuestions(1L, 0);
-            assertThat(questions, equalTo(Collections.emptyList()));
+            assertThat(questions, equalTo(null));
         }
 
         @Test
@@ -234,7 +234,7 @@ public class UserDaoTest {
         @Test
         void assert_not_found_result_user_not_exist_equal_empty_list() {
             List<Answer> answers = userDao.readUserAnswers(1L, 0);
-            assertThat(answers, equalTo(Collections.emptyList()));
+            assertThat(answers, equalTo(null));
         }
 
         @Test

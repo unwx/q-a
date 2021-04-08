@@ -3,6 +3,7 @@ package qa.dto.internal.hibernate.transformer.user;
 import org.hibernate.transform.ResultTransformer;
 import qa.dto.internal.hibernate.AliasUtil;
 import qa.dto.internal.hibernate.user.UserAnswerDto;
+import qa.exceptions.dao.NullResultException;
 
 import java.io.Serial;
 import java.math.BigInteger;
@@ -22,6 +23,9 @@ public class UserAnswerDtoTransformer implements ResultTransformer {
     @Override
     public Object transformTuple(Object[] objects, String[] strings) {
         Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
+
+        if (objects[aliasToIndexMap.get(UserAnswerDto.ID)] == null)
+            throw new NullResultException("answers not exist");
 
         Long id = ((BigInteger) objects[aliasToIndexMap.get(UserAnswerDto.ID)]).longValue();
         return dtoMap.computeIfAbsent(id, i -> new UserAnswerDto(objects, aliasToIndexMap));
