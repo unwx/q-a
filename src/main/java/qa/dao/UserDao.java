@@ -128,13 +128,13 @@ public class UserDao extends DaoImpl<User> {
                     q.id AS usr_q_id, q.title AS usr_q_title\s\
                 FROM usr AS u\s\
                 LEFT JOIN LATERAL\s\
-                    (SELECT id, SUBSTRING(a.text, 1, 50) AS text, author_id\s\
+                    (SELECT id, SUBSTRING(a.text, 1, 50) AS text\s\
                     FROM answer AS a\s\
                     WHERE author_id = u.id LIMIT :limit) AS a ON TRUE\s\
                 LEFT JOIN LATERAL\s\
-                    (SELECT id, title, author_id\s\
+                    (SELECT id, title\s\
                     FROM question AS q\s\
-                    WHERE a.author_id = u.id LIMIT :limit) AS q ON TRUE\s\
+                    WHERE author_id = u.id LIMIT :limit) AS q ON TRUE\s\
                 WHERE u.username = :username\
                 """;
         return session.createSQLQuery(getFullUserSql)
@@ -153,7 +153,7 @@ public class UserDao extends DaoImpl<User> {
                 FROM usr AS u\s\
                 LEFT JOIN LATERAL\s\
                     (\
-                    SELECT id, title, author_id\s\
+                    SELECT id, title\s\
                     FROM question\s\
                     WHERE author_id = u.id\s\
                     ORDER BY last_activity DESC\s\
@@ -179,7 +179,7 @@ public class UserDao extends DaoImpl<User> {
                 FROM usr AS u\s\
                 LEFT JOIN LATERAL\s\
                     (\
-                    SELECT id, SUBSTRING(text, 1, 50) AS s_text, author_id AS text\s\
+                    SELECT id, SUBSTRING(text, 1, 50) AS s_text\s\
                     FROM answer\s\
                     WHERE author_id = u.id\s\
                     ORDER BY creation_date DESC\s\

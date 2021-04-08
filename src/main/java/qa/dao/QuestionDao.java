@@ -175,7 +175,7 @@ public class QuestionDao extends DaoImpl<Question> {
                  FROM question AS ques\s\
                  LEFT JOIN LATERAL\s\
                      (\
-                     SELECT c.id, c.text, c.creation_date, c.question_id, c.author_id, u.username\s\
+                     SELECT c.id, c.text, c.creation_date, c.author_id, u.username\s\
                      FROM comment AS c\s\
                      INNER JOIN usr AS u ON c.author_id = u.id\s\
                      WHERE c.question_id = ques.id\s\
@@ -210,7 +210,7 @@ public class QuestionDao extends DaoImpl<Question> {
                 FROM question AS ques\s\
                 LEFT JOIN LATERAL\s\
                     (\
-                    SELECT a.id, a.text, a.answered, a.creation_date, a.question_id, a.author_id, u.username\s\
+                    SELECT a.id, a.text, a.answered, a.creation_date, a.author_id, u.username\s\
                     FROM answer AS a\s\
                     INNER JOIN usr AS u ON a.author_id = u.id\s\
                     WHERE a.question_id = ques.id\s\
@@ -219,7 +219,7 @@ public class QuestionDao extends DaoImpl<Question> {
                     ) AS answ ON TRUE\s\
                 LEFT JOIN LATERAL \s\
                     (\
-                    SELECT c.id, c.text, c.creation_date, c.answer_id, c.author_id, u.username\s\
+                    SELECT c.id, c.text, c.creation_date, c.author_id, u.username\s\
                     FROM comment AS c\s\
                     INNER JOIN usr AS u ON c.author_id = u.id\s\
                     WHERE c.answer_id = answ.id\s\
