@@ -14,8 +14,8 @@ import qa.dao.query.QuestionQueryFactory;
 import qa.domain.Answer;
 import qa.domain.CommentQuestion;
 import qa.domain.Question;
+import qa.domain.QuestionView;
 import qa.domain.setters.PropertySetterFactory;
-import qa.dto.internal.hibernate.question.QuestionViewDto;
 import qa.dto.internal.hibernate.question.QuestionWithCommentsDto;
 import qa.exceptions.dao.NullResultException;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
@@ -88,12 +88,15 @@ public class QuestionDao extends DaoImpl<Question> {
     }
 
     @NotNull
-    public List<QuestionViewDto> getQuestionViewsDto(int page) {
+    public List<QuestionView> getQuestionViewsDto(int page) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            List<QuestionViewDto> views = questionQueryFactory
-                    .questionsViewsQuery(session, page)
-                    .list();
+            List<QuestionView> views = questionQueryFactory
+                    .getConvertor()
+                    .dtoToQuestionViewList(questionQueryFactory
+                            .questionsViewsQuery(session, page)
+                            .list()
+                    );
             transaction.commit();
             return views;
         }

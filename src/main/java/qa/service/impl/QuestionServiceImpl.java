@@ -10,16 +10,14 @@ import qa.dao.QuestionDao;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.domain.Question;
+import qa.domain.QuestionView;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.question.*;
 import qa.dto.response.question.QuestionCommentResponse;
 import qa.dto.response.question.QuestionFullResponse;
 import qa.dto.response.question.QuestionViewResponse;
-import qa.dto.validation.wrapper.question.QuestionCreateRequestValidationWrapper;
-import qa.dto.validation.wrapper.question.QuestionDeleteRequestValidationWrapper;
-import qa.dto.validation.wrapper.question.QuestionEditRequestValidationWrapper;
-import qa.dto.validation.wrapper.question.QuestionGetFullRequestValidationWrapper;
+import qa.dto.validation.wrapper.question.*;
 import qa.service.QuestionService;
 import qa.source.ValidationPropertyDataSource;
 import qa.util.QuestionTagsUtil;
@@ -28,6 +26,7 @@ import qa.util.user.AuthorUtil;
 import qa.util.user.PrincipalUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -70,12 +69,12 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public ResponseEntity<List<QuestionViewResponse>> getQuestions(Integer page) {
-        return null;
+        return new ResponseEntity<>(getQuestionsProcess(page), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<List<QuestionViewResponse>> getQuestions(QuestionGetViewsRequest request) {
-        return null;
+        return new ResponseEntity<>(getQuestionsProcess(request), HttpStatus.OK);
     }
 
     @Override
@@ -115,6 +114,16 @@ public class QuestionServiceImpl implements QuestionService {
         deleteQuestionById(request.getQuestionId());
     }
 
+    private List<QuestionViewResponse> getQuestionsProcess(Integer page) {
+        return getQuestionsProcess(new QuestionGetViewsRequest(page));
+    }
+
+    private List<QuestionViewResponse> getQuestionsProcess(QuestionGetViewsRequest request) {
+        validate(request);
+        List<QuestionView> views = getQuestionViewsFromDatabase(request.getPage());
+        return convertDtoToResponse(views);
+    }
+
     private Long saveNewQuestion(QuestionCreateRequest request, Authentication authentication) {
         Question question = new Question.Builder()
                 .creationDate(new Date())
@@ -127,7 +136,7 @@ public class QuestionServiceImpl implements QuestionService {
         return questionDao.create(question);
     }
 
-    private void checkIsRealAuthor(Long id, Authentication authentication) {
+    private void checkIsRealAuthor(long id, Authentication authentication) {
         AuthorUtil.checkIsRealAuthorAndIsEntityExist(
                 PrincipalUtil.getUserIdFromAuthentication(authentication),
                 new Where("id", id, WhereOperator.EQUALS),
@@ -149,8 +158,27 @@ public class QuestionServiceImpl implements QuestionService {
         );
     }
 
-    private void deleteQuestionById(Long questionId) {
+    private void deleteQuestionById(long questionId) {
         questionDao.delete(new Where("id", questionId, WhereOperator.EQUALS));
+    }
+
+    private List<QuestionView> getQuestionViewsFromDatabase(int page) {
+        return questionDao.getQuestionViewsDto(page - 1);
+    }
+
+    private List<QuestionViewResponse> convertDtoToResponse(List<QuestionView> views) {
+        List<QuestionViewResponse> viewsResponse = new ArrayList<>(views.size());
+        views.forEach((v) -> viewsResponse.add(
+                new QuestionViewResponse(
+                        v.getQuestionId(),
+                        v.getTitle(),
+                        QuestionTagsUtil.stringToTags(v.getTags()),
+                        v.getCreationDate(),
+                        v.getLastActivity(),
+                        v.getAnswersCount(),
+                        v.getAuthor())
+        ));
+        return viewsResponse;
     }
 
     private void validate(QuestionCreateRequest request) {
@@ -163,6 +191,10 @@ public class QuestionServiceImpl implements QuestionService {
 
     private void validate(QuestionDeleteRequest request) {
         ValidationUtil.validate(new QuestionDeleteRequestValidationWrapper(request), validationChain);
+    }
+
+    private void validate(QuestionGetViewsRequest request) {
+        ValidationUtil.validate(new QuestionGetViewsRequestValidationWrapper(request), validationChain);
     }
 
     private void validate(QuestionGetFullRequest request) {

@@ -1,5 +1,7 @@
 package qa.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -14,6 +16,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
+import qa.dto.response.question.QuestionViewResponse;
 import qa.security.jwt.service.JwtProvider;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.query.params.QuestionQueryParameters;
@@ -22,6 +25,7 @@ import qa.util.rest.JwtTestUtil;
 import qa.util.rest.QuestionRestTestUtil;
 
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -61,109 +65,194 @@ public class QuestionRestControllerTest {
     }
 
     @Nested
-    class success {
-        @Test
-        void create() {
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-            JSONObject json = QuestionRestTestUtil.createQuestionJson();
-            RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
+    class CUD {
+        @Nested
+        class success {
+            @Test
+            void create() {
+                String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+                JSONObject json = QuestionRestTestUtil.createQuestionJson();
+                RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.post("create");
-            assertThat(response.getStatusCode(), equalTo(200));
+                Response response = request.post("create");
+                assertThat(response.getStatusCode(), equalTo(200));
 
-            String body = response.getBody().asString();
-            assertThat(body.length(), greaterThan(0));
+                String body = response.getBody().asString();
+                assertThat(body.length(), greaterThan(0));
 
-            assertThat(getId(QuestionQueryParameters.TEXT), notNullValue());
+                assertThat(getId(QuestionQueryParameters.TEXT), notNullValue());
+            }
+
+            @Test
+            void edit() {
+                String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+                questionDaoTestUtil.createQuestionNoUser();
+                JSONObject json = QuestionRestTestUtil.editQuestionJson();
+
+                RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
+
+                Response response = request.put("edit");
+                assertThat(response.getStatusCode(), equalTo(200));
+
+                assertThat(getId(QuestionQueryParameters.SECOND_TEXT), notNullValue());
+            }
+
+            @Test
+            void delete() {
+                String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+                questionDaoTestUtil.createQuestionNoUser();
+                JSONObject json = QuestionRestTestUtil.id();
+                RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
+
+                Response response = request.delete("delete");
+                assertThat(response.getStatusCode(), equalTo(200));
+
+                assertThat(getId(QuestionQueryParameters.TEXT), equalTo(null));
+            }
         }
 
-        @Test
-        void edit() {
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-            questionDaoTestUtil.createQuestionNoUser();
-            JSONObject json = QuestionRestTestUtil.editQuestionJson();
+        @Nested
+        class bad_request {
+            @Test
+            void create() {
+                String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+                JSONObject json = QuestionRestTestUtil.createBADQuestionJson();
+                RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
+                Response response = request.post("create");
+                assertThat(response.getStatusCode(), equalTo(400));
+            }
 
-            Response response = request.put("edit");
-            assertThat(response.getStatusCode(), equalTo(200));
+            @Test
+            void edit() {
+                String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+                JSONObject json = QuestionRestTestUtil.editBADQuestionJson();
+                RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            assertThat(getId(QuestionQueryParameters.SECOND_TEXT), notNullValue());
+                Response response = request.put("edit");
+                assertThat(response.getStatusCode(), equalTo(400));
+            }
+
+            @Test
+            void delete() {
+                String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+                JSONObject json = QuestionRestTestUtil.badId();
+                RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
+
+                Response response = request.delete("delete");
+                assertThat(response.getStatusCode(), equalTo(400));
+            }
         }
 
-        @Test
-        void delete() {
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-            questionDaoTestUtil.createQuestionNoUser();
-            JSONObject json = QuestionRestTestUtil.id();
-            RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
+        @Nested
+        class access_denied {
+            @Test
+            void edit() {
+                String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+                questionDaoTestUtil.createQuestion();
+                JSONObject json = QuestionRestTestUtil.editQuestionJson();
+                RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.delete("delete");
-            assertThat(response.getStatusCode(), equalTo(200));
+                Response response = request.put("edit");
+                assertThat(response.getStatusCode(), equalTo(403));
+                assertThat(getId(QuestionQueryParameters.SECOND_TEXT), equalTo(null));
+            }
 
-            assertThat(getId(QuestionQueryParameters.TEXT), equalTo(null));
+            @Test
+            void delete() {
+                String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+                questionDaoTestUtil.createQuestion();
+                JSONObject json = QuestionRestTestUtil.id();
+                RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
+
+                Response response = request.delete("delete");
+                assertThat(response.getStatusCode(), equalTo(403));
+                assertThat(getId(QuestionQueryParameters.SECOND_TEXT), equalTo(null));
+            }
         }
     }
 
     @Nested
-    class bad_request {
-        @Test
-        void create() {
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-            JSONObject json = QuestionRestTestUtil.createBADQuestionJson();
-            RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
+    class get {
+        @Nested
+        class get_question_views {
+            @Nested
+            class success {
+                @Test
+                void json() throws JsonProcessingException {
+                    questionDaoTestUtil.createManyQuestions(QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE);
+                    JSONObject json = QuestionRestTestUtil.page();
+                    RequestSpecification request = QuestionRestTestUtil.getRequestJson(json.toString());
 
-            Response response = request.post("create");
-            assertThat(response.getStatusCode(), equalTo(400));
-        }
+                    Response response = request.get("get/views");
+                    assertThat(response.getStatusCode(), equalTo(200));
 
-        @Test
-        void edit() {
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-            questionDaoTestUtil.createQuestionNoUser();
-            JSONObject json = QuestionRestTestUtil.editBADQuestionJson();
-            RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+                    QuestionViewResponse[] views = mapper.readValue(response.getBody().asString(), QuestionViewResponse[].class);
+                    assertThat(views.length, greaterThan(0));
 
-            Response response = request.put("edit");
-            assertThat(response.getStatusCode(), equalTo(400));
-        }
+                    for (QuestionViewResponse q : views) {
+                        assertThat(q, notNullValue());
+                        assertThat(q.getQuestionId(), notNullValue());
+                        assertThat(q.getTitle(), notNullValue());
+                        assertThat(q.getAnswersCount(), notNullValue());
+                        assertThat(q.getCreationDate(), notNullValue());
+                        assertThat(q.getLastActivity(), notNullValue());
+                        assertThat(q.getTags(), notNullValue());
+                        assertThat(q.getUser(), notNullValue());
+                        assertThat(q.getUser().getUsername(), notNullValue());
+                    }
+                }
 
-        @Test
-        void delete() {
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-            questionDaoTestUtil.createQuestionNoUser();
-            JSONObject json = QuestionRestTestUtil.badId();
-            RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
+                @Test
+                void url() throws JsonProcessingException {
+                    questionDaoTestUtil.createManyQuestions(QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE);
+                    RequestSpecification request = QuestionRestTestUtil.getRequest();
 
-            Response response = request.delete("delete");
-            assertThat(response.getStatusCode(), equalTo(400));
-        }
-    }
+                    Response response = request.get("get/views/1");
+                    assertThat(response.getStatusCode(), equalTo(200));
 
-    @Nested
-    class access_denied {
-        @Test
-        void edit() {
-            String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
-            questionDaoTestUtil.createQuestion();
-            JSONObject json = QuestionRestTestUtil.editQuestionJson();
-            RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+                    QuestionViewResponse[] views = mapper.readValue(response.getBody().asString(), QuestionViewResponse[].class);
+                    assertThat(views.length, greaterThan(0));
 
-            Response response = request.put("edit");
-            assertThat(response.getStatusCode(), equalTo(403));
-            assertThat(getId(QuestionQueryParameters.SECOND_TEXT), equalTo(null));
-        }
+                    for (QuestionViewResponse q : views) {
+                        assertThat(q, notNullValue());
+                        assertThat(q.getQuestionId(), notNullValue());
+                        assertThat(q.getTitle(), notNullValue());
+                        assertThat(q.getAnswersCount(), notNullValue());
+                        assertThat(q.getCreationDate(), notNullValue());
+                        assertThat(q.getLastActivity(), notNullValue());
+                        assertThat(q.getTags(), notNullValue());
+                        assertThat(q.getUser(), notNullValue());
+                        assertThat(q.getUser().getUsername(), notNullValue());
+                    }
+                }
+            }
 
-        @Test
-        void delete() {
-            String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
-            questionDaoTestUtil.createQuestion();
-            JSONObject json = QuestionRestTestUtil.id();
-            RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            @Nested
+            class bad_request {
+                @Test
+                void json() {
+                    questionDaoTestUtil.createManyQuestions(QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE);
+                    JSONObject json = QuestionRestTestUtil.badPage();
+                    RequestSpecification request = QuestionRestTestUtil.getRequestJson(json.toString());
 
-            Response response = request.delete("delete");
-            assertThat(response.getStatusCode(), equalTo(403));
-            assertThat(getId(QuestionQueryParameters.SECOND_TEXT), equalTo(null));
+                    Response response = request.get("get/views");
+                    assertThat(response.getStatusCode(), equalTo(400));
+                }
+
+                @Test
+                void url() {
+                    questionDaoTestUtil.createManyQuestions(QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE);
+                    RequestSpecification request = QuestionRestTestUtil.getRequest();
+
+                    Response response = request.get("get/views/-1");
+                    assertThat(response.getStatusCode(), equalTo(400));
+                }
+            }
         }
     }
 

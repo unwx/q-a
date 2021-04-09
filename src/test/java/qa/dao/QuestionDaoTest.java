@@ -9,12 +9,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import qa.dao.query.AnswerQueryFactory;
 import qa.dao.query.QuestionQueryFactory;
-import qa.domain.Answer;
-import qa.domain.CommentAnswer;
-import qa.domain.CommentQuestion;
-import qa.domain.Question;
+import qa.domain.*;
 import qa.domain.setters.PropertySetterFactory;
-import qa.dto.internal.hibernate.question.QuestionViewDto;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
@@ -243,31 +239,24 @@ public class QuestionDaoTest {
     }
 
     @Nested
-    class get_question_answers {
-
-    }
-
-    @Nested
     class get_question_views {
         @Test
         void assert_correct_result() {
             questionDaoTestUtil.createManyQuestionsWithManyAnswers(
-                    (int) (QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE * 1.5),
+                    (QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE),
                     QuestionDaoTestUtil.RESULT_SIZE);
-            for (int i = 0; i < 2; i++) {
-                List<QuestionViewDto> views = questionDao.getQuestionViewsDto(i);
-                assertThat(views, notNullValue());
-                assertThat(views.size(), greaterThan(0));
-                for (QuestionViewDto v : views) {
-                    assertThat(v.getQuestionId(), notNullValue());
-                    assertThat(v.getTags(), notNullValue());
-                    assertThat(v.getTitle(), notNullValue());
-                    assertThat(v.getCreationDate(), notNullValue());
-                    assertThat(v.getLastActivity(), notNullValue());
-                    assertThat(v.getAuthor(), notNullValue());
-                    assertThat(v.getAuthor().getUsername(), notNullValue());
-                    assertThat(v.getAnswersCount(), notNullValue());
-                }
+            List<QuestionView> views = questionDao.getQuestionViewsDto(0);
+            assertThat(views, notNullValue());
+            assertThat(views.size(), greaterThan(0));
+            for (QuestionView v : views) {
+                assertThat(v.getQuestionId(), notNullValue());
+                assertThat(v.getTags(), notNullValue());
+                assertThat(v.getTitle(), notNullValue());
+                assertThat(v.getCreationDate(), notNullValue());
+                assertThat(v.getLastActivity(), notNullValue());
+                assertThat(v.getAuthor(), notNullValue());
+                assertThat(v.getAuthor().getUsername(), notNullValue());
+                assertThat(v.getAnswersCount(), notNullValue());
             }
         }
 
@@ -277,8 +266,8 @@ public class QuestionDaoTest {
                     (int) (QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE * 1.5),
                     QuestionDaoTestUtil.RESULT_SIZE);
 
-            List<QuestionViewDto> dto1 = questionDao.getQuestionViewsDto(0);
-            List<QuestionViewDto> dto2 = questionDao.getQuestionViewsDto(1);
+            List<QuestionView> dto1 = questionDao.getQuestionViewsDto(0);
+            List<QuestionView> dto2 = questionDao.getQuestionViewsDto(1);
 
             assertThat(dto1, notNullValue());
             assertThat(dto2, notNullValue());
@@ -301,9 +290,16 @@ public class QuestionDaoTest {
         }
 
         @Test
+        void assert_exist_if_answers_not_exist() {
+            questionDaoTestUtil.createManyQuestions(QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE);
+            List<QuestionView> dto = questionDao.getQuestionViewsDto(0);
+            assertThat(dto.size(), greaterThan(0));
+        }
+
+        @Test
         void assert_not_found_result_equal_empty_list() {
-            List<QuestionViewDto> dto1 = questionDao.getQuestionViewsDto(1231230);
-            assertThat(dto1, equalTo(Collections.emptyList()));
+            List<QuestionView> dto = questionDao.getQuestionViewsDto(1231230);
+            assertThat(dto, equalTo(Collections.emptyList()));
         }
     }
 }

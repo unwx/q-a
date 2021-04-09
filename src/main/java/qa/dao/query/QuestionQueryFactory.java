@@ -7,6 +7,7 @@ import qa.dao.query.convertor.UserResultConvertor;
 import qa.dao.query.parameters.CommentQueryParameters;
 import qa.domain.CommentQuestion;
 import qa.domain.Question;
+import qa.domain.QuestionView;
 import qa.dto.internal.hibernate.question.QuestionCommentDto;
 import qa.dto.internal.hibernate.question.QuestionViewDto;
 import qa.dto.internal.hibernate.question.QuestionWithCommentsDto;
@@ -61,12 +62,13 @@ public class QuestionQueryFactory {
     public Query<QuestionViewDto> questionsViewsQuery(Session session, int page) {
         String getQuestionViewsSql =
                 """
-                SELECT q.id AS que_id, q.title AS que_title, q.tags AS que_tags,\s\
+                SELECT\s\
+                    q.id AS que_id, q.title AS que_title, q.tags AS que_tags,\s\
                     q.creation_date AS que_c_date, q.last_activity AS que_l_activity,\s\
                     a.count AS que_a_count,\s\
                     u.username AS que_u_username\s\
                 FROM question AS q\s\
-                INNER JOIN (\
+                LEFT JOIN (\
                     SELECT a.question_id,\s\
                     COUNT(a.id) AS count FROM answer AS a\s\
                     GROUP BY a.question_id) AS a ON q.id = a.question_id\s\
@@ -118,6 +120,12 @@ public class QuestionQueryFactory {
             return commentQuestions;
         }
 
+        public List<QuestionView> dtoToQuestionViewList(List<QuestionViewDto> dto) {
+            List<QuestionView> views = new ArrayList<>(dto.size());
+            dto.forEach((d) -> views.add(dtoToQuestionView(d)));
+            return views;
+        }
+
         public Question dtoToQuestion(QuestionWithCommentsDto dto, Long questionId) {
             return new Question.Builder()
                     .id(questionId)
@@ -138,6 +146,17 @@ public class QuestionQueryFactory {
             commentQuestion.setCreationDate(dto.getCreationDate());
             commentQuestion.setAuthor(usernameToAuthor(dto.getAuthor().getUsername()));
             return commentQuestion;
+        }
+
+        public QuestionView dtoToQuestionView(QuestionViewDto dto) {
+            return new QuestionView(
+                    dto.getQuestionId(),
+                    dto.getTitle(),
+                    dto.getTags(),
+                    dto.getCreationDate(),
+                    dto.getLastActivity(),
+                    dto.getAnswersCount(),
+                    usernameToAuthor(dto.getAuthor().getUsername()));
         }
     }
 }

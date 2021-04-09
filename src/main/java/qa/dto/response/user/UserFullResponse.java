@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import qa.domain.Answer;
 import qa.domain.Question;
-import qa.serializer.FullUserSerializer;
+import qa.serializer.user.FullUserResponseSerializer;
 
 import java.util.List;
 
-@JsonSerialize(using = FullUserSerializer.class)
+@JsonSerialize(using = FullUserResponseSerializer.class)
 public class UserFullResponse {
 
     @JsonProperty("id")

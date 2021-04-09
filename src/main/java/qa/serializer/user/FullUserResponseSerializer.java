@@ -1,4 +1,4 @@
-package qa.serializer;
+package qa.serializer.user;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -11,7 +11,7 @@ import qa.dto.response.user.UserFullResponse;
 import java.io.IOException;
 import java.util.List;
 
-public class FullUserSerializer extends JsonSerializer<UserFullResponse> {
+public class FullUserResponseSerializer extends JsonSerializer<UserFullResponse> {
 
     @Override
     public void serialize(@NotNull UserFullResponse userFullResponse, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {

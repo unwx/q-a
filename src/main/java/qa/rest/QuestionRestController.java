@@ -6,14 +6,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import qa.dto.request.question.QuestionCreateRequest;
 import qa.dto.request.question.QuestionDeleteRequest;
 import qa.dto.request.question.QuestionEditRequest;
+import qa.dto.request.question.QuestionGetViewsRequest;
+import qa.dto.response.question.QuestionViewResponse;
 import qa.service.QuestionService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/question/")
@@ -125,5 +126,90 @@ public class QuestionRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpStatus> deleteQuestion(@RequestBody QuestionDeleteRequest request, Authentication authentication) {
         return questionService.deleteQuestion(request, authentication);
+    }
+
+    /**
+     * @uri
+     * /api/v1/question/get/views/{page}
+     *
+     * @method
+     * get
+     *
+     * @path_variable
+     * page: int > 0
+     *
+     * @response
+     * OK: (200)
+     * response {
+     *     id: long
+     *     answers_count: int
+     *     title: string
+     *     creation_date: string|yyyy-MM-dd HH:mm:ss
+     *     last_activity: string|yyyy-MM-dd HH:mm:ss
+     *     tags: [
+     *         tag: string
+     *     ]
+     *     author: {
+     *         username: string
+     *     }
+     * }
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @RequestMapping(
+            value = "get/views/{page}",
+            method = RequestMethod.GET)
+    public ResponseEntity<List<QuestionViewResponse>> getQuestions(@PathVariable("page") Integer page) {
+        return questionService.getQuestions(page);
+    }
+
+    /**
+     * @uri
+     * /api/v1/question/get/views
+     *
+     * @method
+     * get
+     *
+     * @request
+     * dto {
+     *     page: int > 0
+     * }
+     *
+     * @response
+     * OK: (200)
+     * response {
+     *     id: long
+     *     answers_count: int
+     *     title: string
+     *     creation_date: string|yyyy-MM-dd HH:mm:ss
+     *     last_activity: string|yyyy-MM-dd HH:mm:ss
+     *     tags: [
+     *         tag: string
+     *     ]
+     *     author: {
+     *         username: string
+     *     }
+     * }
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @RequestMapping(
+            value = "get/views",
+            method = RequestMethod.GET,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<QuestionViewResponse>> getQuestions(@RequestBody QuestionGetViewsRequest request) {
+        return questionService.getQuestions(request);
     }
 }

@@ -1,10 +1,13 @@
 package qa.dto.response.question;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import qa.domain.User;
+import qa.serializer.question.QuestionViewResponseSerializer;
 
 import java.util.Date;
 
+@JsonSerialize(using = QuestionViewResponseSerializer.class)
 public class QuestionViewResponse {
 
     @JsonProperty("id")
@@ -17,7 +20,7 @@ public class QuestionViewResponse {
     private final Date lastActivity;
     @JsonProperty("answers_count")
     private final Integer answersCount;
-
+    @JsonProperty("author")
     private final User user;
 
     public QuestionViewResponse(Long questionId,

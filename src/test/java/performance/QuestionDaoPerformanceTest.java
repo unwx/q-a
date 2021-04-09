@@ -16,7 +16,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
 import qa.dao.QuestionDao;
 import qa.domain.Question;
-import qa.dto.internal.hibernate.question.QuestionViewDto;
+import qa.domain.QuestionView;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
 import java.util.Date;
@@ -62,7 +62,7 @@ public class QuestionDaoPerformanceTest {
         createManyQuestionsWithManyAnswers();
 
         Monitor monitor = MonitorFactory.start("get questions test");
-        List<QuestionViewDto> dtos = questionDao.getQuestionViewsDto(12);
+        List<QuestionView> dtos = questionDao.getQuestionViewsDto(12);
         monitor.stop();
         System.out.printf("RESULT: %s", monitor);
     }

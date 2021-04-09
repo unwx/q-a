@@ -9,6 +9,7 @@ public final class QuestionQueryParameters {
 
     public static final Date DATE = new Date(99999999999999L);
     public static final String TAGS = "java, spring";
+    public static final String[] TAGS_ARRAY = new String[]{"java", "spring"};
     public static final String TITLE = "how default redirect URL work in spring security 5";
     public static final String TEXT =
             """       
@@ -33,4 +34,9 @@ public final class QuestionQueryParameters {
                          
              Please correct my understanding.
              """;
+    public static final String SECOND_TEXT =
+            """
+            The NullPointerException (NPE) occurs when you declare a variable but did not create an object and assign it to the variable before trying to\s\
+            use the contents of the variable (called dereferencing). So you are pointing to something that does not actually exist.\
+            """;
 }

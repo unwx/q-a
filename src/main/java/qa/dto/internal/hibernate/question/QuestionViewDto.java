@@ -29,8 +29,10 @@ public class QuestionViewDto {
         this.tags = (String) tuples[aliasToIndexMap.get(TAGS)];
         this.creationDate = (Date) tuples[aliasToIndexMap.get(CREATION_DATE)];
         this.lastActivity = (Date) tuples[aliasToIndexMap.get(LAST_ACTIVITY)];
-        this.answersCount = ((BigInteger) tuples[aliasToIndexMap.get(ANSWERS_COUNT)]).intValue();
         this.author = new QuestionAuthorDto(tuples, aliasToIndexMap);
+
+        BigInteger temp = (BigInteger) tuples[aliasToIndexMap.get(ANSWERS_COUNT)];
+        this.answersCount = temp == null ? 0 : temp.intValue();
     }
 
     public Long getQuestionId() {

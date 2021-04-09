@@ -53,4 +53,16 @@ public class QuestionRestTestUtil extends RestTestUtil {
         json.put("id", -1L);
         return json;
     }
+
+    public static JSONObject page() {
+        JSONObject json = new JSONObject();
+        json.put("page", 1);
+        return json;
+    }
+
+    public static JSONObject badPage() {
+        JSONObject json = new JSONObject();
+        json.put("page", -1);
+        return json;
+    }
 }
