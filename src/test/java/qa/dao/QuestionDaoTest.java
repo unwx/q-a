@@ -80,6 +80,7 @@ public class QuestionDaoTest {
             assertThat(q.getAuthor().getUsername(), notNullValue());
 
             assertThat(q.getAnswers(), notNullValue());
+            assertThat(q.getAnswers().size(), greaterThan(0));
             for (Answer a : q.getAnswers()) {
                 assertThat(a.getId(), notNullValue());
                 assertThat(a.getText(), notNullValue());
@@ -89,7 +90,7 @@ public class QuestionDaoTest {
                 assertThat(a.getAuthor().getUsername(), notNullValue());
 
                 assertThat(a.getComments(), notNullValue());
-                assertThat(a.getComments().size(), lessThan(QuestionDaoTestUtil.COMMENT_RESULT_SIZE + 1));
+                assertThat(a.getComments().size(), greaterThan(0));
                 for (CommentAnswer c : a.getComments()) {
                     assertThat(c.getId(), notNullValue());
                     assertThat(c.getText(), notNullValue());
@@ -116,6 +117,7 @@ public class QuestionDaoTest {
             Question q = questionDao.getFullQuestion(1L);
 
             assertThat(q, notNullValue());
+
             assertThat(q.getAnswers().size(), greaterThan(0));
             assertThat(q.getComments().size(), greaterThan(0));
 
@@ -186,6 +188,7 @@ public class QuestionDaoTest {
             for (int i = 0; i < 2; i++) {
                 List<CommentQuestion> comments = questionDao.getQuestionComments(1L, i);
                 assertThat(comments, notNullValue());
+                assertThat(comments.size(), greaterThan(0));
                 for (int y = 0; y < comments.size(); y++) {
                     assertThat(comments, notNullValue());
                     assertThat(comments.get(y), notNullValue());
@@ -203,8 +206,12 @@ public class QuestionDaoTest {
 
             List<CommentQuestion> comments1 = questionDao.getQuestionComments(1L, 0);
             List<CommentQuestion> comments2 = questionDao.getQuestionComments(1L, 1);
+
             assertThat(comments1, notNullValue());
             assertThat(comments2, notNullValue());
+
+            assertThat(comments1.size(), greaterThan(0));
+            assertThat(comments2.size(), greaterThan(0));
 
             int size1 = comments1.size();
             int size2 = comments2.size();
@@ -250,6 +257,7 @@ public class QuestionDaoTest {
             for (int i = 0; i < 2; i++) {
                 List<QuestionViewDto> views = questionDao.getQuestionViewsDto(i);
                 assertThat(views, notNullValue());
+                assertThat(views.size(), greaterThan(0));
                 for (QuestionViewDto v : views) {
                     assertThat(v.getQuestionId(), notNullValue());
                     assertThat(v.getTags(), notNullValue());
@@ -271,8 +279,13 @@ public class QuestionDaoTest {
 
             List<QuestionViewDto> dto1 = questionDao.getQuestionViewsDto(0);
             List<QuestionViewDto> dto2 = questionDao.getQuestionViewsDto(1);
+
             assertThat(dto1, notNullValue());
             assertThat(dto2, notNullValue());
+
+            assertThat(dto1.size(), greaterThan(0));
+            assertThat(dto2.size(), greaterThan(0));
+
             int size1 = dto1.size();
             int size2 = dto2.size();
             long[] ids1 = new long[size1];

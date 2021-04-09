@@ -9,6 +9,7 @@ import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.dto.internal.hibernate.answer.AnswerCommentDto;
 import qa.dto.internal.hibernate.answer.AnswerFullDto;
+import qa.dto.internal.hibernate.transformer.answer.AnswerCommentDtoResultTransformer;
 import qa.dto.internal.hibernate.transformer.question.QuestionAnswerFullDtoTransformer;
 
 import java.util.ArrayList;
@@ -64,6 +65,31 @@ public class AnswerQueryFactory {
                 .setParameter("answerLimit", RESULT_SIZE)
                 .setParameter("offset", RESULT_SIZE * page)
                 .setResultTransformer(new QuestionAnswerFullDtoTransformer());
+    }
+
+    public Query<AnswerCommentDto> answerCommentsQuery(Session session, Long answerId, int page) {
+        String sql =
+                """
+                SELECT\s\
+                    c.id AS ans_c_id, c.creation_date as ans_c_c_date, c.text as ans_c_text,\s\
+                    c.username as ans_c_u_username\s\
+                FROM answer AS a\s\
+                LEFT JOIN LATERAL\s\
+                    (\
+                    SELECT c.id, c.creation_date, c.text, u.username\s\
+                    FROM comment AS c\s\
+                    INNER JOIN usr u ON c.author_id = u.id\s\
+                    ORDER BY c.creation_date\s\
+                    LIMIT :limit OFFSET :offset\s\
+                    ) AS c ON TRUE\s\
+                WHERE a.id = :answerId\
+                """;
+        return session.createSQLQuery(sql)
+                .unwrap(Query.class)
+                .setParameter("answerId", answerId)
+                .setParameter("limit", CommentQueryParameters.COMMENT_RESULT_SIZE)
+                .setParameter("offset", CommentQueryParameters.COMMENT_RESULT_SIZE * page)
+                .setResultTransformer(new AnswerCommentDtoResultTransformer());
     }
 
     public ResultConvertor getConvertor() {

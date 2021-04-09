@@ -10,6 +10,7 @@ import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.AnswerQueryFactory;
 import qa.domain.Answer;
+import qa.domain.CommentAnswer;
 import qa.domain.setters.PropertySetterFactory;
 import qa.exceptions.dao.NullResultException;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
@@ -72,6 +73,42 @@ public class AnswerDao extends DaoImpl<Answer> {
 
             transaction.commit();
             return answers;
+        }
+    }
+
+    @Nullable
+    public List<CommentAnswer> getAnswerComments(Long answerId, int page) {
+
+        /*
+         *  if answer not exist: answers.size() = 0; (NullResultException will not be thrown) - return null
+         *  if comments not exist: NullResultException - return empty list.
+         *  if exist: return result.
+         */
+
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            List<CommentAnswer> comments = new ArrayList<>();
+
+            try {
+                comments = answerQueryFactory
+                        .getConvertor()
+                        .dtoToCommentAnswerList(answerQueryFactory
+                                .answerCommentsQuery(session, answerId, page)
+                                .list()
+                        );
+            }
+            catch (NullResultException ex) {
+                transaction.rollback();
+                return comments;
+            }
+
+            if (comments.isEmpty()) {
+                transaction.rollback();
+                return null;
+            }
+
+            transaction.commit();
+            return comments;
         }
     }
 }

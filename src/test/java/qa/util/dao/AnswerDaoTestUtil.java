@@ -11,6 +11,8 @@ public class AnswerDaoTestUtil {
 
     private final QueryBuilder queryBuilder;
 
+    public static final int COMMENT_RESULT_SIZE = 3;
+
     public AnswerDaoTestUtil(SessionFactory sessionFactory) {
         this.queryBuilder = new QueryBuilder(sessionFactory);
     }
@@ -48,6 +50,22 @@ public class AnswerDaoTestUtil {
 
         for (int i = 0; i < answers; i++) {
             queryBuilder.answer((long) i, new Date(dateAtMillisDefault * i));
+            if (i % 20 == 0) {
+                queryBuilder.flushAndClear();
+            }
+        }
+        queryBuilder.closeSession();
+    }
+
+    public void createAnswerWithManyComments(int comments) {
+        queryBuilder
+                .openSession()
+                .user()
+                .question()
+                .answer();
+
+        for (int i = 0; i < comments; i++) {
+            queryBuilder.commentAnswer((long) i, new Date(dateAtMillisDefault * i));
             if (i % 20 == 0) {
                 queryBuilder.flushAndClear();
             }

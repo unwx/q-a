@@ -97,6 +97,9 @@ public class UserDaoTest {
             List<Answer> answers = user.getAnswers();
             List<Question> questions = user.getQuestions();
 
+            assertThat(answers.size(), greaterThan(0));
+            assertThat(questions.size(), greaterThan(0));
+
             int answersSize = answers.size();
             int questionsSize = questions.size();
 
@@ -140,6 +143,7 @@ public class UserDaoTest {
 
             List<Question> questions = userDao.readUserQuestions(1L, 0);
             assertThat(questions, notNullValue());
+            assertThat(questions.size(), greaterThan(0));
 
             for (Question q : questions) {
                 assertThat(q, notNullValue());
@@ -153,10 +157,13 @@ public class UserDaoTest {
             questionDaoTestUtil.createManyQuestions((int) (UserDaoTestUtil.RESULT_SIZE * 1.5));
 
             List<Question> questions1 = userDao.readUserQuestions(1L, 0);
-            assertThat(questions1, notNullValue());
-
             List<Question> questions2 = userDao.readUserQuestions(1L, 1);
+
+            assertThat(questions1, notNullValue());
             assertThat(questions2, notNullValue());
+
+            assertThat(questions1.size(), greaterThan(0));
+            assertThat(questions2.size(), greaterThan(0));
 
             int questions1Size = questions1.size();
             int questions2Size = questions2.size();
@@ -198,6 +205,7 @@ public class UserDaoTest {
 
             List<Answer> answers = userDao.readUserAnswers(1L, 0);
             assertThat(answers, notNullValue());
+            assertThat(answers.size(), greaterThan(0));
 
             for (Answer a : answers) {
                 assertThat(a, notNullValue());
@@ -211,10 +219,13 @@ public class UserDaoTest {
             answersDaoTestUtil.createManyAnswers((int) (UserDaoTestUtil.RESULT_SIZE * 1.5));
 
             List<Answer> answers1 = userDao.readUserAnswers(1L, 0);
-            assertThat(answers1, notNullValue());
-
             List<Answer> answers2 = userDao.readUserAnswers(1L, 1);
+
+            assertThat(answers1, notNullValue());
             assertThat(answers2, notNullValue());
+
+            assertThat(answers1.size(), greaterThan(0));
+            assertThat(answers2.size(), greaterThan(0));
 
             int answer1Size = answers1.size();
             int answer2Size = answers2.size();
