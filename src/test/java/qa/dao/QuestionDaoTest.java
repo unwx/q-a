@@ -7,6 +7,8 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import qa.dao.query.AnswerQueryFactory;
+import qa.dao.query.QuestionQueryFactory;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.domain.CommentQuestion;
@@ -37,7 +39,10 @@ public class QuestionDaoTest {
     @BeforeAll
     void init() {
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
-        questionDao = new QuestionDao(propertySetterFactory);
+        QuestionQueryFactory questionQueryFactory = Mockito.spy(new QuestionQueryFactory());
+        AnswerQueryFactory answerQueryFactory = Mockito.spy(new AnswerQueryFactory());
+
+        questionDao = new QuestionDao(propertySetterFactory, questionQueryFactory, answerQueryFactory);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
@@ -232,78 +237,7 @@ public class QuestionDaoTest {
 
     @Nested
     class get_question_answers {
-        @Test
-        void assert_correct_result() {
-            questionDaoTestUtil.createQuestionWithAnswersWithComments(
-                    (int) (QuestionDaoTestUtil.RESULT_SIZE * 1.5),
-                    QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
 
-            for (int i = 0; i < 2; i++) {
-                List<Answer> answers = questionDao.getQuestionAnswers(1L, i);
-                assertThat(answers, notNullValue());
-                for (Answer a : answers) {
-                    assertThat(a, notNullValue());
-                    assertThat(a.getId(), notNullValue());
-                    assertThat(a.getText(), notNullValue());
-                    assertThat(a.getAnswered(), notNullValue());
-                    assertThat(a.getCreationDate(), notNullValue());
-
-                    assertThat(a.getAuthor(), notNullValue());
-                    assertThat(a.getAuthor().getUsername(), notNullValue());
-
-                    assertThat(a.getComments(), notNullValue());
-                    for (CommentAnswer ca : a.getComments()) {
-                        assertThat(ca, notNullValue());
-                        assertThat(ca.getId(), notNullValue());
-                        assertThat(ca.getText(), notNullValue());
-                        assertThat(ca.getCreationDate(), notNullValue());
-
-                        assertThat(ca.getAuthor(), notNullValue());
-                        assertThat(ca.getAuthor().getUsername(), notNullValue());
-                    }
-                }
-            }
-        }
-
-        @Test
-        void assert_no_duplicates() {
-            questionDaoTestUtil.createQuestionWithAnswersWithComments(
-                    (int) (QuestionDaoTestUtil.RESULT_SIZE * 1.5),
-                    QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
-
-            List<Answer> answers1 = questionDao.getQuestionAnswers(1L, 0);
-            List<Answer> answers2 = questionDao.getQuestionAnswers(1L, 1);
-            assertThat(answers1, notNullValue());
-            assertThat(answers2, notNullValue());
-
-            int size1 = answers1.size();
-            int size2 = answers2.size();
-
-            long[] ids1 = new long[size1];
-            long[] ids2 = new long[size2];
-            for (int i = 0; i < size1; i++) {
-                ids1[i] = answers1.get(i).getId();
-            }
-            for (int i = 0; i < size2; i++) {
-                ids2[i] = answers2.get(i).getId();
-            }
-            assertThat(ids1, equalTo(Arrays.stream(ids1).distinct().toArray()));
-            assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
-        }
-
-        @Nested
-        class no_result {
-            @Test
-            void assert_result_equal_null_question_not_exist() {
-                assertThat(questionDao.getQuestionAnswers(1L, 1), equalTo(null));
-            }
-
-            @Test
-            void assert_result_equal_empty_list_question_exist() {
-                questionDaoTestUtil.createQuestion();
-                assertThat(questionDao.getQuestionAnswers(1L, 1), equalTo(Collections.emptyList()));
-            }
-        }
     }
 
     @Nested

@@ -264,4 +264,20 @@ public class HqlBuilderTest {
             assertThat(required, equalTo(result));
         }
     }
+
+    @Nested
+    class exist {
+        @Test
+        public void entity() {
+            String className = "Entity";
+            Where where = new Where("id", 1L, WhereOperator.EQUALS);
+            String required =
+                    """
+                    select a.id from Entity a\s\
+                    where a.id=:a\
+                    """;
+            String result = entityHqlBuilder.exist(className, where);
+            assertThat(required, equalTo(result));
+        }
+    }
 }

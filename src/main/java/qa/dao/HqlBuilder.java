@@ -54,6 +54,14 @@ public class HqlBuilder {
         return hqlBuilder.toString();
     }
 
+    public String exist(String className, Where where) {
+        StringBuilder hqlBuilder = new StringBuilder();
+        prepareForExist(className, where, hqlBuilder);
+        from(className, hqlBuilder);
+        where(where, hqlBuilder);
+        return hqlBuilder.toString();
+    }
+
     private void selectProcess(Table target, List<NestedEntity> nested, StringBuilder hqlBuilder) {
         String[] as = asGenerate("a", target.getFieldNames().length);
         select(target, tl, as, hqlBuilder);
@@ -157,6 +165,15 @@ public class HqlBuilder {
                 .append(' ')
                 .append(tl)
                 .append(" set ");
+    }
+
+    private void prepareForExist(String className, Where where, StringBuilder hqlBuilder) {
+        hqlBuilder
+                .append("select")
+                .append(' ')
+                .append(tl)
+                .append('.')
+                .append(where.getFieldName());
     }
 
     private void select(EntityTable t, String abb, String[] as, StringBuilder hqlBuilder) {

@@ -26,7 +26,6 @@ public class UserQueryFactory {
     public UserQueryFactory() {
     }
 
-
     public Query<UserFullDto> fullUserQuery(Session session, String username) {
         String getFullUserSql =
                 """

@@ -15,6 +15,7 @@ public class DaoUtilImpl<Entity extends FieldExtractor & FieldDataSetterExtracto
     private final DaoReadUtil<Entity> daoReadUtil;
     private final DaoUpdateUtil<Entity> daoUpdateUtil;
     private final DaoDeleteUtil daoDeleteUtil;
+    private final DaoExistUtil<Entity> daoExistUtil;
 
     private final static Logger logger = LogManager.getLogger(DaoUtilImpl.class);
 
@@ -23,6 +24,7 @@ public class DaoUtilImpl<Entity extends FieldExtractor & FieldDataSetterExtracto
         daoReadUtil = new DaoReadUtil<>(hqlBuilder, emptyEntity, propertySetter);
         daoUpdateUtil = new DaoUpdateUtil<>(hqlBuilder);
         daoDeleteUtil = new DaoDeleteUtil(hqlBuilder);
+        daoExistUtil = new DaoExistUtil<>(hqlBuilder, emptyEntity);
     }
 
     @Override
@@ -49,5 +51,10 @@ public class DaoUtilImpl<Entity extends FieldExtractor & FieldDataSetterExtracto
     @Override
     public void delete(String className, Where where, Session session) {
         daoDeleteUtil.delete(className, where, session);
+    }
+
+    @Override
+    public boolean exist(Where where, Session session) {
+        return daoExistUtil.isExist(where, session);
     }
 }

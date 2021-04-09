@@ -19,8 +19,8 @@ abstract class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor>
     private final Entity emptyEntity;
 
     protected DaoImpl(SessionFactory sessionFactory,
-                   Entity emptyEntity,
-                   PropertySetter propertySetter) {
+                      Entity emptyEntity,
+                      PropertySetter propertySetter) {
         this.sessionFactory = sessionFactory;
         this.daoUtil = new DaoUtilImpl<>(emptyEntity, propertySetter);
         this.emptyEntity = emptyEntity;
@@ -39,7 +39,7 @@ abstract class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor>
     @Override
     @Nullable
     public Entity read(final Where where, final Table target) {
-        try(Session session = sessionFactory.openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             return daoUtil.read(where, target, Collections.emptyList(), session);
         }
     }
@@ -47,28 +47,28 @@ abstract class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor>
     @Override
     @Nullable
     public Entity read(final Where where, final Table target, final List<NestedEntity> nested) {
-        try(Session session = sessionFactory.openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             return daoUtil.read(where, target, nested, session);
         }
     }
 
     @Override
     public List<Entity> readMany(final Where where, final Table target) {
-        try(Session session = sessionFactory.openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             return daoUtil.readList(where, target, session);
         }
     }
 
     @Override
     public void update(final Where where, final Entity entity) {
-        try(Session session = sessionFactory.openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             daoUtil.update(where, entity, session);
         }
     }
 
     @Override
     public void updateEager(final Entity entity) {
-        try(Session session = sessionFactory.openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.update(entity);
             transaction.commit();
@@ -77,8 +77,15 @@ abstract class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor>
 
     @Override
     public void delete(final Where where) {
-        try(Session session = sessionFactory.openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             daoUtil.delete(emptyEntity.getClass().getSimpleName(), where, session);
+        }
+    }
+
+    @Override
+    public boolean isExist(final Where where) {
+        try (Session session = sessionFactory.openSession()) {
+            return daoUtil.exist(where, session);
         }
     }
 }

@@ -38,4 +38,6 @@ public interface Dao<Entity, Key> {
     void updateEager(final Entity entity);
 
     void delete(final Where where);
+
+    boolean isExist(final Where where);
 }
