@@ -15,10 +15,36 @@ public class AnswerRestTestUtil extends RestTestUtil {
         return json;
     }
 
+    public static JSONObject createBADAnswerJson() {
+        JSONObject json = new JSONObject();
+        json.put("question_id", -1L);
+        json.put("text", ".,m--x.m");
+        return json;
+    }
+
     public static JSONObject editAnswerJson() {
         JSONObject json = new JSONObject();
         json.put("id", 1L);
         json.put("text", AnswerQueryParameters.SECOND_TEXT);
+        return json;
+    }
+
+    public static JSONObject editBADAnswerJson() {
+        JSONObject json = new JSONObject();
+        json.put("id", -1L);
+        json.put("text", ".,m--x.m");
+        return json;
+    }
+
+    public static JSONObject id() {
+        JSONObject json = new JSONObject();
+        json.put("id", 1L);
+        return json;
+    }
+
+    public static JSONObject badId() {
+        JSONObject json = new JSONObject();
+        json.put("id", -1L);
         return json;
     }
 }

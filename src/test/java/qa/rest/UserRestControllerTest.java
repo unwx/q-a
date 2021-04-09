@@ -173,6 +173,26 @@ public class UserRestControllerTest {
                 assertThat(userFullResponse.getAnswers(), equalTo(Collections.emptyList()));
             }
         }
+
+        @Nested
+        class bad_request {
+            @Test
+            void json() {
+                JSONObject json = UserRestTestUtil.usernameBADJson();
+                RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+
+                Response response = request.get("questions/get");
+                assertThat(response.getStatusCode(), equalTo(400));
+            }
+
+            @Test
+            void url() {
+                RequestSpecification request = UserRestTestUtil.getRequest();
+
+                Response response = request.get("get/" + "o");
+                assertThat(response.getStatusCode(), equalTo(400));
+            }
+        }
     }
 
     @Nested
