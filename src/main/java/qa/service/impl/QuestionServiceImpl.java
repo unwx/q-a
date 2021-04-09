@@ -13,7 +13,6 @@ import qa.domain.Question;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.question.*;
-import qa.dto.response.question.QuestionAnswerResponse;
 import qa.dto.response.question.QuestionCommentResponse;
 import qa.dto.response.question.QuestionFullResponse;
 import qa.dto.response.question.QuestionViewResponse;
@@ -86,16 +85,6 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public ResponseEntity<QuestionFullResponse> getFullQuestion(QuestionGetFullRequest request) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<List<QuestionAnswerResponse>> getQuestionAnswers(Long questionId, Integer page) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<List<QuestionAnswerResponse>> getQuestionAnswers(QuestionGetAnswersRequest request) {
         return null;
     }
 

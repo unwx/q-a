@@ -14,10 +14,9 @@ import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
-import qa.dto.request.answer.AnswerAnsweredRequest;
-import qa.dto.request.answer.AnswerCreateRequest;
-import qa.dto.request.answer.AnswerDeleteRequest;
-import qa.dto.request.answer.AnswerEditRequest;
+import qa.dto.request.answer.*;
+import qa.dto.response.answer.AnswerCommentResponse;
+import qa.dto.response.answer.AnswerFullResponse;
 import qa.dto.validation.wrapper.answer.AnswerAnsweredRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerCreateRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerDeleteRequestValidationWrapper;
@@ -31,6 +30,7 @@ import qa.util.user.PrincipalUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class AnswerServiceImpl implements AnswerService {
@@ -82,6 +82,26 @@ public class AnswerServiceImpl implements AnswerService {
     public ResponseEntity<HttpStatus> deleteAnswer(AnswerDeleteRequest request, Authentication authentication) {
         deleteAnswerProcess(request, authentication);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<List<AnswerFullResponse>> getAnswers(Long questionId, Integer page) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<List<AnswerFullResponse>> getAnswers(AnswerGetFullRequest request) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<List<AnswerCommentResponse>> getAnswerComments(Long answerId, Integer page) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity<List<AnswerCommentResponse>> getAnswerComments(AnswerGetCommentRequest request) {
+        return null;
     }
 
     private Long createAnswerProcess(AnswerCreateRequest request, Authentication authentication) {

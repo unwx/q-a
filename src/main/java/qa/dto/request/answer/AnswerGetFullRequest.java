@@ -1,20 +1,20 @@
-package qa.dto.request.question;
+package qa.dto.request.answer;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class QuestionGetAnswersRequest {
+public class AnswerGetFullRequest {
 
     @JsonProperty("id")
     private final Long questionId;
     private final Integer page;
 
-    public QuestionGetAnswersRequest(Long questionId,
-                                     Integer page) {
+    public AnswerGetFullRequest(Long questionId,
+                                Integer page) {
         this.questionId = questionId;
         this.page = page;
     }
 
-    protected QuestionGetAnswersRequest() {
+    protected AnswerGetFullRequest() {
         this.questionId = null;
         this.page = null;
     }
