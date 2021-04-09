@@ -7,6 +7,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import qa.dao.query.UserQueryFactory;
 import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
@@ -38,7 +39,9 @@ public class UserDaoTest {
     @BeforeAll
     void init() {
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
-        userDao = new UserDao(propertySetterFactory);
+        UserQueryFactory userQueryFactory = Mockito.spy(new UserQueryFactory());
+
+        userDao = new UserDao(propertySetterFactory, userQueryFactory);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
         answersDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
