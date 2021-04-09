@@ -42,7 +42,7 @@ public class AnswerDao extends DaoImpl<Answer> {
     }
 
     @Nullable
-    public List<Answer> getAnswers(Long questionId, int page) {
+    public List<Answer> getAnswers(long questionId, int page) {
 
         /*
          *  if question not exist: answers.size() = 0; (NullResultException will not be thrown) - return null
@@ -77,7 +77,7 @@ public class AnswerDao extends DaoImpl<Answer> {
     }
 
     @Nullable
-    public List<CommentAnswer> getAnswerComments(Long answerId, int page) {
+    public List<CommentAnswer> getAnswerComments(long answerId, int page) {
 
         /*
          *  if answer not exist: answers.size() = 0; (NullResultException will not be thrown) - return null

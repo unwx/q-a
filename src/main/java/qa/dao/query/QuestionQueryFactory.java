@@ -26,7 +26,7 @@ public class QuestionQueryFactory {
 
     private final ResultConvertor resultConvertor = new ResultConvertor();
 
-    public Query<QuestionWithCommentsDto> questionWithCommentsQuery(Session session, Long questionId) {
+    public Query<QuestionWithCommentsDto> questionWithCommentsQuery(Session session, long questionId) {
         String sql =
                 """
                  SELECT\s\
@@ -80,7 +80,7 @@ public class QuestionQueryFactory {
                 .setResultTransformer(new QuestionViewDtoTransformer());
     }
 
-    public Query<QuestionCommentDto> questionCommentsQuery(Session session, Long questionId, int page) {
+    public Query<QuestionCommentDto> questionCommentsQuery(Session session, long questionId, int page) {
         String getQuestionCommentsSql =
                 """
                 SELECT\s\

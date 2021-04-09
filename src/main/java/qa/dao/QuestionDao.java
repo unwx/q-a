@@ -50,7 +50,7 @@ public class QuestionDao extends DaoImpl<Question> {
     }
 
     @Nullable
-    public Question getFullQuestion(Long questionId) {
+    public Question getFullQuestion(long questionId) {
 
         /*
          *  if question not exist: - return null
@@ -100,7 +100,7 @@ public class QuestionDao extends DaoImpl<Question> {
     }
 
     @Nullable
-    public List<CommentQuestion> getQuestionComments(Long questionId, int page) {
+    public List<CommentQuestion> getQuestionComments(long questionId, int page) {
 
         /*
          *  if question not exist: comments.size() = 0; (NullResultException will not be thrown) - return null

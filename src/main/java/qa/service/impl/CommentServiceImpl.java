@@ -158,7 +158,7 @@ public class CommentServiceImpl implements CommentService {
         commentAnswerDao.delete(new Where("id", request.getCommentId(), WhereOperator.EQUALS));
     }
 
-    private void checkIsRealAuthorCommentQuestion(Long authenticationId, Long commentId) {
+    private void checkIsRealAuthorCommentQuestion(Long authenticationId, long commentId) {
         AuthorUtil.checkIsRealAuthorAndIsEntityExist(
                 authenticationId,
                 new Where("id", commentId, WhereOperator.EQUALS),
@@ -169,7 +169,7 @@ public class CommentServiceImpl implements CommentService {
                 "comment");
     }
 
-    private void checkIsRealAuthorCommentAnswer(Long authenticationId, Long commentId) {
+    private void checkIsRealAuthorCommentAnswer(Long authenticationId, long commentId) {
         AuthorUtil.checkIsRealAuthorAndIsEntityExist(
                 authenticationId,
                 new Where("id", commentId, WhereOperator.EQUALS),
@@ -180,21 +180,21 @@ public class CommentServiceImpl implements CommentService {
                 "comment");
     }
 
-    private void throwBadRequestExIfQuestionNotExist(Long questionId) {
+    private void throwBadRequestExIfQuestionNotExist(long questionId) {
         if (!isQuestionExist(questionId))
             throw new BadRequestException("question not exist. id: " + questionId);
     }
 
-    private void throwBadRequestExIfAnswerNotExist(Long answerId) {
+    private void throwBadRequestExIfAnswerNotExist(long answerId) {
         if (!isAnswerExist(answerId))
             throw new BadRequestException("answer not exist. id: " + answerId);
     }
 
-    private boolean isQuestionExist(Long questionId) {
+    private boolean isQuestionExist(long questionId) {
         return questionDao.isExist(questionId);
     }
 
-    private boolean isAnswerExist(Long answerId) {
+    private boolean isAnswerExist(long answerId) {
         return answerDao.isExist(answerId);
     }
 

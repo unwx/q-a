@@ -23,11 +23,11 @@ public class AnswerQueryFactory {
 
     private final ResultConvertor resultConvertor = new ResultConvertor();
 
-    public Query<AnswerFullDto> answersWithCommentsQuery(Session session, Long questionId) {
+    public Query<AnswerFullDto> answersWithCommentsQuery(Session session, long questionId) {
         return answersWithCommentsQuery(session, questionId, 0);
     }
 
-    public Query<AnswerFullDto> answersWithCommentsQuery(Session session, Long questionId, int page) {
+    public Query<AnswerFullDto> answersWithCommentsQuery(Session session, long questionId, int page) {
         String sql =
                 """
                 SELECT\s\
@@ -67,7 +67,7 @@ public class AnswerQueryFactory {
                 .setResultTransformer(new QuestionAnswerFullDtoTransformer());
     }
 
-    public Query<AnswerCommentDto> answerCommentsQuery(Session session, Long answerId, int page) {
+    public Query<AnswerCommentDto> answerCommentsQuery(Session session, long answerId, int page) {
         String sql =
                 """
                 SELECT\s\

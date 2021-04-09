@@ -108,14 +108,14 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    private List<Question> getUserQuestionsFromDatabase(Long userId, Integer page) {
+    private List<Question> getUserQuestionsFromDatabase(long userId, Integer page) {
         List<Question> questions = userDao.readUserQuestions(userId, page - 1);
         if (questions == null)
             throw new ResourceNotFoundException("user not exist. userId: " + userId);
         return questions;
     }
 
-    private List<Answer> getUserAnswersFromDatabase(Long userId, Integer page) {
+    private List<Answer> getUserAnswersFromDatabase(long userId, Integer page) {
         List<Answer> answers = userDao.readUserAnswers(userId, page - 1);
         if (answers == null)
             throw new ResourceNotFoundException("user not exist. userId: " + userId);
