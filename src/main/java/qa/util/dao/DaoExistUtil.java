@@ -15,7 +15,7 @@ public class DaoExistUtil<Entity extends FieldExtractor & FieldDataSetterExtract
     private final HqlBuilder hqlBuilder;
     private final Entity targetEntity;
 
-    private final static Logger logger = LogManager.getLogger(DaoReadUtil.class);
+    private static final Logger logger = LogManager.getLogger(DaoReadUtil.class);
 
 
     public DaoExistUtil(HqlBuilder hqlBuilder,

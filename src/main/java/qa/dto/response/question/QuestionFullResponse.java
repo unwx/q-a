@@ -1,25 +1,30 @@
 package qa.dto.response.question;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import qa.domain.Answer;
-import qa.domain.Comment;
+import qa.domain.CommentQuestion;
 import qa.domain.User;
+import qa.serializer.question.QuestionFullResponseSerializer;
 
 import java.util.Date;
 import java.util.List;
 
+@JsonSerialize(using = QuestionFullResponseSerializer.class)
 public class QuestionFullResponse {
 
     @JsonProperty("id")
     private final Long questionId;
     private final String text;
     private final String title;
+    @JsonProperty("creation_date")
     private final Date creationDate;
+    @JsonProperty("last_activity")
     private final Date lastActivity;
     private final String[] tags;
     private final User author;
     private final List<Answer> answers;
-    private final List<Comment> comments;
+    private final List<CommentQuestion> comments;
 
     public QuestionFullResponse(Long questionId,
                                 String text,
@@ -29,7 +34,7 @@ public class QuestionFullResponse {
                                 String[] tags,
                                 User author,
                                 List<Answer> answers,
-                                List<Comment> comments) {
+                                List<CommentQuestion> comments) {
         this.questionId = questionId;
         this.text = text;
         this.title = title;
@@ -85,7 +90,7 @@ public class QuestionFullResponse {
         return answers;
     }
 
-    public List<Comment> getComments() {
+    public List<CommentQuestion> getComments() {
         return comments;
     }
 }

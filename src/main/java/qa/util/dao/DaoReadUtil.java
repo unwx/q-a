@@ -20,7 +20,7 @@ public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtracto
     private final PropertySetter mainSetter;
     private final Entity targetEntity;
 
-    private final static Logger logger = LogManager.getLogger(DaoReadUtil.class);
+    private static final Logger logger = LogManager.getLogger(DaoReadUtil.class);
 
     public DaoReadUtil(HqlBuilder hqlBuilder,
                        Entity emptyEntity,

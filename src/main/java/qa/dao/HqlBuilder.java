@@ -56,7 +56,7 @@ public class HqlBuilder {
 
     public String exist(String className, Where where) {
         StringBuilder hqlBuilder = new StringBuilder();
-        prepareForExist(className, where, hqlBuilder);
+        prepareForExist(where, hqlBuilder);
         from(className, hqlBuilder);
         where(where, hqlBuilder);
         return hqlBuilder.toString();
@@ -167,7 +167,7 @@ public class HqlBuilder {
                 .append(" set ");
     }
 
-    private void prepareForExist(String className, Where where, StringBuilder hqlBuilder) {
+    private void prepareForExist(Where where, StringBuilder hqlBuilder) {
         hqlBuilder
                 .append("select")
                 .append(' ')

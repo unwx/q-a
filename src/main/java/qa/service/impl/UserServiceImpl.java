@@ -17,9 +17,9 @@ import qa.dto.response.user.UserQuestionsResponse;
 import qa.dto.validation.wrapper.user.UserGetAnswersRequestValidationWrapper;
 import qa.dto.validation.wrapper.user.UserGetFullRequestValidationWrapper;
 import qa.dto.validation.wrapper.user.UserGetQuestionsRequestValidationWrapper;
-import qa.exceptions.rest.ResourceNotFoundException;
 import qa.service.UserService;
 import qa.source.ValidationPropertyDataSource;
+import qa.util.ResourceUtil;
 import qa.util.ValidationUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
@@ -32,6 +32,9 @@ public class UserServiceImpl implements UserService {
     private final UserDao userDao;
     private final ValidationChainAdditional validationChain;
     private final ValidationPropertyDataSource validationPropertyDataSource;
+
+    private static final String ERR_MESSAGE_USER_NOT_EXIST_UN = "user not exist. username: %s";
+    private static final String ERR_MESSAGE_USER_NOT_EXIST_ID = "user not exist. user id: %s";
 
     public UserServiceImpl(UserDao userDao,
                            ValidationChainAdditional validationChain,
@@ -103,23 +106,17 @@ public class UserServiceImpl implements UserService {
 
     private User getFullUserFromDatabase(String username) {
         User user = userDao.readFullUser(username);
-        if (user == null)
-            throw new ResourceNotFoundException("user not exist. username: " + username);
-        return user;
+        return ResourceUtil.throwResourceNFExceptionIfNull(user, ERR_MESSAGE_USER_NOT_EXIST_UN.formatted(username));
     }
 
     private List<Question> getUserQuestionsFromDatabase(long userId, Integer page) {
         List<Question> questions = userDao.readUserQuestions(userId, page - 1);
-        if (questions == null)
-            throw new ResourceNotFoundException("user not exist. userId: " + userId);
-        return questions;
+        return ResourceUtil.throwResourceNFExceptionIfNull(questions, ERR_MESSAGE_USER_NOT_EXIST_ID.formatted(userId));
     }
 
     private List<Answer> getUserAnswersFromDatabase(long userId, Integer page) {
         List<Answer> answers = userDao.readUserAnswers(userId, page - 1);
-        if (answers == null)
-            throw new ResourceNotFoundException("user not exist. userId: " + userId);
-        return answers;
+        return ResourceUtil.throwResourceNFExceptionIfNull(answers, ERR_MESSAGE_USER_NOT_EXIST_ID.formatted(userId));
     }
 
     private List<UserQuestionsResponse> convertQuestionsToResponseDto(@NotNull List<Question> questions) {

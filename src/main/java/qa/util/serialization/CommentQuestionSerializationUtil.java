@@ -1,0 +1,34 @@
+package qa.util.serialization;
+
+import com.fasterxml.jackson.core.JsonGenerator;
+import qa.domain.CommentQuestion;
+
+import java.io.IOException;
+import java.util.List;
+
+public class CommentQuestionSerializationUtil {
+
+    private CommentQuestionSerializationUtil() {
+    }
+
+    public static void writeCommentQuestions(List<CommentQuestion> commentQuestions, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeArrayFieldStart("comments");
+        for (CommentQuestion c : commentQuestions) {
+            jsonGenerator.writeStartObject();
+            writeCommentQuestionDataComponents(c, jsonGenerator);
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndArray();
+    }
+
+    private static void writeCommentQuestionDataComponents(CommentQuestion c, JsonGenerator jsonGenerator) throws IOException {
+        writeCommentQuestionData(c, jsonGenerator);
+        AuthorSerializationUtil.writeAuthorUsername(c.getAuthor(), jsonGenerator);
+    }
+
+    private static void writeCommentQuestionData(CommentQuestion c, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeNumberField("id", c.getId());
+        jsonGenerator.writeStringField("text", c.getText());
+        jsonGenerator.writeStringField("creation_date", DateSerializationUtil.dateToString(c.getCreationDate()));
+    }
+}

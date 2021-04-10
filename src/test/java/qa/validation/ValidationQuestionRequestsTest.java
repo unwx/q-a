@@ -3,12 +3,8 @@ package qa.validation;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import qa.dto.request.question.QuestionCreateRequest;
-import qa.dto.request.question.QuestionDeleteRequest;
-import qa.dto.request.question.QuestionEditRequest;
-import qa.dto.validation.wrapper.question.QuestionCreateRequestValidationWrapper;
-import qa.dto.validation.wrapper.question.QuestionDeleteRequestValidationWrapper;
-import qa.dto.validation.wrapper.question.QuestionEditRequestValidationWrapper;
+import qa.dto.request.question.*;
+import qa.dto.validation.wrapper.question.*;
 import qa.exceptions.validator.ValidationException;
 import qa.source.ValidationPropertyDataSource;
 import qa.util.dao.query.params.QuestionQueryParameters;
@@ -125,6 +121,52 @@ public class ValidationQuestionRequestsTest {
             QuestionDeleteRequestValidationWrapper validationWrapper = new QuestionDeleteRequestValidationWrapper(
                     new QuestionDeleteRequest(-5L));
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
+        }
+    }
+    @Nested
+    class get {
+        @Nested
+        class question_views {
+            @Test
+            void valid() {
+                QuestionGetViewsRequestValidationWrapper validationWrapper = new QuestionGetViewsRequestValidationWrapper(
+                        new QuestionGetViewsRequest(1));
+                Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
+            }
+
+            @Nested
+            class invalid_page {
+                @Test
+                void zero() {
+                    QuestionGetViewsRequestValidationWrapper validationWrapper = new QuestionGetViewsRequestValidationWrapper(
+                            new QuestionGetViewsRequest(0));
+                    Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
+                }
+
+                @Test
+                void negative() {
+                    QuestionGetViewsRequestValidationWrapper validationWrapper = new QuestionGetViewsRequestValidationWrapper(
+                            new QuestionGetViewsRequest(-3));
+                    Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
+                }
+            }
+        }
+
+        @Nested
+        class full_question {
+            @Test
+            void valid () {
+                QuestionGetFullRequestValidationWrapper validationWrapper = new QuestionGetFullRequestValidationWrapper(
+                        new QuestionGetFullRequest(1L));
+                Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
+            }
+
+            @Test
+            void invalid_id() {
+                QuestionGetFullRequestValidationWrapper validationWrapper = new QuestionGetFullRequestValidationWrapper(
+                        new QuestionGetFullRequest(-5L));
+                Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
+            }
         }
     }
 }

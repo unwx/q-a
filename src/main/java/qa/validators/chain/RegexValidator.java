@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 public class RegexValidator extends Validator {
 
-    private final static Logger logger = LogManager.getLogger(RegexValidator.class);
+    private static final Logger logger = LogManager.getLogger(RegexValidator.class);
 
     public void validate(ValidationWrapper entity) throws ValidationException {
         regexValidate(entity);

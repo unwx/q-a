@@ -18,7 +18,7 @@ public class RsaKeysInitializer {
     private RSAPrivateKey privateKey;
     private final RSAPropertyDataSource propertiesDataSource;
 
-    private final static Logger logger = LogManager.getLogger(RsaKeysInitializer.class);
+    private static final Logger logger = LogManager.getLogger(RsaKeysInitializer.class);
 
     @Autowired
     public RsaKeysInitializer(RSAPropertyDataSource propertiesDataSource) {

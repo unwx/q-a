@@ -9,7 +9,7 @@ import qa.validators.entities.ValidationNumberField;
 
 public class NumberEntitiesValidator extends Validator {
 
-    private final static Logger logger = LogManager.getLogger(NumberEntitiesValidator.class);
+    private static final Logger logger = LogManager.getLogger(NumberEntitiesValidator.class);
 
     public void validate(ValidationWrapper entity) throws ValidationException {
         valuesValidate(entity);

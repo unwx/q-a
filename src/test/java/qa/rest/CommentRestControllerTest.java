@@ -32,9 +32,9 @@ import static org.hamcrest.Matchers.*;
 public class CommentRestControllerTest {
 
     private final SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-    private final static String defaultUserPassword = "ho3kLS4hl2dp-asd";
-    private final static String defaultUserUsername = "user471293";
-    private final static String defaultUserEmail = "yahoo@yahoo.com";
+    private static final  String defaultUserPassword = "ho3kLS4hl2dp-asd";
+    private static final String defaultUserUsername = "user471293";
+    private static final String defaultUserEmail = "yahoo@yahoo.com";
 
     private final String text = "thank you! @username";
     private final String secondText = "@username thank you!";

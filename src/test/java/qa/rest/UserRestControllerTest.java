@@ -77,23 +77,7 @@ public class UserRestControllerTest {
                 Response response = request.get("get/" + UserQueryParameters.USERNAME);
                 assertThat(response.getStatusCode(), equalTo(200));
 
-                ObjectMapper mapper = new ObjectMapper();
-                UserFullResponse userFullResponse = mapper.readValue(response.getBody().asString(), UserFullResponse.class);
-
-                assertThat(userFullResponse, notNullValue());
-                assertThat(userFullResponse.getUserId(), notNullValue());
-                assertThat(userFullResponse.getAbout(), notNullValue());
-                assertThat(userFullResponse.getUsername(), notNullValue());
-
-                for (Question q : userFullResponse.getQuestions()) {
-                    assertThat(q.getId(), notNullValue());
-                    assertThat(q.getTitle(), notNullValue());
-                }
-
-                for (Answer a : userFullResponse.getAnswers()) {
-                    assertThat(a.getId(), notNullValue());
-                    assertThat(a.getText(), notNullValue());
-                }
+                assertCorrectDataGetUserSuccess(response.getBody().asString());
             }
 
             @Test
@@ -105,23 +89,7 @@ public class UserRestControllerTest {
                 Response response = request.get("get");
                 assertThat(response.getStatusCode(), equalTo(200));
 
-                ObjectMapper mapper = new ObjectMapper();
-                UserFullResponse userFullResponse = mapper.readValue(response.getBody().asString(), UserFullResponse.class);
-
-                assertThat(userFullResponse, notNullValue());
-                assertThat(userFullResponse.getUserId(), notNullValue());
-                assertThat(userFullResponse.getAbout(), notNullValue());
-                assertThat(userFullResponse.getUsername(), notNullValue());
-
-                for (Question q : userFullResponse.getQuestions()) {
-                    assertThat(q.getId(), notNullValue());
-                    assertThat(q.getTitle(), notNullValue());
-                }
-
-                for (Answer a : userFullResponse.getAnswers()) {
-                    assertThat(a.getId(), notNullValue());
-                    assertThat(a.getText(), notNullValue());
-                }
+                assertCorrectDataGetUserSuccess(response.getBody().asString());
             }
         }
         @Nested
@@ -135,19 +103,7 @@ public class UserRestControllerTest {
                 Response response = request.get("get");
                 assertThat(response.getStatusCode(), equalTo(200));
 
-                ObjectMapper mapper = new ObjectMapper();
-                UserFullResponse userFullResponse = mapper.readValue(response.getBody().asString(), UserFullResponse.class);
-
-                assertThat(userFullResponse, notNullValue());
-                assertThat(userFullResponse.getUserId(), notNullValue());
-                assertThat(userFullResponse.getAbout(), notNullValue());
-                assertThat(userFullResponse.getUsername(), notNullValue());
-
-                assertThat(userFullResponse.getQuestions(), notNullValue());
-                assertThat(userFullResponse.getQuestions(), equalTo(Collections.emptyList()));
-
-                assertThat(userFullResponse.getAnswers(), notNullValue());
-                assertThat(userFullResponse.getAnswers(), equalTo(Collections.emptyList()));
+                assertCorrectDataGetUserNotFound(response.getBody().asString());
             }
 
             @Test
@@ -158,19 +114,7 @@ public class UserRestControllerTest {
                 Response response = request.get("get/" + UserQueryParameters.USERNAME);
                 assertThat(response.getStatusCode(), equalTo(200));
 
-                ObjectMapper mapper = new ObjectMapper();
-                UserFullResponse userFullResponse = mapper.readValue(response.getBody().asString(), UserFullResponse.class);
-
-                assertThat(userFullResponse, notNullValue());
-                assertThat(userFullResponse.getUserId(), notNullValue());
-                assertThat(userFullResponse.getAbout(), notNullValue());
-                assertThat(userFullResponse.getUsername(), notNullValue());
-
-                assertThat(userFullResponse.getQuestions(), notNullValue());
-                assertThat(userFullResponse.getQuestions(), equalTo(Collections.emptyList()));
-
-                assertThat(userFullResponse.getAnswers(), notNullValue());
-                assertThat(userFullResponse.getAnswers(), equalTo(Collections.emptyList()));
+                assertCorrectDataGetUserNotFound(response.getBody().asString());
             }
         }
 
@@ -208,15 +152,7 @@ public class UserRestControllerTest {
                 Response response = request.get("questions/get");
                 assertThat(response.getStatusCode(), equalTo(200));
 
-                ObjectMapper mapper = new ObjectMapper();
-                UserQuestionsResponse[] questionsResponse = mapper.readValue(response.body().asString(), UserQuestionsResponse[].class);
-                assertThat(questionsResponse.length, greaterThan(0));
-
-                for (UserQuestionsResponse userQuestionsResponse : questionsResponse) {
-                    assertThat(userQuestionsResponse, notNullValue());
-                    assertThat(userQuestionsResponse.getQuestionId(), notNullValue());
-                    assertThat(userQuestionsResponse.getTitle(), notNullValue());
-                }
+                assertCorrectDataGetQuestions(response.getBody().asString());
             }
 
             @Test
@@ -227,15 +163,7 @@ public class UserRestControllerTest {
                 Response response = request.get("questions/get/1/1");
                 assertThat(response.getStatusCode(), equalTo(200));
 
-                ObjectMapper mapper = new ObjectMapper();
-                UserQuestionsResponse[] questionsResponse = mapper.readValue(response.body().asString(), UserQuestionsResponse[].class);
-                assertThat(questionsResponse.length, greaterThan(0));
-
-                for (UserQuestionsResponse userQuestionsResponse : questionsResponse) {
-                    assertThat(userQuestionsResponse, notNullValue());
-                    assertThat(userQuestionsResponse.getQuestionId(), notNullValue());
-                    assertThat(userQuestionsResponse.getTitle(), notNullValue());
-                }
+                assertCorrectDataGetQuestions(response.getBody().asString());
             }
         }
 
@@ -328,13 +256,7 @@ public class UserRestControllerTest {
                 Response response = request.get("answers/get");
                 assertThat(response.getStatusCode(), equalTo(200));
 
-                ObjectMapper objectMapper = new ObjectMapper();
-                UserAnswersResponse[] answersResponse = objectMapper.readValue(response.getBody().asString(), UserAnswersResponse[].class);
-                for (UserAnswersResponse userAnswersResponse : answersResponse) {
-                    assertThat(userAnswersResponse, notNullValue());
-                    assertThat(userAnswersResponse.getAnswerId(), notNullValue());
-                    assertThat(userAnswersResponse.getText(), notNullValue());
-                }
+                assertCorrectDataGetAnswers(response.getBody().asString());
             }
 
             @Test
@@ -345,13 +267,7 @@ public class UserRestControllerTest {
                 Response response = request.get("answers/get/1/1");
                 assertThat(response.getStatusCode(), equalTo(200));
 
-                ObjectMapper objectMapper = new ObjectMapper();
-                UserAnswersResponse[] answersResponse = objectMapper.readValue(response.getBody().asString(), UserAnswersResponse[].class);
-                for (UserAnswersResponse userAnswersResponse : answersResponse) {
-                    assertThat(userAnswersResponse, notNullValue());
-                    assertThat(userAnswersResponse.getAnswerId(), notNullValue());
-                    assertThat(userAnswersResponse.getText(), notNullValue());
-                }
+                assertCorrectDataGetAnswers(response.getBody().asString());
             }
         }
 
@@ -428,6 +344,64 @@ public class UserRestControllerTest {
                     assertThat(answersResponse.length, equalTo(0));
                 }
             }
+        }
+    }
+
+    private void assertCorrectDataGetAnswers(String json) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserAnswersResponse[] answersResponse = objectMapper.readValue(json, UserAnswersResponse[].class);
+        for (UserAnswersResponse userAnswersResponse : answersResponse) {
+            assertThat(userAnswersResponse, notNullValue());
+            assertThat(userAnswersResponse.getAnswerId(), notNullValue());
+            assertThat(userAnswersResponse.getText(), notNullValue());
+        }
+    }
+
+    private void assertCorrectDataGetQuestions(String json) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        UserQuestionsResponse[] questionsResponse = mapper.readValue(json, UserQuestionsResponse[].class);
+        assertThat(questionsResponse.length, greaterThan(0));
+
+        for (UserQuestionsResponse userQuestionsResponse : questionsResponse) {
+            assertThat(userQuestionsResponse, notNullValue());
+            assertThat(userQuestionsResponse.getQuestionId(), notNullValue());
+            assertThat(userQuestionsResponse.getTitle(), notNullValue());
+        }
+    }
+
+    private void assertCorrectDataGetUserNotFound(String json) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        UserFullResponse userFullResponse = mapper.readValue(json, UserFullResponse.class);
+
+        assertThat(userFullResponse, notNullValue());
+        assertThat(userFullResponse.getUserId(), notNullValue());
+        assertThat(userFullResponse.getAbout(), notNullValue());
+        assertThat(userFullResponse.getUsername(), notNullValue());
+
+        assertThat(userFullResponse.getQuestions(), notNullValue());
+        assertThat(userFullResponse.getQuestions(), equalTo(Collections.emptyList()));
+
+        assertThat(userFullResponse.getAnswers(), notNullValue());
+        assertThat(userFullResponse.getAnswers(), equalTo(Collections.emptyList()));
+    }
+
+    private void assertCorrectDataGetUserSuccess(String json) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        UserFullResponse userFullResponse = mapper.readValue(json, UserFullResponse.class);
+
+        assertThat(userFullResponse, notNullValue());
+        assertThat(userFullResponse.getUserId(), notNullValue());
+        assertThat(userFullResponse.getAbout(), notNullValue());
+        assertThat(userFullResponse.getUsername(), notNullValue());
+
+        for (Question q : userFullResponse.getQuestions()) {
+            assertThat(q.getId(), notNullValue());
+            assertThat(q.getTitle(), notNullValue());
+        }
+
+        for (Answer a : userFullResponse.getAnswers()) {
+            assertThat(a.getId(), notNullValue());
+            assertThat(a.getText(), notNullValue());
         }
     }
 }

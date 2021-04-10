@@ -7,7 +7,7 @@ import qa.validators.abstraction.Validator;
 
 public class EmailValidator extends Validator implements AdditionalValidator<String> {
 
-    private final static Logger logger = LogManager.getLogger(EmailValidator.class);
+    private static final Logger logger = LogManager.getLogger(EmailValidator.class);
 
     @Override
     public void validate(String c) throws ValidationException {

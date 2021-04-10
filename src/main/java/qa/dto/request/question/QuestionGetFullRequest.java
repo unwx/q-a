@@ -11,6 +11,10 @@ public class QuestionGetFullRequest {
         this.questionId = questionId;
     }
 
+    protected QuestionGetFullRequest() {
+        this.questionId = null;
+    }
+
     public Long getQuestionId() {
         return questionId;
     }

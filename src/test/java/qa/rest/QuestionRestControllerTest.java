@@ -16,6 +16,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
+import qa.domain.Answer;
+import qa.domain.CommentAnswer;
+import qa.domain.CommentQuestion;
+import qa.dto.response.question.QuestionFullResponse;
 import qa.dto.response.question.QuestionViewResponse;
 import qa.security.jwt.service.JwtProvider;
 import qa.util.dao.QuestionDaoTestUtil;
@@ -26,6 +30,7 @@ import qa.util.rest.QuestionRestTestUtil;
 
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -187,22 +192,7 @@ public class QuestionRestControllerTest {
                     Response response = request.get("get/views");
                     assertThat(response.getStatusCode(), equalTo(200));
 
-                    ObjectMapper mapper = new ObjectMapper();
-                    mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-                    QuestionViewResponse[] views = mapper.readValue(response.getBody().asString(), QuestionViewResponse[].class);
-                    assertThat(views.length, greaterThan(0));
-
-                    for (QuestionViewResponse q : views) {
-                        assertThat(q, notNullValue());
-                        assertThat(q.getQuestionId(), notNullValue());
-                        assertThat(q.getTitle(), notNullValue());
-                        assertThat(q.getAnswersCount(), notNullValue());
-                        assertThat(q.getCreationDate(), notNullValue());
-                        assertThat(q.getLastActivity(), notNullValue());
-                        assertThat(q.getTags(), notNullValue());
-                        assertThat(q.getUser(), notNullValue());
-                        assertThat(q.getUser().getUsername(), notNullValue());
-                    }
+                    assertCorrectDataQuestionViews(response.getBody().asString());
                 }
 
                 @Test
@@ -213,22 +203,7 @@ public class QuestionRestControllerTest {
                     Response response = request.get("get/views/1");
                     assertThat(response.getStatusCode(), equalTo(200));
 
-                    ObjectMapper mapper = new ObjectMapper();
-                    mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-                    QuestionViewResponse[] views = mapper.readValue(response.getBody().asString(), QuestionViewResponse[].class);
-                    assertThat(views.length, greaterThan(0));
-
-                    for (QuestionViewResponse q : views) {
-                        assertThat(q, notNullValue());
-                        assertThat(q.getQuestionId(), notNullValue());
-                        assertThat(q.getTitle(), notNullValue());
-                        assertThat(q.getAnswersCount(), notNullValue());
-                        assertThat(q.getCreationDate(), notNullValue());
-                        assertThat(q.getLastActivity(), notNullValue());
-                        assertThat(q.getTags(), notNullValue());
-                        assertThat(q.getUser(), notNullValue());
-                        assertThat(q.getUser().getUsername(), notNullValue());
-                    }
+                    assertCorrectDataQuestionViews(response.getBody().asString());
                 }
             }
 
@@ -254,6 +229,59 @@ public class QuestionRestControllerTest {
                 }
             }
         }
+
+        @Nested
+        class full_question {
+            @Nested
+            class success {
+                @Test
+                void json() throws JsonProcessingException {
+                    questionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(
+                            QuestionDaoTestUtil.RESULT_SIZE,
+                            QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
+                    JSONObject json = QuestionRestTestUtil.id();
+                    RequestSpecification request = QuestionRestTestUtil.getRequestJson(json.toString());
+
+                    Response response = request.get("get/full");
+                    assertThat(response.getStatusCode(), equalTo(200));
+
+                    assertCorrectDataFullQuestion(response.getBody().asString());
+                }
+
+                @Test
+                void url() throws JsonProcessingException {
+                    questionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(
+                            QuestionDaoTestUtil.RESULT_SIZE,
+                            QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
+                    RequestSpecification request = QuestionRestTestUtil.getRequest();
+
+                    Response response = request.get("get/full/1");
+                    assertThat(response.getStatusCode(), equalTo(200));
+
+                    assertCorrectDataFullQuestion(response.getBody().asString());
+                }
+            }
+
+            @Nested
+            class bad_request {
+                @Test
+                void json() {
+                    JSONObject json = QuestionRestTestUtil.badId();
+                    RequestSpecification request = QuestionRestTestUtil.getRequestJson(json.toString());
+
+                    Response response = request.get("get/full");
+                    assertThat(response.getStatusCode(), equalTo(400));
+                }
+
+                @Test
+                void url() {
+                    RequestSpecification request = QuestionRestTestUtil.getRequest();
+
+                    Response response = request.get("get/full/-1");
+                    assertThat(response.getStatusCode(), equalTo(400));
+                }
+            }
+        }
     }
 
     private Long getId(String text) {
@@ -265,6 +293,73 @@ public class QuestionRestControllerTest {
                     .uniqueResult();
             transaction.commit();
             return result == null ? null : result.longValue();
+        }
+    }
+
+    private void assertCorrectDataQuestionViews(String json) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+        QuestionViewResponse[] views = mapper.readValue(json, QuestionViewResponse[].class);
+        assertThat(views.length, greaterThan(0));
+
+        for (QuestionViewResponse q : views) {
+            assertThat(q, notNullValue());
+            assertThat(q.getQuestionId(), notNullValue());
+            assertThat(q.getTitle(), notNullValue());
+            assertThat(q.getAnswersCount(), notNullValue());
+            assertThat(q.getCreationDate(), notNullValue());
+            assertThat(q.getLastActivity(), notNullValue());
+            assertThat(q.getTags(), notNullValue());
+            assertThat(q.getUser(), notNullValue());
+            assertThat(q.getUser().getUsername(), notNullValue());
+        }
+    }
+
+    private void assertCorrectDataFullQuestion(String json) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+        QuestionFullResponse question = mapper.readValue(json, QuestionFullResponse.class);
+
+        List<CommentQuestion> commentQuestions = question.getComments();
+        List<Answer> answers = question.getAnswers();
+
+        assertThat(question, notNullValue());
+        assertThat(question.getQuestionId(), notNullValue());
+        assertThat(question.getTitle(), notNullValue());
+        assertThat(question.getText(), notNullValue());
+        assertThat(question.getCreationDate(), notNullValue());
+        assertThat(question.getLastActivity(), notNullValue());
+        assertThat(question.getTags(), notNullValue());
+        assertThat(question.getTags().length, greaterThan(0));
+
+        assertThat(question.getAuthor(), notNullValue());
+        assertThat(question.getAuthor().getUsername(), notNullValue());
+
+        for (CommentQuestion c : commentQuestions) {
+            assertThat(c, notNullValue());
+            assertThat(c.getId(), notNullValue());
+            assertThat(c.getText(), notNullValue());
+            assertThat(c.getCreationDate(), notNullValue());
+            assertThat(c.getAuthor(), notNullValue());
+            assertThat(c.getAuthor().getUsername(), notNullValue());
+        }
+
+        for (Answer a : answers) {
+            assertThat(a, notNullValue());
+            assertThat(a.getId(), notNullValue());
+            assertThat(a.getText(), notNullValue());
+            assertThat(a.getCreationDate(), notNullValue());
+            assertThat(a.getAnswered(), notNullValue());
+            assertThat(a.getAuthor(), notNullValue());
+            assertThat(a.getAuthor().getUsername(), notNullValue());
+            for (CommentAnswer ca : a.getComments()) {
+                assertThat(ca, notNullValue());
+                assertThat(ca.getId(), notNullValue());
+                assertThat(ca.getText(), notNullValue());
+                assertThat(ca.getCreationDate(), notNullValue());
+                assertThat(ca.getAuthor(), notNullValue());
+                assertThat(ca.getAuthor().getUsername(), notNullValue());
+            }
         }
     }
 }

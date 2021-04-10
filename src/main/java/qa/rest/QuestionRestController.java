@@ -7,10 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import qa.dto.request.question.QuestionCreateRequest;
-import qa.dto.request.question.QuestionDeleteRequest;
-import qa.dto.request.question.QuestionEditRequest;
-import qa.dto.request.question.QuestionGetViewsRequest;
+import qa.dto.request.question.*;
+import qa.dto.response.question.QuestionFullResponse;
 import qa.dto.response.question.QuestionViewResponse;
 import qa.service.QuestionService;
 
@@ -211,5 +209,148 @@ public class QuestionRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<QuestionViewResponse>> getQuestions(@RequestBody QuestionGetViewsRequest request) {
         return questionService.getQuestions(request);
+    }
+
+
+    /**
+     * @uri
+     * /api/v1/question/get/full
+     *
+     * @method
+     * get
+     *
+     * @path_variable
+     * id: long
+     *
+     * @response
+     * OK: (200)
+     * response {
+     *     id: long
+     *     text: string
+     *     title: string
+     *     creation_date: string|yyyy-MM-dd HH:mm:ss
+     *     last_activity: string|yyyy-MM-dd HH:mm:ss
+     *     tags: [
+     *          tag: string
+     *     ]
+     *     author: {
+     *         username: string
+     *     }
+     *     answers: [
+     *          id: long
+     *          text: string
+     *          answered: string (true, false)
+     *          creation_date: string|yyyy-MM-dd HH:mm:ss
+     *          author: {
+     *              username: string
+     *          }
+     *          comments: [
+     *              id: long
+     *              text: string
+     *              creation_date: string|yyyy-MM-dd HH:mm:ss
+     *              author: {
+     *                  username: string
+     *              }
+     *              ...
+     *          ]
+     *         ...
+     *     ]
+     *     comments: [
+     *          id: long
+     *          text: string
+     *          creation_date: string|yyyy-MM-dd HH:mm:ss
+     *          author: {
+     *              username: string
+     *          }
+     *          ...
+     *     ]
+     * }
+     *
+     * 400 | 401 | 404 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @RequestMapping(
+            value = "get/full/{questionId}",
+            method = RequestMethod.GET)
+    public ResponseEntity<QuestionFullResponse> getFullQuestion(@PathVariable("questionId") Long questionId) {
+        return questionService.getFullQuestion(questionId);
+    }
+
+
+    /**
+     * @uri
+     * /api/v1/question/get/full
+     *
+     * @method
+     * get
+     *
+     * @request
+     * dto {
+     *     id: long
+     * }
+     *
+     * @response
+     * OK: (200)
+     * response {
+     *     id: long
+     *     text: string
+     *     title: string
+     *     creation_date: string|yyyy-MM-dd HH:mm:ss
+     *     last_activity: string|yyyy-MM-dd HH:mm:ss
+     *     tags: [
+     *          tag: string
+     *     ]
+     *     author: {
+     *         username: string
+     *     }
+     *     answers: [
+     *          id: long
+     *          text: string
+     *          answered: string (true, false)
+     *          creation_date: string|yyyy-MM-dd HH:mm:ss
+     *          author: {
+     *              username: string
+     *          }
+     *          comments: [
+     *              id: long
+     *              text: string
+     *              creation_date: string|yyyy-MM-dd HH:mm:ss
+     *              author: {
+     *                  username: string
+     *              }
+     *              ...
+     *          ]
+     *         ...
+     *     ]
+     *     comments: [
+     *          id: long
+     *          text: string
+     *          creation_date: string|yyyy-MM-dd HH:mm:ss
+     *          author: {
+     *              username: string
+     *          }
+     *          ...
+     *     ]
+     * }
+     *
+     * 400 | 401 | 404 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @RequestMapping(
+            value = "get/full",
+            method = RequestMethod.GET,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<QuestionFullResponse> getFullQuestion(@RequestBody QuestionGetFullRequest request) {
+        return questionService.getFullQuestion(request);
     }
 }

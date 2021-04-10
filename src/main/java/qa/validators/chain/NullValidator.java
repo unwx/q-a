@@ -17,7 +17,7 @@ import java.util.HashSet;
  */
 public class NullValidator extends Validator {
 
-    private final static Logger logger = LogManager.getLogger(NullValidator.class);
+    private static final Logger logger = LogManager.getLogger(NullValidator.class);
 
     public void validate(ValidationWrapper entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
         areAttributesAreNotNull(entity, ignore);

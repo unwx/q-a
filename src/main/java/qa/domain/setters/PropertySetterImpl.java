@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 public class PropertySetterImpl implements PropertySetter {
 
-    private final static Logger logger = LogManager.getLogger(PropertySetterImpl.class);
+    private static final Logger logger = LogManager.getLogger(PropertySetterImpl.class);
 
     private final HashMap<String, ISetter<FieldDataSetterExtractor>> setters;
 

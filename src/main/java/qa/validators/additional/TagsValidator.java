@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 
 public class TagsValidator extends Validator implements AdditionalValidator<String[]> {
 
-    private final static Logger logger = LogManager.getLogger(TagsValidator.class);
+    private static final Logger logger = LogManager.getLogger(TagsValidator.class);
     private final ValidationPropertyDataSource propertiesDataSource;
 
     public TagsValidator(ValidationPropertyDataSource propertiesDataSource) {

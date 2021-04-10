@@ -21,6 +21,7 @@ import qa.dto.validation.wrapper.question.*;
 import qa.service.QuestionService;
 import qa.source.ValidationPropertyDataSource;
 import qa.util.QuestionTagsUtil;
+import qa.util.ResourceUtil;
 import qa.util.ValidationUtil;
 import qa.util.user.AuthorUtil;
 import qa.util.user.PrincipalUtil;
@@ -38,7 +39,9 @@ public class QuestionServiceImpl implements QuestionService {
     private final ValidationChainAdditional validationChain;
     private final PropertySetterFactory propertySetterFactory;
 
-    private final static Logger logger = LogManager.getLogger(QuestionServiceImpl.class);
+    private static final String ERR_MESSAGE_QUESTION_NOT_EXIST_ID = "question not exist. question id: %s";
+
+    private static final Logger logger = LogManager.getLogger(QuestionServiceImpl.class);
 
     public QuestionServiceImpl(QuestionDao questionDao,
                                ValidationPropertyDataSource validationPropertyDataSource,
@@ -79,12 +82,12 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public ResponseEntity<QuestionFullResponse> getFullQuestion(Long questionId) {
-        return null;
+        return new ResponseEntity<>(getFullQuestionProcess(questionId), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<QuestionFullResponse> getFullQuestion(QuestionGetFullRequest request) {
-        return null;
+        return new ResponseEntity<>(getFullQuestionProcess(request), HttpStatus.OK);
     }
 
     @Override
@@ -122,6 +125,16 @@ public class QuestionServiceImpl implements QuestionService {
         validate(request);
         List<QuestionView> views = getQuestionViewsFromDatabase(request.getPage());
         return convertDtoToResponse(views);
+    }
+
+    private QuestionFullResponse getFullQuestionProcess(Long questionId) {
+        return getFullQuestionProcess(new QuestionGetFullRequest(questionId));
+    }
+
+    private QuestionFullResponse getFullQuestionProcess(QuestionGetFullRequest request) {
+        validate(request);
+        Question fullQuestion = getFullQuestionFromDatabase(request.getQuestionId());
+        return convertDtoToResponse(fullQuestion);
     }
 
     private Long saveNewQuestion(QuestionCreateRequest request, Authentication authentication) {
@@ -166,6 +179,11 @@ public class QuestionServiceImpl implements QuestionService {
         return questionDao.getQuestionViewsDto(page - 1);
     }
 
+    private Question getFullQuestionFromDatabase(long questionId) {
+        Question fullQuestion = questionDao.getFullQuestion(questionId);
+        return ResourceUtil.throwResourceNFExceptionIfNull(fullQuestion, ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questionId));
+    }
+
     private List<QuestionViewResponse> convertDtoToResponse(List<QuestionView> views) {
         List<QuestionViewResponse> viewsResponse = new ArrayList<>(views.size());
         views.forEach((v) -> viewsResponse.add(
@@ -179,6 +197,20 @@ public class QuestionServiceImpl implements QuestionService {
                         v.getAuthor())
         ));
         return viewsResponse;
+    }
+
+    private QuestionFullResponse convertDtoToResponse(Question question) {
+        return new QuestionFullResponse(
+                question.getId(),
+                question.getText(),
+                question.getTitle(),
+                question.getCreationDate(),
+                question.getLastActivity(),
+                QuestionTagsUtil.stringToTags(question.getTags()),
+                question.getAuthor(),
+                question.getAnswers(),
+                question.getComments()
+        );
     }
 
     private void validate(QuestionCreateRequest request) {

@@ -1,5 +1,6 @@
 package qa.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import qa.dao.databasecomponents.Field;
 import qa.domain.setters.SetterField;
 
@@ -83,6 +84,7 @@ public class CommentQuestion extends Comment {
     }
 
     @Override
+    @JsonProperty("creation_date")
     public Date getCreationDate() {
         return super.getCreationDate();
     }

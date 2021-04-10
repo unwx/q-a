@@ -1,5 +1,6 @@
 package qa.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import qa.dao.databasecomponents.Field;
@@ -103,6 +104,7 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
         return answered;
     }
 
+    @JsonProperty("creation_date")
     public Date getCreationDate() {
         return creationDate;
     }
