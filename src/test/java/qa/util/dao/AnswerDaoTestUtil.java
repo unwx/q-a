@@ -1,6 +1,9 @@
 package qa.util.dao;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
+import qa.TestLogger;
 import qa.util.dao.query.builder.QueryBuilder;
 
 import java.util.Date;
@@ -8,16 +11,18 @@ import java.util.Date;
 public class AnswerDaoTestUtil {
 
     private static final long dateAtMillisDefault = 360000000000L;
+    public static final int COMMENT_RESULT_SIZE = 3;
 
     private final QueryBuilder queryBuilder;
 
-    public static final int COMMENT_RESULT_SIZE = 3;
+    private static final Logger logger = LogManager.getLogger(AnswerDaoTestUtil.class);
 
     public AnswerDaoTestUtil(SessionFactory sessionFactory) {
         this.queryBuilder = new QueryBuilder(sessionFactory);
     }
 
     public void createAnswer() {
+        TestLogger.trace(logger, "create answer", 2);
         queryBuilder
                 .openSession()
                 .user()
@@ -27,6 +32,7 @@ public class AnswerDaoTestUtil {
     }
 
     public void createAnswerNoUser(Boolean answered) {
+        TestLogger.trace(logger, "create answer no user", 2);
         queryBuilder
                 .openSession()
                 .question()
@@ -35,6 +41,7 @@ public class AnswerDaoTestUtil {
     }
 
     public void createAnswerNoUser() {
+        TestLogger.trace(logger, "create answer no user", 2);
         queryBuilder
                 .openSession()
                 .question()
@@ -43,6 +50,7 @@ public class AnswerDaoTestUtil {
     }
 
     public void createManyAnswers(int answers) {
+        TestLogger.trace(logger, "create many answers", 2);
         queryBuilder
                 .openSession()
                 .user()
@@ -58,6 +66,7 @@ public class AnswerDaoTestUtil {
     }
 
     public void createAnswerWithManyComments(int comments) {
+        TestLogger.trace(logger, "create answer with many comments", 2);
         queryBuilder
                 .openSession()
                 .user()

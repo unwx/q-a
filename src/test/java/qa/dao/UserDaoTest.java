@@ -1,5 +1,7 @@
 package qa.dao;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -7,6 +9,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import qa.TestLogger;
 import qa.dao.query.UserQueryFactory;
 import qa.domain.Answer;
 import qa.domain.Question;
@@ -36,8 +39,11 @@ public class UserDaoTest {
     private AnswerDaoTestUtil answersDaoTestUtil;
     private UserDaoTestUtil userDaoTestUtil;
 
+    private static final Logger logger = LogManager.getLogger(UserDaoTest.class);
+
     @BeforeAll
     void init() {
+        TestLogger.info(logger, "init", 3);
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
         UserQueryFactory userQueryFactory = Mockito.spy(new UserQueryFactory());
 
@@ -51,6 +57,7 @@ public class UserDaoTest {
     @BeforeEach
     void truncate() {
         try (Session session = sessionFactory.openSession()) {
+            TestLogger.info(logger, "truncate", 3);
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("truncate table question cascade").executeUpdate();
             session.createSQLQuery("truncate table authentication cascade").executeUpdate();
@@ -63,6 +70,7 @@ public class UserDaoTest {
     class get_full_user {
         @Test
         void assert_correct_result() {
+            TestLogger.trace(logger, "get full user -> assert correct result", 3);
             questionDaoTestUtil.createManyQuestionsWithManyAnswers(UserDaoTestUtil.RESULT_SIZE, 1);
             User user = userDao.readFullUser(UserQueryParameters.USERNAME);
             assertThat(user, notNullValue());
@@ -90,6 +98,7 @@ public class UserDaoTest {
 
         @Test
         void assert_no_duplicates() {
+            TestLogger.trace(logger, "get full user -> assert no duplicates", 3);
             questionDaoTestUtil.createManyQuestionsWithManyAnswers(UserDaoTestUtil.RESULT_SIZE, 1);
             User user = userDao.readFullUser(UserQueryParameters.USERNAME);
             assertThat(user, notNullValue());
@@ -120,6 +129,7 @@ public class UserDaoTest {
 
         @Test
         void assert_no_null_pointer_exception_user_created_only() {
+            TestLogger.trace(logger, "get full user -> assert no NPE user created only", 3);
             userDaoTestUtil.createUser();
             User u = userDao.readFullUser(UserQueryParameters.USERNAME);
             assertThat(u, notNullValue());
@@ -129,6 +139,7 @@ public class UserDaoTest {
 
         @Test
         void assert_not_found_result_equal_null() {
+            TestLogger.trace(logger, "get full user -> assert not found result equals null", 3);
             User user = userDao.readFullUser(UserQueryParameters.USERNAME);
             assertThat(user, equalTo(null));
         }
@@ -139,6 +150,7 @@ public class UserDaoTest {
 
         @Test
         void assert_correct_result() {
+            TestLogger.trace(logger, "get user questions -> assert correct result", 3);
             questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
 
             List<Question> questions = userDao.readUserQuestions(1L, 0);
@@ -154,6 +166,7 @@ public class UserDaoTest {
 
         @Test
         void assert_no_duplicates() {
+            TestLogger.trace(logger, "get user questions -> assert no duplicates", 3);
             questionDaoTestUtil.createManyQuestions((int) (UserDaoTestUtil.RESULT_SIZE * 1.5));
 
             List<Question> questions1 = userDao.readUserQuestions(1L, 0);
@@ -183,17 +196,22 @@ public class UserDaoTest {
             assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
         }
 
-        @Test
-        void assert_not_found_result_user_not_exist_equal_empty_list() {
-            List<Question> questions = userDao.readUserQuestions(1L, 0);
-            assertThat(questions, equalTo(null));
-        }
+        @Nested
+        class not_found {
+            @Test
+            void assert_result_user_not_exist_equal_null() {
+                TestLogger.trace(logger, "get user questions -> not found -> assert result equals null if user not exist", 3);
+                List<Question> questions = userDao.readUserQuestions(1L, 0);
+                assertThat(questions, equalTo(null));
+            }
 
-        @Test
-        void assert_not_found_result_questions_not_exist_equal_empty_list() {
-            userDaoTestUtil.createUser();
-            List<Question> questions = userDao.readUserQuestions(1L, 12312);
-            assertThat(questions, equalTo(Collections.emptyList()));
+            @Test
+            void assert_result_equal_empty_list() {
+                TestLogger.trace(logger, "get user questions -> not found -> assert result equals empty list if user exist", 3);
+                userDaoTestUtil.createUser();
+                List<Question> questions = userDao.readUserQuestions(1L, 12312);
+                assertThat(questions, equalTo(Collections.emptyList()));
+            }
         }
     }
 
@@ -201,6 +219,7 @@ public class UserDaoTest {
     class get_user_answers {
         @Test
         void assert_correct_result() {
+            TestLogger.trace(logger, "get user answers -> assert correct result", 3);
             answersDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
 
             List<Answer> answers = userDao.readUserAnswers(1L, 0);
@@ -216,6 +235,7 @@ public class UserDaoTest {
 
         @Test
         void assert_no_duplicates() {
+            TestLogger.trace(logger, "get user answers -> assert no duplicates", 3);
             answersDaoTestUtil.createManyAnswers((int) (UserDaoTestUtil.RESULT_SIZE * 1.5));
 
             List<Answer> answers1 = userDao.readUserAnswers(1L, 0);
@@ -245,17 +265,22 @@ public class UserDaoTest {
             assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
         }
 
-        @Test
-        void assert_not_found_result_user_not_exist_equal_empty_list() {
-            List<Answer> answers = userDao.readUserAnswers(1L, 0);
-            assertThat(answers, equalTo(null));
-        }
+        @Nested
+        class not_found {
+            @Test
+            void assert_user_not_exist_equal_null() {
+                TestLogger.trace(logger, "get user answers -> not found -> assert user not exist equal null", 3);
+                List<Answer> answers = userDao.readUserAnswers(1L, 0);
+                assertThat(answers, equalTo(null));
+            }
 
-        @Test
-        void assert_not_found_result_answers_not_exist_equal_empty_list() {
-            userDaoTestUtil.createUser();
-            List<Answer> answers1 = userDao.readUserAnswers(1L, 0);
-            assertThat(answers1, equalTo(Collections.emptyList()));
+            @Test
+            void assert_answers_not_exist_equal_empty_list() {
+                TestLogger.trace(logger, "get user answers -> not found -> assert user exist equal empty list", 3);
+                userDaoTestUtil.createUser();
+                List<Answer> answers1 = userDao.readUserAnswers(1L, 0);
+                assertThat(answers1, equalTo(Collections.emptyList()));
+            }
         }
     }
 }

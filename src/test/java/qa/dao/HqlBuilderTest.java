@@ -1,10 +1,13 @@
 package qa.dao;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import qa.TestLogger;
 import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.Table;
 import qa.dao.databasecomponents.Where;
@@ -29,11 +32,13 @@ public class HqlBuilderTest {
             "str",
             "date"
     };
+    private static final Logger logger = LogManager.getLogger(HqlBuilderTest.class);
 
     @Nested
     class read {
         @Test
         public void no_nested() {
+            TestLogger.trace(logger, "read -> no nested", 3);
             Table table = new Table(entityDefaultFieldNames, "Entity");
             String hql = entityHqlBuilder.read(new Where("id", 5, WhereOperator.EQUALS), table, Collections.emptyList());
             String required =
@@ -48,6 +53,7 @@ public class HqlBuilderTest {
 
         @Test
         void no_nested_null_where_value() {
+            TestLogger.trace(logger, "read -> no nested null where value", 3);
             Table table = new Table(new String[]{"bool"}, "Entity");
             String hql = entityHqlBuilder.read(new Where("where", null, WhereOperator.EQUALS), table, Collections.emptyList());
             String required =
@@ -62,6 +68,7 @@ public class HqlBuilderTest {
 
         @Test
         void nested_only_1() {
+            TestLogger.trace(logger, "read -> nested only", 3);
             Table table = new Table(new String[]{}, "Entity");
 
             qa.dao.databasecomponents.NestedEntity nestedEntity = new qa.dao.databasecomponents.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
@@ -79,6 +86,7 @@ public class HqlBuilderTest {
 
         @Test
         void nested_only_2() {
+            TestLogger.trace(logger, "read -> nested only", 3);
             Table table = new Table(new String[]{}, "Entity");
             qa.dao.databasecomponents.NestedEntity nestedEntity1 = new qa.dao.databasecomponents.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
             qa.dao.databasecomponents.NestedEntity nestedEntity2 = new qa.dao.databasecomponents.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
@@ -101,6 +109,7 @@ public class HqlBuilderTest {
 
         @Test
         void all() {
+            TestLogger.trace(logger, "read -> all", 3);
             Table table = new Table(entityDefaultFieldNames, "Entity");
             qa.dao.databasecomponents.NestedEntity nestedEntity1 = new qa.dao.databasecomponents.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
             qa.dao.databasecomponents.NestedEntity nestedEntity2 = new qa.dao.databasecomponents.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
@@ -124,6 +133,7 @@ public class HqlBuilderTest {
 
         @Test
         void big_entity() {
+            TestLogger.trace(logger, "read -> big entity", 3);
             HqlBuilder hqlBuilder = new HqlBuilder();
             String[] fieldNames = new String[]{
                     "l1",
@@ -174,6 +184,7 @@ public class HqlBuilderTest {
     class update {
         @Test
         public void simple_entity() {
+            TestLogger.trace(logger, "update -> simple entity", 3);
             Entity entity = new Entity(null, "test", true, null);
             ImmutablePair<String, Field[]> pair = entityHqlBuilder.update(new Where("id", 5L, WhereOperator.EQUALS), entity);
             String required =
@@ -197,6 +208,7 @@ public class HqlBuilderTest {
 
         @Test
         public void big_entity() {
+            TestLogger.trace(logger, "update -> big entity", 3);
             BigEntity bigEntity = new BigEntity(
                     1L, 2L, 3L, 4L, 4L, 4L, 4L, 8L, 9L,
                     "1", "2", "3", "3", "3", "6", "7", "8", "9",
@@ -253,6 +265,7 @@ public class HqlBuilderTest {
     class delete {
         @Test
         public void entity() {
+            TestLogger.trace(logger, "delete -> entity", 3);
             String className = "Entity";
             Where where = new Where("id", 5L, WhereOperator.EQUALS);
             String required =
@@ -269,6 +282,7 @@ public class HqlBuilderTest {
     class exist {
         @Test
         public void entity() {
+            TestLogger.trace(logger, "exist -> entity", 3);
             String className = "Entity";
             Where where = new Where("id", 1L, WhereOperator.EQUALS);
             String required =

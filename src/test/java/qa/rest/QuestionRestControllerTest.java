@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -15,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
+import qa.TestLogger;
 import qa.config.spring.SpringConfig;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
@@ -49,14 +52,18 @@ public class QuestionRestControllerTest {
 
     private QuestionDaoTestUtil questionDaoTestUtil;
 
+    private static final Logger logger = LogManager.getLogger(QuestionRestControllerTest.class);
+
     @BeforeAll
     void init() {
+        TestLogger.info(logger, "init", 3);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
     }
 
     @BeforeEach
     void truncate() {
+        TestLogger.info(logger, "truncate", 3);
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("truncate table question cascade").executeUpdate();
@@ -75,6 +82,7 @@ public class QuestionRestControllerTest {
         class success {
             @Test
             void create() {
+                TestLogger.trace(logger, "CUD -> success -> create", 3);
                 String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
                 JSONObject json = QuestionRestTestUtil.createQuestionJson();
                 RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
@@ -90,6 +98,7 @@ public class QuestionRestControllerTest {
 
             @Test
             void edit() {
+                TestLogger.trace(logger, "CUD -> success -> edit", 3);
                 String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
                 questionDaoTestUtil.createQuestionNoUser();
                 JSONObject json = QuestionRestTestUtil.editQuestionJson();
@@ -104,6 +113,7 @@ public class QuestionRestControllerTest {
 
             @Test
             void delete() {
+                TestLogger.trace(logger, "CUD -> success -> delete", 3);
                 String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
                 questionDaoTestUtil.createQuestionNoUser();
                 JSONObject json = QuestionRestTestUtil.id();
@@ -120,6 +130,7 @@ public class QuestionRestControllerTest {
         class bad_request {
             @Test
             void create() {
+                TestLogger.trace(logger, "CUD -> bad request -> create", 3);
                 String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
                 JSONObject json = QuestionRestTestUtil.createBADQuestionJson();
                 RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
@@ -130,6 +141,7 @@ public class QuestionRestControllerTest {
 
             @Test
             void edit() {
+                TestLogger.trace(logger, "CUD -> bad request -> edit", 3);
                 String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
                 JSONObject json = QuestionRestTestUtil.editBADQuestionJson();
                 RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
@@ -140,6 +152,7 @@ public class QuestionRestControllerTest {
 
             @Test
             void delete() {
+                TestLogger.trace(logger, "CUD -> bad request -> delete", 3);
                 String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
                 JSONObject json = QuestionRestTestUtil.badId();
                 RequestSpecification request = QuestionRestTestUtil.getRequestJsonJwt(json.toString(), token);
@@ -153,6 +166,7 @@ public class QuestionRestControllerTest {
         class access_denied {
             @Test
             void edit() {
+                TestLogger.trace(logger, "CUD -> access denied -> edit", 3);
                 String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
                 questionDaoTestUtil.createQuestion();
                 JSONObject json = QuestionRestTestUtil.editQuestionJson();
@@ -165,6 +179,7 @@ public class QuestionRestControllerTest {
 
             @Test
             void delete() {
+                TestLogger.trace(logger, "CUD -> access denied -> delete", 3);
                 String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
                 questionDaoTestUtil.createQuestion();
                 JSONObject json = QuestionRestTestUtil.id();
@@ -180,11 +195,12 @@ public class QuestionRestControllerTest {
     @Nested
     class get {
         @Nested
-        class get_question_views {
+        class question_views {
             @Nested
             class success {
                 @Test
                 void json() throws JsonProcessingException {
+                    TestLogger.trace(logger, "get -> question views -> success -> json", 3);
                     questionDaoTestUtil.createManyQuestions(QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE);
                     JSONObject json = QuestionRestTestUtil.page();
                     RequestSpecification request = QuestionRestTestUtil.getRequestJson(json.toString());
@@ -197,6 +213,7 @@ public class QuestionRestControllerTest {
 
                 @Test
                 void url() throws JsonProcessingException {
+                    TestLogger.trace(logger, "get -> question views -> success -> url", 3);
                     questionDaoTestUtil.createManyQuestions(QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE);
                     RequestSpecification request = QuestionRestTestUtil.getRequest();
 
@@ -211,6 +228,7 @@ public class QuestionRestControllerTest {
             class bad_request {
                 @Test
                 void json() {
+                    TestLogger.trace(logger, "get -> question views -> bad request -> json", 3);
                     questionDaoTestUtil.createManyQuestions(QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE);
                     JSONObject json = QuestionRestTestUtil.badPage();
                     RequestSpecification request = QuestionRestTestUtil.getRequestJson(json.toString());
@@ -221,6 +239,7 @@ public class QuestionRestControllerTest {
 
                 @Test
                 void url() {
+                    TestLogger.trace(logger, "get -> question views -> bad request -> url", 3);
                     questionDaoTestUtil.createManyQuestions(QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE);
                     RequestSpecification request = QuestionRestTestUtil.getRequest();
 
@@ -236,6 +255,7 @@ public class QuestionRestControllerTest {
             class success {
                 @Test
                 void json() throws JsonProcessingException {
+                    TestLogger.trace(logger, "get -> full question -> success -> json", 3);
                     questionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(
                             QuestionDaoTestUtil.RESULT_SIZE,
                             QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
@@ -250,6 +270,7 @@ public class QuestionRestControllerTest {
 
                 @Test
                 void url() throws JsonProcessingException {
+                    TestLogger.trace(logger, "get -> full question -> success -> url", 3);
                     questionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(
                             QuestionDaoTestUtil.RESULT_SIZE,
                             QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
@@ -266,6 +287,7 @@ public class QuestionRestControllerTest {
             class bad_request {
                 @Test
                 void json() {
+                    TestLogger.trace(logger, "get -> full question -> bad request -> json", 3);
                     JSONObject json = QuestionRestTestUtil.badId();
                     RequestSpecification request = QuestionRestTestUtil.getRequestJson(json.toString());
 
@@ -275,6 +297,7 @@ public class QuestionRestControllerTest {
 
                 @Test
                 void url() {
+                    TestLogger.trace(logger, "get -> full question -> bad request -> url", 3);
                     RequestSpecification request = QuestionRestTestUtil.getRequest();
 
                     Response response = request.get("get/full/-1");

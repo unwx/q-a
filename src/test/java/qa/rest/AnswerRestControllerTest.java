@@ -3,6 +3,8 @@ package qa.rest;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
+import qa.TestLogger;
 import qa.config.spring.SpringConfig;
 import qa.security.jwt.service.JwtProvider;
 import qa.util.dao.AnswerDaoTestUtil;
@@ -39,11 +42,14 @@ public class AnswerRestControllerTest {
     private QuestionDaoTestUtil questionDaoTestUtil;
     private AnswerDaoTestUtil answerDaoTestUtil;
 
+    private static final Logger logger = LogManager.getLogger(AnswerRestControllerTest.class);
+
     @Autowired
     private JwtProvider jwtProvider;
 
     @BeforeAll
     void init() {
+        TestLogger.info(logger, "init", 3);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
@@ -51,6 +57,7 @@ public class AnswerRestControllerTest {
 
     @BeforeEach
     void truncate() {
+        TestLogger.info(logger, "truncate", 3);
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("truncate table question cascade").executeUpdate();
@@ -68,6 +75,7 @@ public class AnswerRestControllerTest {
     class success {
         @Test
         void create() {
+            TestLogger.trace(logger, "success -> create", 3);
             String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             questionDaoTestUtil.createQuestionNoUser();
 
@@ -82,6 +90,7 @@ public class AnswerRestControllerTest {
 
         @Test
         void edit() {
+            TestLogger.trace(logger, "success -> edit", 3);
             String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser();
 
@@ -96,6 +105,7 @@ public class AnswerRestControllerTest {
 
         @Test
         void delete() {
+            TestLogger.trace(logger, "success -> delete", 3);
             String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser();
 
@@ -112,6 +122,7 @@ public class AnswerRestControllerTest {
 
         @Test
         void answered() {
+            TestLogger.trace(logger, "success -> answered", 3);
             String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser();
 
@@ -126,6 +137,7 @@ public class AnswerRestControllerTest {
 
         @Test
         void not_answered() {
+            TestLogger.trace(logger, "success -> not-answered", 3);
             String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser(false);
 
@@ -143,6 +155,7 @@ public class AnswerRestControllerTest {
     class bad_request {
         @Test
         void create() {
+            TestLogger.trace(logger, "bad request -> create", 3);
             String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
             JSONObject json = AnswerRestTestUtil.createBADAnswerJson();
@@ -154,6 +167,7 @@ public class AnswerRestControllerTest {
 
         @Test
         void edit() {
+            TestLogger.trace(logger, "bad request -> edit", 3);
             String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
             JSONObject json = AnswerRestTestUtil.editBADAnswerJson();
@@ -165,6 +179,7 @@ public class AnswerRestControllerTest {
 
         @Test
         void answered() {
+            TestLogger.trace(logger, "bad request -> answered", 3);
             String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
             JSONObject json = AnswerRestTestUtil.badId();
@@ -176,6 +191,7 @@ public class AnswerRestControllerTest {
 
         @Test
         void not_answered() {
+            TestLogger.trace(logger, "bad request -> not-answered", 3);
             String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
             JSONObject json = AnswerRestTestUtil.badId();
@@ -187,6 +203,7 @@ public class AnswerRestControllerTest {
 
         @Test
         void delete() {
+            TestLogger.trace(logger, "bad request -> delete", 3);
             String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
             JSONObject json = AnswerRestTestUtil.badId();
@@ -201,6 +218,7 @@ public class AnswerRestControllerTest {
     class access_denied {
         @Test
         void edit() {
+            TestLogger.trace(logger, "access denied -> edit", 3);
             String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
@@ -215,6 +233,7 @@ public class AnswerRestControllerTest {
 
         @Test
         void answered() {
+            TestLogger.trace(logger, "access denied -> answered", 3);
             String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
@@ -228,6 +247,7 @@ public class AnswerRestControllerTest {
 
         @Test
         void not_answered() {
+            TestLogger.trace(logger, "access denied -> not-answered", 3);
             String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
@@ -241,6 +261,7 @@ public class AnswerRestControllerTest {
 
         @Test
         void delete() {
+            TestLogger.trace(logger, "access denied -> delete", 3);
             String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 

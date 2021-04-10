@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -14,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
+import qa.TestLogger;
 import qa.config.spring.SpringConfig;
 import qa.domain.Answer;
 import qa.domain.Question;
@@ -44,8 +47,11 @@ public class UserRestControllerTest {
     private AnswerDaoTestUtil answerDaoTestUtil;
     private QuestionDaoTestUtil questionDaoTestUtil;
 
+    private static final Logger logger = LogManager.getLogger(UserRestControllerTest.class);
+
     @BeforeAll
     void init() {
+        TestLogger.info(logger, "init", 3);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         userDaoTestUtil = new UserDaoTestUtil(sessionFactory);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
@@ -54,6 +60,7 @@ public class UserRestControllerTest {
 
     @BeforeEach
     void truncate() {
+        TestLogger.info(logger, "truncate", 3);
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("truncate table question cascade").executeUpdate();
@@ -71,6 +78,7 @@ public class UserRestControllerTest {
         class success {
             @Test
             void url() throws JsonProcessingException {
+                TestLogger.trace(logger, "get user -> success -> url", 3);
                 questionDaoTestUtil.createManyQuestionsWithManyAnswers(UserDaoTestUtil.RESULT_SIZE, 2);
                 RequestSpecification request = UserRestTestUtil.getRequest();
 
@@ -82,6 +90,7 @@ public class UserRestControllerTest {
 
             @Test
             void json() throws JsonProcessingException {
+                TestLogger.trace(logger, "get user -> success -> json", 3);
                 questionDaoTestUtil.createManyQuestionsWithManyAnswers(UserDaoTestUtil.RESULT_SIZE, 2);
                 JSONObject json = UserRestTestUtil.usernameJson();
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -96,6 +105,7 @@ public class UserRestControllerTest {
         class not_found {
             @Test
             void json_assert_empty_list() throws JsonProcessingException {
+                TestLogger.trace(logger, "get user -> not found -> json. assert empty list", 3);
                 userDaoTestUtil.createUser();
                 JSONObject json = UserRestTestUtil.usernameJson();
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -108,6 +118,7 @@ public class UserRestControllerTest {
 
             @Test
             void url_assert_empty_list() throws JsonProcessingException {
+                TestLogger.trace(logger, "get user -> not found -> url. assert empty list", 3);
                 userDaoTestUtil.createUser();
                 RequestSpecification request = UserRestTestUtil.getRequest();
 
@@ -122,6 +133,7 @@ public class UserRestControllerTest {
         class bad_request {
             @Test
             void json() {
+                TestLogger.trace(logger, "get user -> bad request -> json", 3);
                 JSONObject json = UserRestTestUtil.usernameBADJson();
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
@@ -131,6 +143,7 @@ public class UserRestControllerTest {
 
             @Test
             void url() {
+                TestLogger.trace(logger, "get user -> bad request -> url", 3);
                 RequestSpecification request = UserRestTestUtil.getRequest();
 
                 Response response = request.get("get/" + "o");
@@ -145,6 +158,7 @@ public class UserRestControllerTest {
         class success {
             @Test
             void json() throws JsonProcessingException {
+                TestLogger.trace(logger, "get user questions -> success -> json", 3);
                 questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
                 JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -157,6 +171,7 @@ public class UserRestControllerTest {
 
             @Test
             void url() throws JsonProcessingException {
+                TestLogger.trace(logger, "get user questions -> success -> url", 3);
                 questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
                 RequestSpecification request = UserRestTestUtil.getRequest();
 
@@ -171,6 +186,7 @@ public class UserRestControllerTest {
         class bad_request {
             @Test
             void json() {
+                TestLogger.trace(logger, "get user questions -> bad request -> json", 3);
                 questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
                 JSONObject json = UserRestTestUtil.idPageJSON(1, 0);
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -181,6 +197,7 @@ public class UserRestControllerTest {
 
             @Test
             void url() {
+                TestLogger.trace(logger, "get user questions -> bad request -> url", 3);
                 questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
                 RequestSpecification request = UserRestTestUtil.getRequest();
 
@@ -195,6 +212,7 @@ public class UserRestControllerTest {
             class user_not_exist {
                 @Test
                 void json() {
+                    TestLogger.trace(logger, "get user questions -> not found -> user not exist -> json", 3);
                     JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
                     RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
@@ -204,6 +222,7 @@ public class UserRestControllerTest {
 
                 @Test
                 void url() {
+                    TestLogger.trace(logger, "get user questions -> not found -> user not exist -> url", 3);
                     RequestSpecification request = UserRestTestUtil.getRequest();
 
                     Response response = request.get("questions/get/1/1");
@@ -215,6 +234,7 @@ public class UserRestControllerTest {
             class question_assert_empty_list {
                 @Test
                 void json() throws JsonProcessingException {
+                    TestLogger.trace(logger, "get user questions -> not found -> assert result equal empty list -> json", 3);
                     userDaoTestUtil.createUser();
                     JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
                     RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -229,6 +249,7 @@ public class UserRestControllerTest {
 
                 @Test
                 void url() throws JsonProcessingException {
+                    TestLogger.trace(logger, "get user questions -> not found -> assert result equal empty list -> url", 3);
                     userDaoTestUtil.createUser();
                     RequestSpecification request = UserRestTestUtil.getRequest();
 
@@ -249,6 +270,7 @@ public class UserRestControllerTest {
         class success {
             @Test
             void json() throws JsonProcessingException {
+                TestLogger.trace(logger, "get user answers -> success -> json", 3);
                 answerDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
                 JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -261,6 +283,7 @@ public class UserRestControllerTest {
 
             @Test
             void url() throws JsonProcessingException {
+                TestLogger.trace(logger, "get user answers -> success -> url", 3);
                 answerDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
                 RequestSpecification request = UserRestTestUtil.getRequest();
 
@@ -275,6 +298,7 @@ public class UserRestControllerTest {
         class bad_request {
             @Test
             void json() {
+                TestLogger.trace(logger, "get user answers -> bad request -> json", 3);
                 answerDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
                 JSONObject json = UserRestTestUtil.idPageJSON(1, 0);
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -285,6 +309,7 @@ public class UserRestControllerTest {
 
             @Test
             void url() {
+                TestLogger.trace(logger, "get user answers -> bad request -> url", 3);
                 answerDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
                 RequestSpecification request = RestAssured.given();
 
@@ -299,6 +324,7 @@ public class UserRestControllerTest {
             class user_not_exist {
                 @Test
                 void json() {
+                    TestLogger.trace(logger, "get user answers -> not found -> user not exist -> json", 3);
                     JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
                     RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
@@ -308,6 +334,7 @@ public class UserRestControllerTest {
 
                 @Test
                 void url() {
+                    TestLogger.trace(logger, "get user answers -> not found -> user not exist -> url", 3);
                     RequestSpecification request = UserRestTestUtil.getRequest();
 
                     Response response = request.get("answers/get/1/1");
@@ -319,6 +346,7 @@ public class UserRestControllerTest {
             class answer_assert_empty_list {
                 @Test
                 void json() throws JsonProcessingException {
+                    TestLogger.trace(logger, "get user answers -> not found -> assert result equals empty list -> json", 3);
                     userDaoTestUtil.createUser();
                     JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
                     RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -333,6 +361,7 @@ public class UserRestControllerTest {
 
                 @Test
                 void url() throws JsonProcessingException {
+                    TestLogger.trace(logger, "get user answers -> not found -> assert result equals empty list -> url", 3);
                     userDaoTestUtil.createUser();
                     RequestSpecification request = UserRestTestUtil.getRequest();
 

@@ -6,6 +6,8 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
+import qa.TestLogger;
 import qa.config.spring.SpringConfig;
 import qa.dto.response.JwtPairResponse;
 import qa.exceptions.rest.ErrorMessage;
@@ -43,6 +46,8 @@ public class AuthenticationRestControllerTest {
     private SessionFactory sessionFactory;
     private UserDaoTestUtil userDaoTestUtil;
 
+    private static final Logger logger = LogManager.getLogger(AuthenticationRestControllerTest.class);
+
     @Autowired
     private JwtProvider jwtProvider;
 
@@ -51,12 +56,14 @@ public class AuthenticationRestControllerTest {
 
     @BeforeAll
     void init() {
+        TestLogger.info(logger, "init", 3);
         sessionFactory =  HibernateSessionFactoryUtil.getSessionFactory();
         userDaoTestUtil = new UserDaoTestUtil(sessionFactory);
     }
 
     @BeforeEach
     void truncate() {
+        TestLogger.info(logger, "truncate", 3);
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("truncate table user_role cascade").executeUpdate();
@@ -72,6 +79,7 @@ public class AuthenticationRestControllerTest {
     class registration {
         @Test
         void success_assert_valid_tokens() throws JsonProcessingException {
+            TestLogger.trace(logger, "registration -> success. assert valid tokens", 3);
             JSONObject json = AuthenticationRestTestUtil.getRegistrationJson();
 
             RequestSpecification request = AuthenticationRestTestUtil.getRequestJson(json.toString());
@@ -89,6 +97,7 @@ public class AuthenticationRestControllerTest {
 
         @Test
         void failed_user_already_exist() throws JsonProcessingException {
+            TestLogger.trace(logger, "registration -> failed. user already exist", 3);
             userDaoTestUtil.createUser();
 
             JSONObject json = AuthenticationRestTestUtil.getRegistrationJson();
@@ -112,6 +121,7 @@ public class AuthenticationRestControllerTest {
     class login {
         @Test
         void success_assert_valid_tokens() throws JsonProcessingException {
+            TestLogger.trace(logger, "login -> failed. success. assert valid tokens", 3);
             JwtTestUtil.createUserWithRefreshTokenAndEncryptedPassword(sessionFactory, jwtProvider, passwordEncryptorFactory.create());
 
             JSONObject json = AuthenticationRestTestUtil.getLoginJson();
@@ -131,6 +141,7 @@ public class AuthenticationRestControllerTest {
 
         @Test
         void failed_wrong_login_or_password() throws JsonProcessingException {
+            TestLogger.trace(logger, "login -> failed. failed. wrong login or password", 3);
             JSONObject json = AuthenticationRestTestUtil.getLoginJson();
 
             RequestSpecification request = AuthenticationRestTestUtil.getRequestJson(json.toString());
@@ -152,6 +163,7 @@ public class AuthenticationRestControllerTest {
     class refresh_tokens {
         @Test
         void success_assert_valid_tokens() throws JsonProcessingException {
+            TestLogger.trace(logger, "refresh tokens -> success. assert valid tokens", 3);
             ImmutablePair<String, Long> pair = JwtTestUtil.createUserWithRefreshTokenAndEncryptedPassword(
                     sessionFactory,
                     jwtProvider,
@@ -179,6 +191,7 @@ public class AuthenticationRestControllerTest {
 
         @Test
         void failed_invalid_refresh_token() throws JsonProcessingException {
+            TestLogger.trace(logger, "refresh tokens -> failed. send invalid refresh token to server", 3);
             ImmutablePair<String, Long> pair = JwtTestUtil.createUserWithRefreshTokenAndEncryptedPassword(
                     sessionFactory,
                     jwtProvider,

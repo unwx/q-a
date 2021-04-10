@@ -1,5 +1,7 @@
 package qa.dao;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -7,6 +9,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import qa.TestLogger;
 import qa.dao.query.AnswerQueryFactory;
 import qa.dao.query.QuestionQueryFactory;
 import qa.domain.*;
@@ -32,8 +35,11 @@ public class QuestionDaoTest {
     private QuestionDaoTestUtil questionDaoTestUtil;
     private AnswerDaoTestUtil answerDaoTestUtil;
 
+    private static final Logger logger = LogManager.getLogger(QuestionDaoTest.class);
+
     @BeforeAll
     void init() {
+        TestLogger.info(logger, "init", 3);
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
         QuestionQueryFactory questionQueryFactory = Mockito.spy(new QuestionQueryFactory());
         AnswerQueryFactory answerQueryFactory = Mockito.spy(new AnswerQueryFactory());
@@ -46,6 +52,7 @@ public class QuestionDaoTest {
 
     @BeforeEach
     void truncate() {
+        TestLogger.info(logger, "truncate", 3);
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("truncate table question cascade").executeUpdate();
@@ -61,6 +68,7 @@ public class QuestionDaoTest {
     class get_full_question {
         @Test
         void assert_correct_result() {
+            TestLogger.trace(logger, "get full question -> assert correct result", 3);
             questionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(6, 3);
             Question q = questionDao.getFullQuestion(1L);
 
@@ -109,6 +117,7 @@ public class QuestionDaoTest {
 
         @Test
         void assert_no_duplicates() {
+            TestLogger.trace(logger, "get full question -> assert no duplicates", 3);
             questionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(6, 3);
             Question q = questionDao.getFullQuestion(1L);
 
@@ -154,11 +163,13 @@ public class QuestionDaoTest {
 
         @Test
         void assert_not_found_result_equal_null() {
+            TestLogger.trace(logger, "get full question -> assert not found result equals null", 3);
             assertThat(questionDao.getFullQuestion(123432L), equalTo(null));
         }
 
         @Test
         void assert_no_null_pointer_exception_question_created_only() {
+            TestLogger.trace(logger, "get full question -> assert no NPE question created only", 3);
             questionDaoTestUtil.createQuestion();
             Question q = questionDao.getFullQuestion(1L);
             assertThat(q, notNullValue());
@@ -168,6 +179,7 @@ public class QuestionDaoTest {
 
         @Test
         void assert_no_null_pointer_exception_question_answer_created_only() {
+            TestLogger.trace(logger, "get full question -> assert no NPE question & answer created only", 3);
             answerDaoTestUtil.createAnswer();
             Question q = questionDao.getFullQuestion(1L);
             assertThat(q, notNullValue());
@@ -180,6 +192,7 @@ public class QuestionDaoTest {
     class get_question_comments {
         @Test
         void assert_correct_result() {
+            TestLogger.trace(logger, "get question comments -> assert correct result", 3);
             questionDaoTestUtil.createQuestionWithComments((int) (QuestionDaoTestUtil.COMMENT_RESULT_SIZE * 1.5));
             for (int i = 0; i < 2; i++) {
                 List<CommentQuestion> comments = questionDao.getQuestionComments(1L, i);
@@ -198,6 +211,7 @@ public class QuestionDaoTest {
 
         @Test
         void assert_no_duplicates() {
+            TestLogger.trace(logger, "get question comments -> assert no duplicates", 3);
             questionDaoTestUtil.createQuestionWithComments((int) (QuestionDaoTestUtil.COMMENT_RESULT_SIZE * 1.5));
 
             List<CommentQuestion> comments1 = questionDao.getQuestionComments(1L, 0);
@@ -227,11 +241,13 @@ public class QuestionDaoTest {
         class no_result {
             @Test
             void assert_result_equal_null_question_not_exist() {
+                TestLogger.trace(logger, "get question comments -> no result -> assert equals null if question not exist", 3);
                 assertThat(questionDao.getQuestionComments(1L, 1), equalTo(null));
             }
 
             @Test
             void assert_result_equal_empty_list_question_exist() {
+                TestLogger.trace(logger, "get question comments -> no result -> assert equals empty list if question exist", 3);
                 questionDaoTestUtil.createQuestion();
                 assertThat(questionDao.getQuestionComments(1L, 1), equalTo(Collections.emptyList()));
             }
@@ -242,6 +258,7 @@ public class QuestionDaoTest {
     class get_question_views {
         @Test
         void assert_correct_result() {
+            TestLogger.trace(logger, "get question views -> assert correct result", 3);
             questionDaoTestUtil.createManyQuestionsWithManyAnswers(
                     (QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE),
                     QuestionDaoTestUtil.RESULT_SIZE);
@@ -262,6 +279,7 @@ public class QuestionDaoTest {
 
         @Test
         void assert_no_duplicates() {
+            TestLogger.trace(logger, "get question views -> assert no duplicates", 3);
             questionDaoTestUtil.createManyQuestionsWithManyAnswers(
                     (int) (QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE * 1.5),
                     QuestionDaoTestUtil.RESULT_SIZE);
@@ -291,6 +309,7 @@ public class QuestionDaoTest {
 
         @Test
         void assert_exist_if_answers_not_exist() {
+            TestLogger.trace(logger, "get question views -> assert exist if answers not exist", 3);
             questionDaoTestUtil.createManyQuestions(QuestionDaoTestUtil.QUESTION_VIEW_RESULT_SIZE);
             List<QuestionView> dto = questionDao.getQuestionViewsDto(0);
             assertThat(dto.size(), greaterThan(0));
@@ -298,6 +317,7 @@ public class QuestionDaoTest {
 
         @Test
         void assert_not_found_result_equal_empty_list() {
+            TestLogger.trace(logger, "get question views -> assert not found result equal empty list", 3);
             List<QuestionView> dto = questionDao.getQuestionViewsDto(1231230);
             assertThat(dto, equalTo(Collections.emptyList()));
         }
