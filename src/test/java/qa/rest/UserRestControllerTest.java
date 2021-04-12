@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -16,13 +14,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
-import qa.TestLogger;
 import qa.config.spring.SpringConfig;
 import qa.domain.Answer;
 import qa.domain.Question;
 import qa.dto.response.user.UserAnswersResponse;
 import qa.dto.response.user.UserFullResponse;
 import qa.dto.response.user.UserQuestionsResponse;
+import qa.logger.Logged;
+import qa.logger.LoggingExtension;
+import qa.logger.TestLogger;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.UserDaoTestUtil;
@@ -36,7 +36,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 @WebAppConfiguration
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, LoggingExtension.class})
 @ContextConfiguration(classes = SpringConfig.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -47,11 +47,10 @@ public class UserRestControllerTest {
     private AnswerDaoTestUtil answerDaoTestUtil;
     private QuestionDaoTestUtil questionDaoTestUtil;
 
-    private static final Logger logger = LogManager.getLogger(UserRestControllerTest.class);
+    private final TestLogger logger = new TestLogger(UserRestControllerTest.class);
 
     @BeforeAll
     void init() {
-        TestLogger.info(logger, "init", 3);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         userDaoTestUtil = new UserDaoTestUtil(sessionFactory);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
@@ -60,8 +59,7 @@ public class UserRestControllerTest {
 
     @BeforeEach
     void truncate() {
-        TestLogger.info(logger, "truncate", 3);
-        try(Session session = sessionFactory.openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("truncate table question cascade").executeUpdate();
             session.createSQLQuery("truncate table authentication cascade").executeUpdate();
@@ -72,13 +70,25 @@ public class UserRestControllerTest {
         }
     }
 
-    @Nested
+    @Logged
     class get_user {
-        @Nested
+
+        @BeforeAll
+        void init() {
+            logger.nested(get_user.class);
+        }
+
+        @Logged
         class success {
+
+            @BeforeAll
+            void init() {
+                logger.nested(success.class);
+            }
+
             @Test
             void url() throws JsonProcessingException {
-                TestLogger.trace(logger, "get user -> success -> url", 3);
+                logger.trace("by url");
                 questionDaoTestUtil.createManyQuestionsWithManyAnswers(UserDaoTestUtil.RESULT_SIZE, 2);
                 RequestSpecification request = UserRestTestUtil.getRequest();
 
@@ -90,7 +100,7 @@ public class UserRestControllerTest {
 
             @Test
             void json() throws JsonProcessingException {
-                TestLogger.trace(logger, "get user -> success -> json", 3);
+                logger.trace("by json");
                 questionDaoTestUtil.createManyQuestionsWithManyAnswers(UserDaoTestUtil.RESULT_SIZE, 2);
                 JSONObject json = UserRestTestUtil.usernameJson();
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -101,11 +111,18 @@ public class UserRestControllerTest {
                 assertCorrectDataGetUserSuccess(response.getBody().asString());
             }
         }
-        @Nested
+
+        @Logged
         class not_found {
+
+            @BeforeAll
+            void init() {
+                logger.nested(not_found.class);
+            }
+
             @Test
             void json_assert_empty_list() throws JsonProcessingException {
-                TestLogger.trace(logger, "get user -> not found -> json. assert empty list", 3);
+                logger.trace("by json. assert response is empty array");
                 userDaoTestUtil.createUser();
                 JSONObject json = UserRestTestUtil.usernameJson();
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -118,7 +135,7 @@ public class UserRestControllerTest {
 
             @Test
             void url_assert_empty_list() throws JsonProcessingException {
-                TestLogger.trace(logger, "get user -> not found -> url. assert empty list", 3);
+                logger.trace("by url. assert response is empty array");
                 userDaoTestUtil.createUser();
                 RequestSpecification request = UserRestTestUtil.getRequest();
 
@@ -129,11 +146,17 @@ public class UserRestControllerTest {
             }
         }
 
-        @Nested
+        @Logged
         class bad_request {
+
+            @BeforeAll
+            void init() {
+                logger.nested(bad_request.class);
+            }
+
             @Test
             void json() {
-                TestLogger.trace(logger, "get user -> bad request -> json", 3);
+                logger.trace("by json");
                 JSONObject json = UserRestTestUtil.usernameBADJson();
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
@@ -143,7 +166,7 @@ public class UserRestControllerTest {
 
             @Test
             void url() {
-                TestLogger.trace(logger, "get user -> bad request -> url", 3);
+                logger.trace("by url");
                 RequestSpecification request = UserRestTestUtil.getRequest();
 
                 Response response = request.get("get/" + "o");
@@ -152,13 +175,25 @@ public class UserRestControllerTest {
         }
     }
 
-    @Nested
+    @Logged
     class get_user_questions {
-        @Nested
+
+        @BeforeAll
+        void init() {
+            logger.nested(get_user_questions.class);
+        }
+
+        @Logged
         class success {
+
+            @BeforeAll
+            void init() {
+                logger.nested(success.class);
+            }
+
             @Test
             void json() throws JsonProcessingException {
-                TestLogger.trace(logger, "get user questions -> success -> json", 3);
+                logger.trace("by json");
                 questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
                 JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -171,7 +206,7 @@ public class UserRestControllerTest {
 
             @Test
             void url() throws JsonProcessingException {
-                TestLogger.trace(logger, "get user questions -> success -> url", 3);
+                logger.trace("by url");
                 questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
                 RequestSpecification request = UserRestTestUtil.getRequest();
 
@@ -182,11 +217,17 @@ public class UserRestControllerTest {
             }
         }
 
-        @Nested
+        @Logged
         class bad_request {
+
+            @BeforeAll
+            void init() {
+                logger.nested(bad_request.class);
+            }
+
             @Test
             void json() {
-                TestLogger.trace(logger, "get user questions -> bad request -> json", 3);
+                logger.trace("by json");
                 questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
                 JSONObject json = UserRestTestUtil.idPageJSON(1, 0);
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -197,7 +238,7 @@ public class UserRestControllerTest {
 
             @Test
             void url() {
-                TestLogger.trace(logger, "get user questions -> bad request -> url", 3);
+                logger.trace("by url");
                 questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
                 RequestSpecification request = UserRestTestUtil.getRequest();
 
@@ -206,13 +247,25 @@ public class UserRestControllerTest {
             }
         }
 
-        @Nested
+        @Logged
         class not_found {
-            @Nested
+
+            @BeforeAll
+            void init() {
+                logger.nested(not_found.class);
+            }
+
+            @Logged
             class user_not_exist {
+
+                @BeforeAll
+                void init() {
+                    logger.nested(user_not_exist.class);
+                }
+
                 @Test
                 void json() {
-                    TestLogger.trace(logger, "get user questions -> not found -> user not exist -> json", 3);
+                    logger.trace("by json");
                     JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
                     RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
@@ -222,7 +275,7 @@ public class UserRestControllerTest {
 
                 @Test
                 void url() {
-                    TestLogger.trace(logger, "get user questions -> not found -> user not exist -> url", 3);
+                    logger.trace("by url");
                     RequestSpecification request = UserRestTestUtil.getRequest();
 
                     Response response = request.get("questions/get/1/1");
@@ -230,11 +283,17 @@ public class UserRestControllerTest {
                 }
             }
 
-            @Nested
+            @Logged
             class question_assert_empty_list {
+
+                @BeforeAll
+                void init() {
+                    logger.nested(question_assert_empty_list.class);
+                }
+
                 @Test
                 void json() throws JsonProcessingException {
-                    TestLogger.trace(logger, "get user questions -> not found -> assert result equal empty list -> json", 3);
+                    logger.trace("by json");
                     userDaoTestUtil.createUser();
                     JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
                     RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -249,7 +308,7 @@ public class UserRestControllerTest {
 
                 @Test
                 void url() throws JsonProcessingException {
-                    TestLogger.trace(logger, "get user questions -> not found -> assert result equal empty list -> url", 3);
+                    logger.trace("by url");
                     userDaoTestUtil.createUser();
                     RequestSpecification request = UserRestTestUtil.getRequest();
 
@@ -264,13 +323,25 @@ public class UserRestControllerTest {
         }
     }
 
-    @Nested
+    @Logged
     class get_user_answers {
-        @Nested
+
+        @BeforeAll
+        void init() {
+            logger.nested(get_user_answers.class);
+        }
+
+        @Logged
         class success {
+
+            @BeforeAll
+            void init() {
+                logger.nested(success.class);
+            }
+
             @Test
             void json() throws JsonProcessingException {
-                TestLogger.trace(logger, "get user answers -> success -> json", 3);
+                logger.trace("by json");
                 answerDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
                 JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -283,7 +354,7 @@ public class UserRestControllerTest {
 
             @Test
             void url() throws JsonProcessingException {
-                TestLogger.trace(logger, "get user answers -> success -> url", 3);
+                logger.trace("by url");
                 answerDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
                 RequestSpecification request = UserRestTestUtil.getRequest();
 
@@ -294,11 +365,17 @@ public class UserRestControllerTest {
             }
         }
 
-        @Nested
+        @Logged
         class bad_request {
+
+            @BeforeAll
+            void init() {
+                logger.nested(bad_request.class);
+            }
+
             @Test
             void json() {
-                TestLogger.trace(logger, "get user answers -> bad request -> json", 3);
+                logger.trace("by json");
                 answerDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
                 JSONObject json = UserRestTestUtil.idPageJSON(1, 0);
                 RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -309,7 +386,7 @@ public class UserRestControllerTest {
 
             @Test
             void url() {
-                TestLogger.trace(logger, "get user answers -> bad request -> url", 3);
+                logger.trace("by url");
                 answerDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
                 RequestSpecification request = RestAssured.given();
 
@@ -318,13 +395,25 @@ public class UserRestControllerTest {
             }
         }
 
-        @Nested
+        @Logged
         class not_found {
-            @Nested
+
+            @BeforeAll
+            void init() {
+                logger.nested(not_found.class);
+            }
+
+            @Logged
             class user_not_exist {
+
+                @BeforeAll
+                void init() {
+                    logger.nested(user_not_exist.class);
+                }
+
                 @Test
                 void json() {
-                    TestLogger.trace(logger, "get user answers -> not found -> user not exist -> json", 3);
+                    logger.trace("by json");
                     JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
                     RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
@@ -334,7 +423,7 @@ public class UserRestControllerTest {
 
                 @Test
                 void url() {
-                    TestLogger.trace(logger, "get user answers -> not found -> user not exist -> url", 3);
+                    logger.trace("by url");
                     RequestSpecification request = UserRestTestUtil.getRequest();
 
                     Response response = request.get("answers/get/1/1");
@@ -342,11 +431,17 @@ public class UserRestControllerTest {
                 }
             }
 
-            @Nested
+            @Logged
             class answer_assert_empty_list {
+
+                @BeforeAll
+                void init() {
+                    logger.nested(answer_assert_empty_list.class);
+                }
+
                 @Test
                 void json() throws JsonProcessingException {
-                    TestLogger.trace(logger, "get user answers -> not found -> assert result equals empty list -> json", 3);
+                    logger.trace("by json");
                     userDaoTestUtil.createUser();
                     JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
                     RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
@@ -361,7 +456,7 @@ public class UserRestControllerTest {
 
                 @Test
                 void url() throws JsonProcessingException {
-                    TestLogger.trace(logger, "get user answers -> not found -> assert result equals empty list -> url", 3);
+                    logger.trace("by url");
                     userDaoTestUtil.createUser();
                     RequestSpecification request = UserRestTestUtil.getRequest();
 
@@ -432,5 +527,10 @@ public class UserRestControllerTest {
             assertThat(a.getId(), notNullValue());
             assertThat(a.getText(), notNullValue());
         }
+    }
+
+    @AfterAll
+    void close() {
+        logger.end();
     }
 }

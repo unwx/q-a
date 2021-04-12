@@ -6,8 +6,6 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -18,10 +16,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
-import qa.TestLogger;
 import qa.config.spring.SpringConfig;
 import qa.dto.response.JwtPairResponse;
 import qa.exceptions.rest.ErrorMessage;
+import qa.logger.Logged;
+import qa.logger.LoggingExtension;
+import qa.logger.TestLogger;
 import qa.security.PasswordEncryptorFactory;
 import qa.security.jwt.entity.JwtStatus;
 import qa.security.jwt.service.JwtProvider;
@@ -35,9 +35,8 @@ import java.math.BigInteger;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-// tomcat server should be launched
 @WebAppConfiguration
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, LoggingExtension.class})
 @ContextConfiguration(classes = SpringConfig.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
@@ -46,7 +45,7 @@ public class AuthenticationRestControllerTest {
     private SessionFactory sessionFactory;
     private UserDaoTestUtil userDaoTestUtil;
 
-    private static final Logger logger = LogManager.getLogger(AuthenticationRestControllerTest.class);
+    private final TestLogger logger = new TestLogger(AuthenticationRestControllerTest.class);
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -56,15 +55,13 @@ public class AuthenticationRestControllerTest {
 
     @BeforeAll
     void init() {
-        TestLogger.info(logger, "init", 3);
-        sessionFactory =  HibernateSessionFactoryUtil.getSessionFactory();
+        sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         userDaoTestUtil = new UserDaoTestUtil(sessionFactory);
     }
 
     @BeforeEach
     void truncate() {
-        TestLogger.info(logger, "truncate", 3);
-        try(Session session = sessionFactory.openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("truncate table user_role cascade").executeUpdate();
             session.createSQLQuery("truncate table usr cascade").executeUpdate();
@@ -75,11 +72,17 @@ public class AuthenticationRestControllerTest {
         }
     }
 
-    @Nested
+    @Logged
     class registration {
+
+        @BeforeAll
+        void init() {
+            logger.nested(registration.class);
+        }
+
         @Test
         void success_assert_valid_tokens() throws JsonProcessingException {
-            TestLogger.trace(logger, "registration -> success. assert valid tokens", 3);
+            logger.trace("success request. assert valid response tokens");
             JSONObject json = AuthenticationRestTestUtil.getRegistrationJson();
 
             RequestSpecification request = AuthenticationRestTestUtil.getRequestJson(json.toString());
@@ -97,7 +100,7 @@ public class AuthenticationRestControllerTest {
 
         @Test
         void failed_user_already_exist() throws JsonProcessingException {
-            TestLogger.trace(logger, "registration -> failed. user already exist", 3);
+            logger.trace("failed request. assert user already exist");
             userDaoTestUtil.createUser();
 
             JSONObject json = AuthenticationRestTestUtil.getRegistrationJson();
@@ -117,11 +120,17 @@ public class AuthenticationRestControllerTest {
         }
     }
 
-    @Nested
+    @Logged
     class login {
+
+        @BeforeAll
+        void init() {
+            logger.nested(login.class);
+        }
+
         @Test
         void success_assert_valid_tokens() throws JsonProcessingException {
-            TestLogger.trace(logger, "login -> failed. success. assert valid tokens", 3);
+            logger.trace("success request. assert valid response tokens");
             JwtTestUtil.createUserWithRefreshTokenAndEncryptedPassword(sessionFactory, jwtProvider, passwordEncryptorFactory.create());
 
             JSONObject json = AuthenticationRestTestUtil.getLoginJson();
@@ -141,7 +150,7 @@ public class AuthenticationRestControllerTest {
 
         @Test
         void failed_wrong_login_or_password() throws JsonProcessingException {
-            TestLogger.trace(logger, "login -> failed. failed. wrong login or password", 3);
+            logger.trace("failed request. wrong login or password");
             JSONObject json = AuthenticationRestTestUtil.getLoginJson();
 
             RequestSpecification request = AuthenticationRestTestUtil.getRequestJson(json.toString());
@@ -159,11 +168,17 @@ public class AuthenticationRestControllerTest {
         }
     }
 
-    @Nested
+    @Logged
     class refresh_tokens {
+
+        @BeforeAll
+        void init() {
+            logger.nested(refresh_tokens.class);
+        }
+
         @Test
         void success_assert_valid_tokens() throws JsonProcessingException {
-            TestLogger.trace(logger, "refresh tokens -> success. assert valid tokens", 3);
+            logger.trace("success request. assert valid response tokens");
             ImmutablePair<String, Long> pair = JwtTestUtil.createUserWithRefreshTokenAndEncryptedPassword(
                     sessionFactory,
                     jwtProvider,
@@ -191,7 +206,7 @@ public class AuthenticationRestControllerTest {
 
         @Test
         void failed_invalid_refresh_token() throws JsonProcessingException {
-            TestLogger.trace(logger, "refresh tokens -> failed. send invalid refresh token to server", 3);
+            logger.trace("failed request. invalid request refresh token");
             ImmutablePair<String, Long> pair = JwtTestUtil.createUserWithRefreshTokenAndEncryptedPassword(
                     sessionFactory,
                     jwtProvider,
@@ -222,11 +237,11 @@ public class AuthenticationRestControllerTest {
     private Long getRefreshExp() {
         String sql =
                 """
-                SELECT a.refresh_token_exp_date\s\
-                FROM authentication AS a\s\
-                WHERE a.id = :id\
-                """;
-        try(Session session = sessionFactory.openSession()) {
+                        SELECT a.refresh_token_exp_date\s\
+                        FROM authentication AS a\s\
+                        WHERE a.id = :id\
+                        """;
+        try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             BigInteger exp = (BigInteger) session
                     .createSQLQuery(sql)
@@ -235,5 +250,10 @@ public class AuthenticationRestControllerTest {
             transaction.commit();
             return exp == null ? null : exp.longValue();
         }
+    }
+
+    @AfterAll
+    void close() {
+        logger.end();
     }
 }

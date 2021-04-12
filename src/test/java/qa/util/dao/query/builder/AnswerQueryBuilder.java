@@ -1,10 +1,7 @@
 package qa.util.dao.query.builder;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import qa.TestLogger;
 import qa.util.dao.query.params.AnswerQueryParameters;
 
 import java.util.Date;
@@ -12,7 +9,7 @@ import java.util.Date;
 public class AnswerQueryBuilder implements SessionInitializer {
 
     private Session session;
-    private static final Logger logger = LogManager.getLogger(AnswerQueryBuilder.class);
+    
 
     @Override
     public AnswerQueryBuilder with(Session session) {
@@ -106,7 +103,6 @@ public class AnswerQueryBuilder implements SessionInitializer {
                                        String text,
                                        Long question,
                                        Session session) {
-        TestLogger.trace(logger, "create answer query", 0);
         String sql =
                 """
                 INSERT INTO answer (id, answered, creation_date, text, author_id, question_id)\s\

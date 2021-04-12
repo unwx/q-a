@@ -1,10 +1,7 @@
 package qa.util.dao.query.builder;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import qa.TestLogger;
 
 import java.util.Date;
 
@@ -19,34 +16,30 @@ public class QueryBuilder {
     private final CommentQuestionQueryBuilder commentQuestionQueryBuilder = new CommentQuestionQueryBuilder();
     private final CommentAnswerQueryBuilder commentAnswerQueryBuilder = new CommentAnswerQueryBuilder();
 
-    private static final Logger logger = LogManager.getLogger(QueryBuilder.class);
 
     public QueryBuilder(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }
 
     public QueryBuilder openSession() {
-        TestLogger.trace(logger, "open session", 1);
         this.session = sessionFactory.openSession();
         this.session.beginTransaction();
         return this;
     }
 
     public void closeSession() {
-        TestLogger.trace(logger, "close session", 1);
         this.session.getTransaction().commit();
         this.session.close();
     }
 
     public QueryBuilder flushAndClear() {
-        TestLogger.trace(logger, "flush and clear", 1);
+        
         this.session.flush();
         this.session.clear();
         return this;
     }
 
     public QueryBuilder user(Long id, String username) {
-        TestLogger.trace(logger, "user", 1);
         userQueryBuilder
                 .with(session)
                 .user(id, username);
@@ -54,7 +47,6 @@ public class QueryBuilder {
     }
 
     public QueryBuilder user() {
-        TestLogger.trace(logger, "build user", 1);
         userQueryBuilder
                 .with(session)
                 .user();
@@ -66,7 +58,6 @@ public class QueryBuilder {
                                  String tags,
                                  String text,
                                  String title) {
-        TestLogger.trace(logger, "build question", 1);
         questionQueryBuilder
                 .with(session)
                 .question(id, date, tags, text, title);
@@ -75,8 +66,6 @@ public class QueryBuilder {
 
     public QueryBuilder question(Long id,
                                  Date date) {
-        TestLogger.trace(logger, "build question", 1);
-
         questionQueryBuilder
                 .with(session)
                 .question(id, date);
@@ -84,8 +73,6 @@ public class QueryBuilder {
     }
 
     public QueryBuilder question(Long id) {
-        TestLogger.trace(logger, "build question", 1);
-
         questionQueryBuilder
                 .with(session)
                 .question(id);
@@ -93,8 +80,6 @@ public class QueryBuilder {
     }
 
     public QueryBuilder question() {
-        TestLogger.trace(logger, "build question", 1);
-
         questionQueryBuilder
                 .with(session)
                 .question();
@@ -106,7 +91,6 @@ public class QueryBuilder {
                                Date date,
                                String text,
                                Long questionId) {
-        TestLogger.trace(logger, "build answer", 1);
         answerQueryBuilder
                 .with(session)
                 .answer(id, answered, date, text, questionId);
@@ -116,7 +100,6 @@ public class QueryBuilder {
     public QueryBuilder answer(Long id,
                                Boolean answered,
                                Date date) {
-        TestLogger.trace(logger, "build answer", 1);
         answerQueryBuilder
                 .with(session)
                 .answer(id, answered, date);
@@ -125,7 +108,6 @@ public class QueryBuilder {
 
     public QueryBuilder answer(Long id,
                                Boolean answered) {
-        TestLogger.trace(logger, "build answer", 1);
         answerQueryBuilder
                 .with(session)
                 .answer(id, answered);
@@ -135,7 +117,6 @@ public class QueryBuilder {
     public QueryBuilder answer(Long id,
                                Long questionId,
                                Date date) {
-        TestLogger.trace(logger, "build answer", 1);
         answerQueryBuilder
                 .with(session)
                 .answer(id, questionId, date);
@@ -144,7 +125,6 @@ public class QueryBuilder {
 
     public QueryBuilder answer(Long id,
                                Date date) {
-        TestLogger.trace(logger, "build answer", 1);
         answerQueryBuilder
                 .with(session)
                 .answer(id, date);
@@ -152,7 +132,6 @@ public class QueryBuilder {
     }
 
     public QueryBuilder answer(Long id) {
-        TestLogger.trace(logger, "build answer", 1);
         answerQueryBuilder
                 .with(session)
                 .answer(id);
@@ -160,7 +139,6 @@ public class QueryBuilder {
     }
 
     public QueryBuilder answer() {
-        TestLogger.trace(logger, "build answer", 1);
         answerQueryBuilder
                 .with(session)
                 .answer();
@@ -171,7 +149,6 @@ public class QueryBuilder {
                                         String text,
                                         Long questionId,
                                         Date date) {
-        TestLogger.trace(logger, "build comment-question", 1);
         commentQuestionQueryBuilder
                 .with(session)
                 .commentQuestion(id, text, questionId, date);
@@ -180,7 +157,6 @@ public class QueryBuilder {
 
     public QueryBuilder commentQuestion(Long id,
                                         Date date) {
-        TestLogger.trace(logger, "build comment-question", 1);
         commentQuestionQueryBuilder
                 .with(session)
                 .commentQuestion(id, date);
@@ -191,7 +167,6 @@ public class QueryBuilder {
                                       String text,
                                       Long answerId,
                                       Date date) {
-        TestLogger.trace(logger, "build comment-question", 1);
         commentAnswerQueryBuilder
                 .with(session)
                 .commentAnswer(id, text, answerId, date);
@@ -201,7 +176,6 @@ public class QueryBuilder {
     public QueryBuilder commentAnswer(Long id,
                               Long answerId,
                               Date date) {
-        TestLogger.trace(logger, "build comment-answer", 1);
         commentAnswerQueryBuilder
                 .with(session)
                 .commentAnswer(id, date, answerId);
@@ -210,7 +184,6 @@ public class QueryBuilder {
 
     public QueryBuilder commentAnswer(Long id,
                               Date date) {
-        TestLogger.trace(logger, "build comment-answer", 1);
         commentAnswerQueryBuilder
                 .with(session)
                 .commentAnswer(id, date);

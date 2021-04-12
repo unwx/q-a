@@ -1,9 +1,6 @@
 package qa.propertySetter;
 
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -13,6 +10,9 @@ import qa.entities.Entity;
 import qa.entities.NestedEntity;
 import qa.exceptions.domain.SetterNotImplementedException;
 import qa.exceptions.domain.SetterTargetIsNullException;
+import qa.logger.Logged;
+import qa.logger.LoggingExtension;
+import qa.logger.TestLogger;
 
 import java.time.LocalDateTime;
 
@@ -22,12 +22,15 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, LoggingExtension.class})
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class PropertySetterTest {
 
     @InjectMocks
     private PropertySetterFactory propertySetterFactory;
+
+    private final TestLogger logger = new TestLogger(PropertySetterTest.class);
 
     @Test
     public void assert_correct_test_data() {
@@ -38,10 +41,17 @@ public class PropertySetterTest {
         assertThat(entity.getDate(), equalTo(null));
     }
 
-    @Nested
+    @Logged
     class correct_parameters {
+
+        @BeforeAll
+        void init() {
+            logger.nested(correct_parameters.class);
+        }
+
         @Test
         public void default_entity() {
+            logger.trace("simple entity");
             PropertySetter propertySetter = propertySetterFactory.getSetter(new Entity());
             Entity entity = new Entity();
 
@@ -58,6 +68,7 @@ public class PropertySetterTest {
 
         @Test
         public void nested_entity() {
+            logger.trace("nested entity");
             PropertySetter propertySetter = propertySetterFactory.getSetter(new Entity());
             Entity entity = new Entity();
             NestedEntity nestedEntity = new NestedEntity();
@@ -69,6 +80,7 @@ public class PropertySetterTest {
 
         @Test
         public void set_all_default() {
+            logger.trace("set all primitive");
             PropertySetter propertySetter = propertySetterFactory.getSetter(new Entity());
             Entity entity = new Entity();
 
@@ -86,10 +98,16 @@ public class PropertySetterTest {
 
     @Test
     public void setAll_null_params() {
+        logger.trace("set all null");
         PropertySetter propertySetter = propertySetterFactory.getSetter(new Entity());
         assertThrows(SetterTargetIsNullException.class, () -> propertySetter.set(null, "id", 1L));
         Entity entity = new Entity();
         assertThrows(SetterNotImplementedException.class, () -> propertySetter.set(entity, null, 1L));
         assertDoesNotThrow(() -> propertySetter.set(entity, "id", null));
+    }
+
+    @AfterAll
+    void close() {
+        logger.end();
     }
 }

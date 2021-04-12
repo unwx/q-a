@@ -1,10 +1,7 @@
 package qa.util.dao.query.builder;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import qa.TestLogger;
 import qa.util.dao.query.params.CommentQueryParameters;
 
 import java.util.Date;
@@ -12,7 +9,7 @@ import java.util.Date;
 public class CommentQuestionQueryBuilder implements SessionInitializer {
 
     private Session session;
-    private static final Logger logger = LogManager.getLogger(CommentQuestionQueryBuilder.class);
+    
 
     @Override
     public CommentQuestionQueryBuilder with(Session session) {
@@ -49,7 +46,6 @@ public class CommentQuestionQueryBuilder implements SessionInitializer {
                                                 Long questionId,
                                                 Date date,
                                                 Session session) {
-        TestLogger.trace(logger, "create comment-question query", 0);
         String sql =
                 """
                 INSERT INTO comment (comment_type, id, text, author_id, answer_id, question_id, creation_date)\s\

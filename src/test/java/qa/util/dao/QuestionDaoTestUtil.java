@@ -1,9 +1,6 @@
 package qa.util.dao;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
-import qa.TestLogger;
 import qa.util.dao.query.builder.QueryBuilder;
 
 import java.util.Date;
@@ -18,14 +15,11 @@ public class QuestionDaoTestUtil {
 
     private final QueryBuilder queryBuilder;
 
-    private static final Logger logger = LogManager.getLogger(QuestionDaoTestUtil.class);
-
     public QuestionDaoTestUtil(SessionFactory sessionFactory) {
         this.queryBuilder = new QueryBuilder(sessionFactory);
     }
 
     public void createQuestionWithCommentsAndAnswersWithComments(int answers, int comments) {
-        TestLogger.trace(logger, "create full question", 2);
         queryBuilder
                 .openSession()
                 .user()
@@ -46,7 +40,6 @@ public class QuestionDaoTestUtil {
     }
 
     public void createQuestionWithComments(int comments) {
-        TestLogger.trace(logger, "create question with comments", 2);
         queryBuilder
                 .openSession()
                 .user()
@@ -61,7 +54,6 @@ public class QuestionDaoTestUtil {
     }
 
     public void createQuestionWithAnswersWithComments(int answers, int comments) {
-        TestLogger.trace(logger, "create question with answers with comments", 2);
         queryBuilder
                 .openSession()
                 .user()
@@ -81,7 +73,6 @@ public class QuestionDaoTestUtil {
     }
 
     public void createManyQuestionsWithManyAnswers(int questions, int answers) {
-        TestLogger.trace(logger, "create many questions with many answers", 2);
         queryBuilder
                 .openSession()
                 .user();
@@ -100,7 +91,6 @@ public class QuestionDaoTestUtil {
     }
 
     public void createManyQuestions(int questions) {
-        TestLogger.trace(logger, "create many questions", 2);
         queryBuilder
                 .openSession()
                 .user();
@@ -114,7 +104,6 @@ public class QuestionDaoTestUtil {
     }
 
     public void createQuestion() {
-        TestLogger.trace(logger, "create question", 2);
         queryBuilder
                 .openSession()
                 .user()
@@ -123,7 +112,6 @@ public class QuestionDaoTestUtil {
     }
 
     public void createQuestionNoUser() {
-        TestLogger.trace(logger, "create question no user", 2);
         queryBuilder
                 .openSession()
                 .question()

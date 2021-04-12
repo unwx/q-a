@@ -1,14 +1,11 @@
 package qa.util.rest;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
-import qa.TestLogger;
 import qa.security.jwt.entity.JwtData;
 import qa.security.jwt.service.JwtProvider;
 import qa.util.dao.query.params.UserQueryParameters;
@@ -19,13 +16,12 @@ public class JwtTestUtil {
     public final static String USER_EMAIL = "yahoo@yahoo.com";
     public final static String USER_SECOND_EMAIL = "second@yahoo.com";
 
-    private static final Logger logger = LogManager.getLogger(JwtTestUtil.class);
+    
 
     private JwtTestUtil() {
     }
 
     public static String createUserWithToken(SessionFactory sessionFactory, JwtProvider jwtProvider) {
-        TestLogger.trace(logger, "create user with token", 2);
         ImmutablePair<String, Long> pair = createAccessToken(USER_EMAIL, jwtProvider);
         String token = pair.left;
         Long exp = pair.right;
@@ -43,7 +39,6 @@ public class JwtTestUtil {
     public static ImmutablePair<String, Long> createUserWithRefreshTokenAndEncryptedPassword(SessionFactory sessionFactory,
                                                                  JwtProvider jwtProvider,
                                                                  PooledPBEStringEncryptor encryptor) {
-        TestLogger.trace(logger, "create user with refresh token and encrypted password", 2);
         ImmutablePair<String, Long> pair = createRefreshToken(jwtProvider);
 
         createAuthenticationWithUserWithRoles(
@@ -57,7 +52,6 @@ public class JwtTestUtil {
     }
 
     public static String createSecondUserWithToken(SessionFactory sessionFactory, JwtProvider jwtProvider) {
-        TestLogger.trace(logger, "create second user with token", 2);
         ImmutablePair<String, Long> pair = createAccessToken(USER_SECOND_EMAIL, jwtProvider);
         String token = pair.left;
         Long exp = pair.right;
@@ -92,7 +86,6 @@ public class JwtTestUtil {
     }
 
     private static Query<?> createAuthenticationQuery(Long id, String email, Long exp, String password, Session session) {
-        TestLogger.trace(logger, "create authentication query", 0);
         String sql =
                 """
                 INSERT INTO authentication (id, access_token_exp_date, email, enabled, password, refresh_token_exp_date, user_id)\s\
@@ -106,7 +99,6 @@ public class JwtTestUtil {
     }
 
     private static Query<?> createRolesQuery(Long id, Session session) {
-        TestLogger.trace(logger, "create user roles query", 0);
         String sql =
                 """
                 INSERT INTO user_role (auth_id, roles)\s\
@@ -117,7 +109,6 @@ public class JwtTestUtil {
     }
 
     private static Query<?> createUserQuery(Long id, String username, Session session) {
-        TestLogger.trace(logger, "create user query", 0);
         String sql =
                 """
                 INSERT INTO usr (id, about, username)\s\
@@ -129,7 +120,6 @@ public class JwtTestUtil {
     }
 
     private static ImmutablePair<String, Long> createAccessToken(String email, JwtProvider jwtProvider) {
-        TestLogger.trace(logger, "create access token", 0);
         JwtData data = jwtProvider.createAccess(email);
         String token = data.getToken();
         long exp = data.getExpirationAtMillis();
@@ -137,7 +127,6 @@ public class JwtTestUtil {
     }
 
     private static ImmutablePair<String, Long> createRefreshToken(JwtProvider jwtProvider) {
-        TestLogger.trace(logger, "create refresh token", 0);
         JwtData data = jwtProvider.createRefresh(JwtTestUtil.USER_EMAIL);
         String token = data.getToken();
         long exp = data.getExpirationAtMillis();

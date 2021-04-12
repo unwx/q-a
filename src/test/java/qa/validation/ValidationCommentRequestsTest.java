@@ -6,13 +6,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import qa.dto.request.comment.*;
 import qa.dto.validation.wrapper.comment.*;
 import qa.exceptions.validator.ValidationException;
+import qa.logger.Logged;
+import qa.logger.LoggingExtension;
+import qa.logger.TestLogger;
 import qa.source.ValidationPropertyDataSource;
 import qa.util.dao.query.params.CommentQueryParameters;
 import qa.util.validation.ValidationTestUtil;
 import qa.validators.ValidationChainAdditionalImpl;
 import qa.validators.abstraction.ValidationChainAdditional;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, LoggingExtension.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class ValidationCommentRequestsTest {
@@ -20,17 +23,32 @@ public class ValidationCommentRequestsTest {
     private final ValidationChainAdditional validationChain = new ValidationChainAdditionalImpl();
     private ValidationPropertyDataSource propertyDataSource;
 
+    private final TestLogger logger = new TestLogger(ValidationCommentRequestsTest.class);
+
     @BeforeAll
     void init() {
         propertyDataSource = ValidationTestUtil.mockValidationProperties();
     }
 
-    @Nested
+    @Logged
     class question {
-        @Nested
+
+        @BeforeAll
+        void init() {
+            logger.nested(question.class);
+        }
+
+        @Logged
         class create {
+
+            @BeforeAll
+            void init() {
+                logger.nested(create.class);
+            }
+
             @Test
             void valid() {
+                logger.trace("valid");
                 CommentQuestionCreateRequestValidationWrapper validationWrapper = new CommentQuestionCreateRequestValidationWrapper(
                         new CommentQuestionCreateRequest(1L, CommentQueryParameters.TEXT),
                         propertyDataSource);
@@ -39,6 +57,7 @@ public class ValidationCommentRequestsTest {
 
             @Test
             void invalid_id() {
+                logger.trace("invalid id");
                 CommentQuestionCreateRequestValidationWrapper validationWrapper = new CommentQuestionCreateRequestValidationWrapper(
                         new CommentQuestionCreateRequest(-5L, CommentQueryParameters.TEXT),
                         propertyDataSource);
@@ -47,6 +66,7 @@ public class ValidationCommentRequestsTest {
 
             @Test
             void invalid_text() {
+                logger.trace("invalid text");
                 CommentQuestionCreateRequestValidationWrapper validationWrapper = new CommentQuestionCreateRequestValidationWrapper(
                         new CommentQuestionCreateRequest(1L, "? wut"),
                         propertyDataSource);
@@ -54,10 +74,17 @@ public class ValidationCommentRequestsTest {
             }
         }
 
-        @Nested
+        @Logged
         class edit {
+
+            @BeforeAll
+            void init() {
+                logger.nested(edit.class);
+            }
+
             @Test
             void valid() {
+                logger.trace("valid");
                 CommentQuestionEditRequestValidationWrapper validationWrapper = new CommentQuestionEditRequestValidationWrapper(
                         new CommentQuestionEditRequest(1L, CommentQueryParameters.TEXT),
                         propertyDataSource);
@@ -66,6 +93,7 @@ public class ValidationCommentRequestsTest {
 
             @Test
             void invalid_id() {
+                logger.trace("invalid id");
                 CommentQuestionEditRequestValidationWrapper validationWrapper = new CommentQuestionEditRequestValidationWrapper(
                         new CommentQuestionEditRequest(-5L, CommentQueryParameters.TEXT),
                         propertyDataSource);
@@ -74,6 +102,7 @@ public class ValidationCommentRequestsTest {
 
             @Test
             void invalid_text() {
+                logger.trace("invalid text");
                 CommentQuestionEditRequestValidationWrapper validationWrapper = new CommentQuestionEditRequestValidationWrapper(
                         new CommentQuestionEditRequest(-5L, "? wut"),
                         propertyDataSource);
@@ -81,10 +110,17 @@ public class ValidationCommentRequestsTest {
             }
         }
 
-        @Nested
+        @Logged
         class delete {
+
+            @BeforeAll
+            void init() {
+                logger.nested(delete.class);
+            }
+
             @Test
             void valid() {
+                logger.trace("valid");
                 CommentQuestionDeleteRequestValidationWrapper validationWrapper = new CommentQuestionDeleteRequestValidationWrapper(
                         new CommentQuestionDeleteRequest(1L));
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
@@ -92,6 +128,7 @@ public class ValidationCommentRequestsTest {
 
             @Test
             void invalid_id() {
+                logger.trace("invalid id");
                 CommentQuestionDeleteRequestValidationWrapper validationWrapper = new CommentQuestionDeleteRequestValidationWrapper(
                         new CommentQuestionDeleteRequest(-5L));
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
@@ -99,12 +136,25 @@ public class ValidationCommentRequestsTest {
         }
     }
 
-    @Nested
+    @Logged
     class answer {
-        @Nested
+
+        @BeforeAll
+        void init() {
+            logger.nested(answer.class);
+        }
+
+        @Logged
         class create {
+
+            @BeforeAll
+            void init() {
+                logger.nested(create.class);
+            }
+
             @Test
             void valid() {
+                logger.trace("valid");
                 CommentAnswerCreateRequestValidationWrapper validationWrapper = new CommentAnswerCreateRequestValidationWrapper(
                         new CommentAnswerCreateRequest(1L, CommentQueryParameters.TEXT),
                         propertyDataSource);
@@ -113,6 +163,7 @@ public class ValidationCommentRequestsTest {
 
             @Test
             void invalid_id() {
+                logger.trace("invalid id");
                 CommentAnswerCreateRequestValidationWrapper validationWrapper = new CommentAnswerCreateRequestValidationWrapper(
                         new CommentAnswerCreateRequest(-5L, CommentQueryParameters.TEXT),
                         propertyDataSource);
@@ -121,6 +172,7 @@ public class ValidationCommentRequestsTest {
 
             @Test
             void invalid_text() {
+                logger.trace("invalid text");
                 CommentAnswerCreateRequestValidationWrapper validationWrapper = new CommentAnswerCreateRequestValidationWrapper(
                         new CommentAnswerCreateRequest(1L, "? wut"),
                         propertyDataSource);
@@ -128,10 +180,17 @@ public class ValidationCommentRequestsTest {
             }
         }
 
-        @Nested
+        @Logged
         class edit {
+
+            @BeforeAll
+            void init() {
+                logger.nested(edit.class);
+            }
+
             @Test
             void valid() {
+                logger.trace("valid");
                 CommentAnswerEditRequestValidationWrapper validationWrapper = new CommentAnswerEditRequestValidationWrapper(
                         new CommentAnswerEditRequest(1L, CommentQueryParameters.TEXT),
                         propertyDataSource);
@@ -140,6 +199,7 @@ public class ValidationCommentRequestsTest {
 
             @Test
             void invalid_id() {
+                logger.trace("invalid id");
                 CommentAnswerEditRequestValidationWrapper validationWrapper = new CommentAnswerEditRequestValidationWrapper(
                         new CommentAnswerEditRequest(-5L, "thank you! @username. :)"),
                         propertyDataSource);
@@ -148,6 +208,7 @@ public class ValidationCommentRequestsTest {
 
             @Test
             void invalid_text() {
+                logger.trace("invalid text");
                 CommentAnswerEditRequestValidationWrapper validationWrapper = new CommentAnswerEditRequestValidationWrapper(
                         new CommentAnswerEditRequest(-5L, "? wut"),
                         propertyDataSource);
@@ -155,10 +216,17 @@ public class ValidationCommentRequestsTest {
             }
         }
 
-        @Nested
+        @Logged
         class delete {
+
+            @BeforeAll
+            void init() {
+                logger.nested(delete.class);
+            }
+
             @Test
             void valid() {
+                logger.trace("valid");
                 CommentAnswerDeleteRequestValidationWrapper validationWrapper = new CommentAnswerDeleteRequestValidationWrapper(
                         new CommentAnswerDeleteRequest(1L));
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
@@ -166,10 +234,16 @@ public class ValidationCommentRequestsTest {
 
             @Test
             void invalid_id() {
+                logger.trace("invalid id");
                 CommentAnswerDeleteRequestValidationWrapper validationWrapper = new CommentAnswerDeleteRequestValidationWrapper(
                         new CommentAnswerDeleteRequest(-5L));
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
+    }
+
+    @AfterAll
+    void close() {
+        logger.end();
     }
 }

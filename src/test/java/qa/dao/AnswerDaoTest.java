@@ -1,7 +1,5 @@
 package qa.dao;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -9,11 +7,12 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import qa.TestLogger;
 import qa.dao.query.AnswerQueryFactory;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.domain.setters.PropertySetterFactory;
+import qa.logger.LoggingExtension;
+import qa.logger.TestLogger;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
@@ -25,7 +24,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({MockitoExtension.class, LoggingExtension.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 public class AnswerDaoTest {
@@ -35,11 +34,10 @@ public class AnswerDaoTest {
     private QuestionDaoTestUtil questionDaoTestUtil;
     private AnswerDaoTestUtil answerDaoTestUtil;
 
-    private static final Logger logger = LogManager.getLogger(AnswerDaoTest.class);
+    private final TestLogger logger = new TestLogger(AnswerDaoTest.class);
 
     @BeforeAll
     void init() {
-        TestLogger.info(logger, "init", 3);
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
         AnswerQueryFactory answerQueryFactory = Mockito.spy(new AnswerQueryFactory());
 
@@ -51,7 +49,6 @@ public class AnswerDaoTest {
 
     @BeforeEach
     void truncate() {
-        TestLogger.info(logger, "truncate", 3);
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("truncate table question cascade").executeUpdate();
@@ -64,10 +61,17 @@ public class AnswerDaoTest {
     }
 
     @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class get_full_answers {
+
+        @BeforeAll
+        void init() {
+            logger.nested(get_full_answers.class);
+        }
+
         @Test
         void assert_correct_result() {
-            TestLogger.trace(logger, "get full answers -> assert correct result", 3);
+            logger.trace("assert correct result");
             questionDaoTestUtil.createQuestionWithAnswersWithComments(
                     (int) (QuestionDaoTestUtil.RESULT_SIZE * 1.5),
                     QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
@@ -102,7 +106,7 @@ public class AnswerDaoTest {
 
         @Test
         void assert_no_duplicates() {
-            TestLogger.trace(logger, "get full answers -> assert no duplicates", 3);
+            logger.trace("assert no duplicates");
             questionDaoTestUtil.createQuestionWithAnswersWithComments(
                     (int) (QuestionDaoTestUtil.RESULT_SIZE * 1.5),
                     QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
@@ -132,20 +136,23 @@ public class AnswerDaoTest {
         }
 
         @Nested
+        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
         class no_result {
+
+            @BeforeAll
+            void init() {
+                logger.nested(no_result.class);
+            }
+
             @Test
-            void assert_result_equal_null_question_not_exist() {
-                TestLogger.trace(logger, "get full answers -> no result -> assert result equal null if question not exist", 3);
+            void assert_result_equals_null_question_not_exist() {
+                logger.trace("assert result equals null - when question not exist");
                 assertThat(answerDao.getAnswers(1L, 1), equalTo(null));
             }
 
             @Test
-            void assert_result_equal_empty_list_question_exist() {
-                TestLogger.trace(logger,
-                        "get full answers -> no result -> assert result equal empty list" +
-                                " if question exist" +
-                                " other not exist",
-                            3);
+            void assert_result_equals_empty_list_question_exist() {
+                logger.trace("assert result equals empty list - when question exist");
                 questionDaoTestUtil.createQuestion();
                 assertThat(answerDao.getAnswers(1L, 1), equalTo(Collections.emptyList()));
             }
@@ -153,10 +160,17 @@ public class AnswerDaoTest {
     }
 
     @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     class get_answer_comments {
+
+        @BeforeAll
+        void init() {
+            logger.nested(get_answer_comments.class);
+        }
+
         @Test
         void assert_correct_result() {
-            TestLogger.trace(logger, "get answer comments -> assert correct data", 3);
+            logger.trace("assert correct result");
             answerDaoTestUtil.createAnswerWithManyComments(AnswerDaoTestUtil.COMMENT_RESULT_SIZE);
             List<CommentAnswer> comments = answerDao.getAnswerComments(1L, 0);
 
@@ -174,7 +188,7 @@ public class AnswerDaoTest {
 
         @Test
         void assert_no_duplicates() {
-            TestLogger.trace(logger, "get answer comments -> assert no duplicates", 3);
+            logger.trace("assert no duplicates");
             answerDaoTestUtil.createAnswerWithManyComments((int) (AnswerDaoTestUtil.COMMENT_RESULT_SIZE * 1.5));
             List<CommentAnswer> comments1 = answerDao.getAnswerComments(1L, 0);
             List<CommentAnswer> comments2 = answerDao.getAnswerComments(1L, 0);
@@ -203,24 +217,31 @@ public class AnswerDaoTest {
         }
 
         @Nested
+        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
         class no_result {
+
+            @BeforeAll
+            void init() {
+                logger.nested(no_result.class);
+            }
+
             @Test
-            void assert_result_equal_null_answer_not_exist() {
-                TestLogger.trace(logger,
-                        "get answer comments -> no result -> assert result equal null " +
-                        "if answer not exist", 3);
+            void assert_result_equals_null_answer_not_exist() {
+                logger.trace("assert result equals null when answer not exist");
                 assertThat(answerDao.getAnswerComments(1L, 1), equalTo(null));
             }
 
             @Test
-            void assert_result_equal_empty_list_answer_exist() {
-                TestLogger.trace(logger,
-                        "get answer comments -> no result -> assert result equal empty list " +
-                                "if answer exist" +
-                                "other not exist", 3);
+            void assert_result_equals_empty_list_answer_exist() {
+                logger.trace("assert result equals empty list when answer exist");
                 answerDaoTestUtil.createAnswer();
                 assertThat(answerDao.getAnswerComments(1L, 1), equalTo(Collections.emptyList()));
             }
         }
+    }
+
+    @AfterAll
+    void close() {
+        logger.end();
     }
 }
