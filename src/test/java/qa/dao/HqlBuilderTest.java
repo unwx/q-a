@@ -1,8 +1,7 @@
 package qa.dao;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.Table;
@@ -12,7 +11,6 @@ import qa.entities.BigEntity;
 import qa.entities.Entity;
 import qa.entities.NestedEntity;
 import qa.logger.TestLogger;
-import qa.tools.annotations.Logged;
 import qa.tools.annotations.TestClass;
 
 import java.util.ArrayList;
@@ -34,13 +32,8 @@ public class HqlBuilderTest {
 
     private final TestLogger logger = new TestLogger(HqlBuilderTest.class);
 
-    @Logged
+    @Nested
     class read {
-
-        @BeforeAll
-        void init() {
-            logger.nested(read.class);
-        }
 
         @Test
         public void no_nested() {
@@ -72,13 +65,8 @@ public class HqlBuilderTest {
             assertThat(hql, equalTo(required));
         }
 
-        @Logged
+        @Nested
         class nested_only {
-
-            @BeforeAll
-            void init() {
-                logger.nested(nested_only.class);
-            }
 
             @Test
             void first() {
@@ -195,13 +183,8 @@ public class HqlBuilderTest {
         }
     }
 
-    @Logged
+    @Nested
     class update {
-
-        @BeforeAll
-        void init() {
-            logger.nested(update.class);
-        }
 
         @Test
         public void simple_entity() {
@@ -282,13 +265,8 @@ public class HqlBuilderTest {
         }
     }
 
-    @Logged
+    @Nested
     class delete {
-
-        @BeforeAll
-        void init() {
-            logger.nested(delete.class);
-        }
 
         @Test
         public void entity() {
@@ -305,13 +283,8 @@ public class HqlBuilderTest {
         }
     }
 
-    @Logged
+    @Nested
     class exist {
-
-        @BeforeAll
-        void init() {
-            logger.nested(exist.class);
-        }
 
         @Test
         public void entity() {
@@ -326,10 +299,5 @@ public class HqlBuilderTest {
             String result = entityHqlBuilder.exist(className, where);
             assertThat(required, equalTo(result));
         }
-    }
-
-    @AfterAll
-    void close() {
-        logger.end();
     }
 }

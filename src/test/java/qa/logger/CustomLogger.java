@@ -14,11 +14,13 @@ public abstract class CustomLogger extends LogTraceTreePrinter {
 
     private final Map<Integer, Clazz> hashToClazzMap = new HashMap<>();
     private Class<?> currentClazz;
+    private final int clazzCount;
 
     public CustomLogger(final Class<?> clazz) {
         getClazzData(clazz);
-        this.currentClazz = clazz;
         clazz(clazz);
+        this.currentClazz = clazz;
+        this.clazzCount = hashToClazzMap.size();
     }
 
     protected void nested(final Class<?> clazz) {
@@ -92,5 +94,9 @@ public abstract class CustomLogger extends LogTraceTreePrinter {
 
     private void incrementParentCounter(final Map<Integer, Clazz> map, final Clazz clazz) {
         map.get(clazz.getParent()).incrementClassPassed();
+    }
+
+    protected int getClazzCount() {
+        return clazzCount;
     }
 }

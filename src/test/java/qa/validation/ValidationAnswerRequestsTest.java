@@ -1,8 +1,8 @@
 package qa.validation;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import qa.dto.request.answer.AnswerAnsweredRequest;
 import qa.dto.request.answer.AnswerCreateRequest;
@@ -15,7 +15,6 @@ import qa.dto.validation.wrapper.answer.AnswerEditRequestValidationWrapper;
 import qa.exceptions.validator.ValidationException;
 import qa.logger.TestLogger;
 import qa.source.ValidationPropertyDataSource;
-import qa.tools.annotations.Logged;
 import qa.tools.annotations.MockitoTest;
 import qa.util.dao.query.params.AnswerQueryParameters;
 import qa.util.validation.ValidationTestUtil;
@@ -35,13 +34,8 @@ public class ValidationAnswerRequestsTest {
         propertyDataSource = ValidationTestUtil.mockValidationProperties();
     }
 
-    @Logged
+    @Nested
     class create {
-
-        @BeforeAll
-        void init() {
-            logger.nested(create.class);
-        }
 
         @Test
         void valid() {
@@ -69,13 +63,8 @@ public class ValidationAnswerRequestsTest {
         }
     }
 
-    @Logged
+    @Nested
     class edit {
-
-        @BeforeAll
-        void init() {
-            logger.nested(edit.class);
-        }
 
         @Test
         void valid() {
@@ -103,13 +92,8 @@ public class ValidationAnswerRequestsTest {
         }
     }
 
-    @Logged
+    @Nested
     class answered {
-
-        @BeforeAll
-        void init() {
-            logger.nested(answered.class);
-        }
 
         @Test
         void valid() {
@@ -128,13 +112,8 @@ public class ValidationAnswerRequestsTest {
         }
     }
 
-    @Logged
+    @Nested
     class delete {
-
-        @BeforeAll
-        void init() {
-            logger.nested(delete.class);
-        }
 
         @Test
         void valid() {
@@ -151,10 +130,5 @@ public class ValidationAnswerRequestsTest {
                     new AnswerDeleteRequest(-5L));
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
-    }
-
-    @AfterAll
-    void close() {
-        logger.end();
     }
 }

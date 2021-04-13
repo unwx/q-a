@@ -7,14 +7,13 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
-import qa.tools.annotations.Logged;
 import qa.tools.annotations.SpringIntegrationTest;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
@@ -63,13 +62,8 @@ public class AnswerRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class success {
-
-        @BeforeAll
-        void init() {
-            logger.nested(success.class);
-        }
 
         @Test
         void create() {
@@ -149,13 +143,8 @@ public class AnswerRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class bad_request {
-
-        @BeforeAll
-        void init() {
-            logger.nested(bad_request.class);
-        }
 
         @Test
         void create() {
@@ -218,13 +207,8 @@ public class AnswerRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class access_denied {
-
-        @BeforeAll
-        void init() {
-            logger.nested(access_denied.class);
-        }
 
         @Test
         void edit() {
@@ -302,10 +286,5 @@ public class AnswerRestControllerTest {
             transaction.commit();
             return result;
         }
-    }
-
-    @AfterAll
-    void close() {
-        logger.end();
     }
 }

@@ -1,15 +1,14 @@
 package qa.validation;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import qa.dto.request.comment.*;
 import qa.dto.validation.wrapper.comment.*;
 import qa.exceptions.validator.ValidationException;
 import qa.logger.TestLogger;
 import qa.source.ValidationPropertyDataSource;
-import qa.tools.annotations.Logged;
 import qa.tools.annotations.MockitoTest;
 import qa.util.dao.query.params.CommentQueryParameters;
 import qa.util.validation.ValidationTestUtil;
@@ -29,21 +28,11 @@ public class ValidationCommentRequestsTest {
         propertyDataSource = ValidationTestUtil.mockValidationProperties();
     }
 
-    @Logged
+    @Nested
     class question {
 
-        @BeforeAll
-        void init() {
-            logger.nested(question.class);
-        }
-
-        @Logged
+        @Nested
         class create {
-
-            @BeforeAll
-            void init() {
-                logger.nested(create.class);
-            }
 
             @Test
             void valid() {
@@ -73,13 +62,8 @@ public class ValidationCommentRequestsTest {
             }
         }
 
-        @Logged
+        @Nested
         class edit {
-
-            @BeforeAll
-            void init() {
-                logger.nested(edit.class);
-            }
 
             @Test
             void valid() {
@@ -109,13 +93,8 @@ public class ValidationCommentRequestsTest {
             }
         }
 
-        @Logged
+        @Nested
         class delete {
-
-            @BeforeAll
-            void init() {
-                logger.nested(delete.class);
-            }
 
             @Test
             void valid() {
@@ -135,21 +114,11 @@ public class ValidationCommentRequestsTest {
         }
     }
 
-    @Logged
+    @Nested
     class answer {
 
-        @BeforeAll
-        void init() {
-            logger.nested(answer.class);
-        }
-
-        @Logged
+        @Nested
         class create {
-
-            @BeforeAll
-            void init() {
-                logger.nested(create.class);
-            }
 
             @Test
             void valid() {
@@ -179,13 +148,8 @@ public class ValidationCommentRequestsTest {
             }
         }
 
-        @Logged
+        @Nested
         class edit {
-
-            @BeforeAll
-            void init() {
-                logger.nested(edit.class);
-            }
 
             @Test
             void valid() {
@@ -215,13 +179,8 @@ public class ValidationCommentRequestsTest {
             }
         }
 
-        @Logged
+        @Nested
         class delete {
-
-            @BeforeAll
-            void init() {
-                logger.nested(delete.class);
-            }
 
             @Test
             void valid() {
@@ -239,10 +198,5 @@ public class ValidationCommentRequestsTest {
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
-    }
-
-    @AfterAll
-    void close() {
-        logger.end();
     }
 }

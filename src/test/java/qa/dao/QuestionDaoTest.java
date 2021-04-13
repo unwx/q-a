@@ -3,9 +3,9 @@ package qa.dao;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import qa.dao.query.AnswerQueryFactory;
@@ -13,7 +13,6 @@ import qa.dao.query.QuestionQueryFactory;
 import qa.domain.*;
 import qa.domain.setters.PropertySetterFactory;
 import qa.logger.TestLogger;
-import qa.tools.annotations.Logged;
 import qa.tools.annotations.MockitoTest;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
@@ -61,13 +60,8 @@ public class QuestionDaoTest {
         }
     }
 
-    @Logged
+    @Nested
     class get_full_question {
-
-        @BeforeAll
-        void init() {
-            logger.nested(get_full_question.class);
-        }
 
         @Test
         void assert_correct_result() {
@@ -191,13 +185,8 @@ public class QuestionDaoTest {
         }
     }
 
-    @Logged
+    @Nested
     class get_question_comments {
-
-        @BeforeAll
-        void init() {
-            logger.nested(get_question_comments.class);
-        }
 
         @Test
         void assert_correct_result() {
@@ -246,13 +235,8 @@ public class QuestionDaoTest {
             assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
         }
 
-        @Logged
+        @Nested
         class no_result {
-
-            @BeforeAll
-            void init() {
-                logger.nested(no_result.class);
-            }
 
             @Test
             void assert_result_equals_null_question_not_exist() {
@@ -269,13 +253,8 @@ public class QuestionDaoTest {
         }
     }
 
-    @Logged
+    @Nested
     class get_question_views {
-
-        @BeforeAll
-        void init() {
-            logger.nested(get_question_views.class);
-        }
 
         @Test
         void assert_correct_result() {
@@ -342,10 +321,5 @@ public class QuestionDaoTest {
             List<QuestionView> dto = questionDao.getQuestionViewsDto(1231230);
             assertThat(dto, equalTo(Collections.emptyList()));
         }
-    }
-
-    @AfterAll
-    void close() {
-        logger.end();
     }
 }

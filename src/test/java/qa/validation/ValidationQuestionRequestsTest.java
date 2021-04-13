@@ -1,15 +1,14 @@
 package qa.validation;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import qa.dto.request.question.*;
 import qa.dto.validation.wrapper.question.*;
 import qa.exceptions.validator.ValidationException;
 import qa.logger.TestLogger;
 import qa.source.ValidationPropertyDataSource;
-import qa.tools.annotations.Logged;
 import qa.tools.annotations.MockitoTest;
 import qa.util.dao.query.params.QuestionQueryParameters;
 import qa.util.validation.ValidationTestUtil;
@@ -29,13 +28,8 @@ public class ValidationQuestionRequestsTest {
         propertyDataSource = ValidationTestUtil.mockValidationProperties();
     }
 
-    @Logged
+    @Nested
     class create {
-
-        @BeforeAll
-        void init() {
-            logger.nested(create.class);
-        }
 
         @Test
         void valid() {
@@ -70,13 +64,8 @@ public class ValidationQuestionRequestsTest {
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
 
-        @Logged
+        @Nested
         class invalid_tags {
-
-            @BeforeAll
-            void init() {
-                logger.nested(invalid_tags.class);
-            }
 
             @Test
             void null_tag() {
@@ -102,13 +91,8 @@ public class ValidationQuestionRequestsTest {
         }
     }
 
-    @Logged
+    @Nested
     class edit {
-
-        @BeforeAll
-        void init() {
-            logger.nested(edit.class);
-        }
 
         @Test
         void valid() {
@@ -135,13 +119,8 @@ public class ValidationQuestionRequestsTest {
         }
     }
 
-    @Logged
+    @Nested
     class delete {
-
-        @BeforeAll
-        void init() {
-            logger.nested(delete.class);
-        }
 
         @Test
         void valid() {
@@ -160,21 +139,11 @@ public class ValidationQuestionRequestsTest {
         }
     }
 
-    @Logged
+    @Nested
     class get {
 
-        @BeforeAll
-        void init() {
-            logger.nested(get.class);
-        }
-
-        @Logged
+        @Nested
         class question_views {
-
-            @BeforeAll
-            void init() {
-                logger.nested(question_views.class);
-            }
 
             @Test
             void valid() {
@@ -184,13 +153,8 @@ public class ValidationQuestionRequestsTest {
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
-            @Logged
+            @Nested
             class invalid_page {
-
-                @BeforeAll
-                void init() {
-                    logger.nested(invalid_page.class);
-                }
 
                 @Test
                 void zero() {
@@ -210,14 +174,8 @@ public class ValidationQuestionRequestsTest {
             }
         }
 
-        @Logged
+        @Nested
         class full_question {
-
-            @BeforeAll
-            void init() {
-                logger.nested(full_question.class);
-            }
-
             @Test
             void valid() {
                 logger.trace("valid");
@@ -235,13 +193,8 @@ public class ValidationQuestionRequestsTest {
             }
         }
 
-        @Logged
+        @Nested
         class question_comments {
-
-            @BeforeAll
-            void init() {
-                logger.nested(question_comments.class);
-            }
 
             @Test
             void valid() {
@@ -251,13 +204,8 @@ public class ValidationQuestionRequestsTest {
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
-            @Logged
+            @Nested
             class invalid {
-
-                @BeforeAll
-                void init() {
-                    logger.nested(invalid.class);
-                }
 
                 @Test
                 void page() {
@@ -276,10 +224,5 @@ public class ValidationQuestionRequestsTest {
                 }
             }
         }
-    }
-
-    @AfterAll
-    void close() {
-        logger.end();
     }
 }

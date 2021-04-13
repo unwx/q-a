@@ -11,7 +11,6 @@ import qa.entities.NestedEntity;
 import qa.exceptions.domain.SetterNotImplementedException;
 import qa.exceptions.domain.SetterTargetIsNullException;
 import qa.logger.TestLogger;
-import qa.tools.annotations.Logged;
 import qa.tools.extension.LoggingExtension;
 
 import java.time.LocalDateTime;
@@ -41,13 +40,8 @@ public class PropertySetterTest {
         assertThat(entity.getDate(), equalTo(null));
     }
 
-    @Logged
+    @Nested
     class correct_parameters {
-
-        @BeforeAll
-        void init() {
-            logger.nested(correct_parameters.class);
-        }
 
         @Test
         public void default_entity() {
@@ -104,10 +98,5 @@ public class PropertySetterTest {
         Entity entity = new Entity();
         assertThrows(SetterNotImplementedException.class, () -> propertySetter.set(entity, null, 1L));
         assertDoesNotThrow(() -> propertySetter.set(entity, "id", null));
-    }
-
-    @AfterAll
-    void close() {
-        logger.end();
     }
 }

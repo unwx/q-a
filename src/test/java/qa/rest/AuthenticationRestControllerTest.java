@@ -10,9 +10,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import qa.dto.response.JwtPairResponse;
@@ -21,7 +21,6 @@ import qa.logger.TestLogger;
 import qa.security.PasswordEncryptorFactory;
 import qa.security.jwt.entity.JwtStatus;
 import qa.security.jwt.service.JwtProvider;
-import qa.tools.annotations.Logged;
 import qa.tools.annotations.SpringIntegrationTest;
 import qa.util.dao.UserDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
@@ -66,13 +65,8 @@ public class AuthenticationRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class registration {
-
-        @BeforeAll
-        void init() {
-            logger.nested(registration.class);
-        }
 
         @Test
         void success_assert_valid_tokens() throws JsonProcessingException {
@@ -114,13 +108,8 @@ public class AuthenticationRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class login {
-
-        @BeforeAll
-        void init() {
-            logger.nested(login.class);
-        }
 
         @Test
         void success_assert_valid_tokens() throws JsonProcessingException {
@@ -162,13 +151,8 @@ public class AuthenticationRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class refresh_tokens {
-
-        @BeforeAll
-        void init() {
-            logger.nested(refresh_tokens.class);
-        }
 
         @Test
         void success_assert_valid_tokens() throws JsonProcessingException {
@@ -244,10 +228,5 @@ public class AuthenticationRestControllerTest {
             transaction.commit();
             return exp == null ? null : exp.longValue();
         }
-    }
-
-    @AfterAll
-    void close() {
-        logger.end();
     }
 }

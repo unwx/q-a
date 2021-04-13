@@ -1,14 +1,21 @@
 package qa.logger;
 
+import qa.tools.center.LogCenter;
+
 public class TestLogger extends CustomLogger {
+
+    private int clazzCount;
 
     public TestLogger(Class<?> clazz) {
         super(clazz);
-        LogCenter.setCurrentLogger(this);
+        LogCenter.set(this);
+        this.clazzCount = super.getClazzCount();
     }
 
     public void nested(Class<?> clazz) {
         super.nested(clazz);
+        updateClazzCounter();
+        updateCenterInfo();
     }
 
     public void trace(String message) {
@@ -17,5 +24,14 @@ public class TestLogger extends CustomLogger {
 
     public void end() {
         super.end();
+    }
+
+    private void updateClazzCounter() {
+        clazzCount--;
+    }
+
+    private void updateCenterInfo() {
+        if (clazzCount == 1)
+            LogCenter.setLastClass(true);
     }
 }

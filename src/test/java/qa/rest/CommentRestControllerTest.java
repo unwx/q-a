@@ -9,14 +9,13 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
-import qa.tools.annotations.Logged;
 import qa.tools.annotations.SpringIntegrationTest;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.CommentDaoTestUtil;
@@ -70,21 +69,11 @@ public class CommentRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class success {
 
-        @BeforeAll
-        void init() {
-            logger.nested(success.class);
-        }
-
-        @Logged
+        @Nested
         class comment_answer {
-
-            @BeforeAll
-            void init() {
-                logger.nested(comment_answer.class);
-            }
 
             @Test
             void create() {
@@ -133,13 +122,8 @@ public class CommentRestControllerTest {
             }
         }
 
-        @Logged
+        @Nested
         class comment_question {
-
-            @BeforeAll
-            void init() {
-                logger.nested(comment_question.class);
-            }
 
             @Test
             void create() {
@@ -188,21 +172,11 @@ public class CommentRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class bad_request {
 
-        @BeforeAll
-        void init() {
-            logger.nested(bad_request.class);
-        }
-
-        @Logged
+        @Nested
         class comment_answer {
-
-            @BeforeAll
-            void init() {
-                logger.nested(comment_answer.class);
-            }
 
             @Test
             void create() {
@@ -241,13 +215,8 @@ public class CommentRestControllerTest {
             }
         }
 
-        @Logged
+        @Nested
         class comment_question {
-
-            @BeforeAll
-            void init() {
-                logger.nested(comment_question.class);
-            }
 
             @Test
             void create() {
@@ -287,21 +256,11 @@ public class CommentRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class access_denied {
 
-        @BeforeAll
-        void init() {
-            logger.nested(access_denied.class);
-        }
-
-        @Logged
+        @Nested
         class comment_answer {
-
-            @BeforeAll
-            void init() {
-                logger.nested(comment_answer.class);
-            }
 
             @Test
             void edit() {
@@ -336,13 +295,8 @@ public class CommentRestControllerTest {
             }
         }
 
-        @Logged
+        @Nested
         class comment_question {
-
-            @BeforeAll
-            void init() {
-                logger.nested(comment_question.class);
-            }
 
             @Test
             void edit() {
@@ -387,10 +341,5 @@ public class CommentRestControllerTest {
             transaction.commit();
             return result == null ? null : result.longValue();
         }
-    }
-
-    @AfterAll
-    void close() {
-        logger.end();
     }
 }

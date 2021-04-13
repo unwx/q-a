@@ -1,8 +1,8 @@
 package qa.validation;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import qa.dto.request.authentication.AuthenticationRequest;
 import qa.dto.request.authentication.RegistrationRequest;
@@ -11,7 +11,6 @@ import qa.dto.validation.wrapper.authentication.RegistrationRequestValidationWra
 import qa.exceptions.validator.ValidationException;
 import qa.logger.TestLogger;
 import qa.source.ValidationPropertyDataSource;
-import qa.tools.annotations.Logged;
 import qa.tools.annotations.MockitoTest;
 import qa.util.dao.query.params.UserQueryParameters;
 import qa.util.rest.JwtTestUtil;
@@ -32,13 +31,8 @@ public class ValidationAuthenticationRequestsTest {
         propertyDataSource = ValidationTestUtil.mockValidationProperties();
     }
 
-    @Logged
+    @Nested
     class registration {
-
-        @BeforeAll
-        void init() {
-            logger.nested(registration.class);
-        }
 
         @Test
         void valid() {
@@ -89,13 +83,8 @@ public class ValidationAuthenticationRequestsTest {
         }
     }
 
-    @Logged
+    @Nested
     class login {
-
-        @BeforeAll
-        void init() {
-            logger.nested(login.class);
-        }
 
         @Test
         void valid() {
@@ -136,10 +125,5 @@ public class ValidationAuthenticationRequestsTest {
                     new AuthenticationRequest(JwtTestUtil.USER_EMAIL, "qwe123"), propertyDataSource);
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
-    }
-
-    @AfterAll
-    void close() {
-        logger.end();
     }
 }

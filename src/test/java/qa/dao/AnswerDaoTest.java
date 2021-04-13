@@ -3,9 +3,9 @@ package qa.dao;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import qa.dao.query.AnswerQueryFactory;
@@ -13,7 +13,6 @@ import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.domain.setters.PropertySetterFactory;
 import qa.logger.TestLogger;
-import qa.tools.annotations.Logged;
 import qa.tools.annotations.MockitoTest;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
@@ -60,13 +59,8 @@ public class AnswerDaoTest {
         }
     }
 
-    @Logged
+    @Nested
     class get_full_answers {
-
-        @BeforeAll
-        void init() {
-            logger.nested(get_full_answers.class);
-        }
 
         @Test
         void assert_correct_result() {
@@ -134,13 +128,8 @@ public class AnswerDaoTest {
             assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
         }
 
-        @Logged
+        @Nested
         class no_result {
-
-            @BeforeAll
-            void init() {
-                logger.nested(no_result.class);
-            }
 
             @Test
             void assert_result_equals_null_question_not_exist() {
@@ -157,13 +146,8 @@ public class AnswerDaoTest {
         }
     }
 
-    @Logged
+    @Nested
     class get_answer_comments {
-
-        @BeforeAll
-        void init() {
-            logger.nested(get_answer_comments.class);
-        }
 
         @Test
         void assert_correct_result() {
@@ -213,13 +197,8 @@ public class AnswerDaoTest {
             assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
         }
 
-        @Logged
+        @Nested
         class no_result {
-
-            @BeforeAll
-            void init() {
-                logger.nested(no_result.class);
-            }
 
             @Test
             void assert_result_equals_null_answer_not_exist() {
@@ -234,10 +213,5 @@ public class AnswerDaoTest {
                 assertThat(answerDao.getAnswerComments(1L, 1), equalTo(Collections.emptyList()));
             }
         }
-    }
-
-    @AfterAll
-    void close() {
-        logger.end();
     }
 }

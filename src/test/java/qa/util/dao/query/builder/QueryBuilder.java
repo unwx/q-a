@@ -16,7 +16,6 @@ public class QueryBuilder {
     private final CommentQuestionQueryBuilder commentQuestionQueryBuilder = new CommentQuestionQueryBuilder();
     private final CommentAnswerQueryBuilder commentAnswerQueryBuilder = new CommentAnswerQueryBuilder();
 
-
     public QueryBuilder(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
     }

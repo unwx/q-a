@@ -9,9 +9,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import qa.domain.Answer;
 import qa.domain.Question;
@@ -19,7 +19,6 @@ import qa.dto.response.user.UserAnswersResponse;
 import qa.dto.response.user.UserFullResponse;
 import qa.dto.response.user.UserQuestionsResponse;
 import qa.logger.TestLogger;
-import qa.tools.annotations.Logged;
 import qa.tools.annotations.SpringIntegrationTest;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
@@ -64,21 +63,11 @@ public class UserRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class get_user {
 
-        @BeforeAll
-        void init() {
-            logger.nested(get_user.class);
-        }
-
-        @Logged
+        @Nested
         class success {
-
-            @BeforeAll
-            void init() {
-                logger.nested(success.class);
-            }
 
             @Test
             void url() throws JsonProcessingException {
@@ -106,13 +95,8 @@ public class UserRestControllerTest {
             }
         }
 
-        @Logged
+        @Nested
         class not_found {
-
-            @BeforeAll
-            void init() {
-                logger.nested(not_found.class);
-            }
 
             @Test
             void json_assert_empty_list() throws JsonProcessingException {
@@ -140,13 +124,8 @@ public class UserRestControllerTest {
             }
         }
 
-        @Logged
+        @Nested
         class bad_request {
-
-            @BeforeAll
-            void init() {
-                logger.nested(bad_request.class);
-            }
 
             @Test
             void json() {
@@ -169,21 +148,11 @@ public class UserRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class get_user_questions {
 
-        @BeforeAll
-        void init() {
-            logger.nested(get_user_questions.class);
-        }
-
-        @Logged
+        @Nested
         class success {
-
-            @BeforeAll
-            void init() {
-                logger.nested(success.class);
-            }
 
             @Test
             void json() throws JsonProcessingException {
@@ -211,13 +180,8 @@ public class UserRestControllerTest {
             }
         }
 
-        @Logged
+        @Nested
         class bad_request {
-
-            @BeforeAll
-            void init() {
-                logger.nested(bad_request.class);
-            }
 
             @Test
             void json() {
@@ -241,21 +205,11 @@ public class UserRestControllerTest {
             }
         }
 
-        @Logged
+        @Nested
         class not_found {
 
-            @BeforeAll
-            void init() {
-                logger.nested(not_found.class);
-            }
-
-            @Logged
+            @Nested
             class user_not_exist {
-
-                @BeforeAll
-                void init() {
-                    logger.nested(user_not_exist.class);
-                }
 
                 @Test
                 void json() {
@@ -277,13 +231,8 @@ public class UserRestControllerTest {
                 }
             }
 
-            @Logged
+            @Nested
             class question_assert_empty_list {
-
-                @BeforeAll
-                void init() {
-                    logger.nested(question_assert_empty_list.class);
-                }
 
                 @Test
                 void json() throws JsonProcessingException {
@@ -317,21 +266,11 @@ public class UserRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class get_user_answers {
 
-        @BeforeAll
-        void init() {
-            logger.nested(get_user_answers.class);
-        }
-
-        @Logged
+        @Nested
         class success {
-
-            @BeforeAll
-            void init() {
-                logger.nested(success.class);
-            }
 
             @Test
             void json() throws JsonProcessingException {
@@ -359,13 +298,8 @@ public class UserRestControllerTest {
             }
         }
 
-        @Logged
+        @Nested
         class bad_request {
-
-            @BeforeAll
-            void init() {
-                logger.nested(bad_request.class);
-            }
 
             @Test
             void json() {
@@ -389,21 +323,11 @@ public class UserRestControllerTest {
             }
         }
 
-        @Logged
+        @Nested
         class not_found {
 
-            @BeforeAll
-            void init() {
-                logger.nested(not_found.class);
-            }
-
-            @Logged
+            @Nested
             class user_not_exist {
-
-                @BeforeAll
-                void init() {
-                    logger.nested(user_not_exist.class);
-                }
 
                 @Test
                 void json() {
@@ -425,13 +349,8 @@ public class UserRestControllerTest {
                 }
             }
 
-            @Logged
+            @Nested
             class answer_assert_empty_list {
-
-                @BeforeAll
-                void init() {
-                    logger.nested(answer_assert_empty_list.class);
-                }
 
                 @Test
                 void json() throws JsonProcessingException {
@@ -521,10 +440,5 @@ public class UserRestControllerTest {
             assertThat(a.getId(), notNullValue());
             assertThat(a.getText(), notNullValue());
         }
-    }
-
-    @AfterAll
-    void close() {
-        logger.end();
     }
 }

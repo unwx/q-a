@@ -9,9 +9,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.json.JSONObject;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import qa.domain.Answer;
@@ -21,7 +21,6 @@ import qa.dto.response.question.QuestionFullResponse;
 import qa.dto.response.question.QuestionViewResponse;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
-import qa.tools.annotations.Logged;
 import qa.tools.annotations.SpringIntegrationTest;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.query.params.QuestionQueryParameters;
@@ -68,21 +67,11 @@ public class QuestionRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class CUD {
 
-        @BeforeAll
-        void init() {
-            logger.nested(CUD.class);
-        }
-
-        @Logged
+        @Nested
         class success {
-
-            @BeforeAll
-            void init() {
-                logger.nested(success.class);
-            }
 
             @Test
             void create() {
@@ -130,13 +119,8 @@ public class QuestionRestControllerTest {
             }
         }
 
-        @Logged
+        @Nested
         class bad_request {
-
-            @BeforeAll
-            void init() {
-                logger.nested(bad_request.class);
-            }
 
             @Test
             void create() {
@@ -172,13 +156,8 @@ public class QuestionRestControllerTest {
             }
         }
 
-        @Logged
+        @Nested
         class access_denied {
-
-            @BeforeAll
-            void init() {
-                logger.nested(access_denied.class);
-            }
 
             @Test
             void edit() {
@@ -208,29 +187,14 @@ public class QuestionRestControllerTest {
         }
     }
 
-    @Logged
+    @Nested
     class get {
 
-        @BeforeAll
-        void init() {
-            logger.nested(get.class);
-        }
-
-        @Logged
+        @Nested
         class question_views {
 
-            @BeforeAll
-            void init() {
-                logger.nested(question_views.class);
-            }
-
-            @Logged
+            @Nested
             class success {
-
-                @BeforeAll
-                void init() {
-                    logger.nested(success.class);
-                }
 
                 @Test
                 void json() throws JsonProcessingException {
@@ -258,13 +222,8 @@ public class QuestionRestControllerTest {
                 }
             }
 
-            @Logged
+            @Nested
             class bad_request {
-
-                @BeforeAll
-                void init() {
-                    logger.nested(bad_request.class);
-                }
 
                 @Test
                 void json() {
@@ -289,21 +248,11 @@ public class QuestionRestControllerTest {
             }
         }
 
-        @Logged
+        @Nested
         class full_question {
 
-            @BeforeAll
-            void init() {
-                logger.nested(full_question.class);
-            }
-
-            @Logged
+            @Nested
             class success {
-
-                @BeforeAll
-                void init() {
-                    logger.nested(success.class);
-                }
 
                 @Test
                 void json() throws JsonProcessingException {
@@ -335,13 +284,8 @@ public class QuestionRestControllerTest {
                 }
             }
 
-            @Logged
+            @Nested
             class bad_request {
-
-                @BeforeAll
-                void init() {
-                    logger.nested(bad_request.class);
-                }
 
                 @Test
                 void json() {
@@ -442,10 +386,5 @@ public class QuestionRestControllerTest {
                 assertThat(ca.getAuthor().getUsername(), notNullValue());
             }
         }
-    }
-
-    @AfterAll
-    void close() {
-        logger.end();
     }
 }
