@@ -30,6 +30,8 @@ public abstract class RestTestUtil {
         return request;
     }
 
+
+
     public static RequestSpecification getRequest() {
         return RestAssured.given();
     }

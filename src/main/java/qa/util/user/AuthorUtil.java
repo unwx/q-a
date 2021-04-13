@@ -5,7 +5,7 @@ import qa.dao.Dao;
 import qa.dao.databasecomponents.Where;
 import qa.domain.setters.PropertySetterFactory;
 import qa.exceptions.rest.AccessDeniedException;
-import qa.exceptions.rest.BadRequestException;
+import qa.exceptions.rest.ResourceNotFoundException;
 import qa.exceptions.service.internal.AuthorNotExistException;
 import qa.util.access.ActionAccessUtil;
 import qa.util.access.CheckAuthorResult;
@@ -27,7 +27,7 @@ public class AuthorUtil {
 
         CheckAuthorResult result = ActionAccessUtil.isRealAuthor(where, authenticationId, clazz, dao, propertySetterFactory);
         switch (result) {
-            case ENTITY_NOT_EXIST -> throw new BadRequestException(entityName + " not exist. id: " + where.getFieldValue());
+            case ENTITY_NOT_EXIST -> throw new ResourceNotFoundException(entityName + " not exist. id: " + where.getFieldValue());
             case AUTHOR_NOT_EXIST -> {
                 String message = entityName + where.getFieldValue() + ". Author not exist";
                 logger.error(message);

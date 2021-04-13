@@ -163,6 +163,13 @@ public class QueryBuilder {
         return this;
     }
 
+    public QueryBuilder commentQuestion() {
+        commentQuestionQueryBuilder
+                .with(session)
+                .commentQuestion();
+        return this;
+    }
+
     public QueryBuilder commentAnswer(Long id,
                                       String text,
                                       Long answerId,
@@ -187,6 +194,13 @@ public class QueryBuilder {
         commentAnswerQueryBuilder
                 .with(session)
                 .commentAnswer(id, date);
+        return this;
+    }
+
+    public QueryBuilder commentAnswer() {
+        commentAnswerQueryBuilder
+                .with(session)
+                .commentAnswer();
         return this;
     }
 }

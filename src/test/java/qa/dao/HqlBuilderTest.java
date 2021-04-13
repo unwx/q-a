@@ -4,6 +4,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import qa.annotations.Logged;
 import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.Table;
 import qa.dao.databasecomponents.Where;
@@ -11,7 +12,6 @@ import qa.dao.databasecomponents.WhereOperator;
 import qa.entities.BigEntity;
 import qa.entities.Entity;
 import qa.entities.NestedEntity;
-import qa.logger.Logged;
 import qa.logger.LoggingExtension;
 import qa.logger.TestLogger;
 

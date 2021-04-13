@@ -5,12 +5,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import qa.dto.request.comment.*;
+import qa.dto.request.question.QuestionGetCommentsRequest;
+import qa.dto.response.comment.CommentQuestionResponse;
 import qa.service.CommentService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/comment/")
@@ -227,5 +228,91 @@ public class CommentRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpStatus> deleteCommentAnswer(@RequestBody CommentAnswerDeleteRequest request, Authentication authentication) {
         return commentService.deleteCommentAnswer(request, authentication);
+    }
+
+
+    /**
+     * @uri
+     * /api/v1/comment/question/get/{questionId}/{page}
+     *
+     * @method
+     * get
+     *
+     * @path_variable
+     * questionId: long
+     * page: int
+     *
+     * @response
+     * OK: (200)
+     * response {
+     *     comments: [
+     *          id: long
+     *          text: string
+     *          creation_date: string|yyyy-MM-dd HH:mm:ss
+     *          author: {
+     *              username: string
+     *          }
+     *          ...
+     *     ]
+     * }
+     *
+     * 400 | 401 | 404 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @RequestMapping(
+            value = "question/get/{questionId}/{page}",
+            method = RequestMethod.GET)
+    public ResponseEntity<List<CommentQuestionResponse>> getQuestionComments(@PathVariable("questionId") Long questionId,
+                                                                             @PathVariable("page") Integer page) {
+        return commentService.getCommentQuestion(questionId, page);
+    }
+
+
+    /**
+     * @uri
+     * /api/v1/comment/question/get
+     *
+     * @method
+     * get
+     *
+     * @request
+     * dto {
+     *     questionId: long
+     *     page: int
+     * }
+     *
+     * @response
+     * OK: (200)
+     * response {
+     *     comments: [
+     *          id: long
+     *          text: string
+     *          creation_date: string|yyyy-MM-dd HH:mm:ss
+     *          author: {
+     *              username: string
+     *          }
+     *          ...
+     *     ]
+     * }
+     *
+     * 400 | 401 | 404 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @RequestMapping(
+            value = "question/get",
+            method = RequestMethod.GET,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<CommentQuestionResponse>> getQuestionComments(@RequestBody QuestionGetCommentsRequest request) {
+        return commentService.getCommentQuestion(request);
     }
 }

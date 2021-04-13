@@ -7,6 +7,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import qa.annotations.Logged;
 import qa.dao.query.AnswerQueryFactory;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
@@ -49,7 +50,7 @@ public class AnswerDaoTest {
 
     @BeforeEach
     void truncate() {
-        try(Session session = sessionFactory.openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("truncate table question cascade").executeUpdate();
             session.createSQLQuery("truncate table answer cascade").executeUpdate();
@@ -60,8 +61,7 @@ public class AnswerDaoTest {
         }
     }
 
-    @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @Logged
     class get_full_answers {
 
         @BeforeAll
@@ -135,8 +135,7 @@ public class AnswerDaoTest {
             assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
         }
 
-        @Nested
-        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+        @Logged
         class no_result {
 
             @BeforeAll
@@ -159,8 +158,7 @@ public class AnswerDaoTest {
         }
     }
 
-    @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @Logged
     class get_answer_comments {
 
         @BeforeAll
@@ -216,8 +214,7 @@ public class AnswerDaoTest {
             assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
         }
 
-        @Nested
-        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+        @Logged
         class no_result {
 
             @BeforeAll

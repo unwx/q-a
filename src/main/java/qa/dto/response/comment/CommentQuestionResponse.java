@@ -1,11 +1,14 @@
-package qa.dto.response.question;
+package qa.dto.response.comment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import qa.domain.User;
+import qa.serializer.question.QuestionCommentResponseSerializer;
 
 import java.util.Date;
 
-public class QuestionCommentResponse {
+@JsonSerialize(using = QuestionCommentResponseSerializer.class)
+public class CommentQuestionResponse {
 
     @JsonProperty("id")
     private final Long commentId;
@@ -14,7 +17,7 @@ public class QuestionCommentResponse {
     private final Date creationDate;
     private final User author;
 
-    public QuestionCommentResponse(Long commentId,
+    public CommentQuestionResponse(Long commentId,
                                    String text,
                                    Date creationDate,
                                    User author) {
@@ -24,7 +27,7 @@ public class QuestionCommentResponse {
         this.author = author;
     }
 
-    public QuestionCommentResponse() {
+    public CommentQuestionResponse() {
         this.commentId = null;
         this.text = null;
         this.creationDate = null;

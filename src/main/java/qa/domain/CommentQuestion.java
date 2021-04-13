@@ -22,6 +22,10 @@ public class CommentQuestion extends Comment {
         this.question = question;
     }
 
+    public CommentQuestion(Long id, String text, Date creationDate, User author) {
+        super(id, text, creationDate, author);
+    }
+
     public CommentQuestion() {
     }
 

@@ -15,13 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
+import qa.annotations.Logged;
 import qa.config.spring.SpringConfig;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.domain.CommentQuestion;
 import qa.dto.response.question.QuestionFullResponse;
 import qa.dto.response.question.QuestionViewResponse;
-import qa.logger.Logged;
 import qa.logger.LoggingExtension;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
@@ -368,17 +368,6 @@ public class QuestionRestControllerTest {
                     assertThat(response.getStatusCode(), equalTo(400));
                 }
             }
-        }
-
-        @Logged
-        class question_comments {
-
-            @BeforeAll
-            void init() {
-                logger.nested(question_comments.class);
-            }
-
-//            @
         }
     }
 

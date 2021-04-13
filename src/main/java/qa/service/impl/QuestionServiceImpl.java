@@ -14,7 +14,6 @@ import qa.domain.QuestionView;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.question.*;
-import qa.dto.response.question.QuestionCommentResponse;
 import qa.dto.response.question.QuestionFullResponse;
 import qa.dto.response.question.QuestionViewResponse;
 import qa.dto.validation.wrapper.question.*;
@@ -90,16 +89,6 @@ public class QuestionServiceImpl implements QuestionService {
         return new ResponseEntity<>(getFullQuestionProcess(request), HttpStatus.OK);
     }
 
-    @Override
-    public ResponseEntity<List<QuestionCommentResponse>> getQuestionComments(Long questionId, Integer page) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<List<QuestionCommentResponse>> getQuestionComments(QuestionGetCommentsRequest request) {
-        return null;
-    }
-
     private Long createQuestionProcess(QuestionCreateRequest request, Authentication authentication) {
         validate(request);
         return saveNewQuestion(request, authentication);
@@ -124,7 +113,7 @@ public class QuestionServiceImpl implements QuestionService {
     private List<QuestionViewResponse> getQuestionsProcess(QuestionGetViewsRequest request) {
         validate(request);
         List<QuestionView> views = getQuestionViewsFromDatabase(request.getPage());
-        return convertDtoToResponse(views);
+        return convertViewDtoToResponse(views);
     }
 
     private QuestionFullResponse getFullQuestionProcess(Long questionId) {
@@ -184,7 +173,7 @@ public class QuestionServiceImpl implements QuestionService {
         return ResourceUtil.throwResourceNFExceptionIfNull(fullQuestion, ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questionId));
     }
 
-    private List<QuestionViewResponse> convertDtoToResponse(List<QuestionView> views) {
+    private List<QuestionViewResponse> convertViewDtoToResponse(List<QuestionView> views) {
         List<QuestionViewResponse> viewsResponse = new ArrayList<>(views.size());
         views.forEach((v) -> viewsResponse.add(
                 new QuestionViewResponse(

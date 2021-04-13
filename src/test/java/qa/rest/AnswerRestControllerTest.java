@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
+import qa.annotations.Logged;
 import qa.config.spring.SpringConfig;
 import qa.logger.LoggingExtension;
 import qa.logger.TestLogger;
@@ -68,8 +69,7 @@ public class AnswerRestControllerTest {
         }
     }
 
-    @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @Logged
     class success {
 
         @BeforeAll
@@ -155,8 +155,7 @@ public class AnswerRestControllerTest {
         }
     }
 
-    @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @Logged
     class bad_request {
 
         @BeforeAll
@@ -225,8 +224,7 @@ public class AnswerRestControllerTest {
         }
     }
 
-    @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @Logged
     class access_denied {
 
         @BeforeAll

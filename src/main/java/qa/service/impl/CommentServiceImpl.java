@@ -15,14 +15,21 @@ import qa.dao.databasecomponents.WhereOperator;
 import qa.domain.*;
 import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.comment.*;
+import qa.dto.request.question.QuestionGetCommentsRequest;
+import qa.dto.response.comment.CommentQuestionResponse;
 import qa.dto.validation.wrapper.comment.*;
+import qa.dto.validation.wrapper.question.QuestionGetCommentsRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.service.CommentService;
 import qa.source.ValidationPropertyDataSource;
+import qa.util.ResourceUtil;
 import qa.util.ValidationUtil;
 import qa.util.user.AuthorUtil;
 import qa.util.user.PrincipalUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -34,6 +41,9 @@ public class CommentServiceImpl implements CommentService {
     private final ValidationPropertyDataSource validationPropertyDataSource;
     private final ValidationChainAdditional validationChain;
     private final PropertySetterFactory propertySetterFactory;
+
+    private static final String ERR_MESSAGE_QUESTION_NOT_EXIST_ID = "question not exist. question id: %s";
+
     private static final Logger logger = LogManager.getLogger(CommentServiceImpl.class);
 
     public CommentServiceImpl(CommentQuestionDao commentQuestionDao,
@@ -86,6 +96,16 @@ public class CommentServiceImpl implements CommentService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<List<CommentQuestionResponse>> getCommentQuestion(Long questionId, Integer page) {
+        return new ResponseEntity<>(getCommentQuestionProcess(questionId, page), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<List<CommentQuestionResponse>> getCommentQuestion(QuestionGetCommentsRequest request) {
+        return new ResponseEntity<>(getCommentQuestionProcess(request), HttpStatus.OK);
+    }
+
     private Long createCommentQuestionProcess(CommentQuestionCreateRequest request, Authentication authentication) {
         validate(request);
         throwBadRequestExIfQuestionNotExist(request.getQuestionId());
@@ -120,6 +140,16 @@ public class CommentServiceImpl implements CommentService {
         validate(request);
         checkIsRealAuthorCommentAnswer(PrincipalUtil.getUserIdFromAuthentication(authentication), request.getCommentId());
         deleteCommentAnswerFromDatabase(request);
+    }
+
+    private List<CommentQuestionResponse> getCommentQuestionProcess(Long questionId, Integer page) {
+        return getCommentQuestionProcess(new QuestionGetCommentsRequest(questionId, page));
+    }
+
+    private List<CommentQuestionResponse> getCommentQuestionProcess(QuestionGetCommentsRequest request) {
+        validate(request);
+        List<CommentQuestion> comments = getCommentQuestionFromDatabase(request.getQuestionId(), request.getPage());
+        return convertCommentQuestionDtoToResponse(comments);
     }
 
     private Long saveNewCommentQuestion(CommentQuestionCreateRequest request, Authentication authentication) {
@@ -157,6 +187,10 @@ public class CommentServiceImpl implements CommentService {
     private void deleteCommentAnswerFromDatabase(CommentAnswerDeleteRequest request) {
         commentAnswerDao.delete(new Where("id", request.getCommentId(), WhereOperator.EQUALS));
     }
+    private List<CommentQuestion> getCommentQuestionFromDatabase(long questionId, int page) {
+        List<CommentQuestion> questions = questionDao.getQuestionComments(questionId, page);
+        return ResourceUtil.throwResourceNFExceptionIfNull(questions, ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questions));
+    }
 
     private void checkIsRealAuthorCommentQuestion(Long authenticationId, long commentId) {
         AuthorUtil.checkIsRealAuthorAndIsEntityExist(
@@ -178,6 +212,19 @@ public class CommentServiceImpl implements CommentService {
                 propertySetterFactory,
                 logger,
                 "comment");
+    }
+
+    private List<CommentQuestionResponse> convertCommentQuestionDtoToResponse(List<CommentQuestion> comments) {
+        List<CommentQuestionResponse> response = new ArrayList<>(comments.size());
+        comments.forEach((c) -> response.add(
+                new CommentQuestionResponse(
+                        c.getId(),
+                        c.getText(),
+                        c.getCreationDate(),
+                        c.getAuthor()
+                )
+        ));
+        return response;
     }
 
     private void throwBadRequestExIfQuestionNotExist(long questionId) {
@@ -220,5 +267,9 @@ public class CommentServiceImpl implements CommentService {
 
     private void validate(CommentAnswerDeleteRequest request) {
         ValidationUtil.validate(new CommentAnswerDeleteRequestValidationWrapper(request), validationChain);
+    }
+
+    private void validate(QuestionGetCommentsRequest request) {
+        ValidationUtil.validate(new QuestionGetCommentsRequestValidationWrapper(request), validationChain);
     }
 }

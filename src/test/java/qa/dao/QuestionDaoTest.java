@@ -7,6 +7,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import qa.annotations.Logged;
 import qa.dao.query.AnswerQueryFactory;
 import qa.dao.query.QuestionQueryFactory;
 import qa.domain.*;
@@ -50,7 +51,7 @@ public class QuestionDaoTest {
 
     @BeforeEach
     void truncate() {
-        try(Session session = sessionFactory.openSession()) {
+        try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
             session.createSQLQuery("truncate table question cascade").executeUpdate();
             session.createSQLQuery("truncate table answer cascade").executeUpdate();
@@ -61,8 +62,7 @@ public class QuestionDaoTest {
         }
     }
 
-    @Nested
-	@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @Logged
     class get_full_question {
 
         @BeforeAll
@@ -139,7 +139,7 @@ public class QuestionDaoTest {
             long[] answerIds = new long[answerSize];
             long[] commentIds = new long[commentSize];
 
-            int answerCommentIdsSize =0;
+            int answerCommentIdsSize = 0;
             for (Answer answer : answers) {
                 answerCommentIdsSize += answer.getComments().size();
             }
@@ -192,8 +192,7 @@ public class QuestionDaoTest {
         }
     }
 
-    @Nested
-	@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @Logged
     class get_question_comments {
 
         @BeforeAll
@@ -248,8 +247,7 @@ public class QuestionDaoTest {
             assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
         }
 
-        @Nested
-        @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+        @Logged
         class no_result {
 
             @BeforeAll
@@ -272,8 +270,7 @@ public class QuestionDaoTest {
         }
     }
 
-    @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    @Logged
     class get_question_views {
 
         @BeforeAll

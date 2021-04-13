@@ -53,6 +53,16 @@ public class CommentAnswerQueryBuilder implements SessionInitializer {
                 .executeUpdate();
     }
 
+    public void commentAnswer() {
+        createCommentAnswerQuery(
+                1L,
+                CommentQueryParameters.TEXT,
+                CommentQueryParameters.ANSWER_ID,
+                CommentQueryParameters.DATE,
+                session)
+                .executeUpdate();
+    }
+
     private Query<?> createCommentAnswerQuery(Long id,
                                               String text,
                                               Long answerId,

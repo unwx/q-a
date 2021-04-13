@@ -4,13 +4,13 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import qa.annotations.Logged;
 import qa.domain.setters.PropertySetter;
 import qa.domain.setters.PropertySetterFactory;
 import qa.entities.Entity;
 import qa.entities.NestedEntity;
 import qa.exceptions.domain.SetterNotImplementedException;
 import qa.exceptions.domain.SetterTargetIsNullException;
-import qa.logger.Logged;
 import qa.logger.LoggingExtension;
 import qa.logger.TestLogger;
 
