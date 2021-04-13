@@ -1,10 +1,9 @@
 package qa.dao;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import qa.annotations.Logged;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.Table;
 import qa.dao.databasecomponents.Where;
@@ -12,8 +11,9 @@ import qa.dao.databasecomponents.WhereOperator;
 import qa.entities.BigEntity;
 import qa.entities.Entity;
 import qa.entities.NestedEntity;
-import qa.logger.LoggingExtension;
 import qa.logger.TestLogger;
+import qa.tools.annotations.Logged;
+import qa.tools.annotations.TestClass;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,9 +22,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
-@ExtendWith({MockitoExtension.class, LoggingExtension.class})
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@TestClass
 public class HqlBuilderTest {
 
     HqlBuilder entityHqlBuilder = new HqlBuilder();

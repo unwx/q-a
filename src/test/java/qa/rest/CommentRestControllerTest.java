@@ -9,17 +9,15 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
-import qa.annotations.Logged;
-import qa.config.spring.SpringConfig;
-import qa.logger.LoggingExtension;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
+import qa.tools.annotations.Logged;
+import qa.tools.annotations.SpringIntegrationTest;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.CommentDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
@@ -34,11 +32,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-@WebAppConfiguration
-@ExtendWith({SpringExtension.class, LoggingExtension.class})
-@ContextConfiguration(classes = SpringConfig.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@SpringIntegrationTest
 public class CommentRestControllerTest {
 
     private SessionFactory sessionFactory;

@@ -1,4 +1,4 @@
-package qa.annotations;
+package qa.tools.annotations;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.TestInstance;

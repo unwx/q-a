@@ -1,9 +1,9 @@
 package qa.validation;
 
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-import qa.annotations.Logged;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import qa.dto.request.answer.AnswerAnsweredRequest;
 import qa.dto.request.answer.AnswerCreateRequest;
 import qa.dto.request.answer.AnswerDeleteRequest;
@@ -13,17 +13,16 @@ import qa.dto.validation.wrapper.answer.AnswerCreateRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerDeleteRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerEditRequestValidationWrapper;
 import qa.exceptions.validator.ValidationException;
-import qa.logger.LoggingExtension;
 import qa.logger.TestLogger;
 import qa.source.ValidationPropertyDataSource;
+import qa.tools.annotations.Logged;
+import qa.tools.annotations.MockitoTest;
 import qa.util.dao.query.params.AnswerQueryParameters;
 import qa.util.validation.ValidationTestUtil;
 import qa.validators.ValidationChainAdditionalImpl;
 import qa.validators.abstraction.ValidationChainAdditional;
 
-@ExtendWith({MockitoExtension.class, LoggingExtension.class})
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@MockitoTest
 public class ValidationAnswerRequestsTest {
 
     private final ValidationChainAdditional validationChain = new ValidationChainAdditionalImpl();

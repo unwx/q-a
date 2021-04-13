@@ -3,17 +3,18 @@ package qa.dao;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import qa.annotations.Logged;
 import qa.dao.query.AnswerQueryFactory;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.domain.setters.PropertySetterFactory;
-import qa.logger.LoggingExtension;
 import qa.logger.TestLogger;
+import qa.tools.annotations.Logged;
+import qa.tools.annotations.MockitoTest;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
@@ -25,9 +26,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@ExtendWith({MockitoExtension.class, LoggingExtension.class})
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
+@MockitoTest
 public class AnswerDaoTest {
 
     private AnswerDao answerDao;

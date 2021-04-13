@@ -1,7 +1,8 @@
-package qa.logger;
+package qa.tools.extension;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
+import qa.logger.LogCenter;
 
 public class LoggingExtension implements TestExecutionExceptionHandler {
 
