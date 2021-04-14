@@ -20,17 +20,20 @@ import qa.dto.request.comment.CommentAnswerDeleteRequest;
 import qa.dto.request.comment.CommentAnswerEditRequest;
 import qa.dto.request.comment.CommentAnswerGetRequest;
 import qa.dto.response.comment.CommentAnswerResponse;
+import qa.dto.validation.wrapper.answer.CommentAnswerGetRequestValidationWrapper;
 import qa.dto.validation.wrapper.comment.CommentAnswerCreateRequestValidationWrapper;
 import qa.dto.validation.wrapper.comment.CommentAnswerDeleteRequestValidationWrapper;
 import qa.dto.validation.wrapper.comment.CommentAnswerEditRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.service.CommentAnswerService;
 import qa.source.ValidationPropertyDataSource;
+import qa.util.ResourceUtil;
 import qa.util.ValidationUtil;
 import qa.util.user.AuthorUtil;
 import qa.util.user.PrincipalUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -78,12 +81,12 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
 
     @Override
     public ResponseEntity<List<CommentAnswerResponse>> getComments(Long answerId, Integer page) {
-        return null;
+        return new ResponseEntity<>(getCommentsProcess(answerId, page), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<List<CommentAnswerResponse>> getComments(CommentAnswerGetRequest request) {
-        return null;
+        return new ResponseEntity<>(getCommentsProcess(request), HttpStatus.OK);
     }
 
     private Long createCommentProcess(CommentAnswerCreateRequest request, Authentication authentication) {
@@ -104,6 +107,16 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
         deleteCommentFromDatabase(request);
     }
 
+    private List<CommentAnswerResponse> getCommentsProcess(Long answerId, Integer page) {
+        return getCommentsProcess(new CommentAnswerGetRequest(answerId, page));
+    }
+
+    private List<CommentAnswerResponse> getCommentsProcess(CommentAnswerGetRequest request) {
+        validate(request);
+        List<CommentAnswer> comments = getCommentsFromDatabase(request.getAnswerId(), request.getPage());
+        return convertDtoToResponse(comments);
+    }
+
     private Long saveNewComment(CommentAnswerCreateRequest request, Authentication authentication) {
         CommentAnswer commentAnswer = new CommentAnswer(
                 request.getText(),
@@ -120,6 +133,25 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
 
     private void deleteCommentFromDatabase(CommentAnswerDeleteRequest request) {
         commentAnswerDao.delete(new Where("id", request.getCommentId(), WhereOperator.EQUALS));
+    }
+
+    private List<CommentAnswer> getCommentsFromDatabase(long answerId, int page) {
+        return ResourceUtil.throwResourceNFExceptionIfNull(
+                commentAnswerDao.getComments(answerId, page - 1),
+                ERR_MESSAGE_ANSWER_NOT_EXIST_ID.formatted(answerId));
+    }
+
+    private List<CommentAnswerResponse> convertDtoToResponse(List<CommentAnswer> dto) {
+        List<CommentAnswerResponse> response = new ArrayList<>(dto.size());
+        dto.forEach((d) -> response.add(
+                new CommentAnswerResponse(
+                        d.getId(),
+                        d.getText(),
+                        d.getCreationDate(),
+                        d.getAuthor()
+                )
+        ));
+        return response;
     }
 
     private void checkIsRealAuthor(Long authenticationId, long commentId) {
@@ -152,5 +184,9 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
 
     private void validate(CommentAnswerDeleteRequest request) {
         ValidationUtil.validate(new CommentAnswerDeleteRequestValidationWrapper(request), validationChain);
+    }
+
+    private void validate(CommentAnswerGetRequest request) {
+        ValidationUtil.validate(new CommentAnswerGetRequestValidationWrapper(request), validationChain);
     }
 }

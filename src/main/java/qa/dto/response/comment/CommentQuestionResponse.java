@@ -3,11 +3,11 @@ package qa.dto.response.comment;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import qa.domain.User;
-import qa.serializer.question.QuestionCommentResponseSerializer;
+import qa.serializer.comment.CommentQuestionResponseSerializer;
 
 import java.util.Date;
 
-@JsonSerialize(using = QuestionCommentResponseSerializer.class)
+@JsonSerialize(using = CommentQuestionResponseSerializer.class)
 public class CommentQuestionResponse {
 
     @JsonProperty("id")

@@ -1,5 +1,7 @@
 package qa.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -12,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import qa.dto.response.comment.CommentQuestionResponse;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
 import qa.tools.annotations.SpringIntegrationTest;
@@ -22,9 +25,10 @@ import qa.util.hibernate.HibernateSessionFactoryUtil;
 import qa.util.rest.CommentRestTestUtil;
 import qa.util.rest.JwtTestUtil;
 
+import java.text.SimpleDateFormat;
+
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 @SpringIntegrationTest
 public class CommentQuestionRestControllerTest {
@@ -43,7 +47,7 @@ public class CommentQuestionRestControllerTest {
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         commentDaoTestUtil = new CommentDaoTestUtil(sessionFactory);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
-        RestAssured.baseURI = "http://localhost:8080/api/v1/comment/question";
+        RestAssured.baseURI = "http://localhost:8080/api/v1/comment/question/";
         RestAssured.port = 8080;
     }
 
@@ -71,7 +75,7 @@ public class CommentQuestionRestControllerTest {
 
             RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.post("question/create");
+            Response response = request.post("create");
             assertThat(response.getStatusCode(), equalTo(200));
 
             assertThat(CommentRestTestUtil.getId(CommentQueryParameters.TEXT, sessionFactory), notNullValue());
@@ -86,7 +90,7 @@ public class CommentQuestionRestControllerTest {
 
             RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.put("question/edit");
+            Response response = request.put("edit");
             assertThat(response.getStatusCode(), equalTo(200));
 
             assertThat(CommentRestTestUtil.getId(CommentQueryParameters.SECOND_TEXT, sessionFactory), notNullValue());
@@ -101,7 +105,7 @@ public class CommentQuestionRestControllerTest {
 
             RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.delete("question/delete");
+            Response response = request.delete("delete");
             assertThat(response.getStatusCode(), equalTo(200));
 
             assertThat(CommentRestTestUtil.getId(CommentQueryParameters.TEXT, sessionFactory), equalTo(null));
@@ -118,7 +122,7 @@ public class CommentQuestionRestControllerTest {
 
             RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.post("question/create");
+            Response response = request.post("create");
             assertThat(response.getStatusCode(), equalTo(400));
         }
 
@@ -130,7 +134,7 @@ public class CommentQuestionRestControllerTest {
 
             RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.put("question/edit");
+            Response response = request.put("edit");
             assertThat(response.getStatusCode(), equalTo(400));
         }
 
@@ -142,7 +146,7 @@ public class CommentQuestionRestControllerTest {
 
             RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.delete("question/delete");
+            Response response = request.delete("delete");
             assertThat(response.getStatusCode(), equalTo(400));
         }
     }
@@ -159,7 +163,7 @@ public class CommentQuestionRestControllerTest {
 
             RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.put("question/edit");
+            Response response = request.put("edit");
             assertThat(response.getStatusCode(), equalTo(403));
 
             assertThat(CommentRestTestUtil.getId(CommentQueryParameters.SECOND_TEXT, sessionFactory), equalTo(null));
@@ -175,10 +179,88 @@ public class CommentQuestionRestControllerTest {
 
             RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.delete("question/delete");
+            Response response = request.delete("delete");
             assertThat(response.getStatusCode(), equalTo(403));
 
             assertThat(CommentRestTestUtil.getId(CommentQueryParameters.TEXT, sessionFactory), notNullValue());
+        }
+    }
+
+    @Nested
+    class get {
+        @Nested
+        class assert_correct_result {
+            @Test
+            void json() throws JsonProcessingException {
+                logger.trace("by json. assert correct result");
+                commentDaoTestUtil.createManyCommentQuestions(CommentDaoTestUtil.COMMENT_RESULT_SIZE);
+                JSONObject json = CommentRestTestUtil.idPage();
+
+                RequestSpecification request = CommentRestTestUtil.getRequestJson(json.toString());
+
+                Response response = request.get("get");
+                assertThat(response.getStatusCode(), equalTo(200));
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+
+                CommentQuestionResponse[] body = mapper.readValue(response.getBody().asString(), CommentQuestionResponse[].class);
+                assertCorrectResultGetComments(body);
+            }
+
+            @Test
+            void url() throws JsonProcessingException {
+                logger.trace("by url. assert correct result");
+                commentDaoTestUtil.createManyCommentQuestions(CommentDaoTestUtil.COMMENT_RESULT_SIZE);
+
+                RequestSpecification request = CommentRestTestUtil.getRequest();
+
+                Response response = request.get("get/1/1");
+                assertThat(response.getStatusCode(), equalTo(200));
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+
+                CommentQuestionResponse[] body = mapper.readValue(response.getBody().asString(), CommentQuestionResponse[].class);
+                assertCorrectResultGetComments(body);
+            }
+        }
+
+        @Nested
+        class bad_request {
+            @Test
+            void json() {
+                logger.trace("bad request. assert correct result");
+                commentDaoTestUtil.createManyCommentQuestions(CommentDaoTestUtil.COMMENT_RESULT_SIZE);
+                JSONObject json = CommentRestTestUtil.badIdPage();
+
+                RequestSpecification request = CommentRestTestUtil.getRequestJson(json.toString());
+
+                Response response = request.get("get");
+                assertThat(response.getStatusCode(), equalTo(400));
+            }
+
+            @Test
+            void url() {
+                logger.trace("bad request. assert correct result");
+                commentDaoTestUtil.createManyCommentQuestions(CommentDaoTestUtil.COMMENT_RESULT_SIZE);
+
+                RequestSpecification request = CommentRestTestUtil.getRequest();
+
+                Response response = request.get("get/1/0");
+                assertThat(response.getStatusCode(), equalTo(400));
+            }
+        }
+    }
+
+    public static void assertCorrectResultGetComments(CommentQuestionResponse[] response) {
+        assertThat(response, notNullValue());
+        assertThat(response.length, greaterThan(0));
+        for (CommentQuestionResponse r : response) {
+            assertThat(r, notNullValue());
+            assertThat(r.getCommentId(), notNullValue());
+            assertThat(r.getText(), notNullValue());
+            assertThat(r.getCreationDate(), notNullValue());
+            assertThat(r.getAuthor(), notNullValue());
+            assertThat(r.getAuthor().getUsername(), notNullValue());
         }
     }
 }

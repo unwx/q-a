@@ -5,7 +5,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import qa.dto.request.comment.*;
+import qa.dto.validation.wrapper.answer.CommentAnswerGetRequestValidationWrapper;
 import qa.dto.validation.wrapper.comment.*;
+import qa.dto.validation.wrapper.question.CommentQuestionGetRequestValidationWrapper;
 import qa.exceptions.validator.ValidationException;
 import qa.logger.TestLogger;
 import qa.source.ValidationPropertyDataSource;
@@ -112,6 +114,34 @@ public class ValidationCommentRequestsTest {
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
+
+        @Nested
+        class get {
+
+            @Test
+            void valid() {
+                logger.trace("valid");
+                CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
+                        new CommentQuestionGetRequest(1L, 1));
+                Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
+            }
+
+            @Test
+            void invalid_id() {
+                logger.trace("invalid id");
+                CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
+                        new CommentQuestionGetRequest(-1L, 1));
+                Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
+            }
+
+            @Test
+            void invalid_page() {
+                logger.trace("invalid page");
+                CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
+                        new CommentQuestionGetRequest(1L, 0));
+                Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
+            }
+        }
     }
 
     @Nested
@@ -195,6 +225,34 @@ public class ValidationCommentRequestsTest {
                 logger.trace("invalid id");
                 CommentAnswerDeleteRequestValidationWrapper validationWrapper = new CommentAnswerDeleteRequestValidationWrapper(
                         new CommentAnswerDeleteRequest(-5L));
+                Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
+            }
+        }
+
+        @Nested
+        class get {
+
+            @Test
+            void valid() {
+                logger.trace("valid");
+                CommentAnswerGetRequestValidationWrapper validationWrapper = new CommentAnswerGetRequestValidationWrapper(
+                        new CommentAnswerGetRequest(1L, 1));
+                Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
+            }
+
+            @Test
+            void invalid_id() {
+                logger.trace("invalid id");
+                CommentAnswerGetRequestValidationWrapper validationWrapper = new CommentAnswerGetRequestValidationWrapper(
+                        new CommentAnswerGetRequest(-1L, 1));
+                Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
+            }
+
+            @Test
+            void invalid_page() {
+                logger.trace("invalid page");
+                CommentAnswerGetRequestValidationWrapper validationWrapper = new CommentAnswerGetRequestValidationWrapper(
+                        new CommentAnswerGetRequest(1L, 0));
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }

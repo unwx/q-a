@@ -41,6 +41,13 @@ public class CommentRestTestUtil extends RestTestUtil {
         return json;
     }
 
+    public static JSONObject idPage() {
+        JSONObject json = new JSONObject();
+        json.put("id", 1L);
+        json.put("page", 1);
+        return json;
+    }
+
     public static JSONObject commentBADEditJson() {
         JSONObject json = new JSONObject();
         json.put("id", -1L);
@@ -69,6 +76,13 @@ public class CommentRestTestUtil extends RestTestUtil {
         return json;
     }
 
+    public static JSONObject badIdPage() {
+        JSONObject json = new JSONObject();
+        json.put("id", -1L);
+        json.put("page", 0);
+        return json;
+    }
+
     @Nullable
     public static Long getId(String text, SessionFactory sessionFactory) {
         String sql = "SELECT id FROM comment WHERE text = :text";
@@ -79,5 +93,6 @@ public class CommentRestTestUtil extends RestTestUtil {
             return result == null ? null : result.longValue();
         }
     }
+
 
 }

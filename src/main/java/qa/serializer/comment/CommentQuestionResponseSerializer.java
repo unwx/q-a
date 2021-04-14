@@ -1,4 +1,4 @@
-package qa.serializer.question;
+package qa.serializer.comment;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -8,7 +8,7 @@ import qa.util.serialization.CommentQuestionSerializationUtil;
 
 import java.io.IOException;
 
-public class QuestionCommentResponseSerializer extends JsonSerializer<CommentQuestionResponse> {
+public class CommentQuestionResponseSerializer extends JsonSerializer<CommentQuestionResponse> {
     @Override
     public void serialize(CommentQuestionResponse commentQuestionResponse, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();

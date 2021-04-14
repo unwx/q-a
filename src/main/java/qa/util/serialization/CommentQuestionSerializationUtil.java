@@ -2,6 +2,7 @@ package qa.util.serialization;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import qa.domain.CommentQuestion;
+import qa.dto.response.comment.CommentAnswerResponse;
 import qa.dto.response.comment.CommentQuestionResponse;
 
 import java.io.IOException;
@@ -23,6 +24,15 @@ public class CommentQuestionSerializationUtil {
     }
 
     public static void writeCommentQuestion(CommentQuestionResponse response, JsonGenerator jsonGenerator) throws IOException {
+        writeCommentQuestionDataComponents(new CommentQuestion(
+                response.getCommentId(),
+                response.getText(),
+                response.getCreationDate(),
+                response.getAuthor()
+        ), jsonGenerator);
+    }
+
+    public static void writeCommentAnswer(CommentAnswerResponse response, JsonGenerator jsonGenerator) throws IOException {
         writeCommentQuestionDataComponents(new CommentQuestion(
                 response.getCommentId(),
                 response.getText(),

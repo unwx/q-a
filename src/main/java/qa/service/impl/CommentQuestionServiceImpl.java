@@ -136,7 +136,7 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
     }
 
     private List<CommentQuestion> getCommentFromDatabase(long questionId, int page) {
-        List<CommentQuestion> questions = commentQuestionDao.getComments(questionId, page);
+        List<CommentQuestion> questions = commentQuestionDao.getComments(questionId, page - 1);
         return ResourceUtil.throwResourceNFExceptionIfNull(questions, ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questions));
     }
 
