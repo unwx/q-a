@@ -35,10 +35,10 @@ public class AuthenticationDao extends DaoImpl<AuthenticationData> {
 
     public boolean isEmailPasswordCorrect(String email, String password, PooledPBEStringEncryptor passwordEncryptor) {
         try(Session session = sessionFactory.openSession()) {
-            String hql = "select a.password from AuthenticationData a where a.email=:a";
+            String sql = "SELECT password FROM authentication WHERE email = :email";
             Transaction transaction = session.beginTransaction();
-            String pass = (String) session.createQuery(hql)
-                    .setParameter("a", email)
+            String pass = (String) session.createSQLQuery(sql)
+                    .setParameter("email", email)
                     .uniqueResult();
             transaction.commit();
             if (pass == null)

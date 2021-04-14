@@ -1,7 +1,13 @@
 package qa.util.rest;
 
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.jetbrains.annotations.Nullable;
 import org.json.JSONObject;
 import qa.util.dao.query.params.CommentQueryParameters;
+
+import java.math.BigInteger;
 
 public class CommentRestTestUtil extends RestTestUtil {
 
@@ -61,6 +67,17 @@ public class CommentRestTestUtil extends RestTestUtil {
         JSONObject json = new JSONObject();
         json.put("id", -1L);
         return json;
+    }
+
+    @Nullable
+    public static Long getId(String text, SessionFactory sessionFactory) {
+        String sql = "SELECT id FROM comment WHERE text = :text";
+        try (Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            BigInteger result = (BigInteger) session.createSQLQuery(sql).setParameter("text", text).uniqueResult();
+            transaction.commit();
+            return result == null ? null : result.longValue();
+        }
     }
 
 }

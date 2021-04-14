@@ -6,7 +6,8 @@ import org.hibernate.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import qa.dao.query.UserQueryFactory;
+import qa.dao.query.UserQueryCreator;
+import qa.dao.query.convertor.UserQueryResultConvertor;
 import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
@@ -22,14 +23,11 @@ import java.util.List;
 public class UserDao extends DaoImpl<User> {
 
     private final SessionFactory sessionFactory;
-    private final UserQueryFactory userQueryFactory;
 
     @Autowired
-    public UserDao(PropertySetterFactory propertySetterFactory,
-                   UserQueryFactory userQueryFactory) {
+    public UserDao(PropertySetterFactory propertySetterFactory) {
         super(HibernateSessionFactoryUtil.getSessionFactory(), new User(), propertySetterFactory.getSetter(new User()));
         this.sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-        this.userQueryFactory = userQueryFactory;
     }
 
     @Override
@@ -42,7 +40,7 @@ public class UserDao extends DaoImpl<User> {
         try(Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
 
-            UserFullDto userResult = userQueryFactory
+            UserFullDto userResult = UserQueryCreator
                     .fullUserQuery(session, username)
                     .uniqueResult();
             if (userResult == null) {
@@ -51,8 +49,7 @@ public class UserDao extends DaoImpl<User> {
             }
 
             transaction.commit();
-            return userQueryFactory
-                    .getConvertor()
+            return UserQueryResultConvertor
                     .dtoToUser(userResult, username);
         }
     }
@@ -71,10 +68,9 @@ public class UserDao extends DaoImpl<User> {
             List<Question> questions = new ArrayList<>();
 
             try {
-                questions = userQueryFactory
-                        .getConvertor()
+                questions = UserQueryResultConvertor
                         .dtoToQuestion(
-                                userQueryFactory
+                                UserQueryCreator
                                         .questionsQuery(session, userId, page)
                                         .getResultList()
                         );
@@ -108,10 +104,9 @@ public class UserDao extends DaoImpl<User> {
             List<Answer> answers = new ArrayList<>();
 
             try {
-                answers = userQueryFactory
-                        .getConvertor()
+                answers = UserQueryResultConvertor
                         .dtoToAnswers(
-                                userQueryFactory
+                                UserQueryCreator
                                         .answersQuery(session, userId, page)
                                         .list()
                         );

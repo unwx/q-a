@@ -15,7 +15,6 @@ import qa.domain.Question;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.answer.*;
-import qa.dto.response.answer.AnswerCommentResponse;
 import qa.dto.response.answer.AnswerFullResponse;
 import qa.dto.validation.wrapper.answer.AnswerAnsweredRequestValidationWrapper;
 import qa.dto.validation.wrapper.answer.AnswerCreateRequestValidationWrapper;
@@ -91,16 +90,6 @@ public class AnswerServiceImpl implements AnswerService {
 
     @Override
     public ResponseEntity<List<AnswerFullResponse>> getAnswers(AnswerGetFullRequest request) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<List<AnswerCommentResponse>> getAnswerComments(Long answerId, Integer page) {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<List<AnswerCommentResponse>> getAnswerComments(AnswerGetCommentRequest request) {
         return null;
     }
 

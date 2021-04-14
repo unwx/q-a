@@ -1,17 +1,17 @@
 package qa.dto.validation.wrapper.answer;
 
 import org.jetbrains.annotations.Nullable;
-import qa.dto.request.answer.AnswerGetCommentRequest;
+import qa.dto.request.comment.CommentAnswerGetRequest;
 import qa.validators.abstraction.ValidationWrapper;
 import qa.validators.entities.ValidationNumberField;
 
-public class AnswerGetCommentRequestValidationWrapper extends AnswerGetCommentRequest implements ValidationWrapper {
+public class CommentAnswerGetRequestValidationWrapper extends CommentAnswerGetRequest implements ValidationWrapper {
 
-    public AnswerGetCommentRequestValidationWrapper(Long answerId, Integer page) {
+    public CommentAnswerGetRequestValidationWrapper(Long answerId, Integer page) {
         super(answerId, page);
     }
 
-    public AnswerGetCommentRequestValidationWrapper(AnswerGetCommentRequest request) {
+    public CommentAnswerGetRequestValidationWrapper(CommentAnswerGetRequest request) {
         super(request.getAnswerId(), request.getPage());
     }
 

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import qa.dto.request.comment.CommentQuestionGetRequest;
 import qa.dto.request.question.*;
 import qa.dto.validation.wrapper.question.*;
 import qa.exceptions.validator.ValidationException;
@@ -199,8 +200,8 @@ public class ValidationQuestionRequestsTest {
             @Test
             void valid() {
                 logger.trace("valid");
-                QuestionGetCommentsRequestValidationWrapper validationWrapper = new QuestionGetCommentsRequestValidationWrapper(
-                        new QuestionGetCommentsRequest(1L, 1));
+                CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
+                        new CommentQuestionGetRequest(1L, 1));
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
@@ -210,16 +211,16 @@ public class ValidationQuestionRequestsTest {
                 @Test
                 void page() {
                     logger.trace("invalid page");
-                    QuestionGetCommentsRequestValidationWrapper validationWrapper = new QuestionGetCommentsRequestValidationWrapper(
-                            new QuestionGetCommentsRequest(1L, 0));
+                    CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
+                            new CommentQuestionGetRequest(1L, 0));
                     Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
                 }
 
                 @Test
                 void question_id() {
                     logger.trace("invalid question id");
-                    QuestionGetCommentsRequestValidationWrapper validationWrapper = new QuestionGetCommentsRequestValidationWrapper(
-                            new QuestionGetCommentsRequest(-5L, 1));
+                    CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
+                            new CommentQuestionGetRequest(-5L, 1));
                     Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
                 }
             }

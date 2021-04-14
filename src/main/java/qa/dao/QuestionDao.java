@@ -9,10 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
-import qa.dao.query.AnswerQueryFactory;
-import qa.dao.query.QuestionQueryFactory;
+import qa.dao.query.AnswerQueryCreator;
+import qa.dao.query.QuestionQueryCreator;
+import qa.dao.query.convertor.AnswerQueryResultConvertor;
+import qa.dao.query.convertor.QuestionQueryResultConvertor;
 import qa.domain.Answer;
-import qa.domain.CommentQuestion;
 import qa.domain.Question;
 import qa.domain.QuestionView;
 import qa.domain.setters.PropertySetterFactory;
@@ -27,16 +28,10 @@ import java.util.List;
 public class QuestionDao extends DaoImpl<Question> {
 
     private final SessionFactory sessionFactory;
-    private final QuestionQueryFactory questionQueryFactory;
-    private final AnswerQueryFactory answerQueryFactory;
 
     @Autowired
-    public QuestionDao(PropertySetterFactory propertySetterFactory,
-                       QuestionQueryFactory questionQueryFactory,
-                       AnswerQueryFactory answerQueryFactory) {
+    public QuestionDao(PropertySetterFactory propertySetterFactory) {
         super(HibernateSessionFactoryUtil.getSessionFactory(), new Question(), propertySetterFactory.getSetter(new Question()));
-        this.questionQueryFactory = questionQueryFactory;
-        this.answerQueryFactory = answerQueryFactory;
         this.sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
     }
 
@@ -46,7 +41,7 @@ public class QuestionDao extends DaoImpl<Question> {
     }
 
     public boolean isExist(Long id) {
-        return super.isExist(new Where("id", id, WhereOperator.EQUALS));
+        return super.isExist(new Where("id", id, WhereOperator.EQUALS), "Question");
     }
 
     @Nullable
@@ -60,7 +55,7 @@ public class QuestionDao extends DaoImpl<Question> {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
 
-            QuestionWithCommentsDto questionResult = questionQueryFactory
+            QuestionWithCommentsDto questionResult = QuestionQueryCreator
                     .questionWithCommentsQuery(session, questionId)
                     .uniqueResult();
             if (questionResult == null) {
@@ -70,17 +65,16 @@ public class QuestionDao extends DaoImpl<Question> {
 
             List<Answer> answers = new ArrayList<>();
             try {
-                answers = answerQueryFactory.getConvertor()
+                answers = AnswerQueryResultConvertor
                         .dtoToAnswerList(
-                                answerQueryFactory
+                                AnswerQueryCreator
                                         .answersWithCommentsQuery(session, questionId)
                                         .list()
                         );
             } catch (NullResultException ignored) {}
 
             transaction.commit();
-            Question question = questionQueryFactory
-                    .getConvertor()
+            Question question = QuestionQueryResultConvertor
                     .dtoToQuestion(questionResult, questionId);
             question.setAnswers(answers);
             return question;
@@ -91,9 +85,8 @@ public class QuestionDao extends DaoImpl<Question> {
     public List<QuestionView> getQuestionViewsDto(int page) {
         try (Session session = sessionFactory.openSession()) {
             Transaction transaction = session.beginTransaction();
-            List<QuestionView> views = questionQueryFactory
-                    .getConvertor()
-                    .dtoToQuestionViewList(questionQueryFactory
+            List<QuestionView> views = QuestionQueryResultConvertor
+                    .dtoToQuestionViewList(QuestionQueryCreator
                             .questionsViewsQuery(session, page)
                             .list()
                     );
@@ -102,38 +95,5 @@ public class QuestionDao extends DaoImpl<Question> {
         }
     }
 
-    @Nullable
-    public List<CommentQuestion> getQuestionComments(long questionId, int page) {
 
-        /*
-         *  if question not exist: comments.size() = 0; (NullResultException will not be thrown) - return null
-         *  if comments not exist: NullResultException - return empty list.
-         *  if exist: return result.
-         */
-
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            List<CommentQuestion> comments = new ArrayList<>();
-
-            try {
-                comments = questionQueryFactory
-                        .getConvertor()
-                        .dtoToCommentQuestionList(questionQueryFactory
-                                .questionCommentsQuery(session, questionId, page)
-                                .list()
-                        );
-            } catch (NullResultException ex) { // comments not exist
-                transaction.rollback();
-                return comments;
-            }
-
-            if (comments.isEmpty()) { // question not exist
-                transaction.rollback();
-                return null;
-            }
-
-            transaction.commit();
-            return comments;
-        }
-    }
 }

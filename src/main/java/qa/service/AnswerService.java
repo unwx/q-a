@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import qa.dto.request.answer.*;
-import qa.dto.response.answer.AnswerCommentResponse;
 import qa.dto.response.answer.AnswerFullResponse;
 
 import java.util.List;
@@ -23,8 +22,4 @@ public interface AnswerService {
     ResponseEntity<List<AnswerFullResponse>> getAnswers(Long questionId, Integer page);
 
     ResponseEntity<List<AnswerFullResponse>> getAnswers(AnswerGetFullRequest request);
-
-    ResponseEntity<List<AnswerCommentResponse>> getAnswerComments(Long answerId, Integer page);
-
-    ResponseEntity<List<AnswerCommentResponse>> getAnswerComments(AnswerGetCommentRequest request);
 }

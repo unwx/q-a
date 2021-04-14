@@ -1,11 +1,11 @@
-package qa.dto.response.answer;
+package qa.dto.response.comment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import qa.domain.User;
 
 import java.util.Date;
 
-public class AnswerCommentResponse {
+public class CommentAnswerResponse {
 
     @JsonProperty("id")
     private final Long answerId;
@@ -15,7 +15,7 @@ public class AnswerCommentResponse {
     private final User author;
 
 
-    public AnswerCommentResponse(Long answerId,
+    public CommentAnswerResponse(Long answerId,
                                  String text,
                                  Date creationDate,
                                  User author) {
@@ -25,7 +25,7 @@ public class AnswerCommentResponse {
         this.author = author;
     }
 
-    protected AnswerCommentResponse() {
+    protected CommentAnswerResponse() {
         this.answerId = null;
         this.text = null;
         this.creationDate = null;

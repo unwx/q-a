@@ -83,9 +83,9 @@ abstract class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor>
     }
 
     @Override
-    public boolean isExist(final Where where) {
+    public boolean isExist(final Where where, String className) {
         try (Session session = sessionFactory.openSession()) {
-            return daoUtil.exist(where, session);
+            return daoUtil.isExist(where, className, session);
         }
     }
 }

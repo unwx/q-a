@@ -39,5 +39,5 @@ public interface Dao<Entity, Key> {
 
     void delete(final Where where);
 
-    boolean isExist(final Where where);
+    boolean isExist(final Where where, String className);
 }

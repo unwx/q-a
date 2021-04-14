@@ -17,5 +17,5 @@ public interface DaoUtil<Entity> {
 
     void delete(final String className, final Where where, final Session session);
 
-    boolean exist(final Where where, final Session session);
+    boolean isExist(final Where where, String className, final Session session);
 }

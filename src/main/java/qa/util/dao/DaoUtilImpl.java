@@ -24,7 +24,7 @@ public class DaoUtilImpl<Entity extends FieldExtractor & FieldDataSetterExtracto
         daoReadUtil = new DaoReadUtil<>(hqlBuilder, emptyEntity, propertySetter);
         daoUpdateUtil = new DaoUpdateUtil<>(hqlBuilder);
         daoDeleteUtil = new DaoDeleteUtil(hqlBuilder);
-        daoExistUtil = new DaoExistUtil<>(hqlBuilder, emptyEntity);
+        daoExistUtil = new DaoExistUtil<>(hqlBuilder);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class DaoUtilImpl<Entity extends FieldExtractor & FieldDataSetterExtracto
     }
 
     @Override
-    public boolean exist(Where where, Session session) {
-        return daoExistUtil.isExist(where, session);
+    public boolean isExist(Where where, String className, Session session) {
+        return daoExistUtil.isExist(where, className, session);
     }
 }

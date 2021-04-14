@@ -1,20 +1,20 @@
-package qa.dto.request.question;
+package qa.dto.request.comment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class QuestionGetCommentsRequest {
+public class CommentQuestionGetRequest {
 
     @JsonProperty("id")
     private final Long questionId;
     private final Integer page;
 
-    public QuestionGetCommentsRequest(Long questionId,
-                                      Integer page) {
+    public CommentQuestionGetRequest(Long questionId,
+                                     Integer page) {
         this.questionId = questionId;
         this.page = page;
     }
 
-    protected QuestionGetCommentsRequest() {
+    protected CommentQuestionGetRequest() {
         this.questionId = null;
         this.page = null;
     }

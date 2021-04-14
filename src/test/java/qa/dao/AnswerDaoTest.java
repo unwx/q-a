@@ -8,13 +8,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import qa.dao.query.AnswerQueryFactory;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.domain.setters.PropertySetterFactory;
 import qa.logger.TestLogger;
 import qa.tools.annotations.MockitoTest;
-import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 
@@ -31,19 +29,16 @@ public class AnswerDaoTest {
     private AnswerDao answerDao;
     private SessionFactory sessionFactory;
     private QuestionDaoTestUtil questionDaoTestUtil;
-    private AnswerDaoTestUtil answerDaoTestUtil;
 
     private final TestLogger logger = new TestLogger(AnswerDaoTest.class);
 
     @BeforeAll
     void init() {
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
-        AnswerQueryFactory answerQueryFactory = Mockito.spy(new AnswerQueryFactory());
 
-        answerDao = new AnswerDao(propertySetterFactory, answerQueryFactory);
+        answerDao = new AnswerDao(propertySetterFactory);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
-        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
     }
 
     @BeforeEach
@@ -142,75 +137,6 @@ public class AnswerDaoTest {
                 logger.trace("assert result equals empty list - when question exist");
                 questionDaoTestUtil.createQuestion();
                 assertThat(answerDao.getAnswers(1L, 1), equalTo(Collections.emptyList()));
-            }
-        }
-    }
-
-    @Nested
-    class get_answer_comments {
-
-        @Test
-        void assert_correct_result() {
-            logger.trace("assert correct result");
-            answerDaoTestUtil.createAnswerWithManyComments(AnswerDaoTestUtil.COMMENT_RESULT_SIZE);
-            List<CommentAnswer> comments = answerDao.getAnswerComments(1L, 0);
-
-            assertThat(comments, notNullValue());
-            assertThat(comments.size(), greaterThan(0));
-
-            for (CommentAnswer c : comments) {
-                assertThat(c, notNullValue());
-                assertThat(c.getId(), notNullValue());
-                assertThat(c.getText(), notNullValue());
-                assertThat(c.getCreationDate(), notNullValue());
-                assertThat(c.getAuthor().getUsername(), notNullValue());
-            }
-        }
-
-        @Test
-        void assert_no_duplicates() {
-            logger.trace("assert no duplicates");
-            answerDaoTestUtil.createAnswerWithManyComments((int) (AnswerDaoTestUtil.COMMENT_RESULT_SIZE * 1.5));
-            List<CommentAnswer> comments1 = answerDao.getAnswerComments(1L, 0);
-            List<CommentAnswer> comments2 = answerDao.getAnswerComments(1L, 0);
-
-            assertThat(comments1, notNullValue());
-            assertThat(comments2, notNullValue());
-
-            assertThat(comments1.size(), greaterThan(0));
-            assertThat(comments2.size(), greaterThan(0));
-
-            int size1 = comments1.size();
-            int size2 = comments2.size();
-
-            long[] ids1 = new long[size1];
-            long[] ids2 = new long[size2];
-
-            for (int i = 0; i < size1; i++) {
-                ids1[i] = comments1.get(i).getId();
-            }
-            for (int i = 0; i < size2; i++) {
-                ids2[i] = comments2.get(i).getId();
-            }
-
-            assertThat(ids1, equalTo(Arrays.stream(ids1).distinct().toArray()));
-            assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
-        }
-
-        @Nested
-        class no_result {
-
-            @Test
-            void assert_result_equals_null_answer_not_exist() {
-                logger.trace("assert result equals null when answer not exist");
-                assertThat(answerDao.getAnswerComments(1L, 1), equalTo(null));
-            }
-
-            @Test
-            void assert_result_equals_empty_list_answer_exist() {
-                logger.trace("assert result equals empty list when answer exist");
-                answerDaoTestUtil.createAnswer();
-                assertThat(answerDao.getAnswerComments(1L, 1), equalTo(Collections.emptyList()));
             }
         }
     }

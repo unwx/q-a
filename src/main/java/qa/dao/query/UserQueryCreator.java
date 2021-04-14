@@ -2,10 +2,6 @@ package qa.dao.query;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import org.springframework.stereotype.Component;
-import qa.domain.Answer;
-import qa.domain.Question;
-import qa.domain.User;
 import qa.dto.internal.hibernate.transformer.user.UserAnswerDtoTransformer;
 import qa.dto.internal.hibernate.transformer.user.UserFullDtoTransformer;
 import qa.dto.internal.hibernate.transformer.user.UserQuestionDtoTransformer;
@@ -13,20 +9,15 @@ import qa.dto.internal.hibernate.user.UserAnswerDto;
 import qa.dto.internal.hibernate.user.UserFullDto;
 import qa.dto.internal.hibernate.user.UserQuestionDto;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@Component
 @SuppressWarnings({"deprecation", "unchecked"})
-public class UserQueryFactory {
+public class UserQueryCreator {
 
     private static final int RESULT_SIZE = 10;
-    private final ResultConvertor resultConvertor = new ResultConvertor();
 
-    public UserQueryFactory() {
+    private UserQueryCreator() {
     }
 
-    public Query<UserFullDto> fullUserQuery(Session session, String username) {
+    public static Query<UserFullDto> fullUserQuery(Session session, String username) {
         String getFullUserSql =
                 """
                 SELECT\s\
@@ -51,7 +42,7 @@ public class UserQueryFactory {
                 .setResultTransformer(new UserFullDtoTransformer());
     }
 
-    public Query<UserQuestionDto> questionsQuery(Session session, long userId, int page) {
+    public static Query<UserQuestionDto> questionsQuery(Session session, long userId, int page) {
         String getUserLastQuestions =
                 """
                 SELECT\s\
@@ -76,7 +67,7 @@ public class UserQueryFactory {
                 .setResultTransformer(new UserQuestionDtoTransformer());
     }
 
-    public Query<UserAnswerDto> answersQuery(Session session, long userId, int page) {
+    public static Query<UserAnswerDto> answersQuery(Session session, long userId, int page) {
         String getUserLastAnswers =
                 """
                 SELECT\s\
@@ -100,40 +91,5 @@ public class UserQueryFactory {
                 .setParameter("limit", RESULT_SIZE)
                 .setParameter("offset", page * RESULT_SIZE)
                 .setResultTransformer(new UserAnswerDtoTransformer());
-    }
-
-    public ResultConvertor getConvertor() {
-        return resultConvertor;
-    }
-
-    public static class ResultConvertor {
-
-        public User dtoToUser(UserFullDto dto, String username) {
-            return new User.Builder()
-                    .id(dto.getUserId())
-                    .username(username)
-                    .about(dto.getAbout())
-                    .questions(dtoToQuestion(dto.getQuestions()))
-                    .answers(dtoToAnswers(dto.getAnswers()))
-                    .build();
-        }
-
-        public List<Answer> dtoToAnswers(List<UserAnswerDto> dto) {
-            List<Answer> answers = new ArrayList<>(dto.size());
-            dto.forEach((d) -> answers.add(new Answer.Builder()
-                    .id(d.getAnswerId())
-                    .text(d.getText())
-                    .build()));
-            return answers;
-        }
-
-        public List<Question> dtoToQuestion(List<UserQuestionDto> dto) {
-            List<Question> questions = new ArrayList<>(dto.size());
-            dto.forEach((d) -> questions.add(new Question.Builder()
-                    .id(d.getQuestionId())
-                    .title(d.getTitle())
-                    .build()));
-            return questions;
-        }
     }
 }
