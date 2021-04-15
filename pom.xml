@@ -17,16 +17,20 @@
     <maven.compiler.source>15</maven.compiler.source>
     <maven.compiler.target>15</maven.compiler.target>
 
-    <spring-version>5.3.3</spring-version>
+    <spring-version>5.3.4</spring-version>
     <spring-security-version>5.4.4</spring-security-version>
 
     <postgresql-driver-version>42.2.19</postgresql-driver-version>
     <hiberante-version>5.4.29.Final</hiberante-version>
+    <jedis-version>3.6.0-RC1</jedis-version>
+    <spring-redis-version>2.5.0</spring-redis-version>
 
     <java-jwt-version>3.13.0</java-jwt-version>
 
     <mockito-core-version>3.8.0</mockito-core-version>
     <rest-assured-version>4.3.3</rest-assured-version>
+
+    <slf4j-version>1.7.30</slf4j-version>
   </properties>
 
   <dependencies>
@@ -61,6 +65,21 @@
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>${postgresql-driver-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+      <version>${jedis-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-redis</artifactId>
+      <version>${spring-redis-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.data</groupId>
+      <artifactId>spring-data-commons</artifactId>
+      <version>${spring-redis-version}</version>
     </dependency>
     <dependency>
       <groupId>org.hibernate</groupId>
@@ -176,6 +195,17 @@
       <groupId>com.jamonapi</groupId>
       <artifactId>jamon</artifactId>
       <version>2.82</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${slf4j-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j-version}</version>
     </dependency>
   </dependencies>
 

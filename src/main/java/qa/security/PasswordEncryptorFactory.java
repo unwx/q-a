@@ -6,6 +6,7 @@ import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import qa.exceptions.internal.PasswordEncryptorInitializationException;
 import qa.source.PasswordPropertyDataSource;
 
 import java.io.IOException;
@@ -42,15 +43,16 @@ public class PasswordEncryptorFactory {
     }
 
     private String readPasswordFromFile(PasswordPropertyDataSource propertyDataSource) {
+        StringBuilder sb;
         try {
-            StringBuilder sb = new StringBuilder(new String(Files.readAllBytes(Paths.get(propertyDataSource.getPASSWORD_PATH()))));
-            if (sb.charAt(sb.length() - 1) == '\n')
-                sb.deleteCharAt(sb.length() - 1);
-            return sb.toString();
+           sb = new StringBuilder(new String(Files.readAllBytes(Paths.get(propertyDataSource.getENCRYPTOR_PASSWORD_PATH()))));
         } catch (IOException e) {
-            logger.fatal("cannot get password for passwordEncoder. path: " + propertyDataSource.getPASSWORD_PATH());
+            logger.fatal("cannot get password for passwordEncoder. path: " + propertyDataSource.getENCRYPTOR_PASSWORD_PATH());
             e.printStackTrace();
-            return null;
+            throw new PasswordEncryptorInitializationException("cannot get password for passwordEncoder.");
         }
+        if (sb.charAt(sb.length() - 1) == '\n')
+            sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
     }
 }
