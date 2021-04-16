@@ -1,15 +1,15 @@
-package qa.util.hibernate;
+package qa.config;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.RedisConnectionFailureException;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
-import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
 import qa.source.PasswordPropertyDataSource;
+import redis.clients.jedis.DefaultJedisSocketFactory;
+import redis.clients.jedis.HostAndPort;
+import redis.clients.jedis.JedisClientConfig;
+import redis.clients.jedis.JedisSocketFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,30 +18,26 @@ import java.nio.file.Paths;
 @Configuration
 public class RedisConfiguration {
 
-    private final String password;
+    private final JedisClientConfig jedisClientConfig;
+    private final JedisSocketFactory jedisSocketFactory;
 
     private static final Logger logger = LogManager.getLogger(RedisConfiguration.class);
 
     @Autowired
     public RedisConfiguration(PasswordPropertyDataSource propertyDataSource) {
-        this.password = getPassword(propertyDataSource);
-    }
+        final String password = getPassword(propertyDataSource);
+        jedisSocketFactory = new DefaultJedisSocketFactory(new HostAndPort("localhost", 6379));
+        jedisClientConfig = new JedisClientConfig() {
+            @Override
+            public String getPassword() {
+                return password;
+            }
 
-    @Bean
-    public JedisConnectionFactory jedisConnectionFactory() {
-        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
-        configuration.setDatabase(1);
-        configuration.setPassword(password);
-        configuration.setHostName("localhost");
-        configuration.setPort(6379);
-        return new JedisConnectionFactory(configuration);
-    }
-
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate() {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(jedisConnectionFactory());
-        return template;
+            @Override
+            public int getDatabase() {
+                return 1;
+            }
+        };
     }
 
     private String getPassword(PasswordPropertyDataSource propertyDataSource) {
@@ -58,5 +54,13 @@ public class RedisConfiguration {
         if (sb.charAt(sb.length() - 1) == '\n')
             sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
+    }
+
+    public JedisClientConfig getJedisClientConfig() {
+        return jedisClientConfig;
+    }
+
+    public JedisSocketFactory getJedisSocketFactory() {
+        return jedisSocketFactory;
     }
 }
