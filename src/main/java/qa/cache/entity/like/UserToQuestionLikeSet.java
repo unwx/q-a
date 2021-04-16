@@ -1,4 +1,4 @@
-package qa.cache.like;
+package qa.cache.entity.like;
 
 import qa.cache.KeyValueOperation;
 import qa.cache.RedisKeys;
@@ -21,7 +21,12 @@ public class UserToQuestionLikeSet implements Serializable, KeyValueOperation {
 
     @Override
     public String getKey() {
-        return RedisKeys.USER_QUESTION_LIKES + userId;
+        return RedisKeys.getUserQuestionLikes(userId);
+    }
+
+    @Override
+    public String getClearKey() {
+        return userId;
     }
 
     @Override

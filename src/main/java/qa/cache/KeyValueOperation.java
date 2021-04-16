@@ -1,6 +1,5 @@
 package qa.cache;
 
-public interface KeyValueOperation {
-    String getKey();
+public interface KeyValueOperation extends KeyOperation {
     String getValue();
 }
