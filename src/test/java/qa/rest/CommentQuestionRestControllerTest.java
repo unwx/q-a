@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import qa.cache.JedisResourceCenter;
 import qa.dto.response.comment.CommentQuestionResponse;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
@@ -40,13 +41,16 @@ public class CommentQuestionRestControllerTest {
     @Autowired
     private JwtProvider jwtProvider;
 
+    @Autowired
+    private JedisResourceCenter jedisResourceCenter;
+
     private final TestLogger logger = new TestLogger(CommentQuestionRestControllerTest.class);
 
     @BeforeAll
     void init() {
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         commentDaoTestUtil = new CommentDaoTestUtil(sessionFactory);
-        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
+        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
         RestAssured.baseURI = "http://localhost:8080/api/v1/comment/question/";
         RestAssured.port = 8080;
     }

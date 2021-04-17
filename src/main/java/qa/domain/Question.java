@@ -2,6 +2,8 @@ package qa.domain;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import qa.cache.Cached;
+import qa.cache.entity.like.HasLikes;
 import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.FieldDataSetterExtractor;
 import qa.dao.databasecomponents.FieldExtractor;
@@ -14,7 +16,7 @@ import java.util.List;
 
 @Entity
 @Table
-public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAuthor {
+public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,6 +52,10 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
     @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<CommentQuestion> comments;
+
+    @Transient
+    @Cached
+    private Integer likes;
 
     public Question(Long id,
                     String text,
@@ -97,6 +103,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
     }
 
 
+    @Override
     public Long getId() {
         return id;
     }
@@ -168,6 +175,15 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public Integer getLikes() {
+        return likes;
+    }
+
+    @Override
+    public void setLikes(Integer likes) {
+        this.likes = likes;
     }
 
     @Override

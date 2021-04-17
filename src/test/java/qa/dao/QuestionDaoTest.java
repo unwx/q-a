@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import qa.cache.JedisResourceCenter;
 import qa.domain.*;
 import qa.domain.setters.PropertySetterFactory;
 import qa.logger.TestLogger;
@@ -15,6 +16,7 @@ import qa.tools.annotations.MockitoTest;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.mock.JedisMockTestUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -31,16 +33,19 @@ public class QuestionDaoTest {
     private QuestionDaoTestUtil questionDaoTestUtil;
     private AnswerDaoTestUtil answerDaoTestUtil;
 
+    private JedisResourceCenter jedisResourceCenter;
+
     private final TestLogger logger = new TestLogger(QuestionDaoTest.class);
 
     @BeforeAll
     void init() {
+        jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
 
-        questionDao = new QuestionDao(propertySetterFactory);
+        questionDao = new QuestionDao(propertySetterFactory, jedisResourceCenter);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
-        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
+        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
+        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
     }
 
     @BeforeEach
@@ -54,6 +59,10 @@ public class QuestionDaoTest {
             session.createSQLQuery("truncate table usr cascade").executeUpdate();
             transaction.commit();
         }
+        jedisResourceCenter
+                .getResource()
+                .getJedis()
+                .flushDB();
     }
 
     @Nested
@@ -72,6 +81,7 @@ public class QuestionDaoTest {
             assertThat(q.getCreationDate(), notNullValue());
             assertThat(q.getLastActivity(), notNullValue());
             assertThat(q.getTags(), notNullValue());
+            assertThat(q.getLikes(), notNullValue());
 
             assertThat(q.getAuthor(), notNullValue());
             assertThat(q.getAuthor().getUsername(), notNullValue());
@@ -202,6 +212,7 @@ public class QuestionDaoTest {
                 assertThat(v.getAuthor(), notNullValue());
                 assertThat(v.getAuthor().getUsername(), notNullValue());
                 assertThat(v.getAnswersCount(), notNullValue());
+                assertThat(v.getLikes(), notNullValue());
             }
         }
 
@@ -248,6 +259,34 @@ public class QuestionDaoTest {
             logger.trace("assert not found result equals empty list");
             List<QuestionView> dto = questionDao.getQuestionViewsDto(1231230);
             assertThat(dto, equalTo(Collections.emptyList()));
+        }
+    }
+
+    @Nested
+    class like {
+        @Test
+        void assert_correct_result() {
+            logger.trace("assert correct result");
+            questionDaoTestUtil.createQuestion();
+            Question result = questionDao.getFullQuestion(1L);
+            assertThat(result, notNullValue());
+            assertThat(result.getLikes(), equalTo(0));
+
+            questionDaoTestUtil.like(15);
+            Question updatedResult = questionDao.getFullQuestion(1L);
+            assertThat(updatedResult, notNullValue());
+            assertThat(updatedResult.getLikes(), equalTo(15));
+        }
+
+        @Test
+        void assert_correct_keys() {
+            logger.trace("assert correct keys");
+            questionDaoTestUtil.createManyQuestions(2);
+            questionDaoTestUtil.like(0L, 15);
+
+            Question result = questionDao.getFullQuestion(1L);
+            assertThat(result, notNullValue());
+            assertThat(result.getLikes(), equalTo(0));
         }
     }
 }

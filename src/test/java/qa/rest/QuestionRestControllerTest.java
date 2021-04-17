@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import qa.cache.JedisResourceCenter;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.domain.CommentQuestion;
@@ -43,6 +44,9 @@ public class QuestionRestControllerTest {
     @Autowired
     private JwtProvider jwtProvider;
 
+    @Autowired
+    private JedisResourceCenter jedisResourceCenter;
+
     private QuestionDaoTestUtil questionDaoTestUtil;
 
     private final TestLogger logger = new TestLogger(QuestionRestControllerTest.class);
@@ -50,7 +54,7 @@ public class QuestionRestControllerTest {
     @BeforeAll
     void init() {
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
+        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
     }
 
     @BeforeEach

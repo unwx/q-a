@@ -13,6 +13,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import qa.cache.JedisResourceCenter;
 import qa.domain.Answer;
 import qa.domain.Question;
 import qa.dto.response.user.UserAnswersResponse;
@@ -25,6 +27,7 @@ import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.UserDaoTestUtil;
 import qa.util.dao.query.params.UserQueryParameters;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.mock.JedisMockTestUtil;
 import qa.util.rest.UserRestTestUtil;
 
 import java.util.Collections;
@@ -40,14 +43,18 @@ public class UserRestControllerTest {
     private AnswerDaoTestUtil answerDaoTestUtil;
     private QuestionDaoTestUtil questionDaoTestUtil;
 
+    @Autowired
+    private JedisResourceCenter jedisResourceCenter;
+
     private final TestLogger logger = new TestLogger(UserRestControllerTest.class);
 
     @BeforeAll
     void init() {
+        JedisResourceCenter jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         userDaoTestUtil = new UserDaoTestUtil(sessionFactory);
-        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
-        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
+        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
+        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
     }
 
     @BeforeEach

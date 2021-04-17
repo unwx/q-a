@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import qa.cache.JedisResourceCenter;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
 import qa.tools.annotations.SpringIntegrationTest;
@@ -19,6 +20,7 @@ import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.query.params.AnswerQueryParameters;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.mock.JedisMockTestUtil;
 import qa.util.rest.AnswerRestTestUtil;
 import qa.util.rest.JwtTestUtil;
 
@@ -40,11 +42,15 @@ public class AnswerRestControllerTest {
     @Autowired
     private JwtProvider jwtProvider;
 
+    @Autowired
+    private JedisResourceCenter jedisResourceCenter;
+
     @BeforeAll
     void init() {
+        JedisResourceCenter jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
-        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
+        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
+        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
     }
 
     @BeforeEach

@@ -1,6 +1,7 @@
 package qa.util.dao;
 
 import org.hibernate.SessionFactory;
+import qa.cache.JedisResourceCenter;
 import qa.util.dao.query.builder.QueryBuilder;
 
 import java.util.Date;
@@ -12,17 +13,19 @@ public class AnswerDaoTestUtil {
 
     private final QueryBuilder queryBuilder;
 
-    public AnswerDaoTestUtil(SessionFactory sessionFactory) {
-        this.queryBuilder = new QueryBuilder(sessionFactory);
+    public AnswerDaoTestUtil(SessionFactory sessionFactory, JedisResourceCenter jedisResourceCenter) {
+        this.queryBuilder = new QueryBuilder(sessionFactory, jedisResourceCenter);
     }
 
     public void createAnswer() {
         queryBuilder
                 .openSession()
+                .openJedis()
                 .user()
                 .question()
                 .answer()
                 .closeSession();
+        queryBuilder.closeJedis();
     }
 
     public void createAnswerNoUser(Boolean answered) {

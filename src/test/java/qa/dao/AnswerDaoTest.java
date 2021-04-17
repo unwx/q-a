@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import qa.cache.JedisResourceCenter;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.domain.setters.PropertySetterFactory;
@@ -15,6 +16,7 @@ import qa.logger.TestLogger;
 import qa.tools.annotations.MockitoTest;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.mock.JedisMockTestUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,11 +36,12 @@ public class AnswerDaoTest {
 
     @BeforeAll
     void init() {
+        JedisResourceCenter jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
 
         answerDao = new AnswerDao(propertySetterFactory);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory);
+        questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
     }
 
     @BeforeEach
