@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.domain.*;
 import qa.domain.setters.PropertySetterFactory;
@@ -45,7 +46,7 @@ public class QuestionDaoTest {
         questionDao = new QuestionDao(propertySetterFactory, jedisResourceCenter);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
-        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
+        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
     }
 
     @BeforeEach
@@ -59,10 +60,9 @@ public class QuestionDaoTest {
             session.createSQLQuery("truncate table usr cascade").executeUpdate();
             transaction.commit();
         }
-        jedisResourceCenter
-                .getResource()
-                .getJedis()
-                .flushDB();
+        JedisResource resource = jedisResourceCenter.getResource();
+        resource.getJedis().flushDB();
+        resource.close();
     }
 
     @Nested

@@ -49,7 +49,7 @@ public class CommentAnswerRestControllerTest {
         JedisResourceCenter jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         commentDaoTestUtil = new CommentDaoTestUtil(sessionFactory);
-        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
+        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
         RestAssured.baseURI = "http://localhost:8080/api/v1/comment/answer";
         RestAssured.port = 8080;
     }

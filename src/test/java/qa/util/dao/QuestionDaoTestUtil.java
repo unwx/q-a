@@ -3,6 +3,7 @@ package qa.util.dao;
 import org.hibernate.SessionFactory;
 import qa.cache.JedisResourceCenter;
 import qa.util.dao.query.builder.QueryBuilder;
+import qa.util.dao.query.builder.redis.RedisQueryBuilder;
 
 import java.util.Date;
 
@@ -15,18 +16,23 @@ public class QuestionDaoTestUtil {
     public static final int QUESTION_VIEW_RESULT_SIZE = 20;
 
     private final QueryBuilder queryBuilder;
+    private final RedisQueryBuilder redisQueryBuilder;
 
     public QuestionDaoTestUtil(SessionFactory sessionFactory,
                                JedisResourceCenter jedisResourceCenter) {
-        this.queryBuilder = new QueryBuilder(sessionFactory, jedisResourceCenter);
+        this.queryBuilder = new QueryBuilder(sessionFactory);
+        this.redisQueryBuilder = new RedisQueryBuilder(jedisResourceCenter);
     }
 
     public void createQuestionWithCommentsAndAnswersWithComments(int answers, int comments) {
         queryBuilder
-                .openJedis()
                 .openSession()
                 .user()
                 .question();
+        redisQueryBuilder
+                .openJedis()
+                .question()
+                .closeJedis();
 
         long commentId = answers;
         for (int i = 0; i < answers; i++) {
@@ -40,7 +46,6 @@ public class QuestionDaoTestUtil {
             }
         }
         queryBuilder.closeSession();
-        queryBuilder.closeJedis();
     }
 
     public void createQuestionWithComments(int comments) {
@@ -48,6 +53,10 @@ public class QuestionDaoTestUtil {
                 .openSession()
                 .user()
                 .question();
+        redisQueryBuilder
+                .openJedis()
+                .question()
+                .closeJedis();
 
         for (int i = 0; i < comments; i++) {
             queryBuilder.commentQuestion((long) i, new Date(dateAtMillisDefault * i));
@@ -62,6 +71,10 @@ public class QuestionDaoTestUtil {
                 .openSession()
                 .user()
                 .question();
+        redisQueryBuilder
+                .openJedis()
+                .question()
+                .closeJedis();
 
         long commentId = 0;
         for (int i = 0; i < answers; i++) {
@@ -80,43 +93,51 @@ public class QuestionDaoTestUtil {
         queryBuilder
                 .openSession()
                 .user();
+        redisQueryBuilder
+                .openJedis();
 
         long answerId = 0;
         for (int i = 0; i < questions; i++) {
             queryBuilder
                     .question((long) i, new Date(i * dateAtMillisDefault))
                     .flushAndClear();
+            redisQueryBuilder
+                    .question(i);
             for (int y = 0; y < answers; y++) {
                 queryBuilder.answer(answerId, (long) i, new Date(y + dateAtMillisDefault + i * 1000L));
                 answerId++;
             }
         }
         queryBuilder.closeSession();
+        redisQueryBuilder.closeJedis();
     }
 
     public void createManyQuestions(int questions) {
         queryBuilder
                 .openSession()
-                .openJedis()
                 .user();
+        redisQueryBuilder.openJedis();
         for (int i = 0; i < questions; i++) {
             queryBuilder.question((long) i, new Date(i * dateAtMillisDefault));
+            redisQueryBuilder.question(i);
             if (i % 20 == 0) {
                 queryBuilder.flushAndClear();
             }
         }
         queryBuilder.closeSession();
-        queryBuilder.closeJedis();
+        redisQueryBuilder.closeJedis();
     }
 
     public void createQuestion() {
         queryBuilder
-                .openJedis()
                 .openSession()
                 .user()
                 .question()
                 .closeSession();
-        queryBuilder.closeJedis();
+        redisQueryBuilder
+                .openJedis()
+                .question()
+                .closeJedis();
     }
 
     public void createQuestionNoUser() {
@@ -124,21 +145,25 @@ public class QuestionDaoTestUtil {
                 .openSession()
                 .question()
                 .closeSession();
+        redisQueryBuilder
+                .openJedis()
+                .question()
+                .closeJedis();
     }
 
     public void like(long questionId, int times) {
-        queryBuilder.openJedis();
+        redisQueryBuilder.openJedis();
         for (int i = 0; i < times; i++) {
-            queryBuilder.questionLike(questionId);
+            redisQueryBuilder.questionLike(questionId);
         }
-        queryBuilder.closeJedis();
+        redisQueryBuilder.closeJedis();
     }
 
     public void like(int times) {
-        queryBuilder.openJedis();
+        redisQueryBuilder.openJedis();
         for (int i = 0; i < times; i++) {
-            queryBuilder.questionLike();
+            redisQueryBuilder.questionLike();
         }
-        queryBuilder.closeJedis();
+        redisQueryBuilder.closeJedis();
     }
 }

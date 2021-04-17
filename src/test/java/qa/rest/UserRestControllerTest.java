@@ -53,7 +53,7 @@ public class UserRestControllerTest {
         JedisResourceCenter jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         userDaoTestUtil = new UserDaoTestUtil(sessionFactory);
-        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
+        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
     }
 

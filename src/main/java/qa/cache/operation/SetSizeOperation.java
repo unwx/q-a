@@ -17,8 +17,6 @@ public abstract class SetSizeOperation {
     }
 
     public List<String> getS(List<String> keys) {
-        return jedis.mget(
-                keys.toArray(String[]::new)
-        );
+        return jedis.mget(keys.toArray(String[]::new));
     }
 }

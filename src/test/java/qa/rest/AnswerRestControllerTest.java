@@ -50,7 +50,7 @@ public class AnswerRestControllerTest {
         JedisResourceCenter jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
-        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
+        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
     }
 
     @BeforeEach

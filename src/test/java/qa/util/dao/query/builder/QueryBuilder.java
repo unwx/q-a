@@ -2,19 +2,13 @@ package qa.util.dao.query.builder;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import qa.cache.JedisResource;
-import qa.cache.JedisResourceCenter;
-import qa.util.dao.query.builder.redis.QuestionLikeQueryBuilder;
 
 import java.util.Date;
 
-// TODO refactor. divide
 public class QueryBuilder {
 
     private final SessionFactory sessionFactory;
-    private JedisResourceCenter jedisResourceCenter;
     private Session session;
-    private JedisResource jedisResource;
 
     private final UserQueryBuilder userQueryBuilder = new UserQueryBuilder();
     private final QuestionQueryBuilder questionQueryBuilder = new QuestionQueryBuilder();
@@ -22,15 +16,8 @@ public class QueryBuilder {
     private final CommentQuestionQueryBuilder commentQuestionQueryBuilder = new CommentQuestionQueryBuilder();
     private final CommentAnswerQueryBuilder commentAnswerQueryBuilder = new CommentAnswerQueryBuilder();
 
-    private QuestionLikeQueryBuilder questionLikeQueryBuilder;
-
     public QueryBuilder(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
-    }
-
-    public QueryBuilder(SessionFactory sessionFactory, JedisResourceCenter jedisResourceCenter) {
-        this.sessionFactory = sessionFactory;
-        this.jedisResourceCenter = jedisResourceCenter;
     }
 
     public QueryBuilder openSession() {
@@ -42,16 +29,6 @@ public class QueryBuilder {
     public void closeSession() {
         this.session.getTransaction().commit();
         this.session.close();
-    }
-
-    public QueryBuilder openJedis() {
-        this.jedisResource = jedisResourceCenter.getResource();
-        this.questionLikeQueryBuilder = new QuestionLikeQueryBuilder(jedisResource.getJedis());
-        return this;
-    }
-
-    public void closeJedis() {
-        this.jedisResource.close();
     }
 
     public QueryBuilder flushAndClear() {
@@ -83,8 +60,6 @@ public class QueryBuilder {
         questionQueryBuilder
                 .with(session)
                 .question(id, date, tags, text, title);
-        questionLikeQueryBuilder
-                .create(id);
         return this;
     }
 
@@ -93,8 +68,6 @@ public class QueryBuilder {
         questionQueryBuilder
                 .with(session)
                 .question(id, date);
-        questionLikeQueryBuilder
-                .create(id);
         return this;
     }
 
@@ -102,8 +75,6 @@ public class QueryBuilder {
         questionQueryBuilder
                 .with(session)
                 .question(id);
-        questionLikeQueryBuilder
-                .create(id);
         return this;
     }
 
@@ -111,8 +82,6 @@ public class QueryBuilder {
         questionQueryBuilder
                 .with(session)
                 .question();
-            questionLikeQueryBuilder
-                .create(1L);
         return this;
     }
 
@@ -231,16 +200,6 @@ public class QueryBuilder {
         commentAnswerQueryBuilder
                 .with(session)
                 .commentAnswer();
-        return this;
-    }
-
-    public QueryBuilder questionLike(Long id) {
-        questionLikeQueryBuilder.like(id);
-        return this;
-    }
-
-    public QueryBuilder questionLike() {
-        questionLikeQueryBuilder.like(1L);
         return this;
     }
 }

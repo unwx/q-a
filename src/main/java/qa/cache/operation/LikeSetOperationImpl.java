@@ -18,16 +18,13 @@ public abstract class LikeSetOperationImpl<R extends KeyOperation> extends SetSi
 
     @Override
     public Long create(R r) {
-        Long result = jedis.setnx(r.getKey(), "0");
-        jedis.close();
-        return result;
+        return jedis.setnx(r.getKey(), "0");
     }
 
     @Override
     @Nullable
     public Integer getK(R r) {
         String result = super.getS(r.getKey());
-        jedis.close();
         return result == null ? null : Integer.parseInt(result);
     }
 
