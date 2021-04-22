@@ -10,7 +10,9 @@ import org.springframework.stereotype.Component;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.LikesUtil;
+import qa.cache.entity.like.UserToQuestionLikeSet;
 import qa.cache.operation.QuestionLikesOperation;
+import qa.cache.operation.UserToQuestionLikeSetOperation;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.AnswerQueryCreator;
@@ -32,7 +34,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class QuestionDao extends DaoImpl<Question> {
+public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
 
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
@@ -57,7 +59,7 @@ public class QuestionDao extends DaoImpl<Question> {
     }
 
     @Nullable
-    public Question getFullQuestion(long questionId) {
+    public Question getFullQuestion(long questionId) { // FIXME: return did the user like the question
 
         /*
          *  if question not exist: - return null
@@ -103,6 +105,20 @@ public class QuestionDao extends DaoImpl<Question> {
             transaction.commit();
             setLikes(views);
             return views;
+        }
+    }
+
+    @Override
+    public void like(long userId, Long id) {
+        try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
+            final Jedis jedis = jedisResource.getJedis();
+            final QuestionLikesOperation questionLikesOperation = new QuestionLikesOperation(jedis);
+            final UserToQuestionLikeSetOperation userToQuestionLikeSetOperation = new UserToQuestionLikeSetOperation(jedis);
+
+            final UserToQuestionLikeSet userToQuestionSet = new UserToQuestionLikeSet(userId, id);
+            final long status = userToQuestionLikeSetOperation.add(userToQuestionSet);
+
+            if (status == 1) questionLikesOperation.increment(id);
         }
     }
 

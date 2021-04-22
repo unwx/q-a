@@ -17,17 +17,20 @@ public class QuestionLikesOperation extends LikeSetOperationImpl<QuestionToLikeS
     /**
      * after creating a question - the initial number of likes is set - 0
      */
+    @Override
     public Long create(Long questionId) {
         QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.create(questionToLikeSet);
     }
 
     @Nullable
+    @Override
     public Integer get(Long questionId) {
         QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.getK(questionToLikeSet);
     }
 
+    @Override
     public List<Integer> get(List<Long> questionIds) {
         if (questionIds.isEmpty())
             return Collections.emptyList();
@@ -40,6 +43,7 @@ public class QuestionLikesOperation extends LikeSetOperationImpl<QuestionToLikeS
         return super.getK(questionToLikeSets);
     }
 
+    @Override
     public Long increment(Long questionId) {
         QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.increment(questionToLikeSet);

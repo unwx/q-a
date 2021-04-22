@@ -288,5 +288,31 @@ public class QuestionDaoTest {
             assertThat(result, notNullValue());
             assertThat(result.getLikes(), equalTo(0));
         }
+
+        @Test
+        void assert_success() {
+            logger.trace("assert success");
+            questionDaoTestUtil.createQuestion();
+            questionDao.like(1L, 1L);
+
+            final Question result = questionDao.getFullQuestion(1L);
+
+            assertThat(result, notNullValue());
+            assertThat(result.getLikes(), equalTo(1));
+        }
+
+        @Test
+        void assert_no_more_than_one() {
+            logger.trace("assert can't like more than one times");
+            questionDaoTestUtil.createQuestion();
+
+            questionDao.like(1L, 1L);
+            questionDao.like(1L, 1L);
+
+            final Question result = questionDao.getFullQuestion(1L);
+
+            assertThat(result, notNullValue());
+            assertThat(result.getLikes(), equalTo(1));
+        }
     }
 }
