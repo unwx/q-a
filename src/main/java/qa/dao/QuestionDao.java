@@ -119,12 +119,12 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     }
 
     private void createLike(Long questionId) {
-        Long reply;
+        boolean reply;
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             QuestionLikesOperation questionLikesOperation = new QuestionLikesOperation(jedisResource.getJedis());
             reply = questionLikesOperation.create(questionId);
         }
-        if (reply == 0)
+        if (!reply)
             throw new EntityAlreadyCreatedException("question already exist. id: %s".formatted(questionId));
     }
 
@@ -156,10 +156,10 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
         final UserToQuestionLikeSetOperation userToQuestionOperation = new UserToQuestionLikeSetOperation(jedis);
         final long questionId = question.getId();
 
-        final Integer like = questionOperation.get(questionId);
+        final int likes = questionOperation.get(questionId);
         final boolean liked = userToQuestionOperation.isValueExist(userId, questionId);
 
-        LikesUtil.setLikeProcess(question, like, questionOperation);
+        LikesUtil.setLikeProcess(question, likes, questionOperation);
         question.setLiked(liked);
     }
 

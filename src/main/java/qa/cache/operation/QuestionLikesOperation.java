@@ -1,6 +1,5 @@
 package qa.cache.operation;
 
-import org.jetbrains.annotations.Nullable;
 import qa.cache.size.QuestionToLikeSet;
 import redis.clients.jedis.Jedis;
 
@@ -18,14 +17,13 @@ public class QuestionLikesOperation extends LikeSetOperationImpl<QuestionToLikeS
      * after creating a question - the initial number of likes is set - 0
      */
     @Override
-    public Long create(Long questionId) {
+    public boolean create(Long questionId) {
         QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.create(questionToLikeSet);
     }
 
-    @Nullable
     @Override
-    public Integer get(Long questionId) {
+    public int get(Long questionId) {
         QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.getK(questionToLikeSet);
     }
@@ -44,13 +42,13 @@ public class QuestionLikesOperation extends LikeSetOperationImpl<QuestionToLikeS
     }
 
     @Override
-    public Long increment(Long questionId) {
+    public long increment(Long questionId) {
         QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.increment(questionToLikeSet);
     }
 
     @Override
-    public Long delete(Long questionId) {
+    public boolean delete(Long questionId) {
         QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.delete(questionToLikeSet);
     }

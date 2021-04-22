@@ -1,6 +1,5 @@
 package qa.cache.operation;
 
-import org.jetbrains.annotations.Nullable;
 import qa.cache.KeyOperation;
 import redis.clients.jedis.Jedis;
 
@@ -17,15 +16,14 @@ public abstract class LikeSetOperationImpl<R extends KeyOperation> extends SetSi
     }
 
     @Override
-    public Long create(R r) {
-        return jedis.setnx(r.getKey(), "0");
+    public boolean create(R r) {
+        return jedis.setnx(r.getKey(), "0") == 1;
     }
 
     @Override
-    @Nullable
-    public Integer getK(R r) {
+    public int getK(R r) {
         String result = super.getS(r.getKey());
-        return result == null ? null : Integer.parseInt(result); // TODO -1
+        return result == null ? -1 : Integer.parseInt(result);
     }
 
     @Override
@@ -37,17 +35,17 @@ public abstract class LikeSetOperationImpl<R extends KeyOperation> extends SetSi
                         .collect(Collectors.toList()));
         return result
                 .stream()
-                .map((v) -> v == null ? null : Integer.parseInt(v))
+                .map((v) -> v == null ? -1 : Integer.parseInt(v))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Long increment(R r) {
+    public long increment(R r) {
         return jedis.incr(r.getKey());
     }
 
     @Override
-    public Long delete(R r) {
-        return jedis.del(r.getKey());
+    public boolean delete(R r) {
+        return jedis.del(r.getKey()) == 1;
     }
 }

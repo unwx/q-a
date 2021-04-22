@@ -23,7 +23,7 @@ public class LikesUtil {
     public static <R, T extends HasLikes<R>> void setLikeProcess(T hasLikes,
                                                                  Integer like,
                                                                  HighLikeOperation<R> onFailure) {
-        if (like == null) {
+        if (like == -1) {
             hasLikes.setLikes(0);
             onFailure.create(hasLikes.getId());
         } else
