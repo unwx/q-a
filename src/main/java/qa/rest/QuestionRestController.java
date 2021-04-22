@@ -277,8 +277,9 @@ public class QuestionRestController {
     @RequestMapping(
             value = "get/full/{questionId}",
             method = RequestMethod.GET)
-    public ResponseEntity<QuestionFullResponse> getFullQuestion(@PathVariable("questionId") Long questionId) {
-        return questionService.getFullQuestion(questionId);
+    public ResponseEntity<QuestionFullResponse> getFullQuestion(@PathVariable("questionId") Long questionId,
+                                                                Authentication authentication) {
+        return questionService.getFullQuestion(questionId, authentication);
     }
 
 
@@ -350,7 +351,8 @@ public class QuestionRestController {
             value = "get/full",
             method = RequestMethod.GET,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<QuestionFullResponse> getFullQuestion(@RequestBody QuestionGetFullRequest request) {
-        return questionService.getFullQuestion(request);
+    public ResponseEntity<QuestionFullResponse> getFullQuestion(@RequestBody QuestionGetFullRequest request,
+                                                                Authentication authentication) {
+        return questionService.getFullQuestion(request, authentication);
     }
 }

@@ -80,13 +80,13 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public ResponseEntity<QuestionFullResponse> getFullQuestion(Long questionId) {
-        return new ResponseEntity<>(getFullQuestionProcess(questionId), HttpStatus.OK);
+    public ResponseEntity<QuestionFullResponse> getFullQuestion(Long questionId, Authentication authentication) {
+        return new ResponseEntity<>(getFullQuestionProcess(questionId, authentication), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<QuestionFullResponse> getFullQuestion(QuestionGetFullRequest request) {
-        return new ResponseEntity<>(getFullQuestionProcess(request), HttpStatus.OK);
+    public ResponseEntity<QuestionFullResponse> getFullQuestion(QuestionGetFullRequest request, Authentication authentication) {
+        return new ResponseEntity<>(getFullQuestionProcess(request, authentication), HttpStatus.OK);
     }
 
     private Long createQuestionProcess(QuestionCreateRequest request, Authentication authentication) {
@@ -116,14 +116,15 @@ public class QuestionServiceImpl implements QuestionService {
         return convertViewDtoToResponse(views);
     }
 
-    private QuestionFullResponse getFullQuestionProcess(Long questionId) {
-        return getFullQuestionProcess(new QuestionGetFullRequest(questionId));
+    private QuestionFullResponse getFullQuestionProcess(Long questionId, Authentication authentication) {
+        return getFullQuestionProcess(new QuestionGetFullRequest(questionId), authentication);
     }
 
-    private QuestionFullResponse getFullQuestionProcess(QuestionGetFullRequest request) {
+    private QuestionFullResponse getFullQuestionProcess(QuestionGetFullRequest request, Authentication authentication) {
         validate(request);
-        Question fullQuestion = getFullQuestionFromDatabase(request.getQuestionId());
-        return convertDtoToResponse(fullQuestion);
+        final long userId = getUserIdFromAuthentication(authentication);
+        final Question question = getFullQuestionFromDatabase(request.getQuestionId(), userId);
+        return convertDtoToResponse(question);
     }
 
     private Long saveNewQuestion(QuestionCreateRequest request, Authentication authentication) {
@@ -168,9 +169,14 @@ public class QuestionServiceImpl implements QuestionService {
         return questionDao.getQuestionViewsDto(page - 1);
     }
 
-    private Question getFullQuestionFromDatabase(long questionId) {
-        Question fullQuestion = questionDao.getFullQuestion(questionId, -1L); // TODO service
-        return ResourceUtil.throwResourceNFExceptionIfNull(fullQuestion, ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questionId));
+    private Question getFullQuestionFromDatabase(long questionId, long userId) {
+        final Question question = questionDao.getFullQuestion(questionId, userId);
+        return ResourceUtil.throwResourceNFExceptionIfNull(question, ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questionId));
+    }
+
+    private long getUserIdFromAuthentication(Authentication authentication) {
+        final Long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
+        return userId == null ? -1 : userId;
     }
 
     private List<QuestionViewResponse> convertViewDtoToResponse(List<QuestionView> views) {
@@ -198,7 +204,7 @@ public class QuestionServiceImpl implements QuestionService {
                 QuestionTagsUtil.stringToTags(question.getTags()),
                 question.getAuthor(),
                 question.getAnswers(),
-                question.getComments()
+                question.getComments() // TODO likes
         );
     }
 

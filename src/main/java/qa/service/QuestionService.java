@@ -20,7 +20,7 @@ public interface QuestionService {
 
     ResponseEntity<List<QuestionViewResponse>> getQuestions(QuestionGetViewsRequest request);
 
-    ResponseEntity<QuestionFullResponse> getFullQuestion(Long questionId);
+    ResponseEntity<QuestionFullResponse> getFullQuestion(Long questionId, Authentication authentication);
 
-    ResponseEntity<QuestionFullResponse> getFullQuestion(QuestionGetFullRequest request);
+    ResponseEntity<QuestionFullResponse> getFullQuestion(QuestionGetFullRequest request, Authentication authentication);
 }
