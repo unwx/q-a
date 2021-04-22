@@ -72,7 +72,7 @@ public class QuestionDaoTest {
         void assert_correct_result() {
             logger.trace("assert correct result");
             questionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(6, 3);
-            Question q = questionDao.getFullQuestion(1L);
+            Question q = questionDao.getFullQuestion(1L, -1L);
 
             assertThat(q, notNullValue());
             assertThat(q.getId(), equalTo(1L));
@@ -82,6 +82,7 @@ public class QuestionDaoTest {
             assertThat(q.getLastActivity(), notNullValue());
             assertThat(q.getTags(), notNullValue());
             assertThat(q.getLikes(), notNullValue());
+            assertThat(q.isLiked(), equalTo(false));
 
             assertThat(q.getAuthor(), notNullValue());
             assertThat(q.getAuthor().getUsername(), notNullValue());
@@ -122,7 +123,7 @@ public class QuestionDaoTest {
         void assert_no_duplicates() {
             logger.trace("assert no duplicates");
             questionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(6, 3);
-            Question q = questionDao.getFullQuestion(1L);
+            Question q = questionDao.getFullQuestion(1L, -1L);
 
             assertThat(q, notNullValue());
 
@@ -167,14 +168,14 @@ public class QuestionDaoTest {
         @Test
         void assert_not_found_result_equals_null() {
             logger.trace("assert result equals null when question not exist");
-            assertThat(questionDao.getFullQuestion(123432L), equalTo(null));
+            assertThat(questionDao.getFullQuestion(123432L, -1L), equalTo(null));
         }
 
         @Test
         void assert_no_null_pointer_exception_question_created_only() {
             logger.trace("assert no NPE when question created only");
             questionDaoTestUtil.createQuestion();
-            Question q = questionDao.getFullQuestion(1L);
+            Question q = questionDao.getFullQuestion(1L, -1L);
             assertThat(q, notNullValue());
             assertThat(q.getAnswers(), notNullValue());
             assertThat(q.getComments(), notNullValue());
@@ -184,7 +185,7 @@ public class QuestionDaoTest {
         void assert_no_null_pointer_exception_question_answer_created_only() {
             logger.trace("assert no NPE when question & answer created only");
             answerDaoTestUtil.createAnswer();
-            Question q = questionDao.getFullQuestion(1L);
+            Question q = questionDao.getFullQuestion(1L, -1L);
             assertThat(q, notNullValue());
             assertThat(q.getAnswers(), notNullValue());
             assertThat(q.getComments(), notNullValue());
@@ -268,12 +269,12 @@ public class QuestionDaoTest {
         void assert_correct_result() {
             logger.trace("assert correct result");
             questionDaoTestUtil.createQuestion();
-            Question result = questionDao.getFullQuestion(1L);
+            Question result = questionDao.getFullQuestion(1L, -1L);
             assertThat(result, notNullValue());
             assertThat(result.getLikes(), equalTo(0));
 
             questionDaoTestUtil.like(15);
-            Question updatedResult = questionDao.getFullQuestion(1L);
+            Question updatedResult = questionDao.getFullQuestion(1L, -1L);
             assertThat(updatedResult, notNullValue());
             assertThat(updatedResult.getLikes(), equalTo(15));
         }
@@ -284,7 +285,7 @@ public class QuestionDaoTest {
             questionDaoTestUtil.createManyQuestions(2);
             questionDaoTestUtil.like(0L, 15);
 
-            Question result = questionDao.getFullQuestion(1L);
+            Question result = questionDao.getFullQuestion(1L, -1L);
             assertThat(result, notNullValue());
             assertThat(result.getLikes(), equalTo(0));
         }
@@ -295,7 +296,7 @@ public class QuestionDaoTest {
             questionDaoTestUtil.createQuestion();
             questionDao.like(1L, 1L);
 
-            final Question result = questionDao.getFullQuestion(1L);
+            final Question result = questionDao.getFullQuestion(1L, -1L);
 
             assertThat(result, notNullValue());
             assertThat(result.getLikes(), equalTo(1));
@@ -309,10 +310,34 @@ public class QuestionDaoTest {
             questionDao.like(1L, 1L);
             questionDao.like(1L, 1L);
 
-            final Question result = questionDao.getFullQuestion(1L);
+            final Question result = questionDao.getFullQuestion(1L, -1L);
 
             assertThat(result, notNullValue());
             assertThat(result.getLikes(), equalTo(1));
+        }
+
+        @Test
+        void assert_liked_by_user_caller() {
+            logger.trace("assert get user liked status equals true");
+            questionDaoTestUtil.createQuestion();
+            questionDao.like(1L, 1L);
+
+            final Question result = questionDao.getFullQuestion(1L, 1L);
+
+            assertThat(result, notNullValue());
+            assertThat(result.isLiked(), equalTo(true));
+        }
+
+        @Test
+        void assert_not_liked_by_user_caller() {
+            logger.trace("assert get user liked status equals false");
+            questionDaoTestUtil.createQuestion();
+            questionDao.like(-1L, 1L);
+
+            final Question result = questionDao.getFullQuestion(1L, 1L);
+
+            assertThat(result, notNullValue());
+            assertThat(result.isLiked(), equalTo(false));
         }
     }
 }

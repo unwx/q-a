@@ -57,6 +57,10 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
     @Cached
     private Integer likes;
 
+    @Transient
+    @Cached
+    private boolean liked;
+
     public Question(Long id,
                     String text,
                     String title,
@@ -184,6 +188,14 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
     @Override
     public void setLikes(Integer likes) {
         this.likes = likes;
+    }
+
+    public boolean isLiked() {
+        return liked;
+    }
+
+    public void setLiked(boolean liked) {
+        this.liked = liked;
     }
 
     @Override

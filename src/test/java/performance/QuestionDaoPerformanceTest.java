@@ -51,7 +51,7 @@ public class QuestionDaoPerformanceTest {
         Monitor monitor = null;
         for (int i = 0; i < 5000; i++) {
             monitor = MonitorFactory.start("get full question test");
-            Question q = questionDao.getFullQuestion(1L);
+            Question q = questionDao.getFullQuestion(1L, -1L);
             monitor.stop();
         }
         System.out.printf("RESULT: %s", monitor);

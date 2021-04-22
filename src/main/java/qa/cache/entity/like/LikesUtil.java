@@ -10,7 +10,7 @@ public class LikesUtil {
     }
 
     public static <R, T extends HasLikes<R>> void setLikesProcess(List<T> hasLikes,
-                                                            List<Integer> likes,
+                                                                  List<Integer> likes,
                                                                   HighLikeOperation<R> onFailure) {
         for (int i = 0; i < likes.size(); i++) {
             T hasLike = hasLikes.get(i);
@@ -21,13 +21,12 @@ public class LikesUtil {
     }
 
     public static <R, T extends HasLikes<R>> void setLikeProcess(T hasLikes,
-                                                           Integer like,
-                                                           HighLikeOperation<R> onFailure) {
+                                                                 Integer like,
+                                                                 HighLikeOperation<R> onFailure) {
         if (like == null) {
             hasLikes.setLikes(0);
             onFailure.create(hasLikes.getId());
-        }
-        else
+        } else
             hasLikes.setLikes(like);
     }
 }

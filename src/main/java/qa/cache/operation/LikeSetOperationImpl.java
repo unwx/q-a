@@ -25,7 +25,7 @@ public abstract class LikeSetOperationImpl<R extends KeyOperation> extends SetSi
     @Nullable
     public Integer getK(R r) {
         String result = super.getS(r.getKey());
-        return result == null ? null : Integer.parseInt(result);
+        return result == null ? null : Integer.parseInt(result); // TODO -1
     }
 
     @Override

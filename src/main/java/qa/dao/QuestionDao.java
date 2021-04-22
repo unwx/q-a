@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.LikesUtil;
-import qa.cache.entity.like.UserToQuestionLikeSet;
 import qa.cache.operation.QuestionLikesOperation;
 import qa.cache.operation.UserToQuestionLikeSetOperation;
 import qa.dao.databasecomponents.Where;
@@ -59,14 +58,14 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     }
 
     @Nullable
-    public Question getFullQuestion(long questionId) { // FIXME: return did the user like the question
+    public Question getFullQuestion(long questionId, long userId) {
 
         /*
          *  if question not exist: - return null
          *  if answers not exist: NullResultException - return question with answers (empty list)
          */
-        QuestionWithCommentsDto questionResult;
-        Question question;
+        final QuestionWithCommentsDto questionResult;
+        final Question question;
         List<Answer> answers = new ArrayList<>();
 
         try (Session session = sessionFactory.openSession()) {
@@ -82,14 +81,13 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
 
             try {
                 answers = getAnswersWithComment(session, questionId);
-            } catch (NullResultException ignored) {
-            }
+            } catch (NullResultException ignored) {}
             transaction.commit();
         }
 
         question = QuestionQueryResultConvertor.dtoToQuestion(questionResult, questionId);
         question.setAnswers(answers);
-        setLike(question);
+        setLike(question, userId);
         return question;
     }
 
@@ -115,9 +113,7 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
             final QuestionLikesOperation questionLikesOperation = new QuestionLikesOperation(jedis);
             final UserToQuestionLikeSetOperation userToQuestionLikeSetOperation = new UserToQuestionLikeSetOperation(jedis);
 
-            final UserToQuestionLikeSet userToQuestionSet = new UserToQuestionLikeSet(userId, id);
-            final long status = userToQuestionLikeSetOperation.add(userToQuestionSet);
-
+            final long status = userToQuestionLikeSetOperation.add(userId, id);
             if (status == 1) questionLikesOperation.increment(id);
         }
     }
@@ -132,9 +128,9 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
             throw new EntityAlreadyCreatedException("question already exist. id: %s".formatted(questionId));
     }
 
-    private void setLike(Question question) {
+    private void setLike(Question question, long userId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
-            setLikeProcess(question, jedisResource.getJedis());
+            setLikeProcess(question, userId, jedisResource.getJedis());
         }
     }
 
@@ -155,10 +151,16 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
         LikesUtil.setLikesProcess(questionViews, likes, questionLikesOperation);
     }
 
-    private void setLikeProcess(Question question, Jedis jedis) {
-        QuestionLikesOperation questionLikesOperation = new QuestionLikesOperation(jedis);
-        Integer like = questionLikesOperation.get(question.getId());
-        LikesUtil.setLikeProcess(question, like, questionLikesOperation);
+    private void setLikeProcess(Question question, long userId, Jedis jedis) {
+        final QuestionLikesOperation questionOperation = new QuestionLikesOperation(jedis);
+        final UserToQuestionLikeSetOperation userToQuestionOperation = new UserToQuestionLikeSetOperation(jedis);
+        final long questionId = question.getId();
+
+        final Integer like = questionOperation.get(questionId);
+        final boolean liked = userToQuestionOperation.isValueExist(userId, questionId);
+
+        LikesUtil.setLikeProcess(question, like, questionOperation);
+        question.setLiked(liked);
     }
 
     private List<Answer> getAnswersWithComment(Session session, long questionId) {

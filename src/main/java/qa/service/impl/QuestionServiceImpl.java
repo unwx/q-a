@@ -169,7 +169,7 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     private Question getFullQuestionFromDatabase(long questionId) {
-        Question fullQuestion = questionDao.getFullQuestion(questionId);
+        Question fullQuestion = questionDao.getFullQuestion(questionId, -1L); // TODO service
         return ResourceUtil.throwResourceNFExceptionIfNull(fullQuestion, ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questionId));
     }
 
