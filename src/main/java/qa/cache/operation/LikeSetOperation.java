@@ -1,17 +1,15 @@
 package qa.cache.operation;
 
-import qa.cache.KeyOperation;
-
 import java.util.List;
 
-public interface LikeSetOperation<R extends KeyOperation> {
-    boolean create(R r);
+public interface LikeSetOperation {
+    boolean create(KeyOperation r);
 
-    int getK(R r);
+    int getK(KeyOperation r);
 
-    List<Integer> getK(List<R> r);
+    <T> List<Integer> getK(List<KeyOperation> r);
 
-    long increment(R r);
+    long increment(KeyOperation r);
 
-    boolean delete(R r);
+    boolean delete(KeyOperation r);
 }

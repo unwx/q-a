@@ -1,15 +1,18 @@
-package qa.cache.operation;
+package qa.cache.operation.impl;
 
-import qa.cache.size.QuestionToLikeSet;
+import qa.cache.entity.like.set.QuestionToLikeSet;
+import qa.cache.operation.EntityToLikeSetOperation;
+import qa.cache.operation.KeyOperation;
+import qa.cache.operation.LikeSetOperationImpl;
 import redis.clients.jedis.Jedis;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class QuestionLikesOperation extends LikeSetOperationImpl<QuestionToLikeSet> implements HighLikeOperation<Long> {
+public class QuestionToLikeSetOperation extends LikeSetOperationImpl<QuestionToLikeSet> implements EntityToLikeSetOperation<Long> {
 
-    public QuestionLikesOperation(Jedis jedis) {
+    public QuestionToLikeSetOperation(Jedis jedis) {
         super(jedis);
     }
 
@@ -32,7 +35,7 @@ public class QuestionLikesOperation extends LikeSetOperationImpl<QuestionToLikeS
     public List<Integer> get(List<Long> questionIds) {
         if (questionIds.isEmpty())
             return Collections.emptyList();
-        List<QuestionToLikeSet> questionToLikeSets =
+        List<KeyOperation> questionToLikeSets =
                 questionIds
                         .stream()
                         .map(QuestionToLikeSet::new)

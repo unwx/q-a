@@ -1,12 +1,11 @@
 package qa.cache.operation;
 
-import qa.cache.KeyOperation;
 import redis.clients.jedis.Jedis;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class LikeSetOperationImpl<R extends KeyOperation> extends SetSizeOperation implements LikeSetOperation<R> {
+public abstract class LikeSetOperationImpl<R extends KeyOperation> extends SetSizeOperation implements LikeSetOperation {
 
     private final Jedis jedis;
 
@@ -16,22 +15,22 @@ public abstract class LikeSetOperationImpl<R extends KeyOperation> extends SetSi
     }
 
     @Override
-    public boolean create(R r) {
+    public boolean create(KeyOperation r) {
         return jedis.setnx(r.getKey(), "0") == 1;
     }
 
     @Override
-    public int getK(R r) {
+    public int getK(KeyOperation r) {
         String result = super.getS(r.getKey());
         return result == null ? -1 : Integer.parseInt(result);
     }
 
     @Override
-    public List<Integer> getK(List<R> r) {
+    public <T> List<Integer> getK(List<KeyOperation> r) {
         List<String> result = super.getS(
                 r
                         .stream()
-                        .map(R::getKey)
+                        .map(KeyOperation::getKey)
                         .collect(Collectors.toList()));
         return result
                 .stream()
@@ -40,12 +39,12 @@ public abstract class LikeSetOperationImpl<R extends KeyOperation> extends SetSi
     }
 
     @Override
-    public long increment(R r) {
+    public long increment(KeyOperation r) {
         return jedis.incr(r.getKey());
     }
 
     @Override
-    public boolean delete(R r) {
+    public boolean delete(KeyOperation r) {
         return jedis.del(r.getKey()) == 1;
     }
 }

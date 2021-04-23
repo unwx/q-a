@@ -1,6 +1,6 @@
-package qa.cache.size;
+package qa.cache.entity.like.set;
 
-import qa.cache.KeyOperation;
+import qa.cache.operation.KeyOperation;
 import qa.cache.RedisKeys;
 
 import java.io.Serial;
@@ -24,10 +24,5 @@ public class QuestionToLikeSet implements Serializable, KeyOperation {
     @Override
     public String getKey() {
         return RedisKeys.getQuestionLikes(questionId);
-    }
-
-    @Override
-    public String getClearKey() {
-        return questionId;
     }
 }

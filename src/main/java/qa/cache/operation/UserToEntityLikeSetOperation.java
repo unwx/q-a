@@ -1,6 +1,5 @@
 package qa.cache.operation;
 
-import qa.cache.KeyValueOperation;
 import redis.clients.jedis.Jedis;
 
 public abstract class UserToEntityLikeSetOperation {
@@ -11,8 +10,8 @@ public abstract class UserToEntityLikeSetOperation {
         this.jedis = jedis;
     }
 
-    protected Long add(KeyValueOperation like) {
-        return jedis.setnx(like.getKey(), like.getValue());
+    protected boolean add(KeyValueOperation like) {
+        return jedis.setnx(like.getKey(), like.getValue()) == 1;
     }
 
     protected boolean isValueExist(KeyValueOperation like) {
@@ -21,11 +20,11 @@ public abstract class UserToEntityLikeSetOperation {
         return status;
     }
 
-    protected Long deleteValue(KeyValueOperation like) {
-        return jedis.srem(like.getKey(), like.getValue());
+    protected boolean deleteValue(KeyValueOperation like) {
+        return jedis.srem(like.getKey(), like.getValue()) == 1;
     }
 
-    protected Long deleteKey(KeyValueOperation like) {
-        return jedis.del(like.getKey());
+    protected boolean deleteKey(KeyValueOperation like) {
+        return jedis.del(like.getKey()) == 1;
     }
 }

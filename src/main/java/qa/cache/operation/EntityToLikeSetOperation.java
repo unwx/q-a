@@ -2,7 +2,7 @@ package qa.cache.operation;
 
 import java.util.List;
 
-public interface HighLikeOperation<T> {
+public interface EntityToLikeSetOperation<T> {
     boolean create(T t);
 
     int get(T t);

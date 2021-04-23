@@ -1,6 +1,6 @@
-package qa.cache.entity.like;
+package qa.cache.entity.like.set;
 
-import qa.cache.KeyValueOperation;
+import qa.cache.operation.KeyValueOperation;
 import qa.cache.RedisKeys;
 
 import java.io.Serial;
@@ -22,11 +22,6 @@ public class UserToQuestionLikeSet implements Serializable, KeyValueOperation {
     @Override
     public String getKey() {
         return RedisKeys.getUserQuestionLikes(userId);
-    }
-
-    @Override
-    public String getClearKey() {
-        return userId;
     }
 
     @Override

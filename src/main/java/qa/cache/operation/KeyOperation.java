@@ -1,6 +1,5 @@
-package qa.cache;
+package qa.cache.operation;
 
 public interface KeyOperation {
     String getKey();
-    String getClearKey();
 }

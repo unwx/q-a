@@ -67,7 +67,7 @@ public class QuestionView implements HasLikes<Long> {
     }
 
     @Override
-    public void setLikes(Integer likes) {
+    public void setLikes(int likes) {
         this.likes = likes;
     }
 

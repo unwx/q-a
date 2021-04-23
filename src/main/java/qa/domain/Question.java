@@ -3,6 +3,7 @@ package qa.domain;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import qa.cache.Cached;
+import qa.cache.entity.like.HasLiked;
 import qa.cache.entity.like.HasLikes;
 import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.FieldDataSetterExtractor;
@@ -16,7 +17,7 @@ import java.util.List;
 
 @Entity
 @Table
-public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes<Long> {
+public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes<Long>, HasLiked {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -186,7 +187,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
     }
 
     @Override
-    public void setLikes(Integer likes) {
+    public void setLikes(int likes) {
         this.likes = likes;
     }
 
@@ -214,13 +215,13 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
     @Override
     public Field[] extract() {
         return new Field[] {
-            new Field("id", id),
-            new Field("text", text),
-            new Field("title", title),
-            new Field("creationDate", creationDate),
-            new Field("lastActivity", lastActivity),
-            new Field("tags", tags),
-            new Field("author", author),
+                new Field("id", id),
+                new Field("text", text),
+                new Field("title", title),
+                new Field("creationDate", creationDate),
+                new Field("lastActivity", lastActivity),
+                new Field("tags", tags),
+                new Field("author", author),
         };
     }
 

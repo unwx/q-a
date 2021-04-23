@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.LikesUtil;
-import qa.cache.operation.QuestionLikesOperation;
-import qa.cache.operation.UserToQuestionLikeSetOperation;
+import qa.cache.operation.impl.QuestionToLikeSetOperation;
+import qa.cache.operation.impl.UserToQuestionLikeSetOperation;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.AnswerQueryCreator;
@@ -48,8 +48,8 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
 
     @Override
     public Long create(Question e) {
-        Long id = (Long) super.create(e);
-        createLike(id);
+        final Long id = (Long) super.create(e);
+        this.createLike(id);
         return id;
     }
 
@@ -110,57 +110,39 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     public void like(long userId, Long id) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final QuestionLikesOperation questionLikesOperation = new QuestionLikesOperation(jedis);
+            final QuestionToLikeSetOperation questionToLikeSetOperation = new QuestionToLikeSetOperation(jedis);
             final UserToQuestionLikeSetOperation userToQuestionLikeSetOperation = new UserToQuestionLikeSetOperation(jedis);
 
-            final long status = userToQuestionLikeSetOperation.add(userId, id);
-            if (status == 1) questionLikesOperation.increment(id);
+            final boolean status = userToQuestionLikeSetOperation.add(userId, id);
+            if (status) questionToLikeSetOperation.increment(id);
         }
     }
 
-    private void createLike(Long questionId) {
-        boolean reply;
-        try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
-            QuestionLikesOperation questionLikesOperation = new QuestionLikesOperation(jedisResource.getJedis());
-            reply = questionLikesOperation.create(questionId);
+    private void createLike(long questionId) {
+        try(JedisResource jedisResource = jedisResourceCenter.getResource()) {
+            final Jedis jedis = jedisResource.getJedis();
+            final QuestionToLikeSetOperation operation = new QuestionToLikeSetOperation(jedis);
+            LikesUtil.createLike(questionId, operation);
         }
-        if (!reply)
-            throw new EntityAlreadyCreatedException("question already exist. id: %s".formatted(questionId));
     }
 
     private void setLike(Question question, long userId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
-            setLikeProcess(question, userId, jedisResource.getJedis());
+            final Jedis jedis = jedisResource.getJedis();
+            LikesUtil.setLikeAndLiked(
+                    question,
+                    userId,
+                    new QuestionToLikeSetOperation(jedis),
+                    new UserToQuestionLikeSetOperation(jedis)
+            );
         }
     }
 
     private void setLikes(List<QuestionView> questionViews) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
-            setLikesProcess(questionViews, jedisResource.getJedis());
+            final Jedis jedis = jedisResource.getJedis();
+            LikesUtil.setLikes(questionViews, new QuestionToLikeSetOperation(jedis));
         }
-    }
-
-    private void setLikesProcess(List<QuestionView> questionViews, Jedis jedis) {
-        QuestionLikesOperation questionLikesOperation = new QuestionLikesOperation(jedis);
-        List<Integer> likes = questionLikesOperation.get(
-                questionViews
-                        .stream()
-                        .map(QuestionView::getId)
-                        .collect(Collectors.toList())
-        );
-        LikesUtil.setLikesProcess(questionViews, likes, questionLikesOperation);
-    }
-
-    private void setLikeProcess(Question question, long userId, Jedis jedis) {
-        final QuestionLikesOperation questionOperation = new QuestionLikesOperation(jedis);
-        final UserToQuestionLikeSetOperation userToQuestionOperation = new UserToQuestionLikeSetOperation(jedis);
-        final long questionId = question.getId();
-
-        final int likes = questionOperation.get(questionId);
-        final boolean liked = userToQuestionOperation.isValueExist(userId, questionId);
-
-        LikesUtil.setLikeProcess(question, likes, questionOperation);
-        question.setLiked(liked);
     }
 
     private List<Answer> getAnswersWithComment(Session session, long questionId) {
