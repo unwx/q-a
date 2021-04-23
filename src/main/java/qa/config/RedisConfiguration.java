@@ -4,7 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.RedisConnectionFailureException;
+import qa.exceptions.internal.RedisInitializationException;
 import qa.source.PasswordPropertyDataSource;
 import redis.clients.jedis.DefaultJedisSocketFactory;
 import redis.clients.jedis.HostAndPort;
@@ -48,7 +48,7 @@ public class RedisConfiguration {
         } catch (IOException e) {
             logger.fatal("cannot load redis password.");
             e.printStackTrace();
-            throw new RedisConnectionFailureException("cannot load redis password.");
+            throw new RedisInitializationException("cannot load redis password.");
         }
 
         if (sb.charAt(sb.length() - 1) == '\n')
