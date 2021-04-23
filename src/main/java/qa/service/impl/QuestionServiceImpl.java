@@ -122,7 +122,7 @@ public class QuestionServiceImpl implements QuestionService {
 
     private QuestionFullResponse getFullQuestionProcess(QuestionGetFullRequest request, Authentication authentication) {
         validate(request);
-        final long userId = getUserIdFromAuthentication(authentication);
+        final long userId = authentication == null ? -1L : getUserIdFromAuthentication(authentication);
         final Question question = getFullQuestionFromDatabase(request.getQuestionId(), userId);
         return convertDtoToResponse(question);
     }
