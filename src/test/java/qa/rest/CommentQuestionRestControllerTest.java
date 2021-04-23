@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.dto.response.comment.CommentQuestionResponse;
 import qa.logger.TestLogger;
@@ -23,6 +24,7 @@ import qa.util.dao.CommentDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.query.params.CommentQueryParameters;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.mock.JedisMockTestUtil;
 import qa.util.rest.CommentRestTestUtil;
 import qa.util.rest.JwtTestUtil;
 
@@ -66,6 +68,9 @@ public class CommentQuestionRestControllerTest {
             session.createSQLQuery("truncate table comment cascade").executeUpdate();
             transaction.commit();
         }
+        JedisResource resource = jedisResourceCenter.getResource();
+        resource.getJedis().flushDB();
+        resource.close();
     }
 
     @Nested

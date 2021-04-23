@@ -85,7 +85,7 @@ public class AnswerServiceImpl implements AnswerService {
 
     @Override
     public ResponseEntity<List<AnswerFullResponse>> getAnswers(Long questionId, Integer page) {
-        return null;
+        return null; // TODO SERVICE
     }
 
     @Override

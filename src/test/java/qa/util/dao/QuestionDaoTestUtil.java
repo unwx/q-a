@@ -154,7 +154,7 @@ public class QuestionDaoTestUtil {
     public void like(long questionId, int times) {
         redisQueryBuilder.openJedis();
         for (int i = 0; i < times; i++) {
-            redisQueryBuilder.questionLike(questionId);
+            redisQueryBuilder.questionLikeIncr(questionId);
         }
         redisQueryBuilder.closeJedis();
     }
@@ -162,7 +162,7 @@ public class QuestionDaoTestUtil {
     public void like(int times) {
         redisQueryBuilder.openJedis();
         for (int i = 0; i < times; i++) {
-            redisQueryBuilder.questionLike();
+            redisQueryBuilder.questionLikeIncr();
         }
         redisQueryBuilder.closeJedis();
     }

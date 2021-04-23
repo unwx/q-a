@@ -3,6 +3,9 @@ package qa.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import qa.cache.Cached;
+import qa.cache.entity.like.HasLiked;
+import qa.cache.entity.like.HasLikes;
 import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.FieldDataSetterExtractor;
 import qa.dao.databasecomponents.FieldExtractor;
@@ -15,7 +18,7 @@ import java.util.List;
 
 @Entity
 @Table
-public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuthor {
+public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes<Long>, HasLiked {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,6 +48,14 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
     @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<CommentAnswer> comments;
+
+    @Transient
+    @Cached
+    private int likes;
+
+    @Transient
+    @Cached
+    private boolean liked;
 
     public Answer(Long id,
                   String text,
@@ -140,6 +151,22 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
 
     public void setComments(List<CommentAnswer> comments) {
         this.comments = comments;
+    }
+
+    public int getLikes() {
+        return likes;
+    }
+
+    public void setLikes(int likes) {
+        this.likes = likes;
+    }
+
+    public boolean isLiked() {
+        return liked;
+    }
+
+    public void setLiked(boolean liked) {
+        this.liked = liked;
     }
 
     @Override

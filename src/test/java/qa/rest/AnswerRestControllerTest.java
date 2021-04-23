@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
@@ -47,10 +48,9 @@ public class AnswerRestControllerTest {
 
     @BeforeAll
     void init() {
-        JedisResourceCenter jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
-        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
+        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
     }
 
     @BeforeEach
@@ -66,6 +66,9 @@ public class AnswerRestControllerTest {
             RestAssured.baseURI = "http://localhost:8080/api/v1/answer/";
             RestAssured.port = 8080;
         }
+        JedisResource resource = jedisResourceCenter.getResource();
+        resource.getJedis().flushDB();
+        resource.close();
     }
 
     @Nested

@@ -9,6 +9,7 @@ public class RedisQueryBuilder {
     private JedisResource jedisResource;
 
     private QuestionLikeQueryBuilder questionLikeQueryBuilder;
+    private AnswerLikeQueryBuilder answerLikeQueryBuilder;
 
     public RedisQueryBuilder(JedisResourceCenter jedisResourceCenter) {
         this.jedisResourceCenter = jedisResourceCenter;
@@ -17,6 +18,7 @@ public class RedisQueryBuilder {
     public RedisQueryBuilder openJedis() {
         this.jedisResource = jedisResourceCenter.getResource();
         this.questionLikeQueryBuilder = new QuestionLikeQueryBuilder(jedisResource.getJedis());
+        this.answerLikeQueryBuilder = new AnswerLikeQueryBuilder(jedisResource.getJedis());
         return this;
     }
 
@@ -34,13 +36,34 @@ public class RedisQueryBuilder {
         return this;
     }
 
-    public RedisQueryBuilder questionLike(long id) {
+    public RedisQueryBuilder questionLikeIncr(long id) {
         questionLikeQueryBuilder.like(id);
         return this;
     }
 
-    public RedisQueryBuilder questionLike() {
+    public RedisQueryBuilder questionLikeIncr() {
         questionLikeQueryBuilder.like(1L);
         return this;
     }
+
+    public RedisQueryBuilder answer(long answerId) {
+        answerLikeQueryBuilder.create(answerId);
+        return this;
+    }
+
+    public RedisQueryBuilder answer() {
+        answerLikeQueryBuilder.create(1L);
+        return this;
+    }
+
+    public RedisQueryBuilder answerLikeIncr(long answerId) {
+        answerLikeQueryBuilder.like(answerId);
+        return this;
+    }
+
+    public RedisQueryBuilder answerLikeIncr() {
+        answerLikeQueryBuilder.like(1L);
+        return this;
+    }
 }
+

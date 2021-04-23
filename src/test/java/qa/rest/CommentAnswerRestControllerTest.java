@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.dto.response.comment.CommentAnswerResponse;
 import qa.logger.TestLogger;
@@ -42,14 +43,16 @@ public class CommentAnswerRestControllerTest {
     @Autowired
     private JwtProvider jwtProvider;
 
+    @Autowired
+    private JedisResourceCenter jedisResourceCenter;
+
     private final TestLogger logger = new TestLogger(CommentAnswerRestControllerTest.class);
 
     @BeforeAll
     void init() {
-        JedisResourceCenter jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         commentDaoTestUtil = new CommentDaoTestUtil(sessionFactory);
-        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
+        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
         RestAssured.baseURI = "http://localhost:8080/api/v1/comment/answer";
         RestAssured.port = 8080;
     }
@@ -67,6 +70,9 @@ public class CommentAnswerRestControllerTest {
             session.createSQLQuery("truncate table comment cascade").executeUpdate();
             transaction.commit();
         }
+        JedisResource resource = jedisResourceCenter.getResource();
+        resource.getJedis().flushDB();
+        resource.close();
     }
 
     @Nested

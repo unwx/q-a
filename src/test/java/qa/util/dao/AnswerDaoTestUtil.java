@@ -1,7 +1,9 @@
 package qa.util.dao;
 
 import org.hibernate.SessionFactory;
+import qa.cache.JedisResourceCenter;
 import qa.util.dao.query.builder.QueryBuilder;
+import qa.util.dao.query.builder.redis.RedisQueryBuilder;
 
 import java.util.Date;
 
@@ -11,9 +13,11 @@ public class AnswerDaoTestUtil {
     public static final int COMMENT_RESULT_SIZE = 3;
 
     private final QueryBuilder queryBuilder;
+    private final RedisQueryBuilder redisQueryBuilder;
 
-    public AnswerDaoTestUtil(SessionFactory sessionFactory) {
+    public AnswerDaoTestUtil(SessionFactory sessionFactory, JedisResourceCenter jedisResourceCenter) {
         this.queryBuilder = new QueryBuilder(sessionFactory);
+        this.redisQueryBuilder = new RedisQueryBuilder(jedisResourceCenter);
     }
 
     public void createAnswer() {
@@ -23,6 +27,10 @@ public class AnswerDaoTestUtil {
                 .question()
                 .answer()
                 .closeSession();
+        redisQueryBuilder
+                .openJedis()
+                .answer()
+                .closeJedis();
     }
 
     public void createAnswerNoUser(Boolean answered) {
@@ -31,6 +39,10 @@ public class AnswerDaoTestUtil {
                 .question()
                 .answer(1L, answered)
                 .closeSession();
+        redisQueryBuilder
+                .openJedis()
+                .answer()
+                .closeJedis();
     }
 
     public void createAnswerNoUser() {
@@ -39,6 +51,10 @@ public class AnswerDaoTestUtil {
                 .question()
                 .answer(1L)
                 .closeSession();
+        redisQueryBuilder
+                .openJedis()
+                .answer()
+                .closeJedis();
     }
 
     public void createManyAnswers(int answers) {
@@ -46,14 +62,17 @@ public class AnswerDaoTestUtil {
                 .openSession()
                 .user()
                 .question();
+        redisQueryBuilder.openJedis();
 
         for (int i = 0; i < answers; i++) {
             queryBuilder.answer((long) i, new Date(dateAtMillisDefault * i));
+            redisQueryBuilder.answer(i);
             if (i % 20 == 0) {
                 queryBuilder.flushAndClear();
             }
         }
         queryBuilder.closeSession();
+        redisQueryBuilder.closeJedis();
     }
 
     public void createAnswerWithManyComments(int comments) {
@@ -62,13 +81,33 @@ public class AnswerDaoTestUtil {
                 .user()
                 .question()
                 .answer();
+        redisQueryBuilder.openJedis();
 
         for (int i = 0; i < comments; i++) {
             queryBuilder.commentAnswer((long) i, new Date(dateAtMillisDefault * i));
+            redisQueryBuilder.answer(i);
             if (i % 20 == 0) {
                 queryBuilder.flushAndClear();
             }
         }
         queryBuilder.closeSession();
+        redisQueryBuilder.closeJedis();
+    }
+
+    public void like(long answerId, int times) {
+        redisQueryBuilder.openJedis();
+        for (int i = 0; i < times; i++) {
+            redisQueryBuilder.answerLikeIncr(answerId);
+        }
+        redisQueryBuilder.closeJedis();
+    }
+
+    public void like(int times) {
+        redisQueryBuilder.openJedis();
+        for (int i = 0; i < times; i++) {
+            redisQueryBuilder.answerLikeIncr();
+        }
+        redisQueryBuilder.closeJedis();
     }
 }
+

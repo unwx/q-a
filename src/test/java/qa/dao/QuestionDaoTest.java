@@ -46,7 +46,7 @@ public class QuestionDaoTest {
         questionDao = new QuestionDao(propertySetterFactory, jedisResourceCenter);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
-        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory);
+        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
     }
 
     @BeforeEach

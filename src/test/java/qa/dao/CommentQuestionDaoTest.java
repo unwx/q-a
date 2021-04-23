@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.domain.CommentQuestion;
 import qa.domain.setters.PropertySetterFactory;
@@ -33,9 +34,11 @@ public class CommentQuestionDaoTest {
 
     private final TestLogger logger = new TestLogger(CommentQuestionDaoTest.class);
 
+    private JedisResourceCenter jedisResourceCenter;
+
     @BeforeAll
     void init() {
-        JedisResourceCenter jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
+        jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
 
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
@@ -54,6 +57,9 @@ public class CommentQuestionDaoTest {
             session.createSQLQuery("truncate table usr cascade").executeUpdate();
             transaction.commit();
         }
+        JedisResource resource = jedisResourceCenter.getResource();
+        resource.getJedis().flushDB();
+        resource.close();
     }
 
     @Nested

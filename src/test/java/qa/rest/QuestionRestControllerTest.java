@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
@@ -69,6 +70,9 @@ public class QuestionRestControllerTest {
             RestAssured.baseURI = "http://localhost:8080/api/v1/question/";
             RestAssured.port = 8080;
         }
+        JedisResource resource = jedisResourceCenter.getResource();
+        resource.getJedis().flushDB();
+        resource.close();
     }
 
     @Nested

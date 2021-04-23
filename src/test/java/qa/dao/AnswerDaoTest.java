@@ -8,12 +8,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.domain.setters.PropertySetterFactory;
 import qa.logger.TestLogger;
 import qa.tools.annotations.MockitoTest;
+import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
 import qa.util.mock.JedisMockTestUtil;
@@ -31,16 +33,20 @@ public class AnswerDaoTest {
     private AnswerDao answerDao;
     private SessionFactory sessionFactory;
     private QuestionDaoTestUtil questionDaoTestUtil;
+    private AnswerDaoTestUtil answerDaoTestUtil;
+
+    private JedisResourceCenter jedisResourceCenter;
 
     private final TestLogger logger = new TestLogger(AnswerDaoTest.class);
 
     @BeforeAll
     void init() {
-        JedisResourceCenter jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
+        jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
 
-        answerDao = new AnswerDao(propertySetterFactory);
+        answerDao = new AnswerDao(propertySetterFactory, jedisResourceCenter);
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+        answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
     }
 
@@ -55,6 +61,9 @@ public class AnswerDaoTest {
             session.createSQLQuery("truncate table usr cascade").executeUpdate();
             transaction.commit();
         }
+        JedisResource resource = jedisResourceCenter.getResource();
+        resource.getJedis().flushDB();
+        resource.close();
     }
 
     @Nested
@@ -68,7 +77,7 @@ public class AnswerDaoTest {
                     QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
 
             for (int i = 0; i < 2; i++) {
-                List<Answer> answers = answerDao.getAnswers(1L, i);
+                List<Answer> answers = answerDao.getAnswers(1L, -1L, i);
                 assertThat(answers, notNullValue());
                 assertThat(answers.size(), greaterThan(0));
                 for (Answer a : answers) {
@@ -77,6 +86,8 @@ public class AnswerDaoTest {
                     assertThat(a.getText(), notNullValue());
                     assertThat(a.getAnswered(), notNullValue());
                     assertThat(a.getCreationDate(), notNullValue());
+                    assertThat(a.getLikes(), equalTo(0));
+                    assertThat(a.isLiked(), equalTo(false));
 
                     assertThat(a.getAuthor(), notNullValue());
                     assertThat(a.getAuthor().getUsername(), notNullValue());
@@ -102,8 +113,8 @@ public class AnswerDaoTest {
                     (int) (QuestionDaoTestUtil.RESULT_SIZE * 1.5),
                     QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
 
-            List<Answer> answers1 = answerDao.getAnswers(1L, 0);
-            List<Answer> answers2 = answerDao.getAnswers(1L, 1);
+            List<Answer> answers1 = answerDao.getAnswers(1L, -1L, 0);
+            List<Answer> answers2 = answerDao.getAnswers(1L, -1L, 1);
 
             assertThat(answers1, notNullValue());
             assertThat(answers2, notNullValue());
@@ -132,15 +143,111 @@ public class AnswerDaoTest {
             @Test
             void assert_result_equals_null_question_not_exist() {
                 logger.trace("assert result equals null - when question not exist");
-                assertThat(answerDao.getAnswers(1L, 1), equalTo(null));
+                assertThat(answerDao.getAnswers(1L, -1L, 1), equalTo(null));
             }
 
             @Test
             void assert_result_equals_empty_list_question_exist() {
                 logger.trace("assert result equals empty list - when question exist");
                 questionDaoTestUtil.createQuestion();
-                assertThat(answerDao.getAnswers(1L, 1), equalTo(Collections.emptyList()));
+                assertThat(answerDao.getAnswers(1L, -1L, 1), equalTo(Collections.emptyList()));
             }
+        }
+    }
+
+    @Nested
+    class like {
+        @Test
+        void assert_correct_result() {
+            logger.trace("assert correct result");
+            answerDaoTestUtil.createAnswer();
+            List<Answer> result = answerDao.getAnswers(1L, -1L, 0);
+            assertThat(result, notNullValue());
+
+            for (Answer a : result) {
+                assertThat(a, notNullValue());
+                assertThat(a.getLikes(), equalTo(0));
+                answerDaoTestUtil.like(a.getId(), 15);
+            }
+
+            List<Answer> resultLiked = answerDao.getAnswers(1L, -1L, 0);
+            assertThat(resultLiked, notNullValue());
+
+            for (Answer a : resultLiked) {
+                assertThat(a, notNullValue());
+                assertThat(a.getLikes(), equalTo(15));
+            }
+        }
+
+        @Test
+        void assert_correct_keys() {
+            logger.trace("assert correct keys");
+            answerDaoTestUtil.createManyAnswers(2);
+            answerDaoTestUtil.like(0L, 15);
+
+            List<Answer> result = answerDao.getAnswers(1L, -1L, 0);
+            assertThat(result, notNullValue());
+            Answer answer = result.get(0);
+
+            assertThat(answer.getLikes(), equalTo(15));
+        }
+
+        @Test
+        void assert_success() {
+            logger.trace("assert success");
+            answerDaoTestUtil.createAnswer();
+            answerDaoTestUtil.like(1L, 5);
+
+            List<Answer> result = answerDao.getAnswers(1L, -1L, 0);
+            assertThat(result, notNullValue());
+            Answer answer = result.get(0);
+
+            assertThat(result, notNullValue());
+            assertThat(answer.getLikes(), equalTo(5));
+        }
+
+        @Test
+        void assert_no_more_than_one() {
+            logger.trace("assert can't like more than one times");
+            answerDaoTestUtil.createAnswer();
+
+            answerDao.like(1L, 1L);
+            answerDao.like(1L, 1L);
+
+            List<Answer> result = answerDao.getAnswers(1L, -1L, 0);
+            assertThat(result, notNullValue());
+            Answer answer = result.get(0);
+
+            assertThat(result, notNullValue());
+            assertThat(answer.getLikes(), equalTo(1));
+        }
+
+        @Test
+        void assert_liked_by_user_caller() {
+            logger.trace("assert get user liked status equals true");
+            answerDaoTestUtil.createAnswer();
+            answerDao.like(1L, 1L);
+
+            List<Answer> result = answerDao.getAnswers(1L, 1L, 0);
+            assertThat(result, notNullValue());
+            Answer answer = result.get(0);
+
+            assertThat(result, notNullValue());
+            assertThat(answer.isLiked(), equalTo(true));
+        }
+
+        @Test
+        void assert_not_liked_by_user_caller() {
+            logger.trace("assert get user liked status equals false");
+            answerDaoTestUtil.createAnswer();
+            answerDao.like(-1L, 1L);
+
+            List<Answer> result = answerDao.getAnswers(1L, 1L, 0);
+            assertThat(result, notNullValue());
+            Answer answer = result.get(0);
+
+            assertThat(result, notNullValue());
+            assertThat(answer.isLiked(), equalTo(false));
         }
     }
 }
