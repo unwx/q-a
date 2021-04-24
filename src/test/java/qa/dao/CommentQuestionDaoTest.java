@@ -147,7 +147,7 @@ public class CommentQuestionDaoTest {
             for (CommentQuestion c : result) {
                 assertThat(c, notNullValue());
                 assertThat(c.getLikes(), equalTo(0));
-                commentDaoTestUtil.like(c.getId(), 15);
+                commentDaoTestUtil.likeCommentQuestion(c.getId(), 15);
             }
 
             List<CommentQuestion> resultLiked = commentQuestionDao.getComments(1L, -1L, 0);
@@ -163,7 +163,7 @@ public class CommentQuestionDaoTest {
         void assert_correct_keys() {
             logger.trace("assert correct keys");
             commentDaoTestUtil.createManyCommentQuestions(2);
-            commentDaoTestUtil.like(0L, 15);
+            commentDaoTestUtil.likeCommentQuestion(0L, 15);
 
             List<CommentQuestion> result = commentQuestionDao.getComments(1L, -1L, 0);
             assertThat(result, notNullValue());
@@ -176,7 +176,7 @@ public class CommentQuestionDaoTest {
         void assert_success() {
             logger.trace("assert success");
             commentDaoTestUtil.createCommentQuestion();
-            commentDaoTestUtil.like(1L, 5);
+            commentDaoTestUtil.likeCommentQuestion(1L, 5);
 
             List<CommentQuestion> result = commentQuestionDao.getComments(1L, -1L, 0);
             assertThat(result, notNullValue());

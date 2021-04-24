@@ -93,7 +93,6 @@ public class CommentQuestionDao extends DaoImpl<CommentQuestion> implements Like
         }
     }
 
-
     @Override
     public void like(long userId, Long id) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {

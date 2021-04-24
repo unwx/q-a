@@ -15,6 +15,7 @@ import qa.domain.setters.PropertySetterFactory;
 import qa.logger.TestLogger;
 import qa.tools.annotations.MockitoTest;
 import qa.util.dao.AnswerDaoTestUtil;
+import qa.util.dao.CommentDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import qa.util.mock.JedisMockTestUtil;
 
@@ -31,6 +32,8 @@ public class CommentAnswerDaoTest {
     private SessionFactory sessionFactory;
     private CommentAnswerDao commentAnswerDao;
     private AnswerDaoTestUtil answerDaoTestUtil;
+    private CommentDaoTestUtil commentDaoTestUtil;
+
     private final TestLogger logger = new TestLogger(CommentAnswerDaoTest.class);
 
     private JedisResourceCenter jedisResourceCenter;
@@ -42,7 +45,8 @@ public class CommentAnswerDaoTest {
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
 
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
-        commentAnswerDao = new CommentAnswerDao(propertySetterFactory);
+        commentDaoTestUtil = new CommentDaoTestUtil(sessionFactory, jedisResourceCenter);
+        commentAnswerDao = new CommentAnswerDao(propertySetterFactory, sessionFactory, jedisResourceCenter);
     }
 
     @BeforeEach
@@ -68,7 +72,7 @@ public class CommentAnswerDaoTest {
         void assert_correct_result() {
             logger.trace("assert correct result");
             answerDaoTestUtil.createAnswerWithManyComments(AnswerDaoTestUtil.COMMENT_RESULT_SIZE);
-            List<CommentAnswer> comments = commentAnswerDao.getComments(1L, 0);
+            List<CommentAnswer> comments = commentAnswerDao.getComments(1L,  -1L,0);
 
             assertThat(comments, notNullValue());
             assertThat(comments.size(), greaterThan(0));
@@ -79,6 +83,8 @@ public class CommentAnswerDaoTest {
                 assertThat(c.getText(), notNullValue());
                 assertThat(c.getCreationDate(), notNullValue());
                 assertThat(c.getAuthor().getUsername(), notNullValue());
+                assertThat(c.getLikes(), equalTo(0));
+                assertThat(c.isLiked(), equalTo(false));
             }
         }
 
@@ -86,8 +92,8 @@ public class CommentAnswerDaoTest {
         void assert_no_duplicates() {
             logger.trace("assert no duplicates");
             answerDaoTestUtil.createAnswerWithManyComments((int) (AnswerDaoTestUtil.COMMENT_RESULT_SIZE * 1.5));
-            List<CommentAnswer> comments1 = commentAnswerDao.getComments(1L, 0);
-            List<CommentAnswer> comments2 = commentAnswerDao.getComments(1L, 0);
+            List<CommentAnswer> comments1 = commentAnswerDao.getComments(1L,  -1L,0);
+            List<CommentAnswer> comments2 = commentAnswerDao.getComments(1L,  -1L,0);
 
             assertThat(comments1, notNullValue());
             assertThat(comments2, notNullValue());
@@ -118,15 +124,111 @@ public class CommentAnswerDaoTest {
             @Test
             void assert_result_equals_null_answer_not_exist() {
                 logger.trace("assert result equals null when answer not exist");
-                assertThat(commentAnswerDao.getComments(1L, 1), equalTo(null));
+                assertThat(commentAnswerDao.getComments(1L,  -1L,1), equalTo(null));
             }
 
             @Test
             void assert_result_equals_empty_list_answer_exist() {
                 logger.trace("assert result equals empty list when answer exist");
                 answerDaoTestUtil.createAnswer();
-                assertThat(commentAnswerDao.getComments(1L, 1), equalTo(Collections.emptyList()));
+                assertThat(commentAnswerDao.getComments(1L, -1L,1), equalTo(Collections.emptyList()));
             }
+        }
+    }
+
+    @Nested
+    class like {
+        @Test
+        void assert_correct_result() {
+            logger.trace("assert correct result");
+            commentDaoTestUtil.createCommentAnswer();
+            List<CommentAnswer> result = commentAnswerDao.getComments(1L, -1L, 0);
+            assertThat(result, notNullValue());
+
+            for (CommentAnswer c : result) {
+                assertThat(c, notNullValue());
+                assertThat(c.getLikes(), equalTo(0));
+                commentDaoTestUtil.likeCommentAnswer(c.getId(), 15);
+            }
+
+            List<CommentAnswer> resultLiked = commentAnswerDao.getComments(1L, -1L, 0);
+            assertThat(resultLiked, notNullValue());
+
+            for (CommentAnswer c : resultLiked) {
+                assertThat(c, notNullValue());
+                assertThat(c.getLikes(), equalTo(15));
+            }
+        }
+
+        @Test
+        void assert_correct_keys() {
+            logger.trace("assert correct keys");
+            commentDaoTestUtil.createManyCommentAnswers(2);
+            commentDaoTestUtil.likeCommentAnswer(0L, 15);
+
+            List<CommentAnswer> result = commentAnswerDao.getComments(1L, -1L, 0);
+            assertThat(result, notNullValue());
+            CommentAnswer comment = result.get(0);
+
+            assertThat(comment.getLikes(), equalTo(15));
+        }
+
+        @Test
+        void assert_success() {
+            logger.trace("assert success");
+            commentDaoTestUtil.createCommentAnswer();
+            commentDaoTestUtil.likeCommentAnswer(1L, 5);
+
+            List<CommentAnswer> result = commentAnswerDao.getComments(1L, -1L, 0);
+            assertThat(result, notNullValue());
+            CommentAnswer comment = result.get(0);
+
+            assertThat(result, notNullValue());
+            assertThat(comment.getLikes(), equalTo(5));
+        }
+
+        @Test
+        void assert_no_more_than_one() {
+            logger.trace("assert can't like more than one times");
+            commentDaoTestUtil.createCommentAnswer();
+
+            commentAnswerDao.like(1L, 1L);
+            commentAnswerDao.like(1L, 1L);
+
+            List<CommentAnswer> result = commentAnswerDao.getComments(1L, 1L, 0);
+            assertThat(result, notNullValue());
+            CommentAnswer comment = result.get(0);
+
+            assertThat(result, notNullValue());
+            assertThat(comment.getLikes(), equalTo(1));
+        }
+
+        @Test
+        void assert_liked_by_user_caller() {
+            logger.trace("assert get user liked status equals true");
+            commentDaoTestUtil.createCommentAnswer();
+            commentAnswerDao.like(1L, 1L);
+
+            List<CommentAnswer> result = commentAnswerDao.getComments(1L, 1L, 0);
+            assertThat(result, notNullValue());
+            CommentAnswer comment = result.get(0);
+
+            assertThat(result, notNullValue());
+            assertThat(comment.isLiked(), equalTo(true));
+        }
+
+        @Test
+        void assert_not_liked_by_user_caller() {
+            logger.trace("assert get user liked status equals false");
+            commentDaoTestUtil.createCommentAnswer();
+            commentAnswerDao.like(-1L, 1L);
+
+            List<CommentAnswer> result = commentAnswerDao.getComments(1L, 1L, 0);
+            assertThat(result, notNullValue());
+            CommentAnswer comment = result.get(0);
+
+            assertThat(result, notNullValue());
+            assertThat(comment.isLiked(), equalTo(false));
         }
     }
 }

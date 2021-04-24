@@ -103,7 +103,7 @@ public class CommentDaoTestUtil {
     }
 
 
-    public void like(long questionId, int times) {
+    public void likeCommentQuestion(long questionId, int times) {
         redisQueryBuilder.openJedis();
         for (int i = 0; i < times; i++) {
             redisQueryBuilder.commentQuestionLikeIncr(questionId);
@@ -111,10 +111,26 @@ public class CommentDaoTestUtil {
         redisQueryBuilder.closeJedis();
     }
 
-    public void like(int times) {
+    public void likeCommentQuestion(int times) {
         redisQueryBuilder.openJedis();
         for (int i = 0; i < times; i++) {
             redisQueryBuilder.commentQuestionLikeIncr();
+        }
+        redisQueryBuilder.closeJedis();
+    }
+
+    public void likeCommentAnswer(long questionId, int times) {
+        redisQueryBuilder.openJedis();
+        for (int i = 0; i < times; i++) {
+            redisQueryBuilder.commentAnswerLikeIncr(questionId);
+        }
+        redisQueryBuilder.closeJedis();
+    }
+
+    public void likeCommentAnswer(int times) {
+        redisQueryBuilder.openJedis();
+        for (int i = 0; i < times; i++) {
+            redisQueryBuilder.commentAnswerLikeIncr();
         }
         redisQueryBuilder.closeJedis();
     }

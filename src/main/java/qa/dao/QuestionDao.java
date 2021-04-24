@@ -65,7 +65,7 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     }
 
     @Nullable
-    public Question getFullQuestion(long questionId, long userId) { // FIXME nested caches
+    public Question getFullQuestion(long questionId, long userId) { // FIXME nested caches & delete
 
         /*
          *  if question not exist: - return null

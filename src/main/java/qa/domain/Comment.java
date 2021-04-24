@@ -1,5 +1,6 @@
 package qa.domain;
 
+import qa.cache.Cached;
 import qa.cache.entity.like.HasLiked;
 import qa.cache.entity.like.HasLikes;
 import qa.dao.databasecomponents.FieldDataSetterExtractor;
@@ -28,6 +29,15 @@ public abstract class Comment implements FieldExtractor, FieldDataSetterExtracto
     @ManyToOne(fetch = FetchType.LAZY, targetEntity = User.class, cascade = {CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinColumn(name = "author_id", nullable = false, updatable = false)
     protected User author;
+
+    @Cached
+    @Transient
+    protected int likes;
+
+    @Cached
+    @Transient
+    protected boolean liked;
+
 
     protected Comment(Long id,
                       String text,
@@ -82,5 +92,25 @@ public abstract class Comment implements FieldExtractor, FieldDataSetterExtracto
 
     protected void setAuthor(User author) {
         this.author = author;
+    }
+
+    @Override
+    public void setLiked(boolean liked) {
+        this.liked = liked;
+    }
+
+    @Override
+    public boolean isLiked() {
+        return this.liked;
+    }
+
+    @Override
+    public void setLikes(int count) {
+        this.likes = count;
+    }
+
+    @Override
+    public int getLikes() {
+        return this.likes;
     }
 }

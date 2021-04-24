@@ -137,7 +137,7 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
 
     private List<CommentAnswer> getCommentsFromDatabase(long answerId, int page) {
         return ResourceUtil.throwResourceNFExceptionIfNull(
-                commentAnswerDao.getComments(answerId, page - 1),
+                commentAnswerDao.getComments(answerId, -1L,page - 1), // TODO service
                 ERR_MESSAGE_ANSWER_NOT_EXIST_ID.formatted(answerId));
     }
 
