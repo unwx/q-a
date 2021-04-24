@@ -4,13 +4,12 @@ import qa.cache.entity.like.set.AnswerToLikeSet;
 import qa.cache.operation.EntityToLikeSetOperation;
 import qa.cache.operation.KeyOperation;
 import qa.cache.operation.LikeSetOperationImpl;
+import qa.util.RedisOperationUtil;
 import redis.clients.jedis.Jedis;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class AnswerToLikeSetOperation extends LikeSetOperationImpl<AnswerToLikeSet> implements EntityToLikeSetOperation<Long> {
+public class AnswerToLikeSetOperation extends LikeSetOperationImpl implements EntityToLikeSetOperation<Long> {
 
     public AnswerToLikeSetOperation(Jedis jedis) {
         super(jedis);
@@ -30,16 +29,8 @@ public class AnswerToLikeSetOperation extends LikeSetOperationImpl<AnswerToLikeS
 
     @Override
     public List<Integer> get(List<Long> answers) {
-        if (answers.isEmpty())
-            return Collections.emptyList();
-
-        final List<KeyOperation> questionToLikeSets =
-                answers
-                        .stream()
-                        .map(AnswerToLikeSet::new)
-                        .collect(Collectors.toList());
-
-        return super.getK(questionToLikeSets);
+        final List<KeyOperation> sets = RedisOperationUtil.toKeyOperation(answers, AnswerToLikeSet::new);
+        return super.getK(sets);
     }
 
     @Override

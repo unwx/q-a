@@ -2,10 +2,11 @@ package qa.cache.operation;
 
 import redis.clients.jedis.Jedis;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class LikeSetOperationImpl<R extends KeyOperation> extends SetSizeOperation implements LikeSetOperation {
+public abstract class LikeSetOperationImpl extends SetSizeOperation implements LikeSetOperation {
 
     private final Jedis jedis;
 
@@ -27,6 +28,9 @@ public abstract class LikeSetOperationImpl<R extends KeyOperation> extends SetSi
 
     @Override
     public <T> List<Integer> getK(List<KeyOperation> r) {
+        if (r.isEmpty())
+            return Collections.emptyList();
+
         List<String> result = super.getS(
                 r
                         .stream()
