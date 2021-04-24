@@ -18,7 +18,7 @@ public interface CommentQuestionService {
 
     ResponseEntity<HttpStatus> deleteComment(CommentQuestionDeleteRequest request, Authentication authentication);
 
-    ResponseEntity<List<CommentQuestionResponse>> getComments(Long questionId, Integer page);
+    ResponseEntity<List<CommentQuestionResponse>> getComments(Long questionId, Integer page, Authentication authentication);
 
-    ResponseEntity<List<CommentQuestionResponse>> getComments(CommentQuestionGetRequest request);
+    ResponseEntity<List<CommentQuestionResponse>> getComments(CommentQuestionGetRequest request, Authentication authentication);
 }

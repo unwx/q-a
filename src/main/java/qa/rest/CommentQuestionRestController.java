@@ -165,8 +165,9 @@ public class CommentQuestionRestController {
             value = "get/{questionId}/{page}",
             method = RequestMethod.GET)
     public ResponseEntity<List<CommentQuestionResponse>> getComments(@PathVariable("questionId") Long questionId,
-                                                                             @PathVariable("page") Integer page) {
-        return commentService.getComments(questionId, page);
+                                                                             @PathVariable("page") Integer page,
+                                                                     Authentication authentication) {
+        return commentService.getComments(questionId, page, authentication);
     }
 
     /**
@@ -208,7 +209,8 @@ public class CommentQuestionRestController {
             value = "get",
             method = RequestMethod.GET,
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<CommentQuestionResponse>> getComments(@RequestBody CommentQuestionGetRequest request) {
-        return commentService.getComments(request);
+    public ResponseEntity<List<CommentQuestionResponse>> getComments(@RequestBody CommentQuestionGetRequest request,
+                                                                     Authentication authentication) {
+        return commentService.getComments(request, authentication);
     }
 }

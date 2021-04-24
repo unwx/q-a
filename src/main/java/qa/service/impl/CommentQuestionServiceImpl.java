@@ -80,13 +80,13 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
     }
 
     @Override
-    public ResponseEntity<List<CommentQuestionResponse>> getComments(Long questionId, Integer page) {
-        return new ResponseEntity<>(getCommentProcess(questionId, page), HttpStatus.OK);
+    public ResponseEntity<List<CommentQuestionResponse>> getComments(Long questionId, Integer page, Authentication authentication) {
+        return new ResponseEntity<>(getCommentProcess(questionId, page, authentication), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<List<CommentQuestionResponse>> getComments(CommentQuestionGetRequest request) {
-        return new ResponseEntity<>(getCommentProcess(request), HttpStatus.OK);
+    public ResponseEntity<List<CommentQuestionResponse>> getComments(CommentQuestionGetRequest request, Authentication authentication) {
+        return new ResponseEntity<>(getCommentProcess(request, authentication), HttpStatus.OK);
     }
 
     private Long createCommentProcess(CommentQuestionCreateRequest request, Authentication authentication) {
@@ -107,14 +107,14 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
         deleteCommentFromDatabase(request);
     }
 
-    private List<CommentQuestionResponse> getCommentProcess(Long questionId, Integer page) {
-        return getCommentProcess(new CommentQuestionGetRequest(questionId, page));
+    private List<CommentQuestionResponse> getCommentProcess(Long questionId, Integer page, Authentication authentication) {
+        return getCommentProcess(new CommentQuestionGetRequest(questionId, page), authentication);
     }
 
-    private List<CommentQuestionResponse> getCommentProcess(CommentQuestionGetRequest request) {
+    private List<CommentQuestionResponse> getCommentProcess(CommentQuestionGetRequest request, Authentication authentication) {
         validate(request);
-        long id = -1; // TODO AUTH
-        List<CommentQuestion> comments = getCommentFromDatabase(request.getQuestionId(), id, request.getPage());
+        final long userId = authentication == null ? -1L : getUserIdFromAuthentication(authentication);
+        List<CommentQuestion> comments = getCommentFromDatabase(request.getQuestionId(), userId, request.getPage());
         return convertCommentDtoToResponse(comments);
     }
 
@@ -163,6 +163,11 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
                 )
         ));
         return response;
+    }
+
+    private long getUserIdFromAuthentication(Authentication authentication) {
+        final Long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
+        return userId == null ? -1 : userId;
     }
 
     private void throwBadRequestExIfQuestionNotExist(long questionId) {
