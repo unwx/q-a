@@ -56,7 +56,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
 
     @Transient
     @Cached
-    private Integer likes;
+    private int likes;
 
     @Transient
     @Cached
@@ -182,7 +182,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
         this.title = title;
     }
 
-    public Integer getLikes() {
+    public int getLikes() {
         return likes;
     }
 

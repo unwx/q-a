@@ -1,0 +1,24 @@
+package qa.cache.entity.like.set;
+
+import qa.cache.RedisKeys;
+import qa.cache.operation.KeyOperation;
+
+import java.io.Serial;
+import java.io.Serializable;
+
+public class CommentQuestionToLikeSet implements Serializable, KeyOperation {
+
+    @Serial
+    private static final long serialVersionUID = 2256178938541397880L;
+
+    private final String commentId;
+
+    public CommentQuestionToLikeSet(long commentId) {
+        this.commentId = String.valueOf(commentId);
+    }
+
+    @Override
+    public String getKey() {
+        return RedisKeys.getCommentQuestionLikes(commentId);
+    }
+}

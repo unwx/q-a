@@ -1,6 +1,7 @@
 package qa.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import qa.cache.Cached;
 import qa.dao.databasecomponents.Field;
 import qa.domain.setters.SetterField;
 
@@ -14,6 +15,14 @@ public class CommentQuestion extends Comment {
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.REFRESH, CascadeType.MERGE})
     @JoinColumn(name = "question_id")
     private Question question;
+
+    @Cached
+    @Transient
+    private int likes;
+
+    @Cached
+    @Transient
+    private boolean liked;
 
     public CommentQuestion(String text,
                            User author,
@@ -63,6 +72,16 @@ public class CommentQuestion extends Comment {
     }
 
     @Override
+    public void setLikes(int count) {
+        this.likes = count;
+    }
+
+    @Override
+    public int getLikes() {
+        return this.likes;
+    }
+
+    @Override
     public void setId(Long id) {
         super.setId(id);
     }
@@ -96,5 +115,15 @@ public class CommentQuestion extends Comment {
     @Override
     public void setCreationDate(Date creationDate) {
         super.setCreationDate(creationDate);
+    }
+
+    @Override
+    public void setLiked(boolean liked) {
+        this.liked = liked;
+    }
+
+    @Override
+    public boolean isLiked() {
+        return this.liked;
     }
 }

@@ -113,7 +113,8 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
 
     private List<CommentQuestionResponse> getCommentProcess(CommentQuestionGetRequest request) {
         validate(request);
-        List<CommentQuestion> comments = getCommentFromDatabase(request.getQuestionId(), request.getPage());
+        long id = -1; // TODO AUTH
+        List<CommentQuestion> comments = getCommentFromDatabase(request.getQuestionId(), id, request.getPage());
         return convertCommentDtoToResponse(comments);
     }
 
@@ -135,8 +136,8 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
         commentQuestionDao.delete(new Where("id", request.getCommentId(), WhereOperator.EQUALS));
     }
 
-    private List<CommentQuestion> getCommentFromDatabase(long questionId, int page) {
-        List<CommentQuestion> questions = commentQuestionDao.getComments(questionId, page - 1);
+    private List<CommentQuestion> getCommentFromDatabase(long questionId, long userId, int page) {
+        List<CommentQuestion> questions = commentQuestionDao.getComments(questionId, userId, page - 1);
         return ResourceUtil.throwResourceNFExceptionIfNull(questions, ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questions));
     }
 

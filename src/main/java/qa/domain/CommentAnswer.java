@@ -59,6 +59,16 @@ public class CommentAnswer extends Comment {
     }
 
     @Override
+    public void setLikes(int count) {
+
+    }
+
+    @Override
+    public int getLikes() {
+        return 0;
+    }
+
+    @Override
     public void setId(Long id) {
         super.setId(id);
     }
@@ -92,5 +102,15 @@ public class CommentAnswer extends Comment {
     @Override
     public void setCreationDate(Date creationDate) {
         super.setCreationDate(creationDate);
+    }
+
+    @Override
+    public void setLiked(boolean liked) {
+
+    }
+
+    @Override
+    public boolean isLiked() {
+        return false;
     }
 }

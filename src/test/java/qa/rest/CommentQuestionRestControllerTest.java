@@ -24,7 +24,6 @@ import qa.util.dao.CommentDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.query.params.CommentQueryParameters;
 import qa.util.hibernate.HibernateSessionFactoryUtil;
-import qa.util.mock.JedisMockTestUtil;
 import qa.util.rest.CommentRestTestUtil;
 import qa.util.rest.JwtTestUtil;
 
@@ -51,7 +50,7 @@ public class CommentQuestionRestControllerTest {
     @BeforeAll
     void init() {
         sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
-        commentDaoTestUtil = new CommentDaoTestUtil(sessionFactory);
+        commentDaoTestUtil = new CommentDaoTestUtil(sessionFactory, jedisResourceCenter);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
         RestAssured.baseURI = "http://localhost:8080/api/v1/comment/question/";
         RestAssured.port = 8080;

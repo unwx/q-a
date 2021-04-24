@@ -16,7 +16,7 @@ public class QuestionView implements HasLikes<Long> {
     private final User author;
 
     @Cached
-    private Integer likes;
+    private int likes;
 
     public QuestionView(Long questionId,
                         String title,
@@ -62,7 +62,7 @@ public class QuestionView implements HasLikes<Long> {
         return author;
     }
 
-    public Integer getLikes() {
+    public int getLikes() {
         return likes;
     }
 

@@ -4,4 +4,6 @@ public interface HasLikes<T> {
     T getId();
 
     void setLikes(int count);
+
+    int getLikes();
 }
