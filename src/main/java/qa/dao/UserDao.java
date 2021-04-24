@@ -14,7 +14,7 @@ import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
 import qa.dto.internal.hibernate.user.UserFullDto;
 import qa.exceptions.dao.NullResultException;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +25,10 @@ public class UserDao extends DaoImpl<User> {
     private final SessionFactory sessionFactory;
 
     @Autowired
-    public UserDao(PropertySetterFactory propertySetterFactory) {
-        super(HibernateSessionFactoryUtil.getSessionFactory(), new User(), propertySetterFactory.getSetter(new User()));
-        this.sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+    public UserDao(PropertySetterFactory propertySetterFactory,
+                   SessionFactory sessionFactory) {
+        super(HibernateSessionFactoryConfigurer.getSessionFactory(), new User(), propertySetterFactory.getSetter(new User()));
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
@@ -55,7 +56,7 @@ public class UserDao extends DaoImpl<User> {
     }
 
     @Nullable
-    public List<Question> readUserQuestions(long userId, int page) {
+    public List<Question> readUserQuestions(long userId, int page) { // TODO order by like count
 
         /*
          *  if user not exist: questions.size() = 0; (NullResultException will not be thrown) - return null

@@ -18,7 +18,7 @@ import qa.dao.query.convertor.AnswerQueryResultConvertor;
 import qa.domain.Answer;
 import qa.domain.setters.PropertySetterFactory;
 import qa.exceptions.dao.NullResultException;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
@@ -30,12 +30,21 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
 
+    private static final AnswerToLikeSetOperation answerToLikeOperation;
+    private static final UserToAnswerLikeSetOperation userToAnswerLikeOperation;
+
+    static {
+        answerToLikeOperation = new AnswerToLikeSetOperation();
+        userToAnswerLikeOperation = new UserToAnswerLikeSetOperation();
+    }
+
     @Autowired
     public AnswerDao(PropertySetterFactory propertySetterFactory,
+                     SessionFactory sessionFactory,
                      JedisResourceCenter jedisResourceCenter) {
-        super(HibernateSessionFactoryUtil.getSessionFactory(), new Answer(), propertySetterFactory.getSetter(new Answer()));
+        super(HibernateSessionFactoryConfigurer.getSessionFactory(), new Answer(), propertySetterFactory.getSetter(new Answer()));
+        this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
-        this.sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
     }
 
     @Override
@@ -88,28 +97,25 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
     public void like(long userId, Long id) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final AnswerToLikeSetOperation answerToLikeSetOperation = new AnswerToLikeSetOperation(jedis);
-            final UserToAnswerLikeSetOperation userToAnswerLikeSetOperation = new UserToAnswerLikeSetOperation(jedis);
 
-            final boolean status = userToAnswerLikeSetOperation.add(userId, id);
-            if (status) answerToLikeSetOperation.increment(id);
+            final boolean status = userToAnswerLikeOperation.add(userId, id, jedis);
+            if (status) answerToLikeOperation.increment(id, jedis);
         }
     }
 
     private void createLike(long answerId) {
         try(JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final AnswerToLikeSetOperation operation = new AnswerToLikeSetOperation(jedis);
-            LikesUtil.createLike(answerId, operation);
+
+            LikesUtil.createLike(answerId, answerToLikeOperation, jedis);
         }
     }
 
     private void setLikes(List<Answer> answers, long userId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final AnswerToLikeSetOperation answerToLikeSetOperation = new AnswerToLikeSetOperation(jedis);
-            final UserToAnswerLikeSetOperation userToAnswerLikeSetOperation = new UserToAnswerLikeSetOperation(jedis);
-            LikesUtil.setLikesAndLiked(answers, userId, answerToLikeSetOperation, userToAnswerLikeSetOperation);
+
+            LikesUtil.setLikesAndLiked(answers, userId, answerToLikeOperation, userToAnswerLikeOperation, jedis);
         }
     }
 }

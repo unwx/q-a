@@ -23,7 +23,7 @@ import qa.security.jwt.entity.JwtStatus;
 import qa.security.jwt.service.JwtProvider;
 import qa.tools.annotations.SpringIntegrationTest;
 import qa.util.dao.UserDaoTestUtil;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import qa.util.rest.AuthenticationRestTestUtil;
 import qa.util.rest.JwtTestUtil;
 
@@ -48,7 +48,7 @@ public class AuthenticationRestControllerTest {
 
     @BeforeAll
     void init() {
-        sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+        sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         userDaoTestUtil = new UserDaoTestUtil(sessionFactory);
     }
 

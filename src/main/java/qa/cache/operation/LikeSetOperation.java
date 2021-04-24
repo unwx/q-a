@@ -1,15 +1,17 @@
 package qa.cache.operation;
 
+import redis.clients.jedis.Jedis;
+
 import java.util.List;
 
 public interface LikeSetOperation {
-    boolean create(KeyOperation r);
+    boolean create(KeyOperation r, Jedis jedis);
 
-    int getK(KeyOperation r);
+    int getK(KeyOperation r, Jedis jedis);
 
-    <T> List<Integer> getK(List<KeyOperation> r);
+    <T> List<Integer> getK(List<KeyOperation> r, Jedis jedis);
 
-    long increment(KeyOperation r);
+    long increment(KeyOperation r, Jedis jedis);
 
-    boolean delete(KeyOperation r);
+    boolean delete(KeyOperation r, Jedis jedis);
 }

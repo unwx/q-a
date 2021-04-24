@@ -5,14 +5,14 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-public final class HibernateSessionFactoryUtil {
+public final class HibernateSessionFactoryConfigurer {
 
     private static SessionFactory sessionFactory;
+    private static final String ERR_INITIALIZATION = "hibernate sessionFactory initialization error: %s";
 
-    private static final Logger logger = LogManager.getLogger(HibernateSessionFactoryUtil.class);
+    private static final Logger logger = LogManager.getLogger(HibernateSessionFactoryConfigurer.class);
 
-    private HibernateSessionFactoryUtil() {
-    }
+    private HibernateSessionFactoryConfigurer() {}
 
     private static SessionFactory buildSessionFactory() {
         try {
@@ -20,8 +20,7 @@ public final class HibernateSessionFactoryUtil {
                 sessionFactory = new Configuration().configure().buildSessionFactory();
             }
         } catch (Throwable ex) {
-            assert logger != null;
-            logger.error("[hibernate sessionFactory initialization error]: " + ex.getMessage());
+            logger.error(ERR_INITIALIZATION.formatted(ex.getMessage()));
             throw new ExceptionInInitializerError(ex);
         }
         return sessionFactory;

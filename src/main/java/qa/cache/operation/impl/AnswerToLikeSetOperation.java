@@ -11,37 +11,33 @@ import java.util.List;
 
 public class AnswerToLikeSetOperation extends LikeSetOperationImpl implements EntityToLikeSetOperation<Long> {
 
-    public AnswerToLikeSetOperation(Jedis jedis) {
-        super(jedis);
-    }
-
     @Override
-    public boolean create(Long answerId) {
+    public boolean create(Long answerId, Jedis jedis) {
         final AnswerToLikeSet set = new AnswerToLikeSet(answerId);
-        return super.create(set);
+        return super.create(set, jedis);
     }
 
     @Override
-    public int get(Long answerId) {
+    public int get(Long answerId, Jedis jedis) {
         final AnswerToLikeSet set = new AnswerToLikeSet(answerId);
-        return super.getK(set);
+        return super.getK(set, jedis);
     }
 
     @Override
-    public List<Integer> get(List<Long> answers) {
+    public List<Integer> get(List<Long> answers, Jedis jedis) {
         final List<KeyOperation> sets = RedisOperationUtil.toKeyOperation(answers, AnswerToLikeSet::new);
-        return super.getK(sets);
+        return super.getK(sets, jedis);
     }
 
     @Override
-    public long increment(Long answerId) {
+    public long increment(Long answerId, Jedis jedis) {
         final AnswerToLikeSet set = new AnswerToLikeSet(answerId);
-        return super.increment(set);
+        return super.increment(set, jedis);
     }
 
     @Override
-    public boolean delete(Long answerId) {
+    public boolean delete(Long answerId, Jedis jedis) {
         final AnswerToLikeSet set = new AnswerToLikeSet(answerId);
-        return super.delete(set);
+        return super.delete(set, jedis);
     }
 }

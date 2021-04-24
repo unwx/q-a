@@ -23,14 +23,12 @@ import qa.domain.Question;
 import qa.domain.QuestionView;
 import qa.domain.setters.PropertySetterFactory;
 import qa.dto.internal.hibernate.question.QuestionWithCommentsDto;
-import qa.exceptions.dao.EntityAlreadyCreatedException;
 import qa.exceptions.dao.NullResultException;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
@@ -38,12 +36,21 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
 
+    private static final QuestionToLikeSetOperation questionToLikeOperation;
+    private static final UserToQuestionLikeSetOperation userToQuestionLikeOperation;
+
+    static {
+        questionToLikeOperation = new QuestionToLikeSetOperation();
+        userToQuestionLikeOperation = new UserToQuestionLikeSetOperation();
+    }
+
     @Autowired
     public QuestionDao(PropertySetterFactory propertySetterFactory,
+                       SessionFactory sessionFactory,
                        JedisResourceCenter jedisResourceCenter) {
-        super(HibernateSessionFactoryUtil.getSessionFactory(), new Question(), propertySetterFactory.getSetter(new Question()));
+        super(HibernateSessionFactoryConfigurer.getSessionFactory(), new Question(), propertySetterFactory.getSetter(new Question()));
+        this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
-        this.sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
     }
 
     @Override
@@ -58,7 +65,7 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     }
 
     @Nullable
-    public Question getFullQuestion(long questionId, long userId) {
+    public Question getFullQuestion(long questionId, long userId) { // FIXME nested caches
 
         /*
          *  if question not exist: - return null
@@ -101,7 +108,7 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
                             .list()
                     );
             transaction.commit();
-            setLikes(views);
+            setLikes(views); // FIXME TODO cache provider
             return views;
         }
     }
@@ -110,19 +117,16 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     public void like(long userId, Long id) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final QuestionToLikeSetOperation questionToLikeSetOperation = new QuestionToLikeSetOperation(jedis);
-            final UserToQuestionLikeSetOperation userToQuestionLikeSetOperation = new UserToQuestionLikeSetOperation(jedis);
 
-            final boolean status = userToQuestionLikeSetOperation.add(userId, id);
-            if (status) questionToLikeSetOperation.increment(id);
+            final boolean status = userToQuestionLikeOperation.add(userId, id, jedis);
+            if (status) questionToLikeOperation.increment(id, jedis);
         }
     }
 
     private void createLike(long questionId) {
         try(JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final QuestionToLikeSetOperation operation = new QuestionToLikeSetOperation(jedis);
-            LikesUtil.createLike(questionId, operation);
+            LikesUtil.createLike(questionId, questionToLikeOperation, jedis);
         }
     }
 
@@ -132,8 +136,9 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
             LikesUtil.setLikeAndLiked(
                     question,
                     userId,
-                    new QuestionToLikeSetOperation(jedis),
-                    new UserToQuestionLikeSetOperation(jedis)
+                    questionToLikeOperation,
+                    userToQuestionLikeOperation,
+                    jedis
             );
         }
     }
@@ -141,7 +146,7 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     private void setLikes(List<QuestionView> questionViews) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            LikesUtil.setLikes(questionViews, new QuestionToLikeSetOperation(jedis));
+            LikesUtil.setLikes(questionViews, questionToLikeOperation, jedis);
         }
     }
 

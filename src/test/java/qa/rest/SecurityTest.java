@@ -16,7 +16,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
 import qa.security.jwt.entity.JwtData;
 import qa.security.jwt.service.JwtProvider;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.equalTo;
 @ContextConfiguration(classes = SpringConfig.class)
 public class SecurityTest {
 
-    private final SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+    private final SessionFactory sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
     private final static String defaultUserEmail = "yahoo@yahoo.com";
 
     @Autowired

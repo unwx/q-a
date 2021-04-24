@@ -6,17 +6,11 @@ import java.util.List;
 
 public abstract class SetSizeOperation {
 
-    private final Jedis jedis;
-
-    public SetSizeOperation(Jedis jedis) {
-        this.jedis = jedis;
-    }
-
-    public String getS(String key) {
+    public String getS(String key, Jedis jedis) {
         return jedis.get(key);
     }
 
-    public List<String> getS(List<String> keys) {
+    public List<String> getS(List<String> keys, Jedis jedis) {
         return jedis.mget(keys.toArray(String[]::new));
     }
 }

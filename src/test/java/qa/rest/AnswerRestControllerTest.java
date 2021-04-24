@@ -20,8 +20,7 @@ import qa.tools.annotations.SpringIntegrationTest;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.query.params.AnswerQueryParameters;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
-import qa.util.mock.JedisMockTestUtil;
+import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import qa.util.rest.AnswerRestTestUtil;
 import qa.util.rest.JwtTestUtil;
 
@@ -48,7 +47,7 @@ public class AnswerRestControllerTest {
 
     @BeforeAll
     void init() {
-        sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+        sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
     }

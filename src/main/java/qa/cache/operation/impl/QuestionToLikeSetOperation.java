@@ -11,40 +11,33 @@ import java.util.List;
 
 public class QuestionToLikeSetOperation extends LikeSetOperationImpl implements EntityToLikeSetOperation<Long> {
 
-    public QuestionToLikeSetOperation(Jedis jedis) {
-        super(jedis);
-    }
-
-    /**
-     * after creating a question - the initial number of likes is set - 0
-     */
     @Override
-    public boolean create(Long questionId) {
+    public boolean create(Long questionId, Jedis jedis) {
         QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
-        return super.create(questionToLikeSet);
+        return super.create(questionToLikeSet, jedis);
     }
 
     @Override
-    public int get(Long questionId) {
+    public int get(Long questionId, Jedis jedis) {
         QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
-        return super.getK(questionToLikeSet);
+        return super.getK(questionToLikeSet, jedis);
     }
 
     @Override
-    public List<Integer> get(List<Long> questionIds) {
+    public List<Integer> get(List<Long> questionIds, Jedis jedis) {
         final List<KeyOperation> sets = RedisOperationUtil.toKeyOperation(questionIds, QuestionToLikeSet::new);
-        return super.getK(sets);
+        return super.getK(sets, jedis);
     }
 
     @Override
-    public long increment(Long questionId) {
+    public long increment(Long questionId, Jedis jedis) {
         QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
-        return super.increment(questionToLikeSet);
+        return super.increment(questionToLikeSet, jedis);
     }
 
     @Override
-    public boolean delete(Long questionId) {
+    public boolean delete(Long questionId, Jedis jedis) {
         QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
-        return super.delete(questionToLikeSet);
+        return super.delete(questionToLikeSet, jedis);
     }
 }

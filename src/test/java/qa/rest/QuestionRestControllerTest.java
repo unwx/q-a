@@ -26,7 +26,7 @@ import qa.security.jwt.service.JwtProvider;
 import qa.tools.annotations.SpringIntegrationTest;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.query.params.QuestionQueryParameters;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import qa.util.rest.JwtTestUtil;
 import qa.util.rest.QuestionRestTestUtil;
 
@@ -54,7 +54,7 @@ public class QuestionRestControllerTest {
 
     @BeforeAll
     void init() {
-        sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+        sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
     }
 

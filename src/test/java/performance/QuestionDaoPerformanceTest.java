@@ -17,7 +17,7 @@ import qa.config.spring.SpringConfig;
 import qa.dao.QuestionDao;
 import qa.domain.Question;
 import qa.domain.QuestionView;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 
 import java.util.Date;
 import java.util.List;
@@ -29,7 +29,7 @@ public class QuestionDaoPerformanceTest {
 
     @Autowired
     private QuestionDao questionDao;
-    private final SessionFactory sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+    private final SessionFactory sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
 
     @BeforeEach
     void truncate() {

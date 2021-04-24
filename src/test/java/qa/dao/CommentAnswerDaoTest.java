@@ -15,7 +15,7 @@ import qa.domain.setters.PropertySetterFactory;
 import qa.logger.TestLogger;
 import qa.tools.annotations.MockitoTest;
 import qa.util.dao.AnswerDaoTestUtil;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import qa.util.mock.JedisMockTestUtil;
 
 import java.util.Arrays;
@@ -37,10 +37,10 @@ public class CommentAnswerDaoTest {
 
     @BeforeAll
     void init() {
+        sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
 
-        sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
         commentAnswerDao = new CommentAnswerDao(propertySetterFactory);
     }

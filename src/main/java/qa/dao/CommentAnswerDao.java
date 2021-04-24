@@ -13,7 +13,7 @@ import qa.dao.query.convertor.CommentAnswerQueryResultConvertor;
 import qa.domain.CommentAnswer;
 import qa.domain.setters.PropertySetterFactory;
 import qa.exceptions.dao.NullResultException;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +25,8 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> {
 
     @Autowired
     public CommentAnswerDao(PropertySetterFactory propertySetterFactory) {
-        super(HibernateSessionFactoryUtil.getSessionFactory(), new CommentAnswer(), propertySetterFactory.getSetter(new CommentAnswer()));
-        this.sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+        super(HibernateSessionFactoryConfigurer.getSessionFactory(), new CommentAnswer(), propertySetterFactory.getSetter(new CommentAnswer()));
+        this.sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
     }
 
     @Override

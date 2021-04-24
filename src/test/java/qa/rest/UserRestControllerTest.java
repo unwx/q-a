@@ -27,8 +27,7 @@ import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.UserDaoTestUtil;
 import qa.util.dao.query.params.UserQueryParameters;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
-import qa.util.mock.JedisMockTestUtil;
+import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import qa.util.rest.UserRestTestUtil;
 
 import java.util.Collections;
@@ -51,7 +50,7 @@ public class UserRestControllerTest {
 
     @BeforeAll
     void init() {
-        sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+        sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         userDaoTestUtil = new UserDaoTestUtil(sessionFactory);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);

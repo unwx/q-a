@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import qa.domain.AuthenticationData;
 import qa.domain.UserRole;
 import qa.domain.setters.PropertySetterFactory;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 
 import java.math.BigInteger;
 import java.util.LinkedList;
@@ -24,8 +24,8 @@ public class AuthenticationDao extends DaoImpl<AuthenticationData> {
 
     @Autowired
     public AuthenticationDao(PropertySetterFactory propertySetterFactory) {
-        super(HibernateSessionFactoryUtil.getSessionFactory(), new AuthenticationData(), propertySetterFactory.getSetter(new AuthenticationData()));
-        sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
+        super(HibernateSessionFactoryConfigurer.getSessionFactory(), new AuthenticationData(), propertySetterFactory.getSetter(new AuthenticationData()));
+        sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
     }
 
     @Override

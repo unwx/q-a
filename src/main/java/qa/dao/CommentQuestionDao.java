@@ -18,7 +18,7 @@ import qa.dao.query.convertor.CommentQuestionQueryResultConvertor;
 import qa.domain.CommentQuestion;
 import qa.domain.setters.PropertySetterFactory;
 import qa.exceptions.dao.NullResultException;
-import qa.util.hibernate.HibernateSessionFactoryUtil;
+import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
@@ -30,12 +30,21 @@ public class CommentQuestionDao extends DaoImpl<CommentQuestion> implements Like
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
 
+    private static final CommentQuestionToLikeSetOperation commentQuestionToLikeOperation;
+    private static final UserToCommentQuestionLikeSetOperation userToCommentQuestionLikeOperation;
+
+    static {
+        commentQuestionToLikeOperation = new CommentQuestionToLikeSetOperation();
+        userToCommentQuestionLikeOperation = new UserToCommentQuestionLikeSetOperation();
+    }
+
     @Autowired
     public CommentQuestionDao(PropertySetterFactory propertySetterFactory,
+                              SessionFactory sessionFactory,
                               JedisResourceCenter jedisResourceCenter) {
-        super(HibernateSessionFactoryUtil.getSessionFactory(), new CommentQuestion(), propertySetterFactory.getSetter(new CommentQuestion()));
+        super(HibernateSessionFactoryConfigurer.getSessionFactory(), new CommentQuestion(), propertySetterFactory.getSetter(new CommentQuestion()));
+        this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
-        this.sessionFactory = HibernateSessionFactoryUtil.getSessionFactory();
     }
 
     @Override
@@ -89,11 +98,9 @@ public class CommentQuestionDao extends DaoImpl<CommentQuestion> implements Like
     public void like(long userId, Long id) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final CommentQuestionToLikeSetOperation answerToLikeSetOperation = new CommentQuestionToLikeSetOperation(jedis);
-            final UserToCommentQuestionLikeSetOperation userToAnswerLikeSetOperation = new UserToCommentQuestionLikeSetOperation(jedis);
 
-            final boolean status = userToAnswerLikeSetOperation.add(userId, id);
-            if (status) answerToLikeSetOperation.increment(id);
+            final boolean status = userToCommentQuestionLikeOperation.add(userId, id, jedis);
+            if (status) commentQuestionToLikeOperation.increment(id, jedis);
         }
     }
 
@@ -101,17 +108,15 @@ public class CommentQuestionDao extends DaoImpl<CommentQuestion> implements Like
     private void createLike(long commentId) {
         try(JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final CommentQuestionToLikeSetOperation operation = new CommentQuestionToLikeSetOperation(jedis);
-            LikesUtil.createLike(commentId, operation);
+
+            LikesUtil.createLike(commentId, commentQuestionToLikeOperation, jedis);
         }
     }
 
     private void setLikes(List<CommentQuestion> comments, long userId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final CommentQuestionToLikeSetOperation commentSetOperation = new CommentQuestionToLikeSetOperation(jedis);
-            final UserToCommentQuestionLikeSetOperation userToCommentSetOperation = new UserToCommentQuestionLikeSetOperation(jedis);
-            LikesUtil.setLikesAndLiked(comments, userId, commentSetOperation, userToCommentSetOperation);
+            LikesUtil.setLikesAndLiked(comments, userId, commentQuestionToLikeOperation, userToCommentQuestionLikeOperation, jedis);
         }
     }
 }

@@ -4,27 +4,21 @@ import redis.clients.jedis.Jedis;
 
 public abstract class UserToEntityLikeSetOperation {
 
-    private final Jedis jedis;
-
-    protected UserToEntityLikeSetOperation(Jedis jedis) {
-        this.jedis = jedis;
-    }
-
-    protected boolean add(KeyValueOperation like) {
+    protected boolean add(KeyValueOperation like, Jedis jedis) {
         return jedis.setnx(like.getKey(), like.getValue()) == 1;
     }
 
-    protected boolean isValueExist(KeyValueOperation like) {
+    protected boolean isValueExist(KeyValueOperation like, Jedis jedis) {
         final boolean status = jedis.setnx(like.getKey(), like.getValue()) == 0; // create
-        if (!status) this.deleteKey(like); // if created - delete
+        if (!status) this.deleteKey(like, jedis); // if created - delete
         return status;
     }
 
-    protected boolean deleteValue(KeyValueOperation like) {
+    protected boolean deleteValue(KeyValueOperation like, Jedis jedis) {
         return jedis.srem(like.getKey(), like.getValue()) == 1;
     }
 
-    protected boolean deleteKey(KeyValueOperation like) {
+    protected boolean deleteKey(KeyValueOperation like, Jedis jedis) {
         return jedis.del(like.getKey()) == 1;
     }
 }

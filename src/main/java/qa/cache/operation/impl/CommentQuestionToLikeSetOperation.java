@@ -11,37 +11,33 @@ import java.util.List;
 
 public class CommentQuestionToLikeSetOperation extends LikeSetOperationImpl implements EntityToLikeSetOperation<Long> {
 
-    public CommentQuestionToLikeSetOperation(Jedis jedis) {
-        super(jedis);
-    }
-
     @Override
-    public boolean create(Long commentId) {
+    public boolean create(Long commentId, Jedis jedis) {
         final CommentQuestionToLikeSet set = new CommentQuestionToLikeSet(commentId);
-        return super.create(set);
+        return super.create(set, jedis);
     }
 
     @Override
-    public int get(Long commentId) {
+    public int get(Long commentId, Jedis jedis) {
         final CommentQuestionToLikeSet set = new CommentQuestionToLikeSet(commentId);
-        return super.getK(set);
+        return super.getK(set, jedis);
     }
 
     @Override
-    public List<Integer> get(List<Long> commentIds) {
+    public List<Integer> get(List<Long> commentIds, Jedis jedis) {
         final List<KeyOperation> sets = RedisOperationUtil.toKeyOperation(commentIds, CommentQuestionToLikeSet::new);
-        return super.getK(sets);
+        return super.getK(sets, jedis);
     }
 
     @Override
-    public long increment(Long commentId) {
+    public long increment(Long commentId, Jedis jedis) {
         final CommentQuestionToLikeSet set = new CommentQuestionToLikeSet(commentId);
-        return super.increment(set);
+        return super.increment(set, jedis);
     }
 
     @Override
-    public boolean delete(Long commentId) {
+    public boolean delete(Long commentId, Jedis jedis) {
         final CommentQuestionToLikeSet set = new CommentQuestionToLikeSet(commentId);
-        return super.delete(set);
+        return super.delete(set, jedis);
     }
 }

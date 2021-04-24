@@ -7,31 +7,27 @@ import redis.clients.jedis.Jedis;
 
 public class UserToQuestionLikeSetOperation extends UserToEntityLikeSetOperation implements IUserToEntitySetOperation<Long> {
 
-    public UserToQuestionLikeSetOperation(Jedis jedis) {
-        super(jedis);
-    }
-
     @Override
-    public boolean add(long userId, Long questionId) {
+    public boolean add(long userId, Long questionId, Jedis jedis) {
         final UserToQuestionLikeSet set = new UserToQuestionLikeSet(userId, questionId);
-        return super.add(set);
+        return super.add(set, jedis);
     }
 
     @Override
-    public boolean isValueExist(long userId, Long questionId) {
+    public boolean isValueExist(long userId, Long questionId, Jedis jedis) {
         final UserToQuestionLikeSet set = new UserToQuestionLikeSet(userId, questionId);
-        return super.isValueExist(set);
+        return super.isValueExist(set, jedis);
     }
 
     @Override
-    public boolean deleteValue(long userId, Long questionId) {
+    public boolean deleteValue(long userId, Long questionId, Jedis jedis) {
         final UserToQuestionLikeSet set = new UserToQuestionLikeSet(userId, questionId);
-        return super.deleteValue(set);
+        return super.deleteValue(set, jedis);
     }
 
     @Override
-    public boolean deleteKey(long userId) {
+    public boolean deleteKey(long userId, Jedis jedis) {
         final UserToQuestionLikeSet set = new UserToQuestionLikeSet(userId, -1L);
-        return super.deleteKey(set);
+        return super.deleteKey(set, jedis);
     }
 }
