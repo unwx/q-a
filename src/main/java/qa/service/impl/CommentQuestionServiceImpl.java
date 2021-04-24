@@ -113,7 +113,7 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
 
     private List<CommentQuestionResponse> getCommentProcess(CommentQuestionGetRequest request, Authentication authentication) {
         validate(request);
-        final long userId = authentication == null ? -1L : getUserIdFromAuthentication(authentication);
+        final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
         List<CommentQuestion> comments = getCommentFromDatabase(request.getQuestionId(), userId, request.getPage());
         return convertCommentDtoToResponse(comments);
     }
@@ -163,11 +163,6 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
                 )
         ));
         return response;
-    }
-
-    private long getUserIdFromAuthentication(Authentication authentication) {
-        final Long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
-        return userId == null ? -1 : userId;
     }
 
     private void throwBadRequestExIfQuestionNotExist(long questionId) {

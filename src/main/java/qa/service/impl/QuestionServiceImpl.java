@@ -122,7 +122,7 @@ public class QuestionServiceImpl implements QuestionService {
 
     private QuestionFullResponse getFullQuestionProcess(QuestionGetFullRequest request, Authentication authentication) {
         validate(request);
-        final long userId = authentication == null ? -1L : getUserIdFromAuthentication(authentication);
+        final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
         final Question question = getFullQuestionFromDatabase(request.getQuestionId(), userId);
         return convertDtoToResponse(question);
     }
@@ -172,11 +172,6 @@ public class QuestionServiceImpl implements QuestionService {
     private Question getFullQuestionFromDatabase(long questionId, long userId) {
         final Question question = questionDao.getFullQuestion(questionId, userId);
         return ResourceUtil.throwResourceNFExceptionIfNull(question, ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questionId));
-    }
-
-    private long getUserIdFromAuthentication(Authentication authentication) {
-        final Long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
-        return userId == null ? -1 : userId;
     }
 
     private List<QuestionViewResponse> convertViewDtoToResponse(List<QuestionView> views) {

@@ -80,13 +80,13 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
     }
 
     @Override
-    public ResponseEntity<List<CommentAnswerResponse>> getComments(Long answerId, Integer page) {
-        return new ResponseEntity<>(getCommentsProcess(answerId, page), HttpStatus.OK);
+    public ResponseEntity<List<CommentAnswerResponse>> getComments(Long answerId, Integer page, Authentication authentication) {
+        return new ResponseEntity<>(getCommentsProcess(answerId, page, authentication), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<List<CommentAnswerResponse>> getComments(CommentAnswerGetRequest request) {
-        return new ResponseEntity<>(getCommentsProcess(request), HttpStatus.OK);
+    public ResponseEntity<List<CommentAnswerResponse>> getComments(CommentAnswerGetRequest request, Authentication authentication) {
+        return new ResponseEntity<>(getCommentsProcess(request, authentication), HttpStatus.OK);
     }
 
     private Long createCommentProcess(CommentAnswerCreateRequest request, Authentication authentication) {
@@ -107,13 +107,14 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
         deleteCommentFromDatabase(request);
     }
 
-    private List<CommentAnswerResponse> getCommentsProcess(Long answerId, Integer page) {
-        return getCommentsProcess(new CommentAnswerGetRequest(answerId, page));
+    private List<CommentAnswerResponse> getCommentsProcess(Long answerId, Integer page, Authentication authentication) {
+        return getCommentsProcess(new CommentAnswerGetRequest(answerId, page), authentication);
     }
 
-    private List<CommentAnswerResponse> getCommentsProcess(CommentAnswerGetRequest request) {
+    private List<CommentAnswerResponse> getCommentsProcess(CommentAnswerGetRequest request, Authentication authentication) {
         validate(request);
-        List<CommentAnswer> comments = getCommentsFromDatabase(request.getAnswerId(), request.getPage());
+        final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
+        List<CommentAnswer> comments = getCommentsFromDatabase(request.getAnswerId(), userId, request.getPage());
         return convertDtoToResponse(comments);
     }
 
@@ -135,9 +136,9 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
         commentAnswerDao.delete(new Where("id", request.getCommentId(), WhereOperator.EQUALS));
     }
 
-    private List<CommentAnswer> getCommentsFromDatabase(long answerId, int page) {
+    private List<CommentAnswer> getCommentsFromDatabase(long answerId, long userId, int page) {
         return ResourceUtil.throwResourceNFExceptionIfNull(
-                commentAnswerDao.getComments(answerId, -1L,page - 1), // TODO service
+                commentAnswerDao.getComments(answerId, -1L,page - 1),
                 ERR_MESSAGE_ANSWER_NOT_EXIST_ID.formatted(answerId));
     }
 

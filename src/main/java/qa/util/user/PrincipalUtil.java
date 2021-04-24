@@ -8,8 +8,10 @@ public class PrincipalUtil {
     private PrincipalUtil() {
     }
 
-    public static Long getUserIdFromAuthentication(Authentication authentication) {
-        JwtAuthenticationData data = (JwtAuthenticationData) authentication.getPrincipal();
+    public static long getUserIdFromAuthentication(Authentication authentication) {
+        if (authentication == null)
+            return -1L;
+        final JwtAuthenticationData data = (JwtAuthenticationData) authentication.getPrincipal();
         return data.getId();
     }
 }
