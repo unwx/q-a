@@ -2,10 +2,12 @@ package qa.cache.operation;
 
 import redis.clients.jedis.Jedis;
 
-public abstract class UserToEntityLikeSetOperation {
+import java.util.Set;
+
+public abstract class UserToEntityLikeSetOperation { // TODO RENAME --LIKE--
 
     protected boolean add(KeyValueOperation like, Jedis jedis) {
-        return jedis.setnx(like.getKey(), like.getValue()) == 1;
+        return jedis.sadd(like.getKey(), like.getValue()) == 1;
     }
 
     protected boolean isValueExist(KeyValueOperation like, Jedis jedis) {
@@ -14,11 +16,23 @@ public abstract class UserToEntityLikeSetOperation {
         return status;
     }
 
+    @Deprecated
     protected boolean deleteValue(KeyValueOperation like, Jedis jedis) {
         return jedis.srem(like.getKey(), like.getValue()) == 1;
     }
 
+    @Deprecated
     protected boolean deleteKey(KeyValueOperation like, Jedis jedis) {
         return jedis.del(like.getKey()) == 1;
+    }
+
+    protected boolean deleteLinks(String key, String keyValue, String linkedKeyBeginning, Jedis jedis) {
+        final Set<String> set = jedis.smembers(key);
+        if (set.isEmpty())
+            return false;
+
+        set.forEach((m) -> jedis.srem(linkedKeyBeginning + m, keyValue));
+        final Long reply = jedis.del(key);
+        return reply != null && reply != 0L;
     }
 }

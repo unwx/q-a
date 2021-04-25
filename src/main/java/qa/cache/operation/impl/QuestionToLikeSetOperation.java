@@ -13,13 +13,13 @@ public class QuestionToLikeSetOperation extends LikeSetOperationImpl implements 
 
     @Override
     public boolean create(Long questionId, Jedis jedis) {
-        QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
+        final QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.create(questionToLikeSet, jedis);
     }
 
     @Override
     public int get(Long questionId, Jedis jedis) {
-        QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
+        final QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.getK(questionToLikeSet, jedis);
     }
 
@@ -31,13 +31,13 @@ public class QuestionToLikeSetOperation extends LikeSetOperationImpl implements 
 
     @Override
     public long increment(Long questionId, Jedis jedis) {
-        QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
+        final QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.increment(questionToLikeSet, jedis);
     }
 
     @Override
     public boolean delete(Long questionId, Jedis jedis) {
-        QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
+        final QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.delete(questionToLikeSet, jedis);
     }
 }

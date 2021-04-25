@@ -4,7 +4,7 @@ import redis.clients.jedis.Jedis;
 
 import java.util.List;
 
-public interface EntityToLikeSetOperation<T> {
+public interface EntityToLikeSetOperation<T> { // TODO RENAME
     boolean create(T t, Jedis jedis);
 
     int get(T t, Jedis jedis);

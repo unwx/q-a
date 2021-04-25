@@ -30,4 +30,9 @@ public class UserToAnswerLikeSetOperation extends UserToEntityLikeSetOperation i
         final UserToAnswerLikeSet set = new UserToAnswerLikeSet(userId, -1L);
         return super.deleteKey(set, jedis);
     }
+
+    @Override
+    public boolean deleteEntity(Long entityId, Jedis jedis) {
+        return false;
+    }
 }

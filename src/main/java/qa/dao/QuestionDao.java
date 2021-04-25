@@ -11,7 +11,7 @@ import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.LikesUtil;
 import qa.cache.operation.impl.QuestionToLikeSetOperation;
-import qa.cache.operation.impl.UserToQuestionLikeSetOperation;
+import qa.cache.operation.impl.UserQuestionLikeSetOperation;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.AnswerQueryCreator;
@@ -37,11 +37,11 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     private final JedisResourceCenter jedisResourceCenter;
 
     private static final QuestionToLikeSetOperation questionToLikeOperation;
-    private static final UserToQuestionLikeSetOperation userToQuestionLikeOperation;
+    private static final UserQuestionLikeSetOperation userToQuestionLikeOperation;
 
     static {
         questionToLikeOperation = new QuestionToLikeSetOperation();
-        userToQuestionLikeOperation = new UserToQuestionLikeSetOperation();
+        userToQuestionLikeOperation = new UserQuestionLikeSetOperation();
     }
 
     @Autowired
@@ -60,12 +60,18 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
         return id;
     }
 
+    public void delete(long questionId) {
+        final Where where = new Where("id", questionId, WhereOperator.EQUALS);
+        super.delete(where);
+        this.deleteLikes(questionId);
+    }
+
     public boolean isExist(Long id) {
         return super.isExist(new Where("id", id, WhereOperator.EQUALS), "Question");
     }
 
     @Nullable
-    public Question getFullQuestion(long questionId, long userId) { // FIXME nested caches & delete
+    public Question getFullQuestion(long questionId, long userId) { // FIXME nested caches
 
         /*
          *  if question not exist: - return null
@@ -147,6 +153,15 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
             LikesUtil.setLikes(questionViews, questionToLikeOperation, jedis);
+        }
+    }
+
+    private void deleteLikes(long questionId) {
+        try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
+            final Jedis jedis = jedisResource.getJedis();
+
+            questionToLikeOperation.delete(questionId, jedis);
+            userToQuestionLikeOperation.deleteEntity(questionId, jedis);
         }
     }
 

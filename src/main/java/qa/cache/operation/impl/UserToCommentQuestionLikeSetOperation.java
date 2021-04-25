@@ -30,4 +30,9 @@ public class UserToCommentQuestionLikeSetOperation extends UserToEntityLikeSetOp
         final UserToCommentQuestionLikeSet set = new UserToCommentQuestionLikeSet(userId, -1L);
         return super.deleteKey(set, jedis);
     }
+
+    @Override
+    public boolean deleteEntity(Long entityId, Jedis jedis) {
+        return false;
+    }
 }
