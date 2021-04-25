@@ -16,16 +16,6 @@ public abstract class UserToEntityLikeSetOperation { // TODO RENAME --LIKE--
         return status;
     }
 
-    @Deprecated
-    protected boolean deleteValue(KeyValueOperation like, Jedis jedis) {
-        return jedis.srem(like.getKey(), like.getValue()) == 1;
-    }
-
-    @Deprecated
-    protected boolean deleteKey(KeyValueOperation like, Jedis jedis) {
-        return jedis.del(like.getKey()) == 1;
-    }
-
     protected boolean deleteLinks(String key, String keyValue, String linkedKeyBeginning, Jedis jedis) {
         final Set<String> set = jedis.smembers(key);
         if (set.isEmpty())
@@ -34,5 +24,9 @@ public abstract class UserToEntityLikeSetOperation { // TODO RENAME --LIKE--
         set.forEach((m) -> jedis.srem(linkedKeyBeginning + m, keyValue));
         final Long reply = jedis.del(key);
         return reply != null && reply != 0L;
+    }
+
+    private boolean deleteKey(KeyValueOperation like, Jedis jedis) {
+        return jedis.del(like.getKey()) == 1;
     }
 }

@@ -26,18 +26,6 @@ public class UserCommentAnswerLikeSetOperation extends UserToEntityLikeSetOperat
     }
 
     @Override
-    public boolean deleteValue(long userId, Long commentId, Jedis jedis) {
-        final UserToCommentAnswerLikeSet set = new UserToCommentAnswerLikeSet(userId, commentId);
-        return super.deleteValue(set, jedis);
-    }
-
-    @Override
-    public boolean deleteKey(long userId, Jedis jedis) {
-        final UserToCommentAnswerLikeSet set = new UserToCommentAnswerLikeSet(userId, -1L);
-        return super.deleteKey(set, jedis);
-    }
-
-    @Override
     public boolean deleteEntity(Long commentId, Jedis jedis) {
         final CommentAnswerToUserLikeSet set = new CommentAnswerToUserLikeSet(commentId, -1L);
         return super.deleteLinks(

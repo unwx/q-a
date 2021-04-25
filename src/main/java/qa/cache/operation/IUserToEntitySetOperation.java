@@ -8,11 +8,5 @@ public interface IUserToEntitySetOperation<T> { // TODO make static
 
     boolean isValueExist(long userId, T entityId, Jedis jedis);
 
-    @Deprecated
-    boolean deleteValue(long userId, T entityId, Jedis jedis);
-
-    @Deprecated
-    boolean deleteKey(long userId, Jedis jedis);
-
     boolean deleteEntity(T entityId, Jedis jedis);
 }

@@ -26,20 +26,6 @@ public class UserQuestionLikeSetOperation extends UserToEntityLikeSetOperation i
     }
 
     @Override
-    @Deprecated
-    public boolean deleteValue(long userId, Long questionId, Jedis jedis) {
-        final UserToQuestionLikeSet set = new UserToQuestionLikeSet(userId, questionId);
-        return super.deleteValue(set, jedis);
-    }
-
-    @Override
-    @Deprecated
-    public boolean deleteKey(long userId, Jedis jedis) {
-        final UserToQuestionLikeSet set = new UserToQuestionLikeSet(userId, -1L);
-        return super.deleteKey(set, jedis);
-    }
-
-    @Override
     public boolean deleteEntity(Long questionId, Jedis jedis) {
         final QuestionToUserLikeSet questionUserSet = new QuestionToUserLikeSet(questionId, -1L);
         return super.deleteLinks(
