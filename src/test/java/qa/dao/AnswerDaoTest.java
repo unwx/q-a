@@ -17,15 +17,18 @@ import qa.logger.TestLogger;
 import qa.tools.annotations.MockitoTest;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
+import qa.util.dao.RedisTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import qa.util.mock.JedisMockTestUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @MockitoTest
 public class AnswerDaoTest {
@@ -34,6 +37,7 @@ public class AnswerDaoTest {
     private SessionFactory sessionFactory;
     private QuestionDaoTestUtil questionDaoTestUtil;
     private AnswerDaoTestUtil answerDaoTestUtil;
+    private RedisTestUtil redisTestUtil;
 
     private JedisResourceCenter jedisResourceCenter;
 
@@ -48,6 +52,7 @@ public class AnswerDaoTest {
         answerDao = new AnswerDao(propertySetterFactory, sessionFactory, jedisResourceCenter);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
+        redisTestUtil = new RedisTestUtil(jedisResourceCenter);
     }
 
     @BeforeEach
@@ -248,6 +253,36 @@ public class AnswerDaoTest {
 
             assertThat(result, notNullValue());
             assertThat(answer.isLiked(), equalTo(false));
+        }
+    }
+
+    @Nested
+    class delete {
+        @Test
+        void assert_success() {
+            logger.trace("assert success simple situation");
+            answerDaoTestUtil.createAnswer();
+            answerDao.like(1L, 1L);
+
+            answerDao.delete(1L);
+
+            final Set<String> keys = redisTestUtil.getAllKeys();
+            /*
+             * 3 keys created: {answer-like (id:counter), user-answer (id:id), answer-user (id:id)}
+             * delete answer -> delete `answer-like` key, delete all associations with user-answer, delete answer-user key;
+             * 1 key remaining
+             * if user-answer is empty -> no keys remaining
+             */
+            assertThat(keys.size(), equalTo(0));
+        }
+
+        @Test
+        void no_keys() {
+            logger.trace("assert success simple situation");
+
+            assertDoesNotThrow(() -> answerDao.delete(1L));
+            final Set<String> keys = redisTestUtil.getAllKeys();
+            assertThat(keys.size(), equalTo(0));
         }
     }
 }

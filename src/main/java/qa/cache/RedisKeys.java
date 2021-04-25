@@ -7,6 +7,7 @@ public class RedisKeys {
     public static final String USER_COMMENT_ANSWER_LIKES = "usr-com-ans-l:";
 
     public static final String QUESTION_USER_LIKES = "que-usr-l:";
+    public static final String ANSWER_USER_LIKES = "ans-usr-l:";
 
     public static final String QUESTION_LIKES = "que-l:";
     public static final String ANSWER_LIKES = "ans-l:";
@@ -31,6 +32,10 @@ public class RedisKeys {
 
     public static String getQuestionToUserLikes(String key) {
         return QUESTION_USER_LIKES + key;
+    }
+
+    public static String getAnswerToUserLikes(String key) {
+        return ANSWER_USER_LIKES + key;
     }
 
     public static String getQuestionLikes(String key) {

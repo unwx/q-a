@@ -10,7 +10,7 @@ import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.LikesUtil;
 import qa.cache.operation.impl.AnswerToLikeSetOperation;
-import qa.cache.operation.impl.UserToAnswerLikeSetOperation;
+import qa.cache.operation.impl.UserAnswerLikeSetOperation;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.AnswerQueryCreator;
@@ -31,11 +31,11 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
     private final JedisResourceCenter jedisResourceCenter;
 
     private static final AnswerToLikeSetOperation answerToLikeOperation;
-    private static final UserToAnswerLikeSetOperation userToAnswerLikeOperation;
+    private static final UserAnswerLikeSetOperation userToAnswerLikeOperation;
 
     static {
         answerToLikeOperation = new AnswerToLikeSetOperation();
-        userToAnswerLikeOperation = new UserToAnswerLikeSetOperation();
+        userToAnswerLikeOperation = new UserAnswerLikeSetOperation();
     }
 
     @Autowired
@@ -52,6 +52,12 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
         final Long id = (Long) super.create(e);
         this.createLike(id);
         return id;
+    }
+
+    public void delete(long answerId) {
+        final Where where = new Where("id", answerId, WhereOperator.EQUALS);
+        super.delete(where);
+        this.deleteLikes(answerId);
     }
 
     public boolean isExist(Long id) {
@@ -108,6 +114,15 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
             final Jedis jedis = jedisResource.getJedis();
 
             LikesUtil.createLike(answerId, answerToLikeOperation, jedis);
+        }
+    }
+
+    private void deleteLikes(long questionId) {
+        try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
+            final Jedis jedis = jedisResource.getJedis();
+
+            answerToLikeOperation.delete(questionId, jedis);
+            userToAnswerLikeOperation.deleteEntity(questionId, jedis);
         }
     }
 
