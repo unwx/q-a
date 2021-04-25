@@ -120,28 +120,33 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     }
 
     @Override
-    public void like(long userId, Long id) {
+    public void like(long userId, Long questionId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
+            final String userIdStr = String.valueOf(userId);
+            final String questionIdStr = String.valueOf(questionId);
 
-            final boolean status = userToQuestionLikeOperation.add(userId, id, jedis);
-            if (status) questionToLikeOperation.increment(id, jedis);
+            LikesUtil.like(userIdStr, questionIdStr, userToQuestionLikeOperation, questionToLikeOperation, jedis);
         }
     }
 
     private void createLike(long questionId) {
         try(JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            LikesUtil.createLike(questionId, questionToLikeOperation, jedis);
+            final String questionIdStr = String.valueOf(questionId);
+
+            LikesUtil.createLike(questionIdStr, questionToLikeOperation, jedis);
         }
     }
 
     private void setLike(Question question, long userId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
+            final String userIdStr = String.valueOf(userId);
+
             LikesUtil.setLikeAndLiked(
                     question,
-                    userId,
+                    userIdStr,
                     questionToLikeOperation,
                     userToQuestionLikeOperation,
                     jedis
@@ -159,9 +164,9 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     private void deleteLikes(long questionId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
+            final String questionIdStr = String.valueOf(questionId);
 
-            questionToLikeOperation.delete(questionId, jedis);
-            userToQuestionLikeOperation.deleteEntity(questionId, jedis);
+            LikesUtil.deleteLikes(questionIdStr, userToQuestionLikeOperation, questionToLikeOperation, jedis);
         }
     }
 

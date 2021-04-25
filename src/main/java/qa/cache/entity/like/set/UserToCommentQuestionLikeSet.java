@@ -14,9 +14,9 @@ public class UserToCommentQuestionLikeSet implements Serializable, KeyValueOpera
     private final String userId;
     private final String commentId;
 
-    public UserToCommentQuestionLikeSet(long userId, long commentId) {
-        this.userId = String.valueOf(userId);
-        this.commentId = String.valueOf(commentId);
+    public UserToCommentQuestionLikeSet(String userId, String commentId) {
+        this.userId = userId;
+        this.commentId = commentId;
     }
 
     @Override

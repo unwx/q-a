@@ -4,7 +4,7 @@ import redis.clients.jedis.Jedis;
 
 import java.util.Set;
 
-public abstract class UserToEntityLikeSetOperation { // TODO RENAME --LIKE--
+public abstract class UserEntityLikeSetOperation { // TODO RENAME --LIKE--
 
     protected boolean add(KeyValueOperation like, Jedis jedis) {
         return jedis.sadd(like.getKey(), like.getValue()) == 1;

@@ -14,9 +14,9 @@ public class CommentAnswerToUserLikeSet implements Serializable, KeyValueOperati
     private final String commentId;
     private final String userId;
 
-    public CommentAnswerToUserLikeSet(long commentId, long userId) {
-        this.commentId = String.valueOf(commentId);
-        this.userId = String.valueOf(userId);
+    public CommentAnswerToUserLikeSet(String commentId, String userId) {
+        this.commentId = commentId;
+        this.userId = userId;
     }
 
     public String getCommentId() {

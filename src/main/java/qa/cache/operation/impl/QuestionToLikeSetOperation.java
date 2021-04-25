@@ -1,5 +1,6 @@
 package qa.cache.operation.impl;
 
+import org.springframework.stereotype.Component;
 import qa.cache.entity.like.set.QuestionToLikeSet;
 import qa.cache.operation.EntityToLikeSetOperation;
 import qa.cache.operation.KeyOperation;
@@ -9,34 +10,35 @@ import redis.clients.jedis.Jedis;
 
 import java.util.List;
 
-public class QuestionToLikeSetOperation extends LikeSetOperationImpl implements EntityToLikeSetOperation<Long> {
+@Component
+public class QuestionToLikeSetOperation extends LikeSetOperationImpl implements EntityToLikeSetOperation {
 
     @Override
-    public boolean create(Long questionId, Jedis jedis) {
+    public boolean create(String questionId, Jedis jedis) {
         final QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.create(questionToLikeSet, jedis);
     }
 
     @Override
-    public int get(Long questionId, Jedis jedis) {
+    public int get(String questionId, Jedis jedis) {
         final QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.getK(questionToLikeSet, jedis);
     }
 
     @Override
-    public List<Integer> get(List<Long> questionIds, Jedis jedis) {
+    public List<Integer> get(List<String> questionIds, Jedis jedis) {
         final List<KeyOperation> sets = RedisOperationUtil.toKeyOperation(questionIds, QuestionToLikeSet::new);
         return super.getK(sets, jedis);
     }
 
     @Override
-    public long increment(Long questionId, Jedis jedis) {
+    public long increment(String questionId, Jedis jedis) {
         final QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.increment(questionToLikeSet, jedis);
     }
 
     @Override
-    public boolean delete(Long questionId, Jedis jedis) {
+    public boolean delete(String questionId, Jedis jedis) {
         final QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.delete(questionToLikeSet, jedis);
     }

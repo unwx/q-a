@@ -93,4 +93,9 @@ public class CommentAnswer extends Comment {
     public void setCreationDate(Date creationDate) {
         super.setCreationDate(creationDate);
     }
+
+    @Override
+    public String getIdStr() {
+        return String.valueOf(this.id);
+    }
 }

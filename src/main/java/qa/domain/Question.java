@@ -2,7 +2,6 @@ package qa.domain;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import qa.cache.Cached;
 import qa.cache.entity.like.HasLiked;
 import qa.cache.entity.like.HasLikes;
 import qa.dao.databasecomponents.Field;
@@ -17,7 +16,7 @@ import java.util.List;
 
 @Entity
 @Table
-public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes<Long>, HasLiked {
+public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes, HasLiked {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,11 +54,9 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
     private List<CommentQuestion> comments;
 
     @Transient
-    @Cached
     private int likes;
 
     @Transient
-    @Cached
     private boolean liked;
 
     public Question(Long id,
@@ -108,7 +105,6 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
     }
 
 
-    @Override
     public Long getId() {
         return id;
     }
@@ -137,7 +133,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
         return lastActivity;
     }
 
-    public void setLastActivity(Date lastActivity) {
+    public void setLastActivity(Date lastActivity) { // TODO implement update
         this.lastActivity = lastActivity;
     }
 
@@ -200,7 +196,12 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
     }
 
     @Override
-    public SetterField[] extractSettersField() {
+    public String getIdStr() {
+        return String.valueOf(this.id);
+    }
+
+    @Override
+    public SetterField[] extractSettersField() { // TODO optimize;
         return new SetterField[] {
                 new SetterField("id", Long.class),
                 new SetterField("text", String.class),
@@ -213,7 +214,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
     }
 
     @Override
-    public Field[] extract() {
+    public Field[] extract() { // TODO refactor names
         return new Field[] {
                 new Field("id", id),
                 new Field("text", text),

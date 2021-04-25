@@ -104,33 +104,37 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
     public void like(long userId, Long id) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
+            final String userIdStr = String.valueOf(userId);
+            final String idStr = String.valueOf(userId);
 
-            final boolean status = userToCommentAnswerLikeOperation.add(userId, id, jedis);
-            if (status) commentAnswerLikeOperation.increment(id, jedis);
+            LikesUtil.like(userIdStr, idStr, userToCommentAnswerLikeOperation, commentAnswerLikeOperation, jedis);
         }
     }
 
-    private void deleteLikes(long questionId) {
+    private void deleteLikes(long commentId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
+            final String commentIdStr = String.valueOf(commentId);
 
-            commentAnswerLikeOperation.delete(questionId, jedis);
-            userToCommentAnswerLikeOperation.deleteEntity(questionId, jedis);
+            LikesUtil.deleteLikes(commentIdStr, userToCommentAnswerLikeOperation, commentAnswerLikeOperation, jedis);
         }
     }
 
     private void createLike(long commentId) {
         try(JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
+            final String commentIdStr = String.valueOf(commentId);
 
-            LikesUtil.createLike(commentId, commentAnswerLikeOperation, jedis);
+            LikesUtil.createLike(commentIdStr, commentAnswerLikeOperation, jedis);
         }
     }
 
     private void setLikes(List<CommentAnswer> comments, long userId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            LikesUtil.setLikesAndLiked(comments, userId, commentAnswerLikeOperation, userToCommentAnswerLikeOperation, jedis);
+            final String userIdStr = String.valueOf(userId);
+
+            LikesUtil.setLikesAndLiked(comments, userIdStr, commentAnswerLikeOperation, userToCommentAnswerLikeOperation, jedis);
         }
     }
 }

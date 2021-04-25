@@ -3,7 +3,6 @@ package qa.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import qa.cache.Cached;
 import qa.cache.entity.like.HasLiked;
 import qa.cache.entity.like.HasLikes;
 import qa.dao.databasecomponents.Field;
@@ -18,7 +17,7 @@ import java.util.List;
 
 @Entity
 @Table
-public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes<Long>, HasLiked {
+public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes, HasLiked {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,11 +49,9 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
     private List<CommentAnswer> comments;
 
     @Transient
-    @Cached
     private int likes;
 
     @Transient
-    @Cached
     private boolean liked;
 
     public Answer(Long id,
@@ -155,6 +152,11 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
 
     public int getLikes() {
         return likes;
+    }
+
+    @Override
+    public String getIdStr() {
+        return String.valueOf(this.id);
     }
 
     public void setLikes(int likes) {

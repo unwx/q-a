@@ -14,9 +14,9 @@ public class QuestionToUserLikeSet implements Serializable, KeyValueOperation {
     private final String questionId;
     private final String userId;
 
-    public QuestionToUserLikeSet(long questionId, long userId) {
-        this.userId = String.valueOf(userId);
-        this.questionId = String.valueOf(questionId);
+    public QuestionToUserLikeSet(String questionId, String userId) {
+        this.userId = userId;
+        this.questionId = questionId;
     }
 
     @Override

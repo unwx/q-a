@@ -1,6 +1,5 @@
 package qa.domain;
 
-import qa.cache.Cached;
 import qa.cache.entity.like.HasLiked;
 import qa.cache.entity.like.HasLikes;
 import qa.dao.databasecomponents.FieldDataSetterExtractor;
@@ -14,7 +13,7 @@ import java.util.Date;
 @Table
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "comment_type", discriminatorType = DiscriminatorType.STRING)
-public abstract class Comment implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes<Long>, HasLiked {
+public abstract class Comment implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes, HasLiked {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,11 +29,9 @@ public abstract class Comment implements FieldExtractor, FieldDataSetterExtracto
     @JoinColumn(name = "author_id", nullable = false, updatable = false)
     protected User author;
 
-    @Cached
     @Transient
     protected int likes;
 
-    @Cached
     @Transient
     protected boolean liked;
 

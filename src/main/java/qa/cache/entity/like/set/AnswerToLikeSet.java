@@ -1,7 +1,7 @@
 package qa.cache.entity.like.set;
 
-import qa.cache.operation.KeyOperation;
 import qa.cache.RedisKeys;
+import qa.cache.operation.KeyOperation;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -13,8 +13,8 @@ public class AnswerToLikeSet implements Serializable, KeyOperation {
 
     private final String answerId;
 
-    public AnswerToLikeSet(long answerId) {
-        this.answerId = String.valueOf(answerId);
+    public AnswerToLikeSet(String answerId) {
+        this.answerId = answerId;
     }
 
     @Override

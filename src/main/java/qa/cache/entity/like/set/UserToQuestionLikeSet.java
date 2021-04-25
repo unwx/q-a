@@ -1,7 +1,7 @@
 package qa.cache.entity.like.set;
 
-import qa.cache.operation.KeyValueOperation;
 import qa.cache.RedisKeys;
+import qa.cache.operation.KeyValueOperation;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -14,9 +14,9 @@ public class UserToQuestionLikeSet implements Serializable, KeyValueOperation {
     private final String userId;
     private final String questionId;
 
-    public UserToQuestionLikeSet(Long userId, Long questionId) {
-        this.userId = String.valueOf(userId);
-        this.questionId = String.valueOf(questionId);
+    public UserToQuestionLikeSet(String userId, String questionId) {
+        this.userId = userId;
+        this.questionId = questionId;
     }
 
     @Override

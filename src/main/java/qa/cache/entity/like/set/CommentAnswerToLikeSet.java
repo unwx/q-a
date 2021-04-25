@@ -13,8 +13,8 @@ public class CommentAnswerToLikeSet implements Serializable, KeyOperation {
 
     private final String commentId;
 
-    public CommentAnswerToLikeSet(long commentId) {
-        this.commentId = String.valueOf(commentId);
+    public CommentAnswerToLikeSet(String commentId) {
+        this.commentId = commentId;
     }
 
     @Override

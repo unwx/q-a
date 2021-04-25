@@ -11,7 +11,7 @@ public class RedisOperationUtil {
 
     private RedisOperationUtil() {}
 
-    public static <T> List<KeyOperation> toKeyOperation(List<T> ids, Function<? super T, ? extends KeyOperation> function) {
+    public static List<KeyOperation> toKeyOperation(List<String> ids, Function<String, ? extends KeyOperation> function) {
         if (ids.isEmpty())
             return Collections.emptyList();
         return ids

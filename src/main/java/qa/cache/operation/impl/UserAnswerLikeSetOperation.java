@@ -1,16 +1,18 @@
 package qa.cache.operation.impl;
 
+import org.springframework.stereotype.Component;
 import qa.cache.RedisKeys;
 import qa.cache.entity.like.set.AnswerToUserLikeSet;
 import qa.cache.entity.like.set.UserToAnswerLikeSet;
-import qa.cache.operation.IUserToEntitySetOperation;
-import qa.cache.operation.UserToEntityLikeSetOperation;
+import qa.cache.operation.IUserEntityLikeSetOperation;
+import qa.cache.operation.UserEntityLikeSetOperation;
 import redis.clients.jedis.Jedis;
 
-public class UserAnswerLikeSetOperation extends UserToEntityLikeSetOperation implements IUserToEntitySetOperation<Long> {
+@Component
+public class UserAnswerLikeSetOperation extends UserEntityLikeSetOperation implements IUserEntityLikeSetOperation {
 
     @Override
-    public boolean add(long userId, Long answerId, Jedis jedis) {
+    public boolean add(String userId, String answerId, Jedis jedis) {
         final UserToAnswerLikeSet userAnswerSet = new UserToAnswerLikeSet(userId, answerId);
         final AnswerToUserLikeSet answerUserSet = new AnswerToUserLikeSet(answerId, userId);
 
@@ -20,14 +22,14 @@ public class UserAnswerLikeSetOperation extends UserToEntityLikeSetOperation imp
     }
 
     @Override
-    public boolean isValueExist(long userId, Long answerId, Jedis jedis) {
+    public boolean isValueExist(String userId, String answerId, Jedis jedis) {
         final UserToAnswerLikeSet set = new UserToAnswerLikeSet(userId, answerId);
         return super.isValueExist(set, jedis);
     }
 
     @Override
-    public boolean deleteEntity(Long answerId, Jedis jedis) {
-        final AnswerToUserLikeSet answerUserSet = new AnswerToUserLikeSet(answerId, -1L);
+    public boolean deleteEntity(String answerId, Jedis jedis) {
+        final AnswerToUserLikeSet answerUserSet = new AnswerToUserLikeSet(answerId, "-1");
         return super.deleteLinks(
                 answerUserSet.getKey(),
                 answerUserSet.getAnswerId(),

@@ -1,11 +1,10 @@
 package qa.domain;
 
-import qa.cache.Cached;
 import qa.cache.entity.like.HasLikes;
 
 import java.util.Date;
 
-public class QuestionView implements HasLikes<Long> {
+public class QuestionView implements HasLikes {
 
     private final Long questionId;
     private final String title;
@@ -15,7 +14,6 @@ public class QuestionView implements HasLikes<Long> {
     private final Integer answersCount;
     private final User author;
 
-    @Cached
     private int likes;
 
     public QuestionView(Long questionId,
@@ -71,8 +69,12 @@ public class QuestionView implements HasLikes<Long> {
         this.likes = likes;
     }
 
-    @Override
     public Long getId() {
         return questionId;
+    }
+
+    @Override
+    public String getIdStr() {
+        return String.valueOf(this.questionId);
     }
 }

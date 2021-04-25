@@ -14,9 +14,9 @@ public class UserToAnswerLikeSet implements Serializable, KeyValueOperation {
     private final String userId;
     private final String answerId;
 
-    public UserToAnswerLikeSet(long userId, long answerId) {
-        this.userId = String.valueOf(userId);
-        this.answerId = String.valueOf(answerId);
+    public UserToAnswerLikeSet(String userId, String answerId) {
+        this.userId = userId;
+        this.answerId = answerId;
     }
 
     @Override

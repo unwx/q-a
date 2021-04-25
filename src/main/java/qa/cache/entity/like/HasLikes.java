@@ -1,7 +1,7 @@
 package qa.cache.entity.like;
 
-public interface HasLikes<T> {
-    T getId();
+public interface HasLikes {
+    String getIdStr();
 
     void setLikes(int count);
 

@@ -103,9 +103,10 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
     public void like(long userId, Long id) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
+            final String userIdStr = String.valueOf(userId);
+            final String idStr = String.valueOf(id);
 
-            final boolean status = userToAnswerLikeOperation.add(userId, id, jedis);
-            if (status) answerToLikeOperation.increment(id, jedis);
+            LikesUtil.like(userIdStr, idStr, userToAnswerLikeOperation, answerToLikeOperation, jedis);
         }
     }
 
@@ -113,16 +114,16 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
         try(JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
 
-            LikesUtil.createLike(answerId, answerToLikeOperation, jedis);
+            LikesUtil.createLike(String.valueOf(answerId), answerToLikeOperation, jedis);
         }
     }
 
     private void deleteLikes(long questionId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
+            final String questionIdStr = String.valueOf(questionId);
 
-            answerToLikeOperation.delete(questionId, jedis);
-            userToAnswerLikeOperation.deleteEntity(questionId, jedis);
+            LikesUtil.deleteLikes(questionIdStr, userToAnswerLikeOperation, answerToLikeOperation, jedis);
         }
     }
 
@@ -130,7 +131,7 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
 
-            LikesUtil.setLikesAndLiked(answers, userId, answerToLikeOperation, userToAnswerLikeOperation, jedis);
+            LikesUtil.setLikesAndLiked(answers, String.valueOf(userId), answerToLikeOperation, userToAnswerLikeOperation, jedis);
         }
     }
 }
