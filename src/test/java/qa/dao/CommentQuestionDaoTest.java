@@ -16,15 +16,18 @@ import qa.logger.TestLogger;
 import qa.tools.annotations.MockitoTest;
 import qa.util.dao.CommentDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
+import qa.util.dao.RedisTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import qa.util.mock.JedisMockTestUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @MockitoTest
 public class CommentQuestionDaoTest {
@@ -33,6 +36,7 @@ public class CommentQuestionDaoTest {
     private CommentQuestionDao commentQuestionDao;
     private CommentDaoTestUtil commentDaoTestUtil;
     private QuestionDaoTestUtil questionDaoTestUtil;
+    private RedisTestUtil redisTestUtil;
 
     private final TestLogger logger = new TestLogger(CommentQuestionDaoTest.class);
 
@@ -47,6 +51,7 @@ public class CommentQuestionDaoTest {
         commentQuestionDao = new CommentQuestionDao(propertySetterFactory, sessionFactory, jedisResourceCenter);
         commentDaoTestUtil = new CommentDaoTestUtil(sessionFactory, jedisResourceCenter);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
+        redisTestUtil = new RedisTestUtil(jedisResourceCenter);
     }
 
     @BeforeEach
@@ -228,6 +233,38 @@ public class CommentQuestionDaoTest {
 
             assertThat(result, notNullValue());
             assertThat(comment.isLiked(), equalTo(false));
+        }
+    }
+
+    @Nested
+    class delete {
+        @Test
+        void assert_success() {
+            logger.trace("assert success simple situation");
+            commentDaoTestUtil.createCommentQuestion();
+            commentQuestionDao.like(1L, 1L);
+
+            commentQuestionDao.delete(1L);
+
+            final Set<String> keys = redisTestUtil.getAllKeys();
+            /*
+             * 3 keys created: {comment-question-like (id:counter), user-comment-question (id:id), comment-question-user (id:id)}
+             * delete comment-question -> delete `comment-question-like` key,
+             *  delete all associations with user-comment-question,
+             *  delete comment-question-user key;
+             * 1 key remaining
+             * if user-comment-question is empty -> no keys remaining
+             */
+            assertThat(keys.size(), equalTo(0));
+        }
+
+        @Test
+        void no_keys() {
+            logger.trace("assert success simple situation");
+
+            assertDoesNotThrow(() -> commentQuestionDao.delete(1L));
+            final Set<String> keys = redisTestUtil.getAllKeys();
+            assertThat(keys.size(), equalTo(0));
         }
     }
 }
