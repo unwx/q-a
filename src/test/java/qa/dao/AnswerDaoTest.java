@@ -278,7 +278,7 @@ public class AnswerDaoTest {
 
         @Test
         void no_keys() {
-            logger.trace("assert success simple situation");
+            logger.trace("assert no keys situation");
 
             assertDoesNotThrow(() -> answerDao.delete(1L));
             final Set<String> keys = redisTestUtil.getAllKeys();

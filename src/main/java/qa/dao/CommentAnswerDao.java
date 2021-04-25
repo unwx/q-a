@@ -10,7 +10,7 @@ import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.LikesUtil;
 import qa.cache.operation.impl.CommentAnswerToLikeSetOperation;
-import qa.cache.operation.impl.UserToCommentAnswerLikeSetOperation;
+import qa.cache.operation.impl.UserCommentAnswerLikeSetOperation;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.CommentAnswerQueryCreator;
@@ -31,11 +31,11 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
     private final JedisResourceCenter jedisResourceCenter;
 
     private static final CommentAnswerToLikeSetOperation commentAnswerLikeOperation;
-    private static final UserToCommentAnswerLikeSetOperation userToCommentAnswerLikeOperation;
+    private static final UserCommentAnswerLikeSetOperation userToCommentAnswerLikeOperation;
 
     static {
         commentAnswerLikeOperation = new CommentAnswerToLikeSetOperation();
-        userToCommentAnswerLikeOperation = new UserToCommentAnswerLikeSetOperation();
+        userToCommentAnswerLikeOperation = new UserCommentAnswerLikeSetOperation();
     }
 
     @Autowired
@@ -52,6 +52,12 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
         final Long id = (Long) super.create(e);
         this.createLike(id);
         return id;
+    }
+
+    public void delete(long commentId) {
+        final Where where = new Where("id", commentId, WhereOperator.EQUALS);
+        super.delete(where);
+        this.deleteLikes(commentId);
     }
 
     public boolean isExist(Long id) {
@@ -104,6 +110,14 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
         }
     }
 
+    private void deleteLikes(long questionId) {
+        try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
+            final Jedis jedis = jedisResource.getJedis();
+
+            commentAnswerLikeOperation.delete(questionId, jedis);
+            userToCommentAnswerLikeOperation.deleteEntity(questionId, jedis);
+        }
+    }
 
     private void createLike(long commentId) {
         try(JedisResource jedisResource = jedisResourceCenter.getResource()) {
