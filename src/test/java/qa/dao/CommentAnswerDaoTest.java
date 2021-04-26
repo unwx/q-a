@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.domain.CommentAnswer;
@@ -18,6 +19,7 @@ import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.CommentDaoTestUtil;
 import qa.util.dao.RedisTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
+import qa.util.mock.CacheRemoverMockTestUtil;
 import qa.util.mock.JedisMockTestUtil;
 
 import java.util.Arrays;
@@ -47,10 +49,11 @@ public class CommentAnswerDaoTest {
         sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
+        CacheRemover cacheRemover = CacheRemoverMockTestUtil.mock();
 
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
         commentDaoTestUtil = new CommentDaoTestUtil(sessionFactory, jedisResourceCenter);
-        commentAnswerDao = new CommentAnswerDao(propertySetterFactory, sessionFactory, jedisResourceCenter);
+        commentAnswerDao = new CommentAnswerDao(propertySetterFactory, sessionFactory, jedisResourceCenter, cacheRemover);
         redisTestUtil = new RedisTestUtil(jedisResourceCenter);
     }
 

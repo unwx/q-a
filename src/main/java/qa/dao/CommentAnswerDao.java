@@ -6,6 +6,7 @@ import org.hibernate.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.LikesUtil;
@@ -16,6 +17,7 @@ import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.CommentAnswerQueryCreator;
 import qa.dao.query.convertor.CommentAnswerQueryResultConvertor;
 import qa.domain.CommentAnswer;
+import qa.domain.DomainName;
 import qa.domain.setters.PropertySetterFactory;
 import qa.exceptions.dao.NullResultException;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
@@ -29,6 +31,7 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
 
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
+    private final CacheRemover cacheRemover;
 
     private static final CommentAnswerToLikeSetOperation commentAnswerLikeOperation;
     private static final UserCommentAnswerLikeSetOperation userToCommentAnswerLikeOperation;
@@ -41,10 +44,12 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
     @Autowired
     public CommentAnswerDao(PropertySetterFactory propertySetterFactory,
                             SessionFactory sessionFactory,
-                            JedisResourceCenter jedisResourceCenter) {
+                            JedisResourceCenter jedisResourceCenter,
+                            CacheRemover cacheRemover) {
         super(HibernateSessionFactoryConfigurer.getSessionFactory(), new CommentAnswer(), propertySetterFactory.getSetter(new CommentAnswer()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
+        this.cacheRemover = cacheRemover;
     }
 
     @Override
@@ -116,7 +121,7 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
             final Jedis jedis = jedisResource.getJedis();
             final String commentIdStr = String.valueOf(commentId);
 
-            LikesUtil.deleteLikes(commentIdStr, userToCommentAnswerLikeOperation, commentAnswerLikeOperation, jedis);
+            cacheRemover.remove(DomainName.COMMENT_ANSWER, commentIdStr, jedis);
         }
     }
 
