@@ -8,7 +8,7 @@ import redis.clients.jedis.Jedis;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LikesUtil {
+public class LikesUtil { // LIKES PROVIDER
 
     private static final String ERR_ALREADY_EXIST = "entity already exist. id: %s";
 

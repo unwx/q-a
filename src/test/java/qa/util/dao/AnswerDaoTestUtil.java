@@ -81,11 +81,13 @@ public class AnswerDaoTestUtil {
                 .user()
                 .question()
                 .answer();
-        redisQueryBuilder.openJedis();
+        redisQueryBuilder.
+                openJedis()
+                .answer();
 
         for (int i = 0; i < comments; i++) {
             queryBuilder.commentAnswer((long) i, new Date(dateAtMillisDefault * i));
-            redisQueryBuilder.answer(i);
+            redisQueryBuilder.commentAnswer(i);
             if (i % 20 == 0) {
                 queryBuilder.flushAndClear();
             }

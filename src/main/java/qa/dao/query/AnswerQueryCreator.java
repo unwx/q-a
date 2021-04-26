@@ -5,6 +5,8 @@ import org.hibernate.query.Query;
 import qa.dao.query.parameters.AnswerQueryParameters;
 import qa.dao.query.parameters.CommentQueryParameters;
 import qa.dto.internal.hibernate.answer.AnswerFullDto;
+import qa.dto.internal.hibernate.answer.AnswerFullStringIdsDto;
+import qa.dto.internal.hibernate.transformer.answer.AnswerFullIdsDtoResultTransformer;
 import qa.dto.internal.hibernate.transformer.question.QuestionAnswerFullDtoTransformer;
 
 @SuppressWarnings({"deprecation", "unchecked"})
@@ -57,5 +59,21 @@ public class AnswerQueryCreator {
                 .setParameter("answerLimit", RESULT_SIZE)
                 .setParameter("offset", RESULT_SIZE * page)
                 .setResultTransformer(new QuestionAnswerFullDtoTransformer());
+    }
+
+    public static Query<AnswerFullStringIdsDto> answerFullIdsQuery(Session session, long answerId) {
+        final String getIdsSql =
+                """
+                SELECT\s\
+                    c_a.id as com_ans_id\s\
+                FROM answer AS a\s\
+                LEFT JOIN comment c_a ON a.id = c_a.answer_id\s\
+                WHERE a.id = :answerId\
+                """;
+        return session.createSQLQuery(getIdsSql)
+                .unwrap(Query.class)
+                .setParameter("answerId", answerId)
+                .setResultTransformer(new AnswerFullIdsDtoResultTransformer());
+
     }
 }

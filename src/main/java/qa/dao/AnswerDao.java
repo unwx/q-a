@@ -6,6 +6,8 @@ import org.hibernate.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import qa.cache.CacheOperationInstructions;
+import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.LikesUtil;
@@ -16,19 +18,23 @@ import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.AnswerQueryCreator;
 import qa.dao.query.convertor.AnswerQueryResultConvertor;
 import qa.domain.Answer;
+import qa.domain.DomainName;
 import qa.domain.setters.PropertySetterFactory;
+import qa.dto.internal.hibernate.answer.AnswerFullStringIdsDto;
 import qa.exceptions.dao.NullResultException;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 @Component
 public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
 
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
+    private final CacheRemover cacheRemover;
 
     private static final AnswerToLikeSetOperation answerToLikeOperation;
     private static final UserAnswerLikeSetOperation userToAnswerLikeOperation;
@@ -41,10 +47,12 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
     @Autowired
     public AnswerDao(PropertySetterFactory propertySetterFactory,
                      SessionFactory sessionFactory,
-                     JedisResourceCenter jedisResourceCenter) {
+                     JedisResourceCenter jedisResourceCenter,
+                     CacheRemover cacheRemover) {
         super(HibernateSessionFactoryConfigurer.getSessionFactory(), new Answer(), propertySetterFactory.getSetter(new Answer()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
+        this.cacheRemover = cacheRemover;
     }
 
     @Override
@@ -56,8 +64,22 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
 
     public void delete(long answerId) {
         final Where where = new Where("id", answerId, WhereOperator.EQUALS);
+        final AnswerFullStringIdsDto answerFullStringIdsDto;
+        try (Session session = sessionFactory.openSession()) {
+            final Transaction transaction = session.beginTransaction();
+            answerFullStringIdsDto = AnswerQueryCreator
+                    .answerFullIdsQuery(session, answerId)
+                    .uniqueResult();
+
+            if (answerFullStringIdsDto == null) {
+                transaction.rollback();
+                return;
+            }
+
+            transaction.commit();
+        }
         super.delete(where);
-        this.deleteLikes(answerId);
+        this.deleteLikes(answerFullStringIdsDto, answerId);
     }
 
     public boolean isExist(Long id) {
@@ -118,12 +140,17 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
         }
     }
 
-    private void deleteLikes(long questionId) {
+    private void deleteLikes(AnswerFullStringIdsDto dto, long answerId) {
+        final CacheOperationInstructions instructions = new CacheOperationInstructions();
+        final Stack<String> answerIdStr = new Stack<>();
+        answerIdStr.push(String.valueOf(answerId));
+
+        instructions.addInstruction(DomainName.ANSWER, answerIdStr);
+        instructions.addInstruction(DomainName.COMMENT_ANSWER, dto.getCommentAnswerIds());
+
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final String questionIdStr = String.valueOf(questionId);
-
-            LikesUtil.deleteLikes(questionIdStr, userToAnswerLikeOperation, answerToLikeOperation, jedis);
+            cacheRemover.remove(instructions, jedis);
         }
     }
 

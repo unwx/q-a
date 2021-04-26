@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.domain.Answer;
@@ -19,6 +20,7 @@ import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.RedisTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
+import qa.util.mock.CacheRemoverMockTestUtil;
 import qa.util.mock.JedisMockTestUtil;
 
 import java.util.Arrays;
@@ -48,8 +50,9 @@ public class AnswerDaoTest {
         sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
+        CacheRemover cacheRemover = CacheRemoverMockTestUtil.mock();
 
-        answerDao = new AnswerDao(propertySetterFactory, sessionFactory, jedisResourceCenter);
+        answerDao = new AnswerDao(propertySetterFactory, sessionFactory, jedisResourceCenter, cacheRemover);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
         redisTestUtil = new RedisTestUtil(jedisResourceCenter);
@@ -273,6 +276,17 @@ public class AnswerDaoTest {
              * 1 key remaining
              * if user-answer is empty -> no keys remaining
              */
+            assertThat(keys.size(), equalTo(0));
+        }
+
+        @Test
+        void assert_delete_nested_cache() {
+            logger.trace("assert delete linked nested cache");
+            answerDaoTestUtil.createAnswerWithManyComments(3);
+            answerDao.delete(1L);
+
+            /* created many nested keys, which will be removed by links between each other */
+            final Set<String> keys = redisTestUtil.getAllKeys();
             assertThat(keys.size(), equalTo(0));
         }
 
