@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.domain.*;
@@ -18,6 +19,7 @@ import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.RedisTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
+import qa.util.mock.CacheRemoverMockTestUtil;
 import qa.util.mock.JedisMockTestUtil;
 
 import java.util.Arrays;
@@ -46,9 +48,11 @@ public class QuestionDaoTest {
     void init() {
         sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
-        PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
 
-        questionDao = new QuestionDao(propertySetterFactory, sessionFactory, jedisResourceCenter);
+        final PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
+        final CacheRemover cacheRemover = CacheRemoverMockTestUtil.mock();
+
+        questionDao = new QuestionDao(propertySetterFactory, sessionFactory, jedisResourceCenter, cacheRemover);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
         redisTestUtil = new RedisTestUtil(jedisResourceCenter);
@@ -363,6 +367,17 @@ public class QuestionDaoTest {
             * 1 key remaining
             * if user-question is empty -> no keys remaining
              */
+            assertThat(keys.size(), equalTo(0));
+        }
+
+        @Test
+        void assert_delete_nested_cache() {
+            logger.trace("assert delete linked nested cache");
+            questionDaoTestUtil.createQuestionWithCommentsAndAnswersWithComments(6, 3);
+            questionDao.delete(1L);
+
+            /* created many nested keys, which will be removed by links between each other */
+            final Set<String> keys = redisTestUtil.getAllKeys();
             assertThat(keys.size(), equalTo(0));
         }
 

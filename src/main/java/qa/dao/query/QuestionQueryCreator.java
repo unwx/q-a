@@ -3,8 +3,10 @@ package qa.dao.query;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import qa.dao.query.parameters.CommentQueryParameters;
+import qa.dto.internal.hibernate.question.QuestionFullStringIdsDto;
 import qa.dto.internal.hibernate.question.QuestionViewDto;
 import qa.dto.internal.hibernate.question.QuestionWithCommentsDto;
+import qa.dto.internal.hibernate.transformer.question.QuestionFullIdsDtoTransformer;
 import qa.dto.internal.hibernate.transformer.question.QuestionViewDtoTransformer;
 import qa.dto.internal.hibernate.transformer.question.QuestionWithCommentsDtoTransformer;
 
@@ -13,8 +15,7 @@ public class QuestionQueryCreator {
 
     private static final int QUESTION_VIEW_RESULT_SIZE = 20;
 
-    private QuestionQueryCreator() {
-    }
+    private QuestionQueryCreator() {}
 
     public static Query<QuestionWithCommentsDto> questionWithCommentsQuery(Session session, long questionId) {
         String sql =
@@ -69,5 +70,22 @@ public class QuestionQueryCreator {
                 .setFirstResult(QUESTION_VIEW_RESULT_SIZE * page)
                 .setMaxResults(QUESTION_VIEW_RESULT_SIZE)
                 .setResultTransformer(new QuestionViewDtoTransformer());
+    }
+
+    public static Query<QuestionFullStringIdsDto> questionFullIdsQuery(Session session, long questionId) {
+                String getIdsSql =
+                """
+                SELECT\s\
+                     a.id AS ans_id, c_a.id AS com_ans_id, c_q.id AS com_que_id\s\
+                FROM question AS q\s\
+                LEFT JOIN answer AS a ON q.id = a.question_id\s\
+                LEFT JOIN comment AS c_a ON a.id = c_a.answer_id\s\
+                LEFT JOIN comment AS c_q ON q.id = c_q.question_id\s\
+                WHERE q.id = :questionId\
+                """;
+        return session.createSQLQuery(getIdsSql)
+                .unwrap(Query.class)
+                .setParameter("questionId", questionId)
+                .setResultTransformer(new QuestionFullIdsDtoTransformer());
     }
 }

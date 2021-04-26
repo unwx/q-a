@@ -31,12 +31,12 @@ public class RedisQueryBuilder {
     }
 
     public RedisQueryBuilder question(long questionId) {
-        questionLikeQueryBuilder.create(questionId);
+        questionLikeQueryBuilder.create(String.valueOf(questionId));
         return this;
     }
 
     public RedisQueryBuilder question() {
-        questionLikeQueryBuilder.create(1L);
+        questionLikeQueryBuilder.create("1");
         return this;
     }
 
@@ -51,12 +51,12 @@ public class RedisQueryBuilder {
     }
 
     public RedisQueryBuilder answer(long answerId) {
-        answerLikeQueryBuilder.create(answerId);
+        answerLikeQueryBuilder.create(String.valueOf(answerId));
         return this;
     }
 
     public RedisQueryBuilder answer() {
-        answerLikeQueryBuilder.create(1L);
+        answerLikeQueryBuilder.create("1");
         return this;
     }
 
@@ -71,12 +71,12 @@ public class RedisQueryBuilder {
     }
 
     public RedisQueryBuilder commentQuestion(long commentId) {
-        commentQuestionLikeQueryBuilder.create(commentId);
+        commentQuestionLikeQueryBuilder.create(String.valueOf(commentId));
         return this;
     }
 
     public RedisQueryBuilder commentQuestion() {
-        commentQuestionLikeQueryBuilder.create(1L);
+        commentQuestionLikeQueryBuilder.create("1");
         return this;
     }
 
@@ -91,12 +91,12 @@ public class RedisQueryBuilder {
     }
 
     public RedisQueryBuilder commentAnswer(long commentId) {
-        commentAnswerLikeQueryBuilder.create(commentId);
+        commentAnswerLikeQueryBuilder.create(String.valueOf(commentId));
         return this;
     }
 
     public RedisQueryBuilder commentAnswer() {
-        commentAnswerLikeQueryBuilder.create(1L);
+        commentAnswerLikeQueryBuilder.create("1");
         return this;
     }
 

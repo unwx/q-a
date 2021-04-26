@@ -21,7 +21,7 @@ public class UserToQuestionLikeSet implements Serializable, KeyValueOperation {
 
     @Override
     public String getKey() {
-        return RedisKeys.getUserQuestionLikes(userId);
+        return RedisKeys.getUserToQuestionLikes(userId);
     }
 
     @Override

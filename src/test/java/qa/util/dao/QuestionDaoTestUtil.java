@@ -40,8 +40,12 @@ public class QuestionDaoTestUtil {
                     .answer((long) i, new Date(i * dateAtMillisDefault))
                     .commentQuestion((long) i, new Date(i * dateAtMillisDefault))
                     .flushAndClear();
+            redisQueryBuilder
+                    .answer(i)
+                    .commentQuestion(i);
             for (int y = 0; y < comments; y++) {
                 queryBuilder.commentAnswer(commentId, (long) i, new Date(y + dateAtMillisDefault));
+                redisQueryBuilder.commentAnswer(commentId);
                 commentId++;
             }
         }

@@ -11,8 +11,8 @@ public class CommentQuestionLikeQueryBuilder {
         this.jedis = jedis;
     }
 
-    public void create(Long commentId) {
-        jedis.setnx(RedisKeys.getCommentQuestionLikes(String.valueOf(commentId)), "0");
+    public void create(String commentId) {
+        jedis.append(RedisKeys.getCommentQuestionLikes(commentId), "0");
     }
 
     public void like(Long commentId) {

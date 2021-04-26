@@ -9,7 +9,7 @@ public interface LikeSetOperation {
 
     int getK(KeyOperation r, Jedis jedis);
 
-    <T> List<Integer> getK(List<KeyOperation> r, Jedis jedis);
+    List<Integer> getK(List<KeyOperation> r, Jedis jedis);
 
     long increment(KeyOperation r, Jedis jedis);
 

@@ -7,6 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import qa.cache.CacheOperationInstructions;
+import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.LikesUtil;
@@ -19,9 +21,11 @@ import qa.dao.query.QuestionQueryCreator;
 import qa.dao.query.convertor.AnswerQueryResultConvertor;
 import qa.dao.query.convertor.QuestionQueryResultConvertor;
 import qa.domain.Answer;
+import qa.domain.DomainName;
 import qa.domain.Question;
 import qa.domain.QuestionView;
 import qa.domain.setters.PropertySetterFactory;
+import qa.dto.internal.hibernate.question.QuestionFullStringIdsDto;
 import qa.dto.internal.hibernate.question.QuestionWithCommentsDto;
 import qa.exceptions.dao.NullResultException;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
@@ -29,17 +33,19 @@ import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 @Component
 public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
 
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
+    private final CacheRemover cacheRemover;
 
     private static final QuestionToLikeSetOperation questionToLikeOperation;
     private static final UserQuestionLikeSetOperation userToQuestionLikeOperation;
 
-    static {
+    static { // TODO REFACTOR
         questionToLikeOperation = new QuestionToLikeSetOperation();
         userToQuestionLikeOperation = new UserQuestionLikeSetOperation();
     }
@@ -47,10 +53,16 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     @Autowired
     public QuestionDao(PropertySetterFactory propertySetterFactory,
                        SessionFactory sessionFactory,
-                       JedisResourceCenter jedisResourceCenter) {
+                       JedisResourceCenter jedisResourceCenter,
+                       CacheRemover cacheRemover) {
         super(HibernateSessionFactoryConfigurer.getSessionFactory(), new Question(), propertySetterFactory.getSetter(new Question()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
+        this.cacheRemover = cacheRemover;
+    }
+
+    public boolean isExist(Long id) {
+        return super.isExist(new Where("id", id, WhereOperator.EQUALS), "Question");
     }
 
     @Override
@@ -62,13 +74,22 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
 
     public void delete(long questionId) {
         final Where where = new Where("id", questionId, WhereOperator.EQUALS);
+        final QuestionFullStringIdsDto questionFullStringIdsDto;
+        try (Session session = sessionFactory.openSession()) {
+            final Transaction transaction = session.beginTransaction();
+            questionFullStringIdsDto = QuestionQueryCreator.questionFullIdsQuery(session, questionId).uniqueResult();
+
+            if (questionFullStringIdsDto == null) {
+                transaction.rollback();
+                return;
+            }
+
+            transaction.commit();
+        }
         super.delete(where);
-        this.deleteLikes(questionId);
+        this.deleteLikes(questionFullStringIdsDto, questionId);
     }
 
-    public boolean isExist(Long id) {
-        return super.isExist(new Where("id", id, WhereOperator.EQUALS), "Question");
-    }
 
     @Nullable
     public Question getFullQuestion(long questionId, long userId) { // FIXME nested caches & nested delete
@@ -161,12 +182,19 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
         }
     }
 
-    private void deleteLikes(long questionId) {
+    private void deleteLikes(QuestionFullStringIdsDto dto, long questionId) {
+        final CacheOperationInstructions instructions = new CacheOperationInstructions();
+        final Stack<String> questionIdStr = new Stack<>();
+        questionIdStr.push(String.valueOf(questionId));
+
+        instructions.addInstruction(DomainName.QUESTION, questionIdStr);
+        instructions.addInstruction(DomainName.ANSWER, dto.getAnswerIds());
+        instructions.addInstruction(DomainName.COMMENT_QUESTION, dto.getCommentQuestionIds());
+        instructions.addInstruction(DomainName.COMMENT_ANSWER, dto.getCommentAnswerIds());
+
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final String questionIdStr = String.valueOf(questionId);
-
-            LikesUtil.deleteLikes(questionIdStr, userToQuestionLikeOperation, questionToLikeOperation, jedis);
+            final boolean status = cacheRemover.remove(instructions, jedis); // TODO log
         }
     }
 

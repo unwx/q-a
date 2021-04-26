@@ -10,21 +10,21 @@ public abstract class LikeSetOperationImpl extends SetSizeOperation implements L
 
     @Override
     public boolean create(KeyOperation r, Jedis jedis) {
-        return jedis.setnx(r.getKey(), "0") == 1;
+        return jedis.append(r.getKey(), "0") == 1;
     }
 
     @Override
     public int getK(KeyOperation r, Jedis jedis) {
-        final String result = super.getS(r.getKey(), jedis);
+        final String result = super.getByKey(r.getKey(), jedis);
         return result == null ? -1 : Integer.parseInt(result);
     }
 
     @Override
-    public <T> List<Integer> getK(List<KeyOperation> r, Jedis jedis) {
+    public List<Integer> getK(List<KeyOperation> r, Jedis jedis) {
         if (r.isEmpty())
             return Collections.emptyList();
 
-        final List<String> result = super.getS(
+        final List<String> result = super.getByKey(
                 r
                         .stream()
                         .map(KeyOperation::getKey)

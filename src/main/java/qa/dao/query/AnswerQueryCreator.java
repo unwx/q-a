@@ -2,6 +2,7 @@ package qa.dao.query;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import qa.dao.query.parameters.AnswerQueryParameters;
 import qa.dao.query.parameters.CommentQueryParameters;
 import qa.dto.internal.hibernate.answer.AnswerFullDto;
 import qa.dto.internal.hibernate.transformer.question.QuestionAnswerFullDtoTransformer;
@@ -9,7 +10,7 @@ import qa.dto.internal.hibernate.transformer.question.QuestionAnswerFullDtoTrans
 @SuppressWarnings({"deprecation", "unchecked"})
 public class AnswerQueryCreator {
 
-    private static final int RESULT_SIZE = 6;
+    private static final int RESULT_SIZE = AnswerQueryParameters.RESULT_SIZE;
 
     public static Query<AnswerFullDto> answersWithCommentsQuery(Session session, long questionId) {
         return answersWithCommentsQuery(session, questionId, 0);

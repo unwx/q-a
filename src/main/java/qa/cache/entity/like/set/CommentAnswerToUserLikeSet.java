@@ -29,7 +29,7 @@ public class CommentAnswerToUserLikeSet implements Serializable, KeyValueOperati
 
     @Override
     public String getKey() {
-        return RedisKeys.getCommentQuestionToUserLikes(commentId);
+        return RedisKeys.getCommentAnswerToUserLikes(commentId);
     }
 
     @Override

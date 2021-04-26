@@ -11,11 +11,11 @@ public class QuestionLikeQueryBuilder {
         this.jedis = jedis;
     }
 
-    public void create(Long questionId) {
-        jedis.setnx(RedisKeys.getQuestionLikes(String.valueOf(questionId)), "0");
+    public void create(String questionId) {
+        jedis.append(RedisKeys.getQuestionLikes(String.valueOf(questionId)), "0");
     }
 
-    public void like(Long questionId) {
+    public void like(Long questionId) { // incr only
         jedis.incr(RedisKeys.getQuestionLikes(String.valueOf(questionId)));
     }
 }

@@ -17,7 +17,7 @@ public class RedisKeys {
     public static final String COMMENT_QUESTION_LIKES = "com-que-l:";
     public static final String COMMENT_ANSWER_LIKES = "com-ans-l:";
 
-    public static String getUserQuestionLikes(String key) {
+    public static String getUserToQuestionLikes(String key) {
         return USER_QUESTION_LIKES + key;
     }
 

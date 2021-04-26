@@ -25,6 +25,7 @@ public class LikesUtil {
         return status;
     }
 
+    @Deprecated
     public static boolean deleteLikes(String entityId,
                                       IUserEntityLikeSetOperation userEntityOperation,
                                       EntityToLikeSetOperation entityOperation,

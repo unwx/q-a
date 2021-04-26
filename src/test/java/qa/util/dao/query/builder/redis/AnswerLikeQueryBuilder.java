@@ -11,8 +11,8 @@ public class AnswerLikeQueryBuilder {
         this.jedis = jedis;
     }
 
-    public void create(Long questionId) {
-        jedis.setnx(RedisKeys.getAnswerLikes(String.valueOf(questionId)), "0");
+    public void create(String answerId) {
+        jedis.append(RedisKeys.getAnswerLikes(answerId), "0");
     }
 
     public void like(Long questionId) {
