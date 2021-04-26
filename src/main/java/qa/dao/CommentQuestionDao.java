@@ -6,6 +6,7 @@ import org.hibernate.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.LikesUtil;
@@ -16,6 +17,7 @@ import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.CommentQuestionQueryCreator;
 import qa.dao.query.convertor.CommentQuestionQueryResultConvertor;
 import qa.domain.CommentQuestion;
+import qa.domain.DomainName;
 import qa.domain.setters.PropertySetterFactory;
 import qa.exceptions.dao.NullResultException;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
@@ -29,6 +31,7 @@ public class CommentQuestionDao extends DaoImpl<CommentQuestion> implements Like
 
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
+    private final CacheRemover cacheRemover;
 
     private static final CommentQuestionToLikeSetOperation commentQuestionToLikeOperation;
     private static final UserCommentQuestionLikeSetOperation userToCommentQuestionLikeOperation;
@@ -41,10 +44,12 @@ public class CommentQuestionDao extends DaoImpl<CommentQuestion> implements Like
     @Autowired
     public CommentQuestionDao(PropertySetterFactory propertySetterFactory,
                               SessionFactory sessionFactory,
-                              JedisResourceCenter jedisResourceCenter) {
+                              JedisResourceCenter jedisResourceCenter,
+                              CacheRemover cacheRemover) {
         super(HibernateSessionFactoryConfigurer.getSessionFactory(), new CommentQuestion(), propertySetterFactory.getSetter(new CommentQuestion()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
+        this.cacheRemover = cacheRemover;
     }
 
     @Override
@@ -115,7 +120,7 @@ public class CommentQuestionDao extends DaoImpl<CommentQuestion> implements Like
             final Jedis jedis = jedisResource.getJedis();
             final String commentIdStr = String.valueOf(commentId);
 
-            LikesUtil.deleteLikes(commentIdStr, userToCommentQuestionLikeOperation, commentQuestionToLikeOperation, jedis);
+            cacheRemover.remove(DomainName.COMMENT_QUESTION, commentIdStr, jedis);
         }
     }
 

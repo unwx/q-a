@@ -53,10 +53,14 @@ public class CacheRemover {
         for (Map.Entry<DomainName, Stack<String>> entry : instructionMap.entrySet()) {
             final DomainName name = entry.getKey();
             final Stack<String> ids = entry.getValue();
-            final boolean status = removeIteration(name, ids, jedis);
+            final boolean status = this.removeIteration(name, ids, jedis);
             if (!status) return false;
         }
         return true;
+    }
+
+    public boolean remove(DomainName name, String id, Jedis jedis) {
+        return this.removeIteration(name, id, jedis);
     }
 
     private boolean removeIteration(DomainName name, Stack<String> ids, Jedis jedis) {
@@ -69,13 +73,37 @@ public class CacheRemover {
 
         while (ids.size() > 0) {
             final String id = ids.pop();
-            final boolean status = entityOperation.delete(id, jedis);
+            final boolean status = this.deleteProcess(
+                    id,
+                    name,
+                    userEntityOperation,
+                    entityOperation,
+                    jedis
+            );
+            if (!status) return false;
+        }
+        return true;
+    }
 
-            if (status) userEntityOperation.deleteEntity(id, jedis);
-            else {
-                logger.error(ERR_CANNOT_DELETE.formatted(id, name));
-                return false;
-            }
+    private boolean removeIteration(DomainName name, String id, Jedis jedis) {
+        final CacheLikeOperation operations = resolve(name);
+        final IUserEntityLikeSetOperation userEntityOperation = operations.getUserEntitySetOperation();
+        final EntityToLikeSetOperation entityOperation = operations.getEntityToLikeSetOperation();
+
+        return this.deleteProcess(id, name, userEntityOperation, entityOperation, jedis);
+    }
+
+    private boolean deleteProcess(String id,
+                                        DomainName name,
+                                        IUserEntityLikeSetOperation userEntityOperation,
+                                        EntityToLikeSetOperation entityOperation,
+                                        Jedis jedis) {
+
+        final boolean status = entityOperation.delete(id, jedis);
+        if (status) userEntityOperation.deleteEntity(id, jedis);
+        else {
+            logger.error(ERR_CANNOT_DELETE.formatted(id, name));
+            return false;
         }
         return true;
     }
