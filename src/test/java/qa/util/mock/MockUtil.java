@@ -3,6 +3,7 @@ package qa.util.mock;
 import org.mockito.Mockito;
 import qa.cache.CacheRemover;
 import qa.cache.JedisResourceCenter;
+import qa.cache.entity.like.provider.AnswerCacheProvider;
 import qa.cache.entity.like.provider.QuestionCacheProvider;
 import qa.cache.operation.impl.*;
 import qa.config.RedisConfiguration;
@@ -15,6 +16,7 @@ public class MockUtil {
 
     private static CacheRemover cacheRemover;
     private static QuestionCacheProvider questionCacheProvider;
+    private static AnswerCacheProvider answerCacheProvider;
 
     private MockUtil() {
     }
@@ -73,6 +75,30 @@ public class MockUtil {
             );
         }
         return questionCacheProvider;
+    }
+
+    public static AnswerCacheProvider mockAnswerCacheProvider() {
+        if (answerCacheProvider == null) {
+            final QuestionToLikeSetOperation questionLikeOperation = Mockito.spy(QuestionToLikeSetOperation.class);
+            final AnswerToLikeSetOperation answerLikeOperation = Mockito.spy(AnswerToLikeSetOperation.class);
+            final CommentQuestionToLikeSetOperation commentQuestionLikeOperation = Mockito.spy(CommentQuestionToLikeSetOperation.class);
+            final CommentAnswerToLikeSetOperation commentAnswerLikeOperation = Mockito.spy(CommentAnswerToLikeSetOperation.class);
+            final UserQuestionLikeSetOperation userQuestionLikeOperation = Mockito.spy(UserQuestionLikeSetOperation.class);
+            final UserAnswerLikeSetOperation userAnswerLikeOperation = Mockito.spy(UserAnswerLikeSetOperation.class);
+            final UserCommentQuestionLikeSetOperation userCommentQuestionLikeOperation = Mockito.spy(UserCommentQuestionLikeSetOperation.class);
+            final UserCommentAnswerLikeSetOperation userCommentAnswerLikeOperation = Mockito.spy(UserCommentAnswerLikeSetOperation.class);
+            answerCacheProvider = new AnswerCacheProvider(
+                    questionLikeOperation,
+                    answerLikeOperation,
+                    commentQuestionLikeOperation,
+                    commentAnswerLikeOperation,
+                    userQuestionLikeOperation,
+                    userAnswerLikeOperation,
+                    userCommentQuestionLikeOperation,
+                    userCommentAnswerLikeOperation
+            );
+        }
+        return answerCacheProvider;
     }
 
 

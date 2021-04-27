@@ -77,20 +77,22 @@ public class QuestionDaoTestUtil {
                 .question();
         redisQueryBuilder
                 .openJedis()
-                .question()
-                .closeJedis();
+                .question();
 
         long commentId = 0;
         for (int i = 0; i < answers; i++) {
             queryBuilder
                     .answer((long) i, new Date(i * dateAtMillisDefault))
                     .flushAndClear();
+            redisQueryBuilder.answer(i);
             for (int y = 0; y < comments; y++) {
                 queryBuilder.commentAnswer(commentId, (long) i, new Date(y + dateAtMillisDefault + i * 1000L));
+                redisQueryBuilder.commentAnswer(commentId);
                 commentId++;
             }
         }
         queryBuilder.closeSession();
+        redisQueryBuilder.closeJedis();
     }
 
     public void createManyQuestionsWithManyAnswers(int questions, int answers) {

@@ -11,6 +11,7 @@ import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.LikesUtil;
+import qa.cache.entity.like.provider.AnswerCacheProvider;
 import qa.cache.operation.impl.AnswerToLikeSetOperation;
 import qa.cache.operation.impl.UserAnswerLikeSetOperation;
 import qa.dao.databasecomponents.Where;
@@ -35,6 +36,7 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
     private final CacheRemover cacheRemover;
+    private final AnswerCacheProvider cacheProvider;
 
     private static final AnswerToLikeSetOperation answerToLikeOperation;
     private static final UserAnswerLikeSetOperation userToAnswerLikeOperation;
@@ -48,11 +50,13 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
     public AnswerDao(PropertySetterFactory propertySetterFactory,
                      SessionFactory sessionFactory,
                      JedisResourceCenter jedisResourceCenter,
-                     CacheRemover cacheRemover) {
+                     CacheRemover cacheRemover,
+                     AnswerCacheProvider cacheProvider) {
         super(HibernateSessionFactoryConfigurer.getSessionFactory(), new Answer(), propertySetterFactory.getSetter(new Answer()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
         this.cacheRemover = cacheRemover;
+        this.cacheProvider = cacheProvider;
     }
 
     @Override
@@ -158,7 +162,7 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
 
-            LikesUtil.setLikesAndLiked(answers, String.valueOf(userId), answerToLikeOperation, userToAnswerLikeOperation, jedis);
+            this.cacheProvider.provide(answers, userId, jedis);
         }
     }
 }
