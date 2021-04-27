@@ -1,8 +1,8 @@
 package qa.cache.entity.like;
 
-public interface HasLikes {
-    String getIdStr();
+import qa.cache.Cache;
 
+public interface HasLikes extends Cache {
     void setLikes(int count);
 
     int getLikes();

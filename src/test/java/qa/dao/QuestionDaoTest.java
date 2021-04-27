@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.provider.like.QuestionLikesProvider;
@@ -50,10 +49,9 @@ public class QuestionDaoTest {
         jedisResourceCenter = MockUtil.mockJedisCenter();
 
         final PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
-        final CacheRemover cacheRemover = MockUtil.mockCacheRemover();
         final QuestionLikesProvider likesProvider = MockUtil.mockQuestionLikeProvider();
 
-        questionDao = new QuestionDao(propertySetterFactory, sessionFactory, jedisResourceCenter, cacheRemover, likesProvider);
+        questionDao = new QuestionDao(propertySetterFactory, sessionFactory, jedisResourceCenter, likesProvider);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
         redisTestUtil = new RedisTestUtil(jedisResourceCenter);

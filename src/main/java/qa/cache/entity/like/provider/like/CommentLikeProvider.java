@@ -1,6 +1,7 @@
 package qa.cache.entity.like.provider.like;
 
 import qa.cache.entity.like.provider.cache.CommentCacheProvider;
+import qa.cache.entity.like.provider.remover.CommentCacheRemover;
 import qa.cache.operation.CommentToLikeSetOperation;
 import qa.cache.operation.IUserCommentLikeSetOperation;
 import qa.domain.Comment;
@@ -13,13 +14,16 @@ public abstract class CommentLikeProvider extends LikesProvider {
     private final IUserCommentLikeSetOperation userCommentOperation;
     private final CommentToLikeSetOperation commentOperation;
     private final CommentCacheProvider cacheProvider;
+    private final CommentCacheRemover cacheRemover;
 
     protected CommentLikeProvider(IUserCommentLikeSetOperation userCommentOperation,
                                   CommentToLikeSetOperation commentOperation,
-                                  CommentCacheProvider cacheProvider) {
+                                  CommentCacheProvider cacheProvider,
+                                  CommentCacheRemover cacheRemover) {
         this.userCommentOperation = userCommentOperation;
         this.commentOperation = commentOperation;
         this.cacheProvider = cacheProvider;
+        this.cacheRemover = cacheRemover;
     }
 
     public void initLike(long commentId,
@@ -41,5 +45,10 @@ public abstract class CommentLikeProvider extends LikesProvider {
 
     public <C extends Comment> void provide(List<C> comments, long userId, Jedis jedis) {
         this.cacheProvider.provide(comments, userId, jedis);
+    }
+
+    public void remove(long commentId, Jedis jedis) {
+        final String commentIdStr = String.valueOf(commentId);
+        this.cacheRemover.remove(commentIdStr, jedis);
     }
 }

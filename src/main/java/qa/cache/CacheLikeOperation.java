@@ -5,13 +5,13 @@ import qa.cache.operation.IUserEntityLikeSetOperation;
 
 public class CacheLikeOperation {
 
-    private final EntityToLikeSetOperation entityToLikeSetOperation;
     private final IUserEntityLikeSetOperation userEntitySetOperation;
+    private final EntityToLikeSetOperation entityToLikeSetOperation;
 
-    public CacheLikeOperation(EntityToLikeSetOperation entityToLikeSetOperation,
-                              IUserEntityLikeSetOperation userEntitySetOperation) {
-        this.entityToLikeSetOperation = entityToLikeSetOperation;
+    public CacheLikeOperation(IUserEntityLikeSetOperation userEntitySetOperation,
+                              EntityToLikeSetOperation entityToLikeSetOperation) {
         this.userEntitySetOperation = userEntitySetOperation;
+        this.entityToLikeSetOperation = entityToLikeSetOperation;
     }
 
     public EntityToLikeSetOperation getEntityToLikeSetOperation() {

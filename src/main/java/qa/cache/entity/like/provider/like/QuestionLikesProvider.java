@@ -2,10 +2,12 @@ package qa.cache.entity.like.provider.like;
 
 import org.springframework.stereotype.Component;
 import qa.cache.entity.like.provider.cache.QuestionCacheProvider;
+import qa.cache.entity.like.provider.remover.QuestionCacheRemover;
 import qa.cache.operation.impl.QuestionToLikeSetOperation;
 import qa.cache.operation.impl.UserQuestionLikeSetOperation;
 import qa.domain.Question;
 import qa.domain.QuestionView;
+import qa.dto.internal.hibernate.question.QuestionFullStringIdsDto;
 import redis.clients.jedis.Jedis;
 
 import java.util.List;
@@ -16,13 +18,16 @@ public class QuestionLikesProvider extends LikesProvider {
     private final UserQuestionLikeSetOperation userQuestionOperation;
     private final QuestionToLikeSetOperation questionOperation;
     private final QuestionCacheProvider cacheProvider;
+    private final QuestionCacheRemover cacheRemover;
 
     public QuestionLikesProvider(UserQuestionLikeSetOperation userQuestionOperation,
                                  QuestionToLikeSetOperation questionOperation,
-                                 QuestionCacheProvider cacheProvider) {
+                                 QuestionCacheProvider cacheProvider,
+                                 QuestionCacheRemover cacheRemover) {
         this.userQuestionOperation = userQuestionOperation;
         this.questionOperation = questionOperation;
         this.cacheProvider = cacheProvider;
+        this.cacheRemover = cacheRemover;
     }
 
     public void initLike(long questionId,
@@ -48,5 +53,9 @@ public class QuestionLikesProvider extends LikesProvider {
 
     public void provide(List<QuestionView> views, Jedis jedis) {
         this.cacheProvider.provide(views, jedis);
+    }
+
+    public void remove(QuestionFullStringIdsDto dto, long questionId, Jedis jedis) {
+        this.cacheRemover.remove(dto, questionId, jedis);
     }
 }

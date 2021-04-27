@@ -1,6 +1,8 @@
 package qa.cache.entity.like;
 
-public interface HasLiked {
+import qa.cache.Cache;
+
+public interface HasLiked extends Cache {
     void setLiked(boolean liked);
 
     boolean isLiked();

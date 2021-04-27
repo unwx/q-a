@@ -1,7 +1,6 @@
 package qa.util.mock;
 
 import org.mockito.Mockito;
-import qa.cache.CacheRemover;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.provider.cache.AnswerCacheProvider;
 import qa.cache.entity.like.provider.cache.CommentAnswerCacheProvider;
@@ -11,6 +10,10 @@ import qa.cache.entity.like.provider.like.AnswerLikeProvider;
 import qa.cache.entity.like.provider.like.CommentAnswerLikeProvider;
 import qa.cache.entity.like.provider.like.CommentQuestionLikeProvider;
 import qa.cache.entity.like.provider.like.QuestionLikesProvider;
+import qa.cache.entity.like.provider.remover.AnswerCacheRemover;
+import qa.cache.entity.like.provider.remover.CommentAnswerCacheRemover;
+import qa.cache.entity.like.provider.remover.CommentQuestionCacheRemover;
+import qa.cache.entity.like.provider.remover.QuestionCacheRemover;
 import qa.cache.operation.impl.*;
 import qa.config.RedisConfiguration;
 import qa.source.PasswordPropertyDataSource;
@@ -20,7 +23,11 @@ public class MockUtil { // TODO REFACTOR
     private static RedisConfiguration redisConfiguration;
     private static JedisResourceCenter jedisResourceCenter;
 
-    private static CacheRemover cacheRemover;
+    private static QuestionCacheRemover questionCacheRemover;
+    private static AnswerCacheRemover answerCacheRemover;
+    private static CommentQuestionCacheRemover commentQuestionCacheRemover;
+    private static CommentAnswerCacheRemover commentAnswerCacheRemover;
+
     private static QuestionCacheProvider questionCacheProvider;
     private static AnswerCacheProvider answerCacheProvider;
     private static CommentQuestionCacheProvider commentQuestionCacheProvider;
@@ -62,23 +69,99 @@ public class MockUtil { // TODO REFACTOR
         return jedisResourceCenter;
     }
 
-    public static CacheRemover mockCacheRemover() { // TODO refactor
-        if (cacheRemover == null) {
-            cacheRemover = new CacheRemover(
-                    questionLikeOperation,
-                    answerLikeOperation,
-                    commentQuestionLikeOperation,
-                    commentAnswerLikeOperation,
+    public static QuestionLikesProvider mockQuestionLikeProvider() {
+        if (questionLikesProvider == null) {
+            questionLikesProvider = new QuestionLikesProvider(
                     userQuestionLikeOperation,
-                    userAnswerLikeOperation,
-                    userCommentQuestionLikeOperation,
-                    userCommentAnswerLikeOperation
+                    questionLikeOperation,
+                    mockQuestionCacheProvider(),
+                    mockQuestionCacheRemover()
             );
         }
-        return cacheRemover;
+        return questionLikesProvider;
     }
 
-    public static QuestionCacheProvider mockQuestionCacheProvider() {
+    public static AnswerLikeProvider mockAnswerLikeProvider() {
+        if (answerLikeProvider == null) {
+            answerLikeProvider = new AnswerLikeProvider(
+                    userAnswerLikeOperation,
+                    answerLikeOperation,
+                    mockAnswerCacheProvider(),
+                    mockAnswerCacheRemover()
+            );
+        }
+        return answerLikeProvider;
+    }
+
+    public static CommentQuestionLikeProvider mockCommentQuestionLikeProvider() {
+        if (commentQuestionLikeProvider == null) {
+            commentQuestionLikeProvider = new CommentQuestionLikeProvider(
+                    userCommentQuestionLikeOperation,
+                    commentQuestionLikeOperation,
+                    mockCommentQuestionCacheProvider(),
+                    mockCommentQuestionCacheRemover()
+            );
+        }
+        return commentQuestionLikeProvider;
+    }
+
+    public static CommentAnswerLikeProvider mockCommentAnswerLikeProvider() {
+        if (commentAnswerLikeProvider == null) {
+            commentAnswerLikeProvider = new CommentAnswerLikeProvider(
+                    userCommentAnswerLikeOperation,
+                    commentAnswerLikeOperation,
+                    mockCommentAnswerCacheProvider(),
+                    mockCommentAnswerCacheRemover()
+            );
+        }
+        return commentAnswerLikeProvider;
+    }
+
+    private static QuestionCacheRemover mockQuestionCacheRemover() {
+        if (questionCacheRemover == null) {
+            questionCacheRemover = new QuestionCacheRemover(
+                    userQuestionLikeOperation,
+                    questionLikeOperation,
+                    mockAnswerCacheRemover(),
+                    mockCommentQuestionCacheRemover(),
+                    mockCommentAnswerCacheRemover()
+            );
+        }
+        return questionCacheRemover;
+    }
+
+    private static AnswerCacheRemover mockAnswerCacheRemover() {
+        if (answerCacheRemover == null) {
+            answerCacheRemover = new AnswerCacheRemover(
+                    userAnswerLikeOperation,
+                    answerLikeOperation,
+                    mockCommentAnswerCacheRemover()
+            );
+        }
+        return answerCacheRemover;
+    }
+
+    private static CommentQuestionCacheRemover mockCommentQuestionCacheRemover() {
+        if (commentQuestionCacheRemover == null) {
+            commentQuestionCacheRemover = new CommentQuestionCacheRemover(
+                    userCommentQuestionLikeOperation,
+                    commentQuestionLikeOperation
+            );
+        }
+        return commentQuestionCacheRemover;
+    }
+
+    private static CommentAnswerCacheRemover mockCommentAnswerCacheRemover() {
+        if (commentAnswerCacheRemover == null) {
+            commentAnswerCacheRemover = new CommentAnswerCacheRemover(
+                    userCommentAnswerLikeOperation,
+                    commentAnswerLikeOperation
+            );
+        }
+        return commentAnswerCacheRemover;
+    }
+
+    private static QuestionCacheProvider mockQuestionCacheProvider() {
         if (questionCacheProvider == null) {
             questionCacheProvider = new QuestionCacheProvider(
                     userQuestionLikeOperation,
@@ -91,7 +174,7 @@ public class MockUtil { // TODO REFACTOR
         return questionCacheProvider;
     }
 
-    public static AnswerCacheProvider mockAnswerCacheProvider() {
+    private static AnswerCacheProvider mockAnswerCacheProvider() {
         if (answerCacheProvider == null) {
             answerCacheProvider = new AnswerCacheProvider(
                     userAnswerLikeOperation,
@@ -102,7 +185,7 @@ public class MockUtil { // TODO REFACTOR
         return answerCacheProvider;
     }
 
-    public static CommentQuestionCacheProvider mockCommentQuestionCacheProvider() {
+    private static CommentQuestionCacheProvider mockCommentQuestionCacheProvider() {
         if (commentQuestionCacheProvider == null) {
             commentQuestionCacheProvider = new CommentQuestionCacheProvider(
                     userCommentQuestionLikeOperation,
@@ -112,7 +195,7 @@ public class MockUtil { // TODO REFACTOR
         return commentQuestionCacheProvider;
     }
 
-    public static CommentAnswerCacheProvider mockCommentAnswerCacheProvider() {
+    private static CommentAnswerCacheProvider mockCommentAnswerCacheProvider() {
         if (commentAnswerCacheProvider == null) {
             commentAnswerCacheProvider = new CommentAnswerCacheProvider(
                     userCommentAnswerLikeOperation,
@@ -121,51 +204,6 @@ public class MockUtil { // TODO REFACTOR
         }
         return commentAnswerCacheProvider;
     }
-
-
-    public static QuestionLikesProvider mockQuestionLikeProvider() {
-        if (questionLikesProvider == null) {
-            questionLikesProvider = new QuestionLikesProvider(
-                    userQuestionLikeOperation,
-                    questionLikeOperation,
-                    mockQuestionCacheProvider());
-        }
-        return questionLikesProvider;
-    }
-
-    public static AnswerLikeProvider mockAnswerLikeProvider() {
-        if (answerLikeProvider == null) {
-            answerLikeProvider = new AnswerLikeProvider(
-                    userAnswerLikeOperation,
-                    answerLikeOperation,
-                    mockAnswerCacheProvider()
-            );
-        }
-        return answerLikeProvider;
-    }
-
-    public static CommentQuestionLikeProvider mockCommentQuestionLikeProvider() {
-        if (commentQuestionLikeProvider == null) {
-            commentQuestionLikeProvider = new CommentQuestionLikeProvider(
-                    userCommentQuestionLikeOperation,
-                    commentQuestionLikeOperation,
-                    mockCommentQuestionCacheProvider()
-            );
-        }
-        return commentQuestionLikeProvider;
-    }
-
-    public static CommentAnswerLikeProvider mockCommentAnswerLikeProvider() {
-        if (commentAnswerLikeProvider == null) {
-            commentAnswerLikeProvider = new CommentAnswerLikeProvider(
-                    userCommentAnswerLikeOperation,
-                    commentAnswerLikeOperation,
-                    mockCommentAnswerCacheProvider()
-            );
-        }
-        return commentAnswerLikeProvider;
-    }
-
 
     private static PasswordPropertyDataSource mockPPDataSource() {
         PasswordPropertyDataSource propertyDataSource = Mockito.mock(PasswordPropertyDataSource.class);
