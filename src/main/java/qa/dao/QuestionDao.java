@@ -11,7 +11,6 @@ import qa.cache.CacheRemoveInstructions;
 import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
-import qa.cache.entity.like.provider.QuestionCacheProvider;
 import qa.cache.entity.like.provider.like.QuestionLikesProvider;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
@@ -40,7 +39,6 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
     private final CacheRemover cacheRemover;
-    private final QuestionCacheProvider cacheProvider;
     private final QuestionLikesProvider likesProvider;
 
     @Autowired
@@ -48,13 +46,11 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
                        SessionFactory sessionFactory,
                        JedisResourceCenter jedisResourceCenter,
                        CacheRemover cacheRemover,
-                       QuestionCacheProvider cacheProvider,
                        QuestionLikesProvider likesProvider) {
         super(HibernateSessionFactoryConfigurer.getSessionFactory(), new Question(), propertySetterFactory.getSetter(new Question()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
         this.cacheRemover = cacheRemover;
-        this.cacheProvider = cacheProvider;
         this.likesProvider = likesProvider;
     }
 
@@ -155,14 +151,14 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     private void setLike(Question question, long userId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            this.cacheProvider.provide(question, userId, jedis);
+            this.likesProvider.provide(question, userId, jedis);
         }
     }
 
     private void setLikes(List<QuestionView> questionViews) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            this.cacheProvider.provide(questionViews, jedis);
+            this.likesProvider.provide(questionViews, jedis);
         }
     }
 

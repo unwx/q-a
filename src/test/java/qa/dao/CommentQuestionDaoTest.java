@@ -11,7 +11,6 @@ import org.mockito.Mockito;
 import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
-import qa.cache.entity.like.provider.CommentQuestionCacheProvider;
 import qa.cache.entity.like.provider.like.CommentQuestionLikeProvider;
 import qa.domain.CommentQuestion;
 import qa.domain.setters.PropertySetterFactory;
@@ -51,11 +50,10 @@ public class CommentQuestionDaoTest {
         jedisResourceCenter = MockUtil.mockJedisCenter();
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
         CacheRemover cacheRemover = MockUtil.mockCacheRemover();
-        CommentQuestionCacheProvider cacheProvider = MockUtil.mockCommentQuestionCacheProvider();
         CommentQuestionLikeProvider likesProvider = MockUtil.mockCommentQuestionLikeProvider();
 
 
-        commentQuestionDao = new CommentQuestionDao(propertySetterFactory, sessionFactory, jedisResourceCenter, cacheRemover, cacheProvider, likesProvider);
+        commentQuestionDao = new CommentQuestionDao(propertySetterFactory, sessionFactory, jedisResourceCenter, cacheRemover, likesProvider);
         commentDaoTestUtil = new CommentDaoTestUtil(sessionFactory, jedisResourceCenter);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
         redisTestUtil = new RedisTestUtil(jedisResourceCenter);

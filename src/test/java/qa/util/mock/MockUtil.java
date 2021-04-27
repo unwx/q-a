@@ -3,10 +3,10 @@ package qa.util.mock;
 import org.mockito.Mockito;
 import qa.cache.CacheRemover;
 import qa.cache.JedisResourceCenter;
-import qa.cache.entity.like.provider.AnswerCacheProvider;
-import qa.cache.entity.like.provider.CommentAnswerCacheProvider;
-import qa.cache.entity.like.provider.CommentQuestionCacheProvider;
-import qa.cache.entity.like.provider.QuestionCacheProvider;
+import qa.cache.entity.like.provider.cache.AnswerCacheProvider;
+import qa.cache.entity.like.provider.cache.CommentAnswerCacheProvider;
+import qa.cache.entity.like.provider.cache.CommentQuestionCacheProvider;
+import qa.cache.entity.like.provider.cache.QuestionCacheProvider;
 import qa.cache.entity.like.provider.like.AnswerLikeProvider;
 import qa.cache.entity.like.provider.like.CommentAnswerLikeProvider;
 import qa.cache.entity.like.provider.like.CommentQuestionLikeProvider;
@@ -127,8 +127,8 @@ public class MockUtil { // TODO REFACTOR
         if (questionLikesProvider == null) {
             questionLikesProvider = new QuestionLikesProvider(
                     userQuestionLikeOperation,
-                    questionLikeOperation
-            );
+                    questionLikeOperation,
+                    mockQuestionCacheProvider());
         }
         return questionLikesProvider;
     }
@@ -137,7 +137,8 @@ public class MockUtil { // TODO REFACTOR
         if (answerLikeProvider == null) {
             answerLikeProvider = new AnswerLikeProvider(
                     userAnswerLikeOperation,
-                    answerLikeOperation
+                    answerLikeOperation,
+                    mockAnswerCacheProvider()
             );
         }
         return answerLikeProvider;
@@ -147,7 +148,8 @@ public class MockUtil { // TODO REFACTOR
         if (commentQuestionLikeProvider == null) {
             commentQuestionLikeProvider = new CommentQuestionLikeProvider(
                     userCommentQuestionLikeOperation,
-                    commentQuestionLikeOperation
+                    commentQuestionLikeOperation,
+                    mockCommentQuestionCacheProvider()
             );
         }
         return commentQuestionLikeProvider;
@@ -157,7 +159,8 @@ public class MockUtil { // TODO REFACTOR
         if (commentAnswerLikeProvider == null) {
             commentAnswerLikeProvider = new CommentAnswerLikeProvider(
                     userCommentAnswerLikeOperation,
-                    commentAnswerLikeOperation
+                    commentAnswerLikeOperation,
+                    mockCommentAnswerCacheProvider()
             );
         }
         return commentAnswerLikeProvider;

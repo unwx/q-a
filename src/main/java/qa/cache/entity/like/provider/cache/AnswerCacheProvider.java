@@ -1,4 +1,4 @@
-package qa.cache.entity.like.provider;
+package qa.cache.entity.like.provider.cache;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

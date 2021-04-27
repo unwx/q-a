@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
-import qa.cache.entity.like.provider.CommentAnswerCacheProvider;
 import qa.cache.entity.like.provider.like.CommentAnswerLikeProvider;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
@@ -31,7 +30,6 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
     private final CacheRemover cacheRemover;
-    private final CommentAnswerCacheProvider cacheProvider;
     private final CommentAnswerLikeProvider likesProvider;
 
 
@@ -40,13 +38,11 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
                             SessionFactory sessionFactory,
                             JedisResourceCenter jedisResourceCenter,
                             CacheRemover cacheRemover,
-                            CommentAnswerCacheProvider cacheProvider,
                             CommentAnswerLikeProvider likesProvider) {
         super(HibernateSessionFactoryConfigurer.getSessionFactory(), new CommentAnswer(), propertySetterFactory.getSetter(new CommentAnswer()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
         this.cacheRemover = cacheRemover;
-        this.cacheProvider = cacheProvider;
         this.likesProvider = likesProvider;
     }
 
@@ -129,7 +125,7 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
     private void setLikes(List<CommentAnswer> comments, long userId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            this.cacheProvider.provide(comments, userId, jedis);
+            this.likesProvider.provide(comments, userId, jedis);
         }
     }
 }

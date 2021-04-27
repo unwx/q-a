@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
-import qa.cache.entity.like.provider.CommentQuestionCacheProvider;
 import qa.cache.entity.like.provider.like.CommentQuestionLikeProvider;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
@@ -31,7 +30,6 @@ public class CommentQuestionDao extends DaoImpl<CommentQuestion> implements Like
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
     private final CacheRemover cacheRemover;
-    private final CommentQuestionCacheProvider cacheProvider;
     private final CommentQuestionLikeProvider likesProvider;
 
     @Autowired
@@ -39,13 +37,11 @@ public class CommentQuestionDao extends DaoImpl<CommentQuestion> implements Like
                               SessionFactory sessionFactory,
                               JedisResourceCenter jedisResourceCenter,
                               CacheRemover cacheRemover,
-                              CommentQuestionCacheProvider cacheProvider,
                               CommentQuestionLikeProvider likesProvider) {
         super(HibernateSessionFactoryConfigurer.getSessionFactory(), new CommentQuestion(), propertySetterFactory.getSetter(new CommentQuestion()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
         this.cacheRemover = cacheRemover;
-        this.cacheProvider = cacheProvider;
         this.likesProvider = likesProvider;
     }
 
@@ -127,7 +123,7 @@ public class CommentQuestionDao extends DaoImpl<CommentQuestion> implements Like
     private void setLikes(List<CommentQuestion> comments, long userId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            this.cacheProvider.provide(comments, userId, jedis);
+            this.likesProvider.provide(comments, userId, jedis);
         }
     }
 }

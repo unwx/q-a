@@ -10,7 +10,6 @@ import qa.cache.CacheRemoveInstructions;
 import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
-import qa.cache.entity.like.provider.AnswerCacheProvider;
 import qa.cache.entity.like.provider.like.AnswerLikeProvider;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
@@ -34,7 +33,6 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
     private final CacheRemover cacheRemover;
-    private final AnswerCacheProvider cacheProvider;
     private final AnswerLikeProvider likesProvider;
 
     @Autowired
@@ -42,13 +40,11 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
                      SessionFactory sessionFactory,
                      JedisResourceCenter jedisResourceCenter,
                      CacheRemover cacheRemover,
-                     AnswerCacheProvider cacheProvider,
                      AnswerLikeProvider likesProvider) {
         super(HibernateSessionFactoryConfigurer.getSessionFactory(), new Answer(), propertySetterFactory.getSetter(new Answer()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
         this.cacheRemover = cacheRemover;
-        this.cacheProvider = cacheProvider;
         this.likesProvider = likesProvider;
     }
 
@@ -143,15 +139,14 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
 
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            this.cacheRemover.remove(instructions, jedis);
+            this.cacheRemover.remove(instructions, jedis); // TODO refactor
         }
     }
 
     private void setLikes(List<Answer> answers, long userId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-
-            this.cacheProvider.provide(answers, userId, jedis);
+            this.likesProvider.provide(answers, userId, jedis);
         }
     }
 }
