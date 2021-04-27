@@ -59,15 +59,16 @@ public class QuestionDaoTestUtil {
                 .question();
         redisQueryBuilder
                 .openJedis()
-                .question()
-                .closeJedis();
+                .question();
 
         for (int i = 0; i < comments; i++) {
             queryBuilder.commentQuestion((long) i, new Date(dateAtMillisDefault * i));
+            redisQueryBuilder.commentQuestion(i);
             if (i % 20 == 0)
                 queryBuilder.flushAndClear();
         }
         queryBuilder.closeSession();
+        redisQueryBuilder.closeJedis();
     }
 
     public void createQuestionWithAnswersWithComments(int answers, int comments) {

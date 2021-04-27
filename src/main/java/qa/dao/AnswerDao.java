@@ -10,10 +10,8 @@ import qa.cache.CacheRemoveInstructions;
 import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
-import qa.cache.entity.like.LikesUtil;
 import qa.cache.entity.like.provider.AnswerCacheProvider;
-import qa.cache.operation.impl.AnswerToLikeSetOperation;
-import qa.cache.operation.impl.UserAnswerLikeSetOperation;
+import qa.cache.entity.like.provider.like.AnswerLikeProvider;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.AnswerQueryCreator;
@@ -37,26 +35,21 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
     private final JedisResourceCenter jedisResourceCenter;
     private final CacheRemover cacheRemover;
     private final AnswerCacheProvider cacheProvider;
-
-    private static final AnswerToLikeSetOperation answerToLikeOperation;
-    private static final UserAnswerLikeSetOperation userToAnswerLikeOperation;
-
-    static {
-        answerToLikeOperation = new AnswerToLikeSetOperation();
-        userToAnswerLikeOperation = new UserAnswerLikeSetOperation();
-    }
+    private final AnswerLikeProvider likesProvider;
 
     @Autowired
     public AnswerDao(PropertySetterFactory propertySetterFactory,
                      SessionFactory sessionFactory,
                      JedisResourceCenter jedisResourceCenter,
                      CacheRemover cacheRemover,
-                     AnswerCacheProvider cacheProvider) {
+                     AnswerCacheProvider cacheProvider,
+                     AnswerLikeProvider likesProvider) {
         super(HibernateSessionFactoryConfigurer.getSessionFactory(), new Answer(), propertySetterFactory.getSetter(new Answer()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
         this.cacheRemover = cacheRemover;
         this.cacheProvider = cacheProvider;
+        this.likesProvider = likesProvider;
     }
 
     @Override
@@ -126,21 +119,17 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
     }
 
     @Override
-    public void like(long userId, Long id) {
+    public void like(long userId, Long answerId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final String userIdStr = String.valueOf(userId);
-            final String idStr = String.valueOf(id);
-
-            LikesUtil.like(userIdStr, idStr, userToAnswerLikeOperation, answerToLikeOperation, jedis);
+            this.likesProvider.like(userId, answerId, jedis);
         }
     }
 
     private void createLike(long answerId) {
         try(JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-
-            LikesUtil.createLike(String.valueOf(answerId), answerToLikeOperation, jedis);
+            this.likesProvider.initLike(answerId, jedis);
         }
     }
 
@@ -154,7 +143,7 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
 
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            cacheRemover.remove(instructions, jedis);
+            this.cacheRemover.remove(instructions, jedis);
         }
     }
 

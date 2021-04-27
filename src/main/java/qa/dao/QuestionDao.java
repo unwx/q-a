@@ -11,10 +11,8 @@ import qa.cache.CacheRemoveInstructions;
 import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
-import qa.cache.entity.like.LikesUtil;
 import qa.cache.entity.like.provider.QuestionCacheProvider;
-import qa.cache.operation.impl.QuestionToLikeSetOperation;
-import qa.cache.operation.impl.UserQuestionLikeSetOperation;
+import qa.cache.entity.like.provider.like.QuestionLikesProvider;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.AnswerQueryCreator;
@@ -43,26 +41,21 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     private final JedisResourceCenter jedisResourceCenter;
     private final CacheRemover cacheRemover;
     private final QuestionCacheProvider cacheProvider;
-
-    private static final QuestionToLikeSetOperation questionToLikeOperation;
-    private static final UserQuestionLikeSetOperation userToQuestionLikeOperation;
-
-    static { // TODO REFACTOR
-        questionToLikeOperation = new QuestionToLikeSetOperation();
-        userToQuestionLikeOperation = new UserQuestionLikeSetOperation();
-    }
+    private final QuestionLikesProvider likesProvider;
 
     @Autowired
     public QuestionDao(PropertySetterFactory propertySetterFactory,
                        SessionFactory sessionFactory,
                        JedisResourceCenter jedisResourceCenter,
                        CacheRemover cacheRemover,
-                       QuestionCacheProvider cacheProvider) {
+                       QuestionCacheProvider cacheProvider,
+                       QuestionLikesProvider likesProvider) {
         super(HibernateSessionFactoryConfigurer.getSessionFactory(), new Question(), propertySetterFactory.getSetter(new Question()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
         this.cacheRemover = cacheRemover;
         this.cacheProvider = cacheProvider;
+        this.likesProvider = likesProvider;
     }
 
     public boolean isExist(Long id) {
@@ -148,33 +141,28 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     public void like(long userId, Long questionId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final String userIdStr = String.valueOf(userId);
-            final String questionIdStr = String.valueOf(questionId);
-
-            LikesUtil.like(userIdStr, questionIdStr, userToQuestionLikeOperation, questionToLikeOperation, jedis);
+            this.likesProvider.like(userId, questionId, jedis);
         }
     }
 
     private void createLike(long questionId) {
         try(JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final String questionIdStr = String.valueOf(questionId);
-
-            LikesUtil.createLike(questionIdStr, questionToLikeOperation, jedis);
+            this.likesProvider.initLike(questionId, jedis);
         }
     }
 
     private void setLike(Question question, long userId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            cacheProvider.provide(question, userId, jedis);
+            this.cacheProvider.provide(question, userId, jedis);
         }
     }
 
     private void setLikes(List<QuestionView> questionViews) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            cacheProvider.provide(questionViews, jedis);
+            this.cacheProvider.provide(questionViews, jedis);
         }
     }
 
@@ -186,11 +174,11 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
         instructions.addInstruction(DomainName.QUESTION, questionIdStr);
         instructions.addInstruction(DomainName.ANSWER, dto.getAnswerIds());
         instructions.addInstruction(DomainName.COMMENT_QUESTION, dto.getCommentQuestionIds());
-        instructions.addInstruction(DomainName.COMMENT_ANSWER, dto.getCommentAnswerIds());
+        instructions.addInstruction(DomainName.COMMENT_ANSWER, dto.getCommentAnswerIds()); // TODO REFACTOR
 
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final boolean status = cacheRemover.remove(instructions, jedis); // TODO log
+            final boolean status = this.cacheRemover.remove(instructions, jedis); // TODO log
         }
     }
 

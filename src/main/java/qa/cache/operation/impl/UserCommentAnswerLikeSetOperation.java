@@ -4,12 +4,12 @@ import org.springframework.stereotype.Component;
 import qa.cache.RedisKeys;
 import qa.cache.entity.like.set.CommentAnswerToUserLikeSet;
 import qa.cache.entity.like.set.UserToCommentAnswerLikeSet;
-import qa.cache.operation.IUserEntityLikeSetOperation;
+import qa.cache.operation.IUserCommentLikeSetOperation;
 import qa.cache.operation.UserEntityLikeSetOperation;
 import redis.clients.jedis.Jedis;
 
 @Component
-public class UserCommentAnswerLikeSetOperation extends UserEntityLikeSetOperation implements IUserEntityLikeSetOperation {
+public class UserCommentAnswerLikeSetOperation extends UserEntityLikeSetOperation implements IUserCommentLikeSetOperation {
 
     @Override
     public boolean add(String userId, String commentId, Jedis jedis) {

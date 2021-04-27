@@ -2,7 +2,7 @@ package qa.cache.operation.impl;
 
 import org.springframework.stereotype.Component;
 import qa.cache.entity.like.set.CommentAnswerToLikeSet;
-import qa.cache.operation.EntityToLikeSetOperation;
+import qa.cache.operation.CommentToLikeSetOperation;
 import qa.cache.operation.KeyOperation;
 import qa.cache.operation.LikeSetOperationImpl;
 import qa.util.RedisOperationUtil;
@@ -11,7 +11,7 @@ import redis.clients.jedis.Jedis;
 import java.util.List;
 
 @Component
-public class CommentAnswerToLikeSetOperation extends LikeSetOperationImpl implements EntityToLikeSetOperation {
+public class CommentAnswerToLikeSetOperation extends LikeSetOperationImpl implements CommentToLikeSetOperation {
 
     @Override
     public boolean create(String commentId, Jedis jedis) {

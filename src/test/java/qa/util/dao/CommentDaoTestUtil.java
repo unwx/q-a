@@ -29,6 +29,10 @@ public class CommentDaoTestUtil {
                 .answer()
                 .commentAnswer()
                 .closeSession();
+        redisQueryBuilder
+                .openJedis()
+                .commentAnswer()
+                .closeJedis();
     }
 
     public void createCommentQuestion() {

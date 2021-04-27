@@ -9,9 +9,8 @@ import org.springframework.stereotype.Component;
 import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
-import qa.cache.entity.like.LikesUtil;
-import qa.cache.operation.impl.CommentAnswerToLikeSetOperation;
-import qa.cache.operation.impl.UserCommentAnswerLikeSetOperation;
+import qa.cache.entity.like.provider.CommentAnswerCacheProvider;
+import qa.cache.entity.like.provider.like.CommentAnswerLikeProvider;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.CommentAnswerQueryCreator;
@@ -32,24 +31,23 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
     private final CacheRemover cacheRemover;
+    private final CommentAnswerCacheProvider cacheProvider;
+    private final CommentAnswerLikeProvider likesProvider;
 
-    private static final CommentAnswerToLikeSetOperation commentAnswerLikeOperation;
-    private static final UserCommentAnswerLikeSetOperation userToCommentAnswerLikeOperation;
-
-    static {
-        commentAnswerLikeOperation = new CommentAnswerToLikeSetOperation();
-        userToCommentAnswerLikeOperation = new UserCommentAnswerLikeSetOperation();
-    }
 
     @Autowired
     public CommentAnswerDao(PropertySetterFactory propertySetterFactory,
                             SessionFactory sessionFactory,
                             JedisResourceCenter jedisResourceCenter,
-                            CacheRemover cacheRemover) {
+                            CacheRemover cacheRemover,
+                            CommentAnswerCacheProvider cacheProvider,
+                            CommentAnswerLikeProvider likesProvider) {
         super(HibernateSessionFactoryConfigurer.getSessionFactory(), new CommentAnswer(), propertySetterFactory.getSetter(new CommentAnswer()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
         this.cacheRemover = cacheRemover;
+        this.cacheProvider = cacheProvider;
+        this.likesProvider = likesProvider;
     }
 
     @Override
@@ -106,13 +104,10 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
     }
 
     @Override
-    public void like(long userId, Long id) {
+    public void like(long userId, Long commentId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final String userIdStr = String.valueOf(userId);
-            final String idStr = String.valueOf(userId);
-
-            LikesUtil.like(userIdStr, idStr, userToCommentAnswerLikeOperation, commentAnswerLikeOperation, jedis);
+            this.likesProvider.like(userId, commentId, jedis);
         }
     }
 
@@ -120,26 +115,21 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
             final String commentIdStr = String.valueOf(commentId);
-
-            cacheRemover.remove(DomainName.COMMENT_ANSWER, commentIdStr, jedis);
+            this.cacheRemover.remove(DomainName.COMMENT_ANSWER, commentIdStr, jedis);
         }
     }
 
     private void createLike(long commentId) {
         try(JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final String commentIdStr = String.valueOf(commentId);
-
-            LikesUtil.createLike(commentIdStr, commentAnswerLikeOperation, jedis);
+            this.likesProvider.initLike(commentId, jedis);
         }
     }
 
     private void setLikes(List<CommentAnswer> comments, long userId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final String userIdStr = String.valueOf(userId);
-
-            LikesUtil.setLikesAndLiked(comments, userIdStr, commentAnswerLikeOperation, userToCommentAnswerLikeOperation, jedis);
+            this.cacheProvider.provide(comments, userId, jedis);
         }
     }
 }
