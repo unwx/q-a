@@ -31,14 +31,14 @@ public class MockUtil {
 
     public static CacheRemover mockCacheRemover() {
         if (cacheRemover == null) {
-            final QuestionToLikeSetOperation questionLikeOperation = Mockito.spy(QuestionToLikeSetOperation.class);
-            final AnswerToLikeSetOperation answerLikeOperation = Mockito.spy(AnswerToLikeSetOperation.class);
-            final CommentQuestionToLikeSetOperation commentQuestionLikeOperation = Mockito.spy(CommentQuestionToLikeSetOperation.class);
-            final CommentAnswerToLikeSetOperation commentAnswerLikeOperation = Mockito.spy(CommentAnswerToLikeSetOperation.class);
-            final UserQuestionLikeSetOperation userQuestionLikeOperation = Mockito.spy(UserQuestionLikeSetOperation.class);
-            final UserAnswerLikeSetOperation userAnswerLikeOperation = Mockito.spy(UserAnswerLikeSetOperation.class);
-            final UserCommentQuestionLikeSetOperation userCommentQuestionLikeOperation = Mockito.spy(UserCommentQuestionLikeSetOperation.class);
-            final UserCommentAnswerLikeSetOperation userCommentAnswerLikeOperation = Mockito.spy(UserCommentAnswerLikeSetOperation.class);
+            final QuestionToLikeSetOperation            questionLikeOperation               = Mockito.spy(QuestionToLikeSetOperation.class);
+            final AnswerToLikeSetOperation              answerLikeOperation                 = Mockito.spy(AnswerToLikeSetOperation.class);
+            final CommentQuestionToLikeSetOperation     commentQuestionLikeOperation        = Mockito.spy(CommentQuestionToLikeSetOperation.class);
+            final CommentAnswerToLikeSetOperation       commentAnswerLikeOperation          = Mockito.spy(CommentAnswerToLikeSetOperation.class);
+            final UserQuestionLikeSetOperation          userQuestionLikeOperation           = Mockito.spy(UserQuestionLikeSetOperation.class);
+            final UserAnswerLikeSetOperation            userAnswerLikeOperation             = Mockito.spy(UserAnswerLikeSetOperation.class);
+            final UserCommentQuestionLikeSetOperation   userCommentQuestionLikeOperation    = Mockito.spy(UserCommentQuestionLikeSetOperation.class);
+            final UserCommentAnswerLikeSetOperation     userCommentAnswerLikeOperation      = Mockito.spy(UserCommentAnswerLikeSetOperation.class);
             cacheRemover = new CacheRemover(
                     questionLikeOperation,
                     answerLikeOperation,
@@ -55,14 +55,14 @@ public class MockUtil {
 
     public static QuestionCacheProvider mockQuestionCacheProvider() {
         if (questionCacheProvider == null) {
-            final QuestionToLikeSetOperation questionLikeOperation = Mockito.spy(QuestionToLikeSetOperation.class);
-            final AnswerToLikeSetOperation answerLikeOperation = Mockito.spy(AnswerToLikeSetOperation.class);
-            final CommentQuestionToLikeSetOperation commentQuestionLikeOperation = Mockito.spy(CommentQuestionToLikeSetOperation.class);
-            final CommentAnswerToLikeSetOperation commentAnswerLikeOperation = Mockito.spy(CommentAnswerToLikeSetOperation.class);
-            final UserQuestionLikeSetOperation userQuestionLikeOperation = Mockito.spy(UserQuestionLikeSetOperation.class);
-            final UserAnswerLikeSetOperation userAnswerLikeOperation = Mockito.spy(UserAnswerLikeSetOperation.class);
-            final UserCommentQuestionLikeSetOperation userCommentQuestionLikeOperation = Mockito.spy(UserCommentQuestionLikeSetOperation.class);
-            final UserCommentAnswerLikeSetOperation userCommentAnswerLikeOperation = Mockito.spy(UserCommentAnswerLikeSetOperation.class);
+            final QuestionToLikeSetOperation            questionLikeOperation               = Mockito.spy(QuestionToLikeSetOperation.class);
+            final AnswerToLikeSetOperation              answerLikeOperation                 = Mockito.spy(AnswerToLikeSetOperation.class);
+            final CommentQuestionToLikeSetOperation     commentQuestionLikeOperation        = Mockito.spy(CommentQuestionToLikeSetOperation.class);
+            final CommentAnswerToLikeSetOperation       commentAnswerLikeOperation          = Mockito.spy(CommentAnswerToLikeSetOperation.class);
+            final UserQuestionLikeSetOperation          userQuestionLikeOperation           = Mockito.spy(UserQuestionLikeSetOperation.class);
+            final UserAnswerLikeSetOperation            userAnswerLikeOperation             = Mockito.spy(UserAnswerLikeSetOperation.class);
+            final UserCommentQuestionLikeSetOperation   userCommentQuestionLikeOperation    = Mockito.spy(UserCommentQuestionLikeSetOperation.class);
+            final UserCommentAnswerLikeSetOperation     userCommentAnswerLikeOperation      = Mockito.spy(UserCommentAnswerLikeSetOperation.class);
             questionCacheProvider = new QuestionCacheProvider(
                     questionLikeOperation,
                     answerLikeOperation,
@@ -79,14 +79,14 @@ public class MockUtil {
 
     public static AnswerCacheProvider mockAnswerCacheProvider() {
         if (answerCacheProvider == null) {
-            final QuestionToLikeSetOperation questionLikeOperation = Mockito.spy(QuestionToLikeSetOperation.class);
-            final AnswerToLikeSetOperation answerLikeOperation = Mockito.spy(AnswerToLikeSetOperation.class);
-            final CommentQuestionToLikeSetOperation commentQuestionLikeOperation = Mockito.spy(CommentQuestionToLikeSetOperation.class);
-            final CommentAnswerToLikeSetOperation commentAnswerLikeOperation = Mockito.spy(CommentAnswerToLikeSetOperation.class);
-            final UserQuestionLikeSetOperation userQuestionLikeOperation = Mockito.spy(UserQuestionLikeSetOperation.class);
-            final UserAnswerLikeSetOperation userAnswerLikeOperation = Mockito.spy(UserAnswerLikeSetOperation.class);
-            final UserCommentQuestionLikeSetOperation userCommentQuestionLikeOperation = Mockito.spy(UserCommentQuestionLikeSetOperation.class);
-            final UserCommentAnswerLikeSetOperation userCommentAnswerLikeOperation = Mockito.spy(UserCommentAnswerLikeSetOperation.class);
+            final QuestionToLikeSetOperation            questionLikeOperation               = Mockito.spy(QuestionToLikeSetOperation.class);
+            final AnswerToLikeSetOperation              answerLikeOperation                 = Mockito.spy(AnswerToLikeSetOperation.class);
+            final CommentQuestionToLikeSetOperation     commentQuestionLikeOperation        = Mockito.spy(CommentQuestionToLikeSetOperation.class);
+            final CommentAnswerToLikeSetOperation       commentAnswerLikeOperation          = Mockito.spy(CommentAnswerToLikeSetOperation.class);
+            final UserQuestionLikeSetOperation          userQuestionLikeOperation           = Mockito.spy(UserQuestionLikeSetOperation.class);
+            final UserAnswerLikeSetOperation            userAnswerLikeOperation             = Mockito.spy(UserAnswerLikeSetOperation.class);
+            final UserCommentQuestionLikeSetOperation   userCommentQuestionLikeOperation    = Mockito.spy(UserCommentQuestionLikeSetOperation.class);
+            final UserCommentAnswerLikeSetOperation     userCommentAnswerLikeOperation      = Mockito.spy(UserCommentAnswerLikeSetOperation.class);
             answerCacheProvider = new AnswerCacheProvider(
                     questionLikeOperation,
                     answerLikeOperation,
