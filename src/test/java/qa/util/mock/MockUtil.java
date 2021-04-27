@@ -81,14 +81,11 @@ public class MockUtil { // TODO REFACTOR
     public static QuestionCacheProvider mockQuestionCacheProvider() {
         if (questionCacheProvider == null) {
             questionCacheProvider = new QuestionCacheProvider(
-                    questionLikeOperation,
-                    answerLikeOperation,
-                    commentQuestionLikeOperation,
-                    commentAnswerLikeOperation,
                     userQuestionLikeOperation,
-                    userAnswerLikeOperation,
-                    userCommentQuestionLikeOperation,
-                    userCommentAnswerLikeOperation
+                    questionLikeOperation,
+                    mockAnswerCacheProvider(),
+                    mockCommentQuestionCacheProvider(),
+                    mockCommentAnswerCacheProvider()
             );
         }
         return questionCacheProvider;
@@ -97,14 +94,9 @@ public class MockUtil { // TODO REFACTOR
     public static AnswerCacheProvider mockAnswerCacheProvider() {
         if (answerCacheProvider == null) {
             answerCacheProvider = new AnswerCacheProvider(
-                    questionLikeOperation,
-                    answerLikeOperation,
-                    commentQuestionLikeOperation,
-                    commentAnswerLikeOperation,
-                    userQuestionLikeOperation,
                     userAnswerLikeOperation,
-                    userCommentQuestionLikeOperation,
-                    userCommentAnswerLikeOperation
+                    answerLikeOperation,
+                    mockCommentAnswerCacheProvider()
             );
         }
         return answerCacheProvider;
@@ -113,14 +105,8 @@ public class MockUtil { // TODO REFACTOR
     public static CommentQuestionCacheProvider mockCommentQuestionCacheProvider() {
         if (commentQuestionCacheProvider == null) {
             commentQuestionCacheProvider = new CommentQuestionCacheProvider(
-                    questionLikeOperation,
-                    answerLikeOperation,
-                    commentQuestionLikeOperation,
-                    commentAnswerLikeOperation,
-                    userQuestionLikeOperation,
-                    userAnswerLikeOperation,
                     userCommentQuestionLikeOperation,
-                    userCommentAnswerLikeOperation
+                    commentQuestionLikeOperation
             );
         }
         return commentQuestionCacheProvider;
@@ -129,14 +115,8 @@ public class MockUtil { // TODO REFACTOR
     public static CommentAnswerCacheProvider mockCommentAnswerCacheProvider() {
         if (commentAnswerCacheProvider == null) {
             commentAnswerCacheProvider = new CommentAnswerCacheProvider(
-                    questionLikeOperation,
-                    answerLikeOperation,
-                    commentQuestionLikeOperation,
-                    commentAnswerLikeOperation,
-                    userQuestionLikeOperation,
-                    userAnswerLikeOperation,
-                    userCommentQuestionLikeOperation,
-                    userCommentAnswerLikeOperation
+                    userCommentAnswerLikeOperation,
+                    commentAnswerLikeOperation
             );
         }
         return commentAnswerCacheProvider;
