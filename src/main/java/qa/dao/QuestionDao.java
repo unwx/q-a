@@ -7,11 +7,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import qa.cache.CacheOperationInstructions;
+import qa.cache.CacheRemoveInstructions;
 import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.entity.like.LikesUtil;
+import qa.cache.entity.like.provider.QuestionCacheProvider;
 import qa.cache.operation.impl.QuestionToLikeSetOperation;
 import qa.cache.operation.impl.UserQuestionLikeSetOperation;
 import qa.dao.databasecomponents.Where;
@@ -41,6 +42,7 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     private final SessionFactory sessionFactory;
     private final JedisResourceCenter jedisResourceCenter;
     private final CacheRemover cacheRemover;
+    private final QuestionCacheProvider cacheProvider;
 
     private static final QuestionToLikeSetOperation questionToLikeOperation;
     private static final UserQuestionLikeSetOperation userToQuestionLikeOperation;
@@ -54,11 +56,13 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     public QuestionDao(PropertySetterFactory propertySetterFactory,
                        SessionFactory sessionFactory,
                        JedisResourceCenter jedisResourceCenter,
-                       CacheRemover cacheRemover) {
+                       CacheRemover cacheRemover,
+                       QuestionCacheProvider cacheProvider) {
         super(HibernateSessionFactoryConfigurer.getSessionFactory(), new Question(), propertySetterFactory.getSetter(new Question()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
         this.cacheRemover = cacheRemover;
+        this.cacheProvider = cacheProvider;
     }
 
     public boolean isExist(Long id) {
@@ -163,27 +167,19 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
     private void setLike(Question question, long userId) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final String userIdStr = String.valueOf(userId);
-
-            LikesUtil.setLikeAndLiked(
-                    question,
-                    userIdStr,
-                    questionToLikeOperation,
-                    userToQuestionLikeOperation,
-                    jedis
-            );
+            cacheProvider.provide(question, userId, jedis);
         }
     }
 
     private void setLikes(List<QuestionView> questionViews) {
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            LikesUtil.setLikes(questionViews, questionToLikeOperation, jedis);
+            cacheProvider.provide(questionViews, jedis);
         }
     }
 
     private void deleteLikes(QuestionFullStringIdsDto dto, long questionId) {
-        final CacheOperationInstructions instructions = new CacheOperationInstructions();
+        final CacheRemoveInstructions instructions = new CacheRemoveInstructions();
         final Stack<String> questionIdStr = new Stack<>();
         questionIdStr.push(String.valueOf(questionId));
 

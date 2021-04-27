@@ -6,7 +6,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Stack;
 
-public class CacheOperationInstructions {
+public class CacheRemoveInstructions {
 
     private final Map<DomainName, Stack<String>> nameToIdsMap = new EnumMap<>(DomainName.class);
 

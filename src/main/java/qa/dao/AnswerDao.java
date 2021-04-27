@@ -6,7 +6,7 @@ import org.hibernate.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import qa.cache.CacheOperationInstructions;
+import qa.cache.CacheRemoveInstructions;
 import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
@@ -141,7 +141,7 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
     }
 
     private void deleteLikes(AnswerFullStringIdsDto dto, long answerId) {
-        final CacheOperationInstructions instructions = new CacheOperationInstructions();
+        final CacheRemoveInstructions instructions = new CacheRemoveInstructions();
         final Stack<String> answerIdStr = new Stack<>();
         answerIdStr.push(String.valueOf(answerId));
 

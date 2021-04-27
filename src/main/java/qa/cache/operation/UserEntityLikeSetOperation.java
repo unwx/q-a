@@ -11,8 +11,8 @@ public abstract class UserEntityLikeSetOperation { // TODO RENAME --LIKE--
     }
 
     protected boolean isValueExist(KeyValueOperation like, Jedis jedis) {
-        final boolean status = jedis.setnx(like.getKey(), like.getValue()) == 0; // create
-        if (!status) this.deleteKey(like, jedis); // if created - delete
+        final boolean status = jedis.sadd(like.getKey(), like.getValue()) == 0; // create
+        if (!status) jedis.srem(like.getKey(), like.getValue()); // if created - delete
         return status;
     }
 
@@ -24,9 +24,5 @@ public abstract class UserEntityLikeSetOperation { // TODO RENAME --LIKE--
         set.forEach((m) -> jedis.srem(linkedKeyBeginning + m, keyValue));
         final Long reply = jedis.del(key);
         return reply != null && reply != 0L;
-    }
-
-    private boolean deleteKey(KeyValueOperation like, Jedis jedis) {
-        return jedis.del(like.getKey()) == 1;
     }
 }

@@ -19,8 +19,7 @@ import qa.util.dao.CommentDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.RedisTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
-import qa.util.mock.CacheRemoverMockTestUtil;
-import qa.util.mock.JedisMockTestUtil;
+import qa.util.mock.MockUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,9 +46,9 @@ public class CommentQuestionDaoTest {
     @BeforeAll
     void init() {
         sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
-        jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
+        jedisResourceCenter = MockUtil.mockJedisCenter();
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
-        CacheRemover cacheRemover = CacheRemoverMockTestUtil.mock();
+        CacheRemover cacheRemover = MockUtil.mockCacheRemover();
 
         commentQuestionDao = new CommentQuestionDao(propertySetterFactory, sessionFactory, jedisResourceCenter, cacheRemover);
         commentDaoTestUtil = new CommentDaoTestUtil(sessionFactory, jedisResourceCenter);

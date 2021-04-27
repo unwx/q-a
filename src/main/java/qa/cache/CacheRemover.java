@@ -2,6 +2,7 @@ package qa.cache;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import qa.cache.operation.EntityToLikeSetOperation;
 import qa.cache.operation.IUserEntityLikeSetOperation;
@@ -13,23 +14,13 @@ import java.util.Map;
 import java.util.Stack;
 
 @Component
-public class CacheRemover {
+public class CacheRemover extends CacheResolver {
 
-    private final QuestionToLikeSetOperation questionLikeOperation;
-    private final AnswerToLikeSetOperation answerLikeOperation;
-    private final CommentQuestionToLikeSetOperation commentQuestionLikeOperation;
-    private final CommentAnswerToLikeSetOperation commentAnswerLikeOperation;
-
-    private final UserQuestionLikeSetOperation userQuestionLikeOperation;
-    private final UserAnswerLikeSetOperation userAnswerLikeOperation;
-    private final UserCommentQuestionLikeSetOperation userCommentQuestionLikeOperation;
-    private final UserCommentAnswerLikeSetOperation userCommentAnswerLikeOperation;
-
-    private static final String ERR_UNKNOWN_ARGUMENT = "unknown argument: %s";
     private static final String ERR_CANNOT_DELETE = "cannot delete like cache, id: %s, names: %s";
 
     private static final Logger logger = LogManager.getLogger(CacheRemover.class);
 
+    @Autowired
     public CacheRemover(QuestionToLikeSetOperation questionLikeOperation,
                         AnswerToLikeSetOperation answerLikeOperation,
                         CommentQuestionToLikeSetOperation commentQuestionLikeOperation,
@@ -38,17 +29,19 @@ public class CacheRemover {
                         UserAnswerLikeSetOperation userAnswerLikeOperation,
                         UserCommentQuestionLikeSetOperation userCommentQuestionLikeOperation,
                         UserCommentAnswerLikeSetOperation userCommentAnswerLikeOperation) {
-        this.questionLikeOperation = questionLikeOperation;
-        this.answerLikeOperation = answerLikeOperation;
-        this.commentQuestionLikeOperation = commentQuestionLikeOperation;
-        this.commentAnswerLikeOperation = commentAnswerLikeOperation;
-        this.userQuestionLikeOperation = userQuestionLikeOperation;
-        this.userAnswerLikeOperation = userAnswerLikeOperation;
-        this.userCommentQuestionLikeOperation = userCommentQuestionLikeOperation;
-        this.userCommentAnswerLikeOperation = userCommentAnswerLikeOperation;
+        super(
+                questionLikeOperation,
+                answerLikeOperation,
+                commentQuestionLikeOperation,
+                commentAnswerLikeOperation,
+                userQuestionLikeOperation,
+                userAnswerLikeOperation,
+                userCommentQuestionLikeOperation,
+                userCommentAnswerLikeOperation
+        );
     }
 
-    public boolean remove(CacheOperationInstructions instructions, Jedis jedis) {
+    public boolean remove(CacheRemoveInstructions instructions, Jedis jedis) {
         final Map<DomainName, Stack<String>> instructionMap = instructions.getInstructions();
         for (Map.Entry<DomainName, Stack<String>> entry : instructionMap.entrySet()) {
             final DomainName name = entry.getKey();
@@ -100,36 +93,13 @@ public class CacheRemover {
                                         Jedis jedis) {
 
         final boolean status = entityOperation.delete(id, jedis);
-        if (status) userEntityOperation.deleteEntity(id, jedis);
+        if (status) {
+            userEntityOperation.deleteEntity(id, jedis);
+        }
         else {
             logger.error(ERR_CANNOT_DELETE.formatted(id, name));
             return false;
         }
         return true;
-    }
-
-    private CacheLikeOperation resolve(DomainName name) {
-        return switch (name) {
-            case QUESTION -> new CacheLikeOperation(
-                    this.questionLikeOperation,
-                    this.userQuestionLikeOperation
-            );
-            case ANSWER -> new CacheLikeOperation(
-                    this.answerLikeOperation,
-                    this.userAnswerLikeOperation
-
-            );
-            case COMMENT_QUESTION -> new CacheLikeOperation(
-                    this.commentQuestionLikeOperation,
-                    this.userCommentQuestionLikeOperation
-            );
-            case COMMENT_ANSWER -> new CacheLikeOperation(
-                    this.commentAnswerLikeOperation,
-                    this.userCommentAnswerLikeOperation
-            );
-            default -> throw new IllegalArgumentException(
-                    ERR_UNKNOWN_ARGUMENT.formatted(name)
-            );
-        };
     }
 }

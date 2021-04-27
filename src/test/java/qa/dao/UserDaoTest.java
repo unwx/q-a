@@ -20,7 +20,7 @@ import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.UserDaoTestUtil;
 import qa.util.dao.query.params.UserQueryParameters;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
-import qa.util.mock.JedisMockTestUtil;
+import qa.util.mock.MockUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,7 +43,7 @@ public class UserDaoTest {
     @BeforeAll
     void init() {
         sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
-        JedisResourceCenter jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
+        JedisResourceCenter jedisResourceCenter = MockUtil.mockJedisCenter();
         PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
 
         userDao = new UserDao(propertySetterFactory, sessionFactory);

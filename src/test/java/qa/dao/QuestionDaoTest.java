@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import qa.cache.CacheRemover;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
+import qa.cache.entity.like.provider.QuestionCacheProvider;
 import qa.domain.*;
 import qa.domain.setters.PropertySetterFactory;
 import qa.logger.TestLogger;
@@ -19,8 +20,7 @@ import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.RedisTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
-import qa.util.mock.CacheRemoverMockTestUtil;
-import qa.util.mock.JedisMockTestUtil;
+import qa.util.mock.MockUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -47,12 +47,13 @@ public class QuestionDaoTest {
     @BeforeAll
     void init() {
         sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
-        jedisResourceCenter = JedisMockTestUtil.mockJedisFactory();
+        jedisResourceCenter = MockUtil.mockJedisCenter();
 
         final PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
-        final CacheRemover cacheRemover = CacheRemoverMockTestUtil.mock();
+        final CacheRemover cacheRemover = MockUtil.mockCacheRemover();
+        final QuestionCacheProvider cacheProvider = MockUtil.mockQuestionCacheProvider();
 
-        questionDao = new QuestionDao(propertySetterFactory, sessionFactory, jedisResourceCenter, cacheRemover);
+        questionDao = new QuestionDao(propertySetterFactory, sessionFactory, jedisResourceCenter, cacheRemover, cacheProvider);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
         redisTestUtil = new RedisTestUtil(jedisResourceCenter);
@@ -105,6 +106,8 @@ public class QuestionDaoTest {
                 assertThat(a.getCreationDate(), notNullValue());
                 assertThat(a.getAuthor(), notNullValue());
                 assertThat(a.getAuthor().getUsername(), notNullValue());
+                assertThat(a.getLikes(), equalTo(0));
+                assertThat(a.isLiked(), equalTo(false));
 
                 assertThat(a.getComments(), notNullValue());
                 assertThat(a.getComments().size(), greaterThan(0));
@@ -114,17 +117,21 @@ public class QuestionDaoTest {
                     assertThat(c.getCreationDate(), notNullValue());
                     assertThat(c.getAuthor(), notNullValue());
                     assertThat(c.getAuthor().getUsername(), notNullValue());
+                    assertThat(c.getLikes(), equalTo(0));
+                    assertThat(c.isLiked(), equalTo(false));
                 }
             }
 
             assertThat(q.getComments(), notNullValue());
             assertThat(q.getComments().size(), lessThan(QuestionDaoTestUtil.COMMENT_RESULT_SIZE + 1));
-            for (int i = 0; i < q.getComments().size(); i++) {
-                assertThat(q.getComments().get(i).getAuthor(), notNullValue());
-                assertThat(q.getComments().get(i).getAuthor().getUsername(), notNullValue());
-                assertThat(q.getComments().get(i).getId(), notNullValue());
-                assertThat(q.getComments().get(i).getText(), notNullValue());
-                assertThat(q.getComments().get(i).getCreationDate(), notNullValue());
+            for (CommentQuestion cq : q.getComments()) {
+                assertThat(cq.getAuthor(), notNullValue());
+                assertThat(cq.getAuthor().getUsername(), notNullValue());
+                assertThat(cq.getId(), notNullValue());
+                assertThat(cq.getText(), notNullValue());
+                assertThat(cq.getCreationDate(), notNullValue());
+                assertThat(cq.getLikes(), equalTo(0));
+                assertThat(cq.isLiked(), equalTo(false));
             }
         }
 
@@ -222,7 +229,7 @@ public class QuestionDaoTest {
                 assertThat(v.getAuthor(), notNullValue());
                 assertThat(v.getAuthor().getUsername(), notNullValue());
                 assertThat(v.getAnswersCount(), notNullValue());
-                assertThat(v.getLikes(), notNullValue());
+                assertThat(v.getLikes(), equalTo(0));
             }
         }
 
