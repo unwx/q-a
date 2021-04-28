@@ -108,7 +108,7 @@ public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuth
         this.text = text;
     }
 
-    public Boolean getAnswered() {
+    public Boolean getAnswered() { // TODO rename
         return answered;
     }
 

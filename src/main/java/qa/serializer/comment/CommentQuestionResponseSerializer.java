@@ -8,7 +8,7 @@ import qa.util.serialization.CommentQuestionSerializationUtil;
 
 import java.io.IOException;
 
-public class CommentQuestionResponseSerializer extends JsonSerializer<CommentQuestionResponse> {
+public class CommentQuestionResponseSerializer extends JsonSerializer<CommentQuestionResponse> { // TODO REFACTOR SERIALIZERS
     @Override
     public void serialize(CommentQuestionResponse commentQuestionResponse, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();

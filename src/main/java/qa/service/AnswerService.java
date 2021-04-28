@@ -19,7 +19,7 @@ public interface AnswerService {
 
     ResponseEntity<HttpStatus> deleteAnswer(AnswerDeleteRequest request, Authentication authentication);
 
-    ResponseEntity<List<AnswerFullResponse>> getAnswers(Long questionId, Integer page);
+    ResponseEntity<List<AnswerFullResponse>> getAnswers(Long questionId, Integer page, Authentication authentication);
 
-    ResponseEntity<List<AnswerFullResponse>> getAnswers(AnswerGetFullRequest request);
+    ResponseEntity<List<AnswerFullResponse>> getAnswers(AnswerGetFullRequest request, Authentication authentication);
 }

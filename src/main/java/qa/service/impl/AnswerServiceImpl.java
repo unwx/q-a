@@ -16,13 +16,12 @@ import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.answer.*;
 import qa.dto.response.answer.AnswerFullResponse;
-import qa.dto.validation.wrapper.answer.AnswerAnsweredRequestValidationWrapper;
-import qa.dto.validation.wrapper.answer.AnswerCreateRequestValidationWrapper;
-import qa.dto.validation.wrapper.answer.AnswerDeleteRequestValidationWrapper;
-import qa.dto.validation.wrapper.answer.AnswerEditRequestValidationWrapper;
+import qa.dto.validation.wrapper.answer.*;
 import qa.exceptions.rest.BadRequestException;
 import qa.service.AnswerService;
+import qa.service.err.ServiceExceptionMessage;
 import qa.source.ValidationPropertyDataSource;
+import qa.util.ResourceUtil;
 import qa.util.ValidationUtil;
 import qa.util.user.AuthorUtil;
 import qa.util.user.PrincipalUtil;
@@ -30,9 +29,10 @@ import qa.validators.abstraction.ValidationChainAdditional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class AnswerServiceImpl implements AnswerService {
+public class AnswerServiceImpl implements AnswerService { // TODO REFACTOR
 
     private final AnswerDao answerDao;
     private final QuestionDao questionDao;
@@ -84,13 +84,13 @@ public class AnswerServiceImpl implements AnswerService {
     }
 
     @Override
-    public ResponseEntity<List<AnswerFullResponse>> getAnswers(Long questionId, Integer page) {
-        return null; // TODO SERVICE
+    public ResponseEntity<List<AnswerFullResponse>> getAnswers(Long questionId, Integer page, Authentication authentication) {
+        return new ResponseEntity<>(getAnswersProcess(questionId, page, authentication), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<List<AnswerFullResponse>> getAnswers(AnswerGetFullRequest request) {
-        return null;
+    public ResponseEntity<List<AnswerFullResponse>> getAnswers(AnswerGetFullRequest request, Authentication authentication) {
+        return new ResponseEntity<>(getAnswersProcess(request, authentication), HttpStatus.OK);
     }
 
     private Long createAnswerProcess(AnswerCreateRequest request, Authentication authentication) {
@@ -121,6 +121,18 @@ public class AnswerServiceImpl implements AnswerService {
         validate(request);
         checkIsRealAuthor(request.getAnswerId(), authentication);
         deleteAnswerFromDatabase(request);
+    }
+
+    private List<AnswerFullResponse> getAnswersProcess(Long questionId, Integer page, Authentication authentication) {
+        return this.getAnswersProcess(new AnswerGetFullRequest(questionId, page), authentication);
+    }
+
+
+    private List<AnswerFullResponse> getAnswersProcess(AnswerGetFullRequest request, Authentication authentication) {
+        this.validate(request);
+        final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
+        final List<Answer> answers = this.getAnswersFromDatabase(request.getQuestionId(), userId, request.getPage());
+        return this.convertToDto(answers);
     }
 
     private Long saveNewAnswer(AnswerCreateRequest request, Authentication authentication) {
@@ -160,6 +172,11 @@ public class AnswerServiceImpl implements AnswerService {
         answerDao.delete(new Where("id", request.getAnswerId(), WhereOperator.EQUALS));
     }
 
+    private List<Answer> getAnswersFromDatabase(long questionId, long userId, int page) {
+        final List<Answer> answers = this.answerDao.getAnswers(questionId, userId, page - 1);
+        return ResourceUtil.throwResourceNFExceptionIfNull(answers, ServiceExceptionMessage.ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questionId));
+    }
+
     private void checkIsRealAuthor(Long answerId, Authentication authentication) {
         AuthorUtil.checkIsRealAuthorAndIsEntityExist(
                 PrincipalUtil.getUserIdFromAuthentication(authentication),
@@ -169,6 +186,19 @@ public class AnswerServiceImpl implements AnswerService {
                 propertySetterFactory,
                 logger,
                 "answer");
+    }
+
+    private List<AnswerFullResponse> convertToDto(List<Answer> answers) {
+        return answers.stream().map((a) -> new AnswerFullResponse(
+                a.getId(),
+                a.getText(),
+                a.getCreationDate(),
+                a.getAnswered(),
+                a.getAuthor(),
+                a.getComments(),
+                a.getLikes(),
+                a.isLiked()
+                )).collect(Collectors.toList());
     }
 
     private void throwBadRequestExIfQuestionNotExist(Long questionId) {
@@ -194,5 +224,9 @@ public class AnswerServiceImpl implements AnswerService {
 
     private void validate(AnswerDeleteRequest request) {
         ValidationUtil.validate(new AnswerDeleteRequestValidationWrapper(request), validationChain);
+    }
+
+    private void validate(AnswerGetFullRequest request) {
+        ValidationUtil.validate(new AnswerGetFullRequestValidationWrapper(request), validationChain);
     }
 }

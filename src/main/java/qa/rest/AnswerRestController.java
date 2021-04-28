@@ -5,15 +5,12 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
-import qa.dto.request.answer.AnswerAnsweredRequest;
-import qa.dto.request.answer.AnswerCreateRequest;
-import qa.dto.request.answer.AnswerDeleteRequest;
-import qa.dto.request.answer.AnswerEditRequest;
+import org.springframework.web.bind.annotation.*;
+import qa.dto.request.answer.*;
+import qa.dto.response.answer.AnswerFullResponse;
 import qa.service.AnswerService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/answer/")
@@ -189,5 +186,105 @@ public class AnswerRestController {
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpStatus> deleteAnswer(@RequestBody AnswerDeleteRequest request, Authentication authentication) {
         return answerService.deleteAnswer(request, authentication);
+    }
+
+
+    /**
+     * @uri
+     * /api/v1/answer/get/{questionId}/{page}
+     *
+     * @method
+     * get
+     *
+     * @path_variable
+     * questionId: long
+     * page: int
+     *
+     * @response
+     * Response {
+     *     id: long
+     *     text: string
+     *     creation_date: string
+     *     answered: string (true : false)
+     *     author {
+     *         username: string
+     *     }
+     *     comments [
+     *          id: long
+     *          text: string
+     *          creation_date: string
+     *          author {
+     *              username: string
+     *          }
+     *     ]
+     *     ... 6 sorted by creation date DESC
+     * }
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @RequestMapping(
+            value = "get/{questionId}/{page}",
+            method = RequestMethod.GET)
+    public ResponseEntity<List<AnswerFullResponse>> getAnswers(@PathVariable("questionId") Long questionId,
+                                                              @PathVariable("page") Integer page,
+                                                              Authentication authentication) {
+        return answerService.getAnswers(questionId, page, authentication);
+    }
+
+
+    /**
+     * @uri
+     * /api/v1/answer/get
+     *
+     * @method
+     * get
+     *
+     * @request
+     * dto {
+     *     id: long
+     *     page: int
+     * }
+     *
+     * @response
+     * Response {
+     *     id: long
+     *     text: string
+     *     creation_date: string
+     *     answered: string (true : false)
+     *     author {
+     *         username: string
+     *     }
+     *     comments [
+     *          id: long
+     *          text: string
+     *          creation_date: string
+     *          author {
+     *              username: string
+     *          }
+     *     ]
+     *     ... 6 sorted by creation date DESC
+     * }
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @RequestMapping(
+            value = "get",
+            method = RequestMethod.GET,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<AnswerFullResponse>> getAnswers(@RequestBody AnswerGetFullRequest request,
+                                                               Authentication authentication) {
+        return answerService.getAnswers(request, authentication);
     }
 }

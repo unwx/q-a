@@ -4,14 +4,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import qa.dto.request.answer.AnswerAnsweredRequest;
-import qa.dto.request.answer.AnswerCreateRequest;
-import qa.dto.request.answer.AnswerDeleteRequest;
-import qa.dto.request.answer.AnswerEditRequest;
-import qa.dto.validation.wrapper.answer.AnswerAnsweredRequestValidationWrapper;
-import qa.dto.validation.wrapper.answer.AnswerCreateRequestValidationWrapper;
-import qa.dto.validation.wrapper.answer.AnswerDeleteRequestValidationWrapper;
-import qa.dto.validation.wrapper.answer.AnswerEditRequestValidationWrapper;
+import qa.dto.request.answer.*;
+import qa.dto.validation.wrapper.answer.*;
 import qa.exceptions.validator.ValidationException;
 import qa.logger.TestLogger;
 import qa.source.ValidationPropertyDataSource;
@@ -128,6 +122,36 @@ public class ValidationAnswerRequestsTest {
             logger.trace("invalid id");
             AnswerDeleteRequestValidationWrapper validationWrapper = new AnswerDeleteRequestValidationWrapper(
                     new AnswerDeleteRequest(-5L));
+            Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
+        }
+    }
+
+    @Nested
+    class get {
+        @Test
+        void valid() {
+            logger.trace("valid");
+            AnswerGetFullRequestValidationWrapper validationWrapper = new AnswerGetFullRequestValidationWrapper(
+                    new AnswerGetFullRequest(1L, 1)
+            );
+            Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
+        }
+
+        @Test
+        void invalid_id() {
+            logger.trace("invalid id");
+            AnswerGetFullRequestValidationWrapper validationWrapper = new AnswerGetFullRequestValidationWrapper(
+                    new AnswerGetFullRequest(-1L, 1)
+            );
+            Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
+        }
+
+        @Test
+        void invalid_page() {
+            logger.trace("invalid page");
+            AnswerGetFullRequestValidationWrapper validationWrapper = new AnswerGetFullRequestValidationWrapper(
+                    new AnswerGetFullRequest(1L, 0)
+            );
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
     }

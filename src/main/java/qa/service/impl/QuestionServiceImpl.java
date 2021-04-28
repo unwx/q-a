@@ -18,6 +18,7 @@ import qa.dto.response.question.QuestionFullResponse;
 import qa.dto.response.question.QuestionViewResponse;
 import qa.dto.validation.wrapper.question.*;
 import qa.service.QuestionService;
+import qa.service.err.ServiceExceptionMessage;
 import qa.source.ValidationPropertyDataSource;
 import qa.util.QuestionTagsUtil;
 import qa.util.ResourceUtil;
@@ -37,8 +38,6 @@ public class QuestionServiceImpl implements QuestionService {
     private final ValidationPropertyDataSource validationPropertyDataSource;
     private final ValidationChainAdditional validationChain;
     private final PropertySetterFactory propertySetterFactory;
-
-    private static final String ERR_MESSAGE_QUESTION_NOT_EXIST_ID = "question not exist. question id: %s";
 
     private static final Logger logger = LogManager.getLogger(QuestionServiceImpl.class);
 
@@ -171,7 +170,7 @@ public class QuestionServiceImpl implements QuestionService {
 
     private Question getFullQuestionFromDatabase(long questionId, long userId) {
         final Question question = questionDao.getFullQuestion(questionId, userId);
-        return ResourceUtil.throwResourceNFExceptionIfNull(question, ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questionId));
+        return ResourceUtil.throwResourceNFExceptionIfNull(question, ServiceExceptionMessage.ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questionId));
     }
 
     private List<QuestionViewResponse> convertViewDtoToResponse(List<QuestionView> views) {

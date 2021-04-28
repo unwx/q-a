@@ -47,4 +47,18 @@ public class AnswerRestTestUtil extends RestTestUtil {
         json.put("id", -1L);
         return json;
     }
+
+    public static JSONObject getAnswerJson() {
+        JSONObject json = new JSONObject();
+        json.put("id", 1L);
+        json.put("page", 1);
+        return json;
+    }
+
+    public static JSONObject badGetAnswerJson() {
+        JSONObject json = new JSONObject();
+        json.put("id", 1L);
+        json.put("page", 0);
+        return json;
+    }
 }

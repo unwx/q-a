@@ -1,5 +1,7 @@
 package qa.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -14,6 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
+import qa.domain.CommentAnswer;
+import qa.dto.response.answer.AnswerFullResponse;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
 import qa.tools.annotations.SpringIntegrationTest;
@@ -25,6 +29,7 @@ import qa.util.rest.AnswerRestTestUtil;
 import qa.util.rest.JwtTestUtil;
 
 import java.math.BigInteger;
+import java.text.SimpleDateFormat;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -273,6 +278,79 @@ public class AnswerRestControllerTest {
             RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
             Response response = request.delete("delete");
             assertThat(response.getStatusCode(), equalTo(403));
+        }
+    }
+
+    @Nested
+    class get_answers {
+        @Nested
+        class success {
+            @Test
+            void url() throws JsonProcessingException {
+                logger.trace("get answers by url");
+                answerDaoTestUtil.createManyAnswersWithManyComments(9, 3);
+                final RequestSpecification request = AnswerRestTestUtil.getRequest();
+
+                final Response response = request.get("get/1/1");
+                assertCorrectAnswerData(response);
+            }
+
+            @Test
+            void json() throws JsonProcessingException {
+                logger.trace("get answers by json");
+                answerDaoTestUtil.createManyAnswersWithManyComments(9, 3);
+                final JSONObject json = AnswerRestTestUtil.getAnswerJson();
+                final RequestSpecification request = AnswerRestTestUtil.getRequestJson(json.toString());
+
+                final Response response = request.get("get");
+                assertCorrectAnswerData(response);
+            }
+        }
+
+        @Nested
+        class bad_request {
+            @Test
+            void url() {
+                logger.trace("get answers by url");
+                final RequestSpecification request = AnswerRestTestUtil.getRequest();
+
+                final Response response = request.get("get/1/0");
+                assertThat(response.getStatusCode(), equalTo(400));
+            }
+
+            @Test
+            void json() {
+                logger.trace("get answers by json");
+                final JSONObject json = AnswerRestTestUtil.badGetAnswerJson();
+                final RequestSpecification request = AnswerRestTestUtil.getRequestJson(json.toString());
+
+                final Response response = request.get("get");
+                assertThat(response.getStatusCode(), equalTo(400));
+            }
+        }
+    }
+
+    private void assertCorrectAnswerData(Response response) throws JsonProcessingException {
+        final ObjectMapper mapper = new ObjectMapper();
+        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")); // TODO REFACTOR
+
+        final AnswerFullResponse[] answers = mapper.readValue(response.getBody().asString(), AnswerFullResponse[].class);
+        for (final AnswerFullResponse answer : answers) {
+            assertThat(answer, notNullValue());
+            assertThat(answer.getAnswerId(), notNullValue());
+            assertThat(answer.getText(), notNullValue());
+            assertThat(answer.getAnswered(), notNullValue());
+            assertThat(answer.getCreationDate(), notNullValue());
+            assertThat(answer.getAuthor(), notNullValue());
+            assertThat(answer.getAuthor().getUsername(), notNullValue());
+            assertThat(answer.getLikes(), equalTo(0));
+            assertThat(answer.isLiked(), equalTo(false));
+            for (CommentAnswer comment : answer.getComments()) {
+                assertThat(comment.getId(), notNullValue());
+                assertThat(comment.getText(), notNullValue());
+                assertThat(comment.getAuthor(), notNullValue());
+                assertThat(comment.getAuthor().getUsername(), notNullValue()); // TODO likes
+            }
         }
     }
 
