@@ -15,14 +15,12 @@ import qa.domain.CommentQuestion;
 import qa.domain.Question;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
-import qa.dto.request.comment.CommentQuestionCreateRequest;
-import qa.dto.request.comment.CommentQuestionDeleteRequest;
-import qa.dto.request.comment.CommentQuestionEditRequest;
-import qa.dto.request.comment.CommentQuestionGetRequest;
+import qa.dto.request.comment.*;
 import qa.dto.response.comment.CommentQuestionResponse;
 import qa.dto.validation.wrapper.comment.CommentQuestionCreateRequestValidationWrapper;
 import qa.dto.validation.wrapper.comment.CommentQuestionDeleteRequestValidationWrapper;
 import qa.dto.validation.wrapper.comment.CommentQuestionEditRequestValidationWrapper;
+import qa.dto.validation.wrapper.comment.CommentQuestionLikeRequestValidationWrapper;
 import qa.dto.validation.wrapper.question.CommentQuestionGetRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.service.CommentQuestionService;
@@ -89,6 +87,12 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
         return new ResponseEntity<>(getCommentProcess(request, authentication), HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<HttpStatus> like(CommentQuestionLikeRequest request, Authentication authentication) {
+        this.likeProcess(request, authentication);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     private Long createCommentProcess(CommentQuestionCreateRequest request, Authentication authentication) {
         validate(request);
         throwBadRequestExIfQuestionNotExist(request.getQuestionId());
@@ -116,6 +120,12 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
         final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
         List<CommentQuestion> comments = getCommentFromDatabase(request.getQuestionId(), userId, request.getPage());
         return convertCommentDtoToResponse(comments);
+    }
+
+    private void likeProcess(CommentQuestionLikeRequest request, Authentication authentication) {
+        this.validate(request);
+        final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
+        this.commentQuestionDao.like(userId, request.getCommentId());
     }
 
     private Long saveNewComment(CommentQuestionCreateRequest request, Authentication authentication) {
@@ -190,5 +200,9 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
 
     private void validate(CommentQuestionGetRequest request) {
         ValidationUtil.validate(new CommentQuestionGetRequestValidationWrapper(request), validationChain);
+    }
+
+    private void validate(CommentQuestionLikeRequest request) {
+        ValidationUtil.validate(new CommentQuestionLikeRequestValidationWrapper(request), validationChain);
     }
 }

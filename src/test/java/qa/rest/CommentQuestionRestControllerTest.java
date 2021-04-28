@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
+import qa.cache.RedisKeys;
 import qa.dto.response.comment.CommentQuestionResponse;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
@@ -26,6 +27,7 @@ import qa.util.dao.query.params.CommentQueryParameters;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import qa.util.rest.CommentRestTestUtil;
 import qa.util.rest.JwtTestUtil;
+import redis.clients.jedis.Jedis;
 
 import java.text.SimpleDateFormat;
 
@@ -259,6 +261,35 @@ public class CommentQuestionRestControllerTest {
         }
     }
 
+    @Nested
+    class like {
+        @Test
+        void assert_liked() {
+            logger.trace("assert liked");
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            commentDaoTestUtil.createCommentQuestionNoUser();
+
+            final JSONObject json = CommentRestTestUtil.id();
+            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
+
+            final Response response = request.post("like");
+            assertThat(response.getStatusCode(), equalTo(200));
+            assertKeysUpdated();
+        }
+
+        @Test
+        void bad_request() {
+            logger.trace("bad request");
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+
+            final JSONObject json = CommentRestTestUtil.badId();
+            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
+
+            final Response response = request.post("like");
+            assertThat(response.getStatusCode(), equalTo(400));
+        }
+    }
+
     public static void assertCorrectResultGetComments(CommentQuestionResponse[] response) {
         assertThat(response, notNullValue());
         assertThat(response.length, greaterThan(0));
@@ -271,6 +302,16 @@ public class CommentQuestionRestControllerTest {
             assertThat(r.getAuthor().getUsername(), notNullValue());
             assertThat(r.getLikes(), equalTo(0));
             assertThat(r.isLiked(), equalTo(false));
+        }
+    }
+
+    private void assertKeysUpdated() {
+        try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
+            final Jedis jedis = jedisResource.getJedis();
+            final boolean userEntityCreated = jedis.sadd(RedisKeys.getUserToCommentQuestionLikes("1"), "1") == 0;
+            final boolean entityUserCreated = jedis.sadd(RedisKeys.getCommentQuestionToUserLikes("1"), "1") == 0;
+            final boolean entityUpdated = jedis.get(RedisKeys.getCommentQuestionLikes("1")).equals("1");
+            assertThat(userEntityCreated && entityUserCreated && entityUpdated, equalTo(true));
         }
     }
 }

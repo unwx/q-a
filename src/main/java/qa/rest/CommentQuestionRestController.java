@@ -7,10 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import qa.dto.request.comment.CommentQuestionCreateRequest;
-import qa.dto.request.comment.CommentQuestionDeleteRequest;
-import qa.dto.request.comment.CommentQuestionEditRequest;
-import qa.dto.request.comment.CommentQuestionGetRequest;
+import qa.dto.request.comment.*;
 import qa.dto.response.comment.CommentQuestionResponse;
 import qa.service.CommentQuestionService;
 
@@ -212,5 +209,38 @@ public class CommentQuestionRestController {
     public ResponseEntity<List<CommentQuestionResponse>> getComments(@RequestBody CommentQuestionGetRequest request,
                                                                      Authentication authentication) {
         return commentService.getComments(request, authentication);
+    }
+
+    /**
+     * @uri
+     * /api/v1/comment/question/like
+     *
+     * @method
+     * get
+     *
+     * @request
+     * dto {
+     *     id: long
+     * }
+     *
+     * @response
+     * (OK): 200
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "like",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> like(@RequestBody CommentQuestionLikeRequest request,
+                                           Authentication authentication) {
+        return this.commentService.like(request, authentication);
     }
 }

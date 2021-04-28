@@ -18,7 +18,7 @@ import qa.validators.ValidationChainAdditionalImpl;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 @MockitoTest
-public class ValidationCommentRequestsTest {
+public class ValidationCommentRequestsTest { // TODO REFACTOR
 
     private final ValidationChainAdditional validationChain = new ValidationChainAdditionalImpl();
     private ValidationPropertyDataSource propertyDataSource;
@@ -139,6 +139,27 @@ public class ValidationCommentRequestsTest {
                 logger.trace("invalid page");
                 CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
                         new CommentQuestionGetRequest(1L, 0));
+                Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
+            }
+        }
+
+        @Nested
+        class like {
+            @Test
+            void valid() {
+                logger.trace("valid");
+                CommentQuestionLikeRequestValidationWrapper validationWrapper = new CommentQuestionLikeRequestValidationWrapper(
+                        new CommentQuestionLikeRequest(1L)
+                );
+                Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
+            }
+
+            @Test
+            void invalid_id() {
+                logger.trace("invalid id");
+                CommentQuestionLikeRequestValidationWrapper validationWrapper = new CommentQuestionLikeRequestValidationWrapper(
+                        new CommentQuestionLikeRequest(-1L)
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }

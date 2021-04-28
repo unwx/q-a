@@ -3,10 +3,7 @@ package qa.service;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import qa.dto.request.comment.CommentQuestionCreateRequest;
-import qa.dto.request.comment.CommentQuestionDeleteRequest;
-import qa.dto.request.comment.CommentQuestionEditRequest;
-import qa.dto.request.comment.CommentQuestionGetRequest;
+import qa.dto.request.comment.*;
 import qa.dto.response.comment.CommentQuestionResponse;
 
 import java.util.List;
@@ -21,4 +18,6 @@ public interface CommentQuestionService {
     ResponseEntity<List<CommentQuestionResponse>> getComments(Long questionId, Integer page, Authentication authentication);
 
     ResponseEntity<List<CommentQuestionResponse>> getComments(CommentQuestionGetRequest request, Authentication authentication);
+
+    ResponseEntity<HttpStatus> like(CommentQuestionLikeRequest request, Authentication authentication);
 }

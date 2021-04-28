@@ -2,16 +2,16 @@ package qa.dto.request.comment;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CommentAnswerLikeRequest {
+public class CommentQuestionLikeRequest {
 
     @JsonProperty("id")
     protected final Long commentId;
 
-    public CommentAnswerLikeRequest(Long commentId) {
+    public CommentQuestionLikeRequest(Long commentId) {
         this.commentId = commentId;
     }
 
-    private CommentAnswerLikeRequest() { // TODO CHANGE JACKSON ACCESS TO PRIVATE
+    private CommentQuestionLikeRequest() {
         this.commentId = null;
     }
 
