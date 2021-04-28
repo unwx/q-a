@@ -159,7 +159,9 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
                         c.getId(),
                         c.getText(),
                         c.getCreationDate(),
-                        c.getAuthor()
+                        c.getAuthor(),
+                        c.getLikes(),
+                        c.isLiked()
                 )
         ));
         return response;

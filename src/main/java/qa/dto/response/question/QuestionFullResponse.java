@@ -25,6 +25,8 @@ public class QuestionFullResponse {
     private final User author;
     private final List<Answer> answers;
     private final List<CommentQuestion> comments;
+    private final int likes;
+    private final boolean liked;
 
     public QuestionFullResponse(Long questionId,
                                 String text,
@@ -34,7 +36,9 @@ public class QuestionFullResponse {
                                 String[] tags,
                                 User author,
                                 List<Answer> answers,
-                                List<CommentQuestion> comments) {
+                                List<CommentQuestion> comments,
+                                int likes,
+                                boolean liked) {
         this.questionId = questionId;
         this.text = text;
         this.title = title;
@@ -44,6 +48,8 @@ public class QuestionFullResponse {
         this.author = author;
         this.answers = answers;
         this.comments = comments;
+        this.likes = likes;
+        this.liked = liked;
     }
 
     protected QuestionFullResponse() {
@@ -56,6 +62,8 @@ public class QuestionFullResponse {
         this.author = null;
         this.answers = null;
         this.comments = null;
+        this.likes = -1;
+        this.liked = false;
     }
 
     public Long getQuestionId() {
@@ -92,5 +100,13 @@ public class QuestionFullResponse {
 
     public List<CommentQuestion> getComments() {
         return comments;
+    }
+
+    public int getLikes() {
+        return likes;
+    }
+
+    public boolean isLiked() {
+        return liked;
     }
 }

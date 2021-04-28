@@ -364,6 +364,8 @@ public class QuestionRestControllerTest {
         assertThat(question.getLastActivity(), notNullValue());
         assertThat(question.getTags(), notNullValue());
         assertThat(question.getTags().length, greaterThan(0));
+        assertThat(question.getLikes(), equalTo(0));
+        assertThat(question.isLiked(), equalTo(false));
 
         assertThat(question.getAuthor(), notNullValue());
         assertThat(question.getAuthor().getUsername(), notNullValue());
@@ -375,6 +377,8 @@ public class QuestionRestControllerTest {
             assertThat(c.getCreationDate(), notNullValue());
             assertThat(c.getAuthor(), notNullValue());
             assertThat(c.getAuthor().getUsername(), notNullValue());
+            assertThat(c.getLikes(), equalTo(0));
+            assertThat(c.isLiked(), equalTo(false));
         }
 
         for (Answer a : answers) {
@@ -385,6 +389,8 @@ public class QuestionRestControllerTest {
             assertThat(a.getAnswered(), notNullValue());
             assertThat(a.getAuthor(), notNullValue());
             assertThat(a.getAuthor().getUsername(), notNullValue());
+            assertThat(a.getLikes(), equalTo(0));
+            assertThat(a.isLiked(), equalTo(false));
             for (CommentAnswer ca : a.getComments()) {
                 assertThat(ca, notNullValue());
                 assertThat(ca.getId(), notNullValue());
@@ -392,6 +398,8 @@ public class QuestionRestControllerTest {
                 assertThat(ca.getCreationDate(), notNullValue());
                 assertThat(ca.getAuthor(), notNullValue());
                 assertThat(ca.getAuthor().getUsername(), notNullValue());
+                assertThat(ca.getLikes(), equalTo(0));
+                assertThat(ca.isLiked(), equalTo(false));
             }
         }
     }

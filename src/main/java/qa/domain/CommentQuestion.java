@@ -60,7 +60,7 @@ public class CommentQuestion extends Comment {
     @Override
     public Long getId() {
         return super.getId();
-    }
+    } // TODO REFACTOR
 
     @Override
     public void setId(Long id) {

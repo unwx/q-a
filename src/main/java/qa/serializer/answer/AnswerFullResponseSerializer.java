@@ -3,30 +3,29 @@ package qa.serializer.answer;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import qa.domain.CommentAnswer;
+import qa.domain.User;
 import qa.dto.response.answer.AnswerFullResponse;
-import qa.util.serialization.AuthorSerializationUtil;
-import qa.util.serialization.CommentAnswerSerializationUtil;
 import qa.util.serialization.DateSerializationUtil;
 
 import java.io.IOException;
+import java.util.List;
 
-public class AnswerFullResponseSerializer extends JsonSerializer<AnswerFullResponse> { // TODO REFACTOR
+public class AnswerFullResponseSerializer extends JsonSerializer<AnswerFullResponse> {
+
+    private static final AnswerSerializer answerSerializer = new AnswerSerializer();
 
     @Override
-    public void serialize(AnswerFullResponse answerFullResponse, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        jsonGenerator.writeStartObject();
-        writeAnswerData(answerFullResponse, jsonGenerator);
-        AuthorSerializationUtil.writeAuthorUsername(answerFullResponse.getAuthor(), jsonGenerator);
-        CommentAnswerSerializationUtil.writeCommentAnswers(answerFullResponse.getComments(), jsonGenerator);
-        jsonGenerator.writeEndObject();
-    }
+    public void serialize(AnswerFullResponse response, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {
+        final long id = response.getAnswerId();
+        final int likes = response.getLikes();
+        final boolean liked = response.isLiked();
+        final boolean answered = response.getAnswered();
+        final String text = response.getText();
+        final String creationDate = DateSerializationUtil.dateToString(response.getCreationDate());
 
-    private void writeAnswerData(AnswerFullResponse answerFullResponse, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeNumberField("id", answerFullResponse.getAnswerId());
-        jsonGenerator.writeStringField("text", answerFullResponse.getText());
-        jsonGenerator.writeStringField("answered", answerFullResponse.getAnswered() ? "true" : "false");
-        jsonGenerator.writeStringField("creation_date", DateSerializationUtil.dateToString(answerFullResponse.getCreationDate()));
-        jsonGenerator.writeNumberField("likes", answerFullResponse.getLikes());
-        jsonGenerator.writeStringField("liked", answerFullResponse.isLiked() ? "true" : "false");
+        final User author = response.getAuthor();
+        final List<CommentAnswer> comments = response.getComments();
+        answerSerializer.serialize(id, likes, liked, answered, text, creationDate, author, comments, gen, serializerProvider);
     }
 }

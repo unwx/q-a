@@ -62,23 +62,23 @@ public abstract class Comment implements FieldExtractor, FieldDataSetterExtracto
         return id;
     }
 
-    protected void setId(Long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    protected Date getCreationDate() {
+    public Date getCreationDate() {
         return creationDate;
     }
 
-    protected void setCreationDate(Date creationDate) {
+    public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
     }
 
-    protected String getText() {
+    public String getText() {
         return text;
     }
 
-    protected void setText(String text) {
+    public void setText(String text) {
         this.text = text;
     }
 
@@ -87,7 +87,7 @@ public abstract class Comment implements FieldExtractor, FieldDataSetterExtracto
         return author;
     }
 
-    protected void setAuthor(User author) {
+    public void setAuthor(User author) {
         this.author = author;
     }
 

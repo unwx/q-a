@@ -272,6 +272,8 @@ public class CommentAnswerRestControllerTest {
             assertThat(r.getCreationDate(), notNullValue());
             assertThat(r.getAuthor(), notNullValue());
             assertThat(r.getAuthor().getUsername(), notNullValue());
+            assertThat(r.getLikes(), equalTo(0));
+            assertThat(r.isLiked(), equalTo(false));
         }
     }
 }

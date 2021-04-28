@@ -149,7 +149,9 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
                         d.getId(),
                         d.getText(),
                         d.getCreationDate(),
-                        d.getAuthor()
+                        d.getAuthor(),
+                        d.getLikes(),
+                        d.isLiked()
                 )
         ));
         return response;

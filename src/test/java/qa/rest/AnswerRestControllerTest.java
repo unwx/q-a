@@ -349,7 +349,9 @@ public class AnswerRestControllerTest {
                 assertThat(comment.getId(), notNullValue());
                 assertThat(comment.getText(), notNullValue());
                 assertThat(comment.getAuthor(), notNullValue());
-                assertThat(comment.getAuthor().getUsername(), notNullValue()); // TODO likes
+                assertThat(comment.getAuthor().getUsername(), notNullValue());
+                assertThat(comment.getLikes(), equalTo(0));
+                assertThat(comment.isLiked(), equalTo(false));
             }
         }
     }

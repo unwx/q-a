@@ -98,7 +98,7 @@ public class CommentDaoTestUtil {
 
         for (int i = 0; i < comment; i++) {
             queryBuilder.commentAnswer((long) i, new Date(dateAtMillisDefault * i));
-            redisQueryBuilder.commentQuestion(i);
+            redisQueryBuilder.commentAnswer(i);
             if (i % 25 == 0)
                 queryBuilder.flushAndClear();
         }

@@ -198,7 +198,9 @@ public class QuestionServiceImpl implements QuestionService {
                 QuestionTagsUtil.stringToTags(question.getTags()),
                 question.getAuthor(),
                 question.getAnswers(),
-                question.getComments() // TODO likes
+                question.getComments(),
+                question.getLikes(),
+                question.isLiked()
         );
     }
 
