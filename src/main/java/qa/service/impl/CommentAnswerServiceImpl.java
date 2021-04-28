@@ -15,15 +15,13 @@ import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
-import qa.dto.request.comment.CommentAnswerCreateRequest;
-import qa.dto.request.comment.CommentAnswerDeleteRequest;
-import qa.dto.request.comment.CommentAnswerEditRequest;
-import qa.dto.request.comment.CommentAnswerGetRequest;
+import qa.dto.request.comment.*;
 import qa.dto.response.comment.CommentAnswerResponse;
 import qa.dto.validation.wrapper.answer.CommentAnswerGetRequestValidationWrapper;
 import qa.dto.validation.wrapper.comment.CommentAnswerCreateRequestValidationWrapper;
 import qa.dto.validation.wrapper.comment.CommentAnswerDeleteRequestValidationWrapper;
 import qa.dto.validation.wrapper.comment.CommentAnswerEditRequestValidationWrapper;
+import qa.dto.validation.wrapper.comment.CommentAnswerLikeRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.service.CommentAnswerService;
 import qa.source.ValidationPropertyDataSource;
@@ -89,6 +87,12 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
         return new ResponseEntity<>(getCommentsProcess(request, authentication), HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<HttpStatus> like(CommentAnswerLikeRequest request, Authentication authentication) {
+        this.likeProcess(request, authentication);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     private Long createCommentProcess(CommentAnswerCreateRequest request, Authentication authentication) {
         validate(request);
         throwBadRequestExIfAnswerNotExist(request.getAnswerId());
@@ -118,6 +122,12 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
         return convertDtoToResponse(comments);
     }
 
+    private void likeProcess(CommentAnswerLikeRequest request, Authentication authentication) {
+        this.validate(request);
+        final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
+        this.commentAnswerDao.like(userId, request.getCommentId());
+    }
+
     private Long saveNewComment(CommentAnswerCreateRequest request, Authentication authentication) {
         CommentAnswer commentAnswer = new CommentAnswer(
                 request.getText(),
@@ -138,7 +148,7 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
 
     private List<CommentAnswer> getCommentsFromDatabase(long answerId, long userId, int page) {
         return ResourceUtil.throwResourceNFExceptionIfNull(
-                commentAnswerDao.getComments(answerId, -1L,page - 1),
+                commentAnswerDao.getComments(answerId, userId,page - 1),
                 ERR_MESSAGE_ANSWER_NOT_EXIST_ID.formatted(answerId));
     }
 
@@ -191,5 +201,9 @@ public class CommentAnswerServiceImpl implements CommentAnswerService {
 
     private void validate(CommentAnswerGetRequest request) {
         ValidationUtil.validate(new CommentAnswerGetRequestValidationWrapper(request), validationChain);
+    }
+
+    private void validate(CommentAnswerLikeRequest request) {
+        ValidationUtil.validate(new CommentAnswerLikeRequestValidationWrapper(request), validationChain);
     }
 }

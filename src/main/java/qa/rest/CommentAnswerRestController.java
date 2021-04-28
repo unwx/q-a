@@ -7,10 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import qa.dto.request.comment.CommentAnswerCreateRequest;
-import qa.dto.request.comment.CommentAnswerDeleteRequest;
-import qa.dto.request.comment.CommentAnswerEditRequest;
-import qa.dto.request.comment.CommentAnswerGetRequest;
+import qa.dto.request.comment.*;
 import qa.dto.response.comment.CommentAnswerResponse;
 import qa.service.CommentAnswerService;
 
@@ -213,5 +210,38 @@ public class CommentAnswerRestController {
     public ResponseEntity<List<CommentAnswerResponse>> getComments(@RequestBody CommentAnswerGetRequest request,
                                                                    Authentication authentication) {
         return commentService.getComments(request, authentication);
+    }
+
+    /**
+     * @uri
+     * /api/v1/comment/answer/like
+     *
+     * @method
+     * get
+     *
+     * @request
+     * dto {
+     *     id: long
+     * }
+     *
+     * @response
+     * (OK): 200
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "like",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> like(@RequestBody CommentAnswerLikeRequest request,
+                                           Authentication authentication) {
+        return this.commentService.like(request, authentication);
     }
 }

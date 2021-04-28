@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CommentAnswerCreateRequest {
 
     @JsonProperty("answer_id")
+    // TODO REFACTOR
     private final Long answerId;
     private final String text;
 

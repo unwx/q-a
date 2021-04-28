@@ -256,5 +256,26 @@ public class ValidationCommentRequestsTest {
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
+
+        @Nested
+        class like {
+            @Test
+            void valid() {
+                logger.trace("valid");
+                CommentAnswerLikeRequestValidationWrapper validationWrapper = new CommentAnswerLikeRequestValidationWrapper(
+                        new CommentAnswerLikeRequest(1L)
+                );
+                Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
+            }
+
+            @Test
+            void invalid_id() {
+                logger.trace("invalid id");
+                CommentAnswerLikeRequestValidationWrapper validationWrapper = new CommentAnswerLikeRequestValidationWrapper(
+                        new CommentAnswerLikeRequest(-1L)
+                );
+                Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
+            }
+        }
     }
 }
