@@ -88,6 +88,12 @@ public class QuestionServiceImpl implements QuestionService {
         return new ResponseEntity<>(getFullQuestionProcess(request, authentication), HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<HttpStatus> like(QuestionLikeRequest request, Authentication authentication) {
+        this.likeProcess(request, authentication);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     private Long createQuestionProcess(QuestionCreateRequest request, Authentication authentication) {
         validate(request);
         return saveNewQuestion(request, authentication);
@@ -124,6 +130,12 @@ public class QuestionServiceImpl implements QuestionService {
         final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
         final Question question = getFullQuestionFromDatabase(request.getQuestionId(), userId);
         return convertDtoToResponse(question);
+    }
+
+    private void likeProcess(QuestionLikeRequest request, Authentication authentication) {
+        this.validate(request);
+        final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
+        this.questionDao.like(userId, request.getQuestionId());
     }
 
     private Long saveNewQuestion(QuestionCreateRequest request, Authentication authentication) {
@@ -222,5 +234,9 @@ public class QuestionServiceImpl implements QuestionService {
 
     private void validate(QuestionGetFullRequest request) {
         ValidationUtil.validate(new QuestionGetFullRequestValidationWrapper(request), validationChain);
+    }
+
+    private void validate(QuestionLikeRequest request) {
+        ValidationUtil.validate(new QuestionLikeRequestValidationWrapper(request), validationChain);
     }
 }

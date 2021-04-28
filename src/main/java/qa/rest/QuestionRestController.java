@@ -355,4 +355,37 @@ public class QuestionRestController {
                                                                 Authentication authentication) {
         return questionService.getFullQuestion(request, authentication);
     }
+
+    /**
+     * @uri
+     * /api/v1/question/like
+     *
+     * @method
+     * get
+     *
+     * @request
+     * dto {
+     *     id: long
+     * }
+     *
+     * @response
+     * (OK): 200
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "like",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> like(@RequestBody QuestionLikeRequest request,
+                                           Authentication authentication) {
+        return this.questionService.like(request, authentication);
+    }
 }

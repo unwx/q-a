@@ -23,4 +23,6 @@ public interface QuestionService {
     ResponseEntity<QuestionFullResponse> getFullQuestion(Long questionId, Authentication authentication);
 
     ResponseEntity<QuestionFullResponse> getFullQuestion(QuestionGetFullRequest request, Authentication authentication);
+
+    ResponseEntity<HttpStatus> like(QuestionLikeRequest request, Authentication authentication);
 }

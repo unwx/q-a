@@ -5,7 +5,9 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import qa.dto.request.comment.CommentQuestionGetRequest;
+import qa.dto.request.comment.CommentQuestionLikeRequest;
 import qa.dto.request.question.*;
+import qa.dto.validation.wrapper.comment.CommentQuestionLikeRequestValidationWrapper;
 import qa.dto.validation.wrapper.question.*;
 import qa.exceptions.validator.ValidationException;
 import qa.logger.TestLogger;
@@ -224,6 +226,27 @@ public class ValidationQuestionRequestsTest {
                     Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
                 }
             }
+        }
+    }
+
+    @Nested
+    class like {
+        @Test
+        void valid() {
+            logger.trace("valid");
+            CommentQuestionLikeRequestValidationWrapper validationWrapper = new CommentQuestionLikeRequestValidationWrapper(
+                    new CommentQuestionLikeRequest(1L)
+            );
+            Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
+        }
+
+        @Test
+        void invalid_id() {
+            logger.trace("invalid id");
+            CommentQuestionLikeRequestValidationWrapper validationWrapper = new CommentQuestionLikeRequestValidationWrapper(
+                    new CommentQuestionLikeRequest(-1L)
+            );
+            Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
     }
 }
