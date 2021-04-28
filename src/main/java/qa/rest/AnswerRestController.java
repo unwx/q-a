@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/answer/")
-public class AnswerRestController {
+public class AnswerRestController { // TODO REFACTOR
 
     private final AnswerService answerService;
 
@@ -286,5 +286,38 @@ public class AnswerRestController {
     public ResponseEntity<List<AnswerFullResponse>> getAnswers(@RequestBody AnswerGetFullRequest request,
                                                                Authentication authentication) {
         return answerService.getAnswers(request, authentication);
+    }
+
+    /**
+     * @uri
+     * /api/v1/answer/like
+     *
+     * @method
+     * get
+     *
+     * @request
+     * dto {
+     *     id: long
+     * }
+     *
+     * @response
+     * (OK): 200
+     *
+     * 400 | 401 | 403:
+     * Message {
+     *     statusCode: int
+     *     timestamp: long
+     *     message: string
+     *     description: string
+     * }
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @RequestMapping(
+            value = "like",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> like(@RequestBody AnswerLikeRequest request,
+                                           Authentication authentication) {
+        return this.answerService.like(request, authentication);
     }
 }

@@ -93,6 +93,12 @@ public class AnswerServiceImpl implements AnswerService { // TODO REFACTOR
         return new ResponseEntity<>(getAnswersProcess(request, authentication), HttpStatus.OK);
     }
 
+    @Override
+    public ResponseEntity<HttpStatus> like(AnswerLikeRequest likeRequest, Authentication authentication) {
+        this.likeProcess(likeRequest, authentication);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     private Long createAnswerProcess(AnswerCreateRequest request, Authentication authentication) {
         validate(request);
         throwBadRequestExIfQuestionNotExist(request.getQuestionId());
@@ -133,6 +139,12 @@ public class AnswerServiceImpl implements AnswerService { // TODO REFACTOR
         final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
         final List<Answer> answers = this.getAnswersFromDatabase(request.getQuestionId(), userId, request.getPage());
         return this.convertToDto(answers);
+    }
+
+    private void likeProcess(AnswerLikeRequest request, Authentication authentication) {
+        this.validate(request);
+        final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
+        this.answerDao.like(userId, request.getAnswerId());
     }
 
     private Long saveNewAnswer(AnswerCreateRequest request, Authentication authentication) {
@@ -228,5 +240,9 @@ public class AnswerServiceImpl implements AnswerService { // TODO REFACTOR
 
     private void validate(AnswerGetFullRequest request) {
         ValidationUtil.validate(new AnswerGetFullRequestValidationWrapper(request), validationChain);
+    }
+
+    private void validate(AnswerLikeRequest request) {
+        ValidationUtil.validate(new AnswerLikeRequestValidationWrapper(request), validationChain);
     }
 }

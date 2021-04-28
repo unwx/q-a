@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
+import qa.cache.RedisKeys;
 import qa.domain.CommentAnswer;
 import qa.dto.response.answer.AnswerFullResponse;
 import qa.logger.TestLogger;
@@ -27,6 +28,7 @@ import qa.util.dao.query.params.AnswerQueryParameters;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import qa.util.rest.AnswerRestTestUtil;
 import qa.util.rest.JwtTestUtil;
+import redis.clients.jedis.Jedis;
 
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
@@ -330,6 +332,35 @@ public class AnswerRestControllerTest {
         }
     }
 
+    @Nested
+    class like {
+        @Test
+        void assert_liked() {
+            logger.trace("assert liked");
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            answerDaoTestUtil.createAnswerNoUser();
+
+            final JSONObject json = AnswerRestTestUtil.id();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+
+            final Response response = request.post("like");
+            assertThat(response.getStatusCode(), equalTo(200));
+            assertKeysUpdated();
+        }
+
+        @Test
+        void bad_request() {
+            logger.trace("bad request");
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+
+            final JSONObject json = AnswerRestTestUtil.badId();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+
+            final Response response = request.post("like");
+            assertThat(response.getStatusCode(), equalTo(400));
+        }
+    }
+
     private void assertCorrectAnswerData(Response response) throws JsonProcessingException {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")); // TODO REFACTOR
@@ -373,6 +404,16 @@ public class AnswerRestControllerTest {
                     .setParameter("text", AnswerQueryParameters.TEXT).uniqueResult();
             transaction.commit();
             return result;
+        }
+    }
+
+    private void assertKeysUpdated() {
+        try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
+            final Jedis jedis = jedisResource.getJedis();
+            final boolean userEntityCreated = jedis.sadd(RedisKeys.getUserToAnswerLikes("1"), "1") == 0;
+            final boolean entityUserCreated = jedis.sadd(RedisKeys.getAnswerToUserLikes("1"), "1") == 0;
+            final boolean entityUpdated = jedis.get(RedisKeys.getAnswerLikes("1")).equals("1");
+            assertThat(userEntityCreated && entityUserCreated && entityUpdated, equalTo(true));
         }
     }
 }

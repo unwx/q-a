@@ -155,4 +155,25 @@ public class ValidationAnswerRequestsTest {
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
     }
+
+    @Nested
+    class like {
+        @Test
+        void valid() {
+            logger.trace("valid");
+            AnswerLikeRequestValidationWrapper validationWrapper = new AnswerLikeRequestValidationWrapper(
+                    new AnswerLikeRequest(1L)
+            );
+            Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
+        }
+
+        @Test
+        void invalid_id() {
+            logger.trace("invalid id");
+            AnswerLikeRequestValidationWrapper validationWrapper = new AnswerLikeRequestValidationWrapper(
+                    new AnswerLikeRequest(-1L)
+            );
+            Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
+        }
+    }
 }

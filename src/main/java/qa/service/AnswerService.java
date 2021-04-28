@@ -22,4 +22,6 @@ public interface AnswerService {
     ResponseEntity<List<AnswerFullResponse>> getAnswers(Long questionId, Integer page, Authentication authentication);
 
     ResponseEntity<List<AnswerFullResponse>> getAnswers(AnswerGetFullRequest request, Authentication authentication);
+
+    ResponseEntity<HttpStatus> like(AnswerLikeRequest likeRequest, Authentication authentication);
 }
