@@ -22,7 +22,7 @@ import qa.dto.response.user.UserAnswersResponse;
 import qa.dto.response.user.UserFullResponse;
 import qa.dto.response.user.UserQuestionsResponse;
 import qa.logger.TestLogger;
-import qa.tools.annotations.SpringIntegrationTest;
+import qa.tools.annotations.SpringTest;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.UserDaoTestUtil;
@@ -35,7 +35,7 @@ import java.util.Collections;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@SpringIntegrationTest
+@SpringTest
 public class UserRestControllerTest {
 
     private SessionFactory sessionFactory;

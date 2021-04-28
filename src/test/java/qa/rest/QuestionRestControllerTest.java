@@ -23,7 +23,7 @@ import qa.dto.response.question.QuestionFullResponse;
 import qa.dto.response.question.QuestionViewResponse;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
-import qa.tools.annotations.SpringIntegrationTest;
+import qa.tools.annotations.SpringTest;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.query.params.QuestionQueryParameters;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
@@ -37,7 +37,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@SpringIntegrationTest
+@SpringTest
 public class QuestionRestControllerTest {
 
     private SessionFactory sessionFactory;

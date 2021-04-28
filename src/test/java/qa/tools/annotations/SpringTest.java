@@ -18,4 +18,4 @@ import java.lang.annotation.Target;
 @ExtendWith({SpringExtension.class, LoggingExtension.class})
 @ContextConfiguration(classes = SpringConfig.class)
 @TestClass
-public @interface SpringIntegrationTest {}
+public @interface SpringTest {}

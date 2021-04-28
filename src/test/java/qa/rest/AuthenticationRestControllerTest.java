@@ -21,7 +21,7 @@ import qa.logger.TestLogger;
 import qa.security.PasswordEncryptorFactory;
 import qa.security.jwt.entity.JwtStatus;
 import qa.security.jwt.service.JwtProvider;
-import qa.tools.annotations.SpringIntegrationTest;
+import qa.tools.annotations.SpringTest;
 import qa.util.dao.UserDaoTestUtil;
 import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import qa.util.rest.AuthenticationRestTestUtil;
@@ -32,7 +32,7 @@ import java.math.BigInteger;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@SpringIntegrationTest
+@SpringTest
 public class AuthenticationRestControllerTest {
 
     private SessionFactory sessionFactory;

@@ -19,7 +19,7 @@ import qa.cache.JedisResourceCenter;
 import qa.dto.response.comment.CommentQuestionResponse;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
-import qa.tools.annotations.SpringIntegrationTest;
+import qa.tools.annotations.SpringTest;
 import qa.util.dao.CommentDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.query.params.CommentQueryParameters;
@@ -32,7 +32,7 @@ import java.text.SimpleDateFormat;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@SpringIntegrationTest
+@SpringTest
 public class CommentQuestionRestControllerTest {
 
     private SessionFactory sessionFactory;
