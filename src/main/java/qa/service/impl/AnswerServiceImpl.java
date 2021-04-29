@@ -17,6 +17,7 @@ import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.answer.*;
 import qa.dto.response.answer.AnswerFullResponse;
 import qa.dto.validation.wrapper.answer.*;
+import qa.exceptions.rest.AccessDeniedException;
 import qa.exceptions.rest.BadRequestException;
 import qa.service.AnswerService;
 import qa.service.err.ServiceExceptionMessage;
@@ -113,13 +114,13 @@ public class AnswerServiceImpl implements AnswerService { // TODO REFACTOR
 
     private void setAnsweredProcess(AnswerAnsweredRequest request, Authentication authentication) {
         validate(request);
-        checkIsRealAuthor(request.getAnswerId(), authentication);
+        checkIsQuestionAuthor(request.getAnswerId(), authentication);
         saveAnswered(request);
     }
 
     private void removeAnsweredProcess(AnswerAnsweredRequest request, Authentication authentication) {
         validate(request);
-        checkIsRealAuthor(request.getAnswerId(), authentication);
+        checkIsQuestionAuthor(request.getAnswerId(), authentication);
         saveNotAnswered(request);
     }
 
@@ -132,7 +133,6 @@ public class AnswerServiceImpl implements AnswerService { // TODO REFACTOR
     private List<AnswerFullResponse> getAnswersProcess(Long questionId, Integer page, Authentication authentication) {
         return this.getAnswersProcess(new AnswerGetFullRequest(questionId, page), authentication);
     }
-
 
     private List<AnswerFullResponse> getAnswersProcess(AnswerGetFullRequest request, Authentication authentication) {
         this.validate(request);
@@ -198,6 +198,13 @@ public class AnswerServiceImpl implements AnswerService { // TODO REFACTOR
                 propertySetterFactory,
                 logger,
                 "answer");
+    }
+
+    private void checkIsQuestionAuthor(long answerId, Authentication authentication) {
+        final Long realAuthorId = questionDao.getQuestionAuthorIdFromAnswer(answerId);
+        final long authenticationId = PrincipalUtil.getUserIdFromAuthentication(authentication);
+        if (realAuthorId != authenticationId)
+            throw new AccessDeniedException("you do not have permission to this answer");
     }
 
     private List<AnswerFullResponse> convertToDto(List<Answer> answers) {

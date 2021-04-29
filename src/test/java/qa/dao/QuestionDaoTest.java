@@ -278,6 +278,24 @@ public class QuestionDaoTest {
     }
 
     @Nested
+    class get_question_by_answer {
+        @Test
+        void success() {
+            logger.trace("assert correct question id by answer id");
+            answerDaoTestUtil.createAnswer();
+            long authorId = questionDao.getQuestionAuthorIdFromAnswer(1L);
+            assertThat(authorId, equalTo(1L));
+        }
+
+        @Test
+        void assert_not_found_result_equals_null() {
+            logger.trace("assert not found result equals null");
+            Long authorId = questionDao.getQuestionAuthorIdFromAnswer(1L);
+            assertThat(authorId, equalTo(null));
+        }
+    }
+
+    @Nested
     class like {
         @Test
         void assert_correct_result() {

@@ -121,9 +121,19 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
                             .list()
                     );
             transaction.commit();
-            setLikes(views); // FIXME TODO cache provider
+            setLikes(views);
             return views;
         }
+    }
+
+    public Long getQuestionAuthorIdFromAnswer(long answerId) {
+        Long result;
+        try(Session session = sessionFactory.openSession()) {
+            Transaction transaction = session.beginTransaction();
+            result = QuestionQueryCreator.questionAuthorIdFromAnswerQuery(session, answerId).uniqueResult();
+            transaction.commit();
+        }
+        return result;
     }
 
     @Override
