@@ -105,6 +105,7 @@ public abstract class CacheProvider {
                                                      IUserEntityLikeSetOperation userEntityOperation,
                                                      EntityToLikeSetOperation entityOperation,
                                                      Jedis jedis) {
+
         final String entityId = entity.getIdStr();
         final int likes = entityOperation.get(entityId, jedis);
         final boolean liked = userEntityOperation.isValueExist(userId, entityId, jedis);

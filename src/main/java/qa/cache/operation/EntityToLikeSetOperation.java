@@ -4,7 +4,8 @@ import redis.clients.jedis.Jedis;
 
 import java.util.List;
 
-public interface EntityToLikeSetOperation { // TODO RENAME
+@SuppressWarnings("UnusedReturnValue")
+public interface EntityToLikeSetOperation {
     boolean create(String id, Jedis jedis);
 
     int get(String id, Jedis jedis);
@@ -14,4 +15,6 @@ public interface EntityToLikeSetOperation { // TODO RENAME
     long increment(String id, Jedis jedis);
 
     boolean delete(String id, Jedis jedis);
+
+    String name();
 }

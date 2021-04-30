@@ -13,6 +13,8 @@ import java.util.List;
 @Component
 public class QuestionToLikeSetOperation extends LikeSetOperationImpl implements EntityToLikeSetOperation {
 
+    private static final String name = "question";
+
     @Override
     public boolean create(String questionId, Jedis jedis) {
         final QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
@@ -41,5 +43,10 @@ public class QuestionToLikeSetOperation extends LikeSetOperationImpl implements 
     public boolean delete(String questionId, Jedis jedis) {
         final QuestionToLikeSet questionToLikeSet = new QuestionToLikeSet(questionId);
         return super.delete(questionToLikeSet, jedis);
+    }
+
+    @Override
+    public String name() {
+        return name;
     }
 }

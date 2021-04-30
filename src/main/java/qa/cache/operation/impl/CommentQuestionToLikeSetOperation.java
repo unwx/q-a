@@ -13,6 +13,8 @@ import java.util.List;
 @Component
 public class CommentQuestionToLikeSetOperation extends LikeSetOperationImpl implements CommentToLikeSetOperation {
 
+    private static final String name = "comment-question";
+
     @Override
     public boolean create(String commentId, Jedis jedis) {
         final CommentQuestionToLikeSet set = new CommentQuestionToLikeSet(commentId);
@@ -41,5 +43,10 @@ public class CommentQuestionToLikeSetOperation extends LikeSetOperationImpl impl
     public boolean delete(String commentId, Jedis jedis) {
         final CommentQuestionToLikeSet set = new CommentQuestionToLikeSet(commentId);
         return super.delete(set, jedis);
+    }
+
+    @Override
+    public String name() {
+        return null;
     }
 }

@@ -9,7 +9,7 @@ import java.io.Serializable;
 public class UserToCommentAnswerLikeSet implements Serializable, KeyValueOperation {
 
     @Serial
-    private static final long serialVersionUID = -4273721487703922230L;
+    private static final long serialVersionUID = -3636320433658729493L;
 
     private final String userId;
     private final String commentId;

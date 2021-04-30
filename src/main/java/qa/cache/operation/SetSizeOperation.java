@@ -5,7 +5,6 @@ import redis.clients.jedis.Jedis;
 import java.util.List;
 
 public abstract class SetSizeOperation {
-
     public String getByKey(String key, Jedis jedis) {
         return jedis.get(key);
     }

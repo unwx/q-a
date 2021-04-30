@@ -2,6 +2,7 @@ package qa.cache.operation;
 
 import redis.clients.jedis.Jedis;
 
+@SuppressWarnings("UnusedReturnValue")
 public interface IUserEntityLikeSetOperation {
 
     boolean add(String userId, String entityId, Jedis jedis);

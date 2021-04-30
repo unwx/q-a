@@ -7,6 +7,7 @@ import redis.clients.jedis.Jedis;
 
 import java.util.Stack;
 
+@SuppressWarnings({"BooleanMethodIsAlwaysInverted", "UnusedReturnValue"})
 public abstract class EntityCacheRemover extends CacheRemover {
 
     private final IUserEntityLikeSetOperation userEntityOperation;

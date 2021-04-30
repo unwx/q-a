@@ -4,7 +4,8 @@ import redis.clients.jedis.Jedis;
 
 import java.util.Set;
 
-public abstract class UserEntityLikeSetOperation { // TODO RENAME --LIKE--
+@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+public abstract class UserEntitySetOperation {
 
     protected boolean add(KeyValueOperation like, Jedis jedis) {
         return jedis.sadd(like.getKey(), like.getValue()) == 1;

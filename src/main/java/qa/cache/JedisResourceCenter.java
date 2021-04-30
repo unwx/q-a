@@ -20,7 +20,11 @@ public class JedisResourceCenter {
         poolConfig.setTimeBetweenEvictionRunsMillis(30000);
         poolConfig.setNumTestsPerEvictionRun(-1);
 
-        this.jedisPool = new JedisPool(poolConfig, redisConfiguration.getJedisSocketFactory(), redisConfiguration.getJedisClientConfig());
+        this.jedisPool = new JedisPool(
+                poolConfig,
+                redisConfiguration.getJedisSocketFactory(),
+                redisConfiguration.getJedisClientConfig()
+        );
     }
 
     public JedisResource getResource() {

@@ -22,6 +22,7 @@ public class JedisResource implements AutoCloseable {
         return jedis;
     }
 
+    @SuppressWarnings("unused")
     private JedisPool getJedisPool() { // getter no allowed.
         return null;
     }

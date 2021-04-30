@@ -62,7 +62,7 @@ public abstract class CacheRemover {
         if (status) {
             userEntityOperation.deleteEntity(id, jedis);
         } else {
-            logger.error(ERR_CANNOT_DELETE.formatted(id, "")); // TODO description
+            logger.error(ERR_CANNOT_DELETE.formatted(id, entityOperation.name()));
             return false;
         }
         return true;

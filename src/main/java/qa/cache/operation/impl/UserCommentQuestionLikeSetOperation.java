@@ -5,11 +5,11 @@ import qa.cache.RedisKeys;
 import qa.cache.entity.like.set.CommentQuestionToUserLikeSet;
 import qa.cache.entity.like.set.UserToCommentQuestionLikeSet;
 import qa.cache.operation.IUserCommentLikeSetOperation;
-import qa.cache.operation.UserEntityLikeSetOperation;
+import qa.cache.operation.UserEntitySetOperation;
 import redis.clients.jedis.Jedis;
 
 @Component
-public class UserCommentQuestionLikeSetOperation extends UserEntityLikeSetOperation implements IUserCommentLikeSetOperation {
+public class UserCommentQuestionLikeSetOperation extends UserEntitySetOperation implements IUserCommentLikeSetOperation {
 
     @Override
     public boolean add(String userId, String commentId, Jedis jedis) {
