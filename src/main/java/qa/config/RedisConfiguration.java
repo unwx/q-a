@@ -22,12 +22,16 @@ public class RedisConfiguration {
     private final JedisSocketFactory jedisSocketFactory;
 
     private static final Logger logger = LogManager.getLogger(RedisConfiguration.class);
+    private static final String ERR_LOAD_PASSWORD = "cannot load redis password. path: %s";
 
     @Autowired
     public RedisConfiguration(PasswordPropertyDataSource propertyDataSource) {
         final String password = getPassword(propertyDataSource);
-        jedisSocketFactory = new DefaultJedisSocketFactory(new HostAndPort("localhost", 6379));
-        jedisClientConfig = new JedisClientConfig() {
+        final String host = "localhost";
+        final int port = 6379;
+
+        this.jedisSocketFactory = new DefaultJedisSocketFactory(new HostAndPort(host, port));
+        this.jedisClientConfig = new JedisClientConfig() {
             @Override
             public String getPassword() {
                 return password;
@@ -41,14 +45,19 @@ public class RedisConfiguration {
     }
 
     private String getPassword(PasswordPropertyDataSource propertyDataSource) {
-        StringBuilder sb;
-
+        final StringBuilder sb;
+        final String path = propertyDataSource.getREDIS_PASSWORD_PATH();
         try {
-            sb = new StringBuilder(new String(Files.readAllBytes(Paths.get(propertyDataSource.getREDIS_PASSWORD_PATH()))));
+            sb = new StringBuilder(new String(
+                    Files.readAllBytes(
+                            Paths.get(path)
+                    ))
+            );
         } catch (IOException e) {
-            logger.fatal("cannot load redis password.");
+            final String err = ERR_LOAD_PASSWORD.formatted(path);
             e.printStackTrace();
-            throw new RedisInitializationException("cannot load redis password.");
+            logger.fatal(err);
+            throw new RedisInitializationException(err);
         }
 
         if (sb.charAt(sb.length() - 1) == '\n')

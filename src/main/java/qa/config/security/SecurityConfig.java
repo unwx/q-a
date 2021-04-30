@@ -35,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        String ADMIN_ENDPOINT = "/api/admin/**";
+        final String ADMIN_ENDPOINT = "/api/admin/**";
         http
                 .httpBasic().disable()
                 .csrf().disable()

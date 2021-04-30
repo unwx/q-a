@@ -1,11 +1,11 @@
-package qa.security;
+package qa.config;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
 import qa.exceptions.internal.PasswordEncryptorInitializationException;
 import qa.source.PasswordPropertyDataSource;
 
@@ -13,12 +13,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-@Component
+@Configuration
 public class PasswordEncryptorFactory {
 
     private final String password;
 
     private static final Logger logger = LogManager.getLogger(PasswordEncryptorFactory.class);
+    private static final String ERR_GET_PASSWORD = "cannot get password for passwordEncoder. path: %s";
     private static PooledPBEStringEncryptor pooledPBEStringEncryptor;
 
     @Autowired
@@ -43,13 +44,21 @@ public class PasswordEncryptorFactory {
     }
 
     private String readPasswordFromFile(PasswordPropertyDataSource propertyDataSource) {
-        StringBuilder sb;
+        final StringBuilder sb;
+        final String path = propertyDataSource.getENCRYPTOR_PASSWORD_PATH();
         try {
-           sb = new StringBuilder(new String(Files.readAllBytes(Paths.get(propertyDataSource.getENCRYPTOR_PASSWORD_PATH()))));
+           sb = new StringBuilder(new String(
+                   Files.readAllBytes(
+                           Paths.get(path)
+                   )
+           ));
+
         } catch (IOException e) {
-            logger.fatal("cannot get password for passwordEncoder. path: " + propertyDataSource.getENCRYPTOR_PASSWORD_PATH());
+            final String err = ERR_GET_PASSWORD.formatted(path);
             e.printStackTrace();
-            throw new PasswordEncryptorInitializationException("cannot get password for passwordEncoder.");
+
+            logger.fatal(err);
+            throw new PasswordEncryptorInitializationException(err);
         }
         if (sb.charAt(sb.length() - 1) == '\n')
             sb.deleteCharAt(sb.length() - 1);

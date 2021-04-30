@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import qa.config.PasswordEncryptorFactory;
 import qa.dao.AuthenticationDao;
 import qa.dao.databasecomponents.Table;
 import qa.dao.databasecomponents.Where;
@@ -21,7 +22,6 @@ import qa.dto.validation.wrapper.authentication.AuthenticationRequestValidationW
 import qa.dto.validation.wrapper.authentication.RegistrationRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.exceptions.rest.UnauthorizedException;
-import qa.security.PasswordEncryptorFactory;
 import qa.service.AuthenticationService;
 import qa.source.ValidationPropertyDataSource;
 import qa.util.JwtUtil;
