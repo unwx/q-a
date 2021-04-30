@@ -1,7 +1,7 @@
 package qa.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import qa.dao.databasecomponents.Field;
+import qa.dao.database.components.Field;
 import qa.domain.setters.SetterField;
 
 import javax.persistence.*;

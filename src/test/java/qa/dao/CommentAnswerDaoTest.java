@@ -47,7 +47,7 @@ public class CommentAnswerDaoTest {
     void init() {
         sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         jedisResourceCenter = MockUtil.mockJedisCenter();
-        PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
+        PropertySetterFactory propertySetterFactory = Mockito.spy(PropertySetterFactory.class);
         CommentAnswerLikeProvider likesProvider = MockUtil.mockCommentAnswerLikeProvider();
 
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);

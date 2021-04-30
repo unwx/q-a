@@ -1,4 +1,4 @@
-package qa.dao.databasecomponents;
+package qa.dao.database.components;
 
 import qa.domain.setters.SetterField;
 

@@ -1,24 +1,23 @@
 package qa.dao.query.convertor;
 
 import qa.domain.CommentAnswer;
-import qa.dto.internal.hibernate.answer.AnswerCommentDto;
+import qa.dto.internal.hibernate.comment.answer.CommentAnswerDto;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class CommentAnswerQueryResultConvertor {
 
-    private CommentAnswerQueryResultConvertor() {
-    }
+    private CommentAnswerQueryResultConvertor() {}
 
-    public static List<CommentAnswer> dtoToCommentAnswerList(List<AnswerCommentDto> dto) {
-        List<CommentAnswer> commentAnswers = new ArrayList<>(dto.size());
+    public static List<CommentAnswer> dtoToCommentAnswerList(List<CommentAnswerDto> dto) {
+        final List<CommentAnswer> commentAnswers = new ArrayList<>(dto.size());
         dto.forEach((d) -> commentAnswers.add(dtoToCommentAnswer(d)));
         return commentAnswers;
     }
 
-    public static CommentAnswer dtoToCommentAnswer(AnswerCommentDto dto) {
-        CommentAnswer commentAnswer = new CommentAnswer();
+    private static CommentAnswer dtoToCommentAnswer(CommentAnswerDto dto) {
+        final CommentAnswer commentAnswer = new CommentAnswer();
         commentAnswer.setId(dto.getCommentId());
         commentAnswer.setText(dto.getText());
         commentAnswer.setCreationDate(dto.getCreationDate());

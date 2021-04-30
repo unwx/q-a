@@ -1,6 +1,7 @@
-package qa.dao.databasecomponents;
+package qa.dao.database.components;
 
 public class Where {
+
     private final String fieldName;
     private final Object fieldValue;
     private final WhereOperator operator;

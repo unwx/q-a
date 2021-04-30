@@ -1,4 +1,4 @@
-package qa.dao.databasecomponents;
+package qa.dao.database.components;
 
 import qa.domain.setters.PropertySetter;
 
@@ -44,7 +44,7 @@ public class NestedEntity implements EntityTable {
     }
 
     private String getNestedEntityName(Class<? extends FieldDataSetterExtractor> clazz) {
-        String name = clazz.getSimpleName();
+        final String name = clazz.getSimpleName();
         return Character.toLowerCase(name.charAt(0)) + name.substring(1);
     }
 

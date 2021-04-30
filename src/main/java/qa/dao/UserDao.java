@@ -6,17 +6,17 @@ import org.hibernate.Transaction;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import qa.dao.query.UserQueryCreator;
-import qa.dao.query.convertor.UserQueryResultConvertor;
+import qa.dao.query.manager.UserQueryManager;
 import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
+import qa.dto.internal.hibernate.user.UserAnswerDto;
 import qa.dto.internal.hibernate.user.UserFullDto;
+import qa.dto.internal.hibernate.user.UserQuestionDto;
 import qa.exceptions.dao.NullResultException;
-import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -27,7 +27,8 @@ public class UserDao extends DaoImpl<User> {
     @Autowired
     public UserDao(PropertySetterFactory propertySetterFactory,
                    SessionFactory sessionFactory) {
-        super(HibernateSessionFactoryConfigurer.getSessionFactory(), new User(), propertySetterFactory.getSetter(new User()));
+
+        super(sessionFactory, propertySetterFactory.getSetter(new User()));
         this.sessionFactory = sessionFactory;
     }
 
@@ -38,25 +39,31 @@ public class UserDao extends DaoImpl<User> {
 
     @Nullable
     public User readFullUser(String username) {
-        try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
 
-            UserFullDto userResult = UserQueryCreator
+        final UserFullDto dto;
+        final User user;
+
+        try(Session session = sessionFactory.openSession()) {
+            final Transaction transaction = session.beginTransaction();
+
+            dto = UserQueryManager
                     .fullUserQuery(session, username)
                     .uniqueResult();
-            if (userResult == null) {
+
+            if (dto == null) {
                 transaction.rollback();
                 return null;
             }
 
             transaction.commit();
-            return UserQueryResultConvertor
-                    .dtoToUser(userResult, username);
         }
+
+        user = UserQueryManager.dtoToUser(dto, username);
+        return user;
     }
 
     @Nullable
-    public List<Question> readUserQuestions(long userId, int page) { // TODO order by like count
+    public List<Question> readUserQuestions(long userId, int page) {
 
         /*
          *  if user not exist: questions.size() = 0; (NullResultException will not be thrown) - return null
@@ -64,31 +71,32 @@ public class UserDao extends DaoImpl<User> {
          *  if exist: return result.
          */
 
+        final List<UserQuestionDto> dto;
+        final List<Question> questions;
+
         try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            List<Question> questions = new ArrayList<>();
+            final Transaction transaction = session.beginTransaction();
 
             try {
-                questions = UserQueryResultConvertor
-                        .dtoToQuestion(
-                                UserQueryCreator
-                                        .questionsQuery(session, userId, page)
-                                        .getResultList()
-                        );
+                dto = UserQueryManager
+                        .questionsQuery(session, userId, page)
+                        .list();
             }
             catch (NullResultException ex) { // questions not exist
                 transaction.rollback();
-                return questions;
+                return Collections.emptyList();
             }
 
-            if (questions.isEmpty()) { // author not exist
+            if (dto.isEmpty()) { // author not exist
                 transaction.rollback();
                 return null;
             }
 
             transaction.commit();
-            return questions;
         }
+
+        questions = UserQueryManager.dtoToQuestion(dto);
+        return questions;
     }
 
     @Nullable
@@ -100,30 +108,31 @@ public class UserDao extends DaoImpl<User> {
          *  if exist: return result.
          */
 
+        final List<UserAnswerDto> dto;
+        final List<Answer> answers;
+
         try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            List<Answer> answers = new ArrayList<>();
+            final Transaction transaction = session.beginTransaction();
 
             try {
-                answers = UserQueryResultConvertor
-                        .dtoToAnswers(
-                                UserQueryCreator
-                                        .answersQuery(session, userId, page)
-                                        .list()
-                        );
+                dto = UserQueryManager
+                        .answersQuery(session, userId, page)
+                        .list();
             }
             catch (NullResultException ex) { // answers not exist
                 transaction.rollback();
-                return answers;
+                return Collections.emptyList();
             }
 
-            if (answers.isEmpty()) { // author not exist
+            if (dto.isEmpty()) { // author not exist
                 transaction.rollback();
                 return null;
             }
 
             transaction.commit();
-            return answers;
         }
+
+        answers = UserQueryManager.dtoToAnswers(dto);
+        return answers;
     }
 }

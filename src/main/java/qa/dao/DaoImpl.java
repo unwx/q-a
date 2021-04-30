@@ -4,33 +4,29 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.jetbrains.annotations.Nullable;
-import qa.dao.databasecomponents.*;
+import qa.dao.database.components.*;
 import qa.domain.setters.PropertySetter;
-import qa.util.dao.DaoUtil;
 import qa.util.dao.DaoUtilImpl;
 
 import java.util.Collections;
 import java.util.List;
 
-abstract class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor> implements Dao<Entity, Object> {
+abstract class DaoImpl<E extends FieldExtractor & FieldDataSetterExtractor & Domain> extends DaoUtilImpl<E> implements Dao<E, Object> {
 
     private final SessionFactory sessionFactory;
-    private final DaoUtil<Entity> daoUtil;
-    private final Entity emptyEntity;
 
     protected DaoImpl(SessionFactory sessionFactory,
-                      Entity emptyEntity,
                       PropertySetter propertySetter) {
+        super(propertySetter);
         this.sessionFactory = sessionFactory;
-        this.daoUtil = new DaoUtilImpl<>(emptyEntity, propertySetter);
-        this.emptyEntity = emptyEntity;
     }
 
     @Override
-    public Object create(final Entity e) {
+    public Object create(final E e) {
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            Object id = session.save(e);
+            final Transaction transaction = session.beginTransaction();
+            final Object id = session.save(e);
+
             transaction.commit();
             return id;
         }
@@ -38,38 +34,38 @@ abstract class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor>
 
     @Override
     @Nullable
-    public Entity read(final Where where, final Table target) {
+    public E read(final Where where, final Table target) {
         try (Session session = sessionFactory.openSession()) {
-            return daoUtil.read(where, target, Collections.emptyList(), session);
+            return super.read(where, target, Collections.emptyList(), session);
         }
     }
 
     @Override
     @Nullable
-    public Entity read(final Where where, final Table target, final List<NestedEntity> nested) {
+    public E read(final Where where, final Table target, final List<NestedEntity> nested) {
         try (Session session = sessionFactory.openSession()) {
-            return daoUtil.read(where, target, nested, session);
+            return super.read(where, target, nested, session);
         }
     }
 
     @Override
-    public List<Entity> readMany(final Where where, final Table target) {
+    public List<E> readMany(final Where where, final Table target) {
         try (Session session = sessionFactory.openSession()) {
-            return daoUtil.readList(where, target, session);
+            return super.readList(where, target, session);
         }
     }
 
     @Override
-    public void update(final Where where, final Entity entity) {
+    public void update(final Where where, final E entity) {
         try (Session session = sessionFactory.openSession()) {
-            daoUtil.update(where, entity, session);
+            super.update(where, entity, session);
         }
     }
 
     @Override
-    public void updateEager(final Entity entity) {
+    public void updateEager(final E entity) {
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
+            final Transaction transaction = session.beginTransaction();
             session.update(entity);
             transaction.commit();
         }
@@ -78,14 +74,14 @@ abstract class DaoImpl<Entity extends FieldExtractor & FieldDataSetterExtractor>
     @Override
     public void delete(final Where where) {
         try (Session session = sessionFactory.openSession()) {
-            daoUtil.delete(emptyEntity.getClass().getSimpleName(), where, session);
+            super.delete(where, session);
         }
     }
 
     @Override
-    public boolean isExist(final Where where, String className) {
+    public boolean isExist(final Where where) {
         try (Session session = sessionFactory.openSession()) {
-            return daoUtil.isExist(where, className, session);
+            return super.isExist(where, session);
         }
     }
 }

@@ -44,7 +44,7 @@ public class UserDaoTest {
     void init() {
         sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         JedisResourceCenter jedisResourceCenter = MockUtil.mockJedisCenter();
-        PropertySetterFactory propertySetterFactory = Mockito.mock(PropertySetterFactory.class);
+        PropertySetterFactory propertySetterFactory = Mockito.spy(PropertySetterFactory.class);
 
         userDao = new UserDao(propertySetterFactory, sessionFactory);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);

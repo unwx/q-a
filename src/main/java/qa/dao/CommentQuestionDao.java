@@ -9,17 +9,17 @@ import org.springframework.stereotype.Component;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.like.CommentQuestionLikeProvider;
-import qa.dao.databasecomponents.Where;
-import qa.dao.databasecomponents.WhereOperator;
-import qa.dao.query.CommentQuestionQueryCreator;
-import qa.dao.query.convertor.CommentQuestionQueryResultConvertor;
+import qa.cache.like.Likeable;
+import qa.dao.database.components.Where;
+import qa.dao.database.components.WhereOperator;
+import qa.dao.query.manager.CommentQuestionQueryManager;
 import qa.domain.CommentQuestion;
 import qa.domain.setters.PropertySetterFactory;
+import qa.dto.internal.hibernate.comment.question.CommentQuestionDto;
 import qa.exceptions.dao.NullResultException;
-import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import redis.clients.jedis.Jedis;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -34,7 +34,8 @@ public class CommentQuestionDao extends DaoImpl<CommentQuestion> implements Like
                               SessionFactory sessionFactory,
                               JedisResourceCenter jedisResourceCenter,
                               CommentQuestionLikeProvider likesProvider) {
-        super(HibernateSessionFactoryConfigurer.getSessionFactory(), new CommentQuestion(), propertySetterFactory.getSetter(new CommentQuestion()));
+
+        super(sessionFactory, propertySetterFactory.getSetter(new CommentQuestion()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
         this.likesProvider = likesProvider;
@@ -54,7 +55,7 @@ public class CommentQuestionDao extends DaoImpl<CommentQuestion> implements Like
     }
 
     public boolean isExist(Long id) {
-        return super.isExist(new Where("id", id, WhereOperator.EQUALS), "Comment");
+        return super.isExist(new Where("id", id, WhereOperator.EQUALS));
     }
 
     @Nullable
@@ -66,30 +67,32 @@ public class CommentQuestionDao extends DaoImpl<CommentQuestion> implements Like
          *  if exist: return result.
          */
 
+        final List<CommentQuestionDto> dto;
+        final List<CommentQuestion> comments;
+
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            List<CommentQuestion> comments = new ArrayList<>();
+            final Transaction transaction = session.beginTransaction();
 
             try {
-                comments = CommentQuestionQueryResultConvertor
-                        .dtoToCommentQuestionList(CommentQuestionQueryCreator
+                dto = CommentQuestionQueryManager
                                 .commentsQuery(session, questionId, page)
-                                .list()
-                        );
+                                .list();
             } catch (NullResultException ex) { // comments not exist
                 transaction.rollback();
-                return comments;
+                return Collections.emptyList();
             }
 
-            if (comments.isEmpty()) { // question not exist
+            if (dto.isEmpty()) { // question not exist
                 transaction.rollback();
                 return null;
             }
 
             transaction.commit();
-            setLikes(comments, userId);
-            return comments;
         }
+
+        comments = CommentQuestionQueryManager.dtoToCommentQuestionList(dto);
+        this.setLikes(comments, userId);
+        return comments;
     }
 
     @Override

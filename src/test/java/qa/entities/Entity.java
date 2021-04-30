@@ -1,13 +1,14 @@
 package qa.entities;
 
-import qa.dao.databasecomponents.Field;
-import qa.dao.databasecomponents.FieldDataSetterExtractor;
-import qa.dao.databasecomponents.FieldExtractor;
+import qa.dao.Domain;
+import qa.dao.database.components.Field;
+import qa.dao.database.components.FieldDataSetterExtractor;
+import qa.dao.database.components.FieldExtractor;
 import qa.domain.setters.SetterField;
 
 import java.time.LocalDateTime;
 
-public class Entity implements FieldExtractor, FieldDataSetterExtractor {
+public class Entity implements FieldExtractor, FieldDataSetterExtractor, Domain {
 
     private Long id;
     private String str;
@@ -102,5 +103,10 @@ public class Entity implements FieldExtractor, FieldDataSetterExtractor {
                 new SetterField("date", LocalDateTime.class),
                 new SetterField("nested1", NestedEntity.class)
         };
+    }
+
+    @Override
+    public String getClassName() {
+        return "Entity";
     }
 }

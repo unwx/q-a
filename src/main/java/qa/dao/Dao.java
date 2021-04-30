@@ -1,9 +1,9 @@
 package qa.dao;
 
 import org.jetbrains.annotations.Nullable;
-import qa.dao.databasecomponents.NestedEntity;
-import qa.dao.databasecomponents.Table;
-import qa.dao.databasecomponents.Where;
+import qa.dao.database.components.NestedEntity;
+import qa.dao.database.components.Table;
+import qa.dao.database.components.Where;
 
 import java.util.List;
 
@@ -39,5 +39,5 @@ public interface Dao<Entity, Key> {
 
     void delete(final Where where);
 
-    boolean isExist(final Where where, String className);
+    boolean isExist(final Where where);
 }

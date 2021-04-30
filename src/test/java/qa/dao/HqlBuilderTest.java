@@ -3,10 +3,10 @@ package qa.dao;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import qa.dao.databasecomponents.Field;
-import qa.dao.databasecomponents.Table;
-import qa.dao.databasecomponents.Where;
-import qa.dao.databasecomponents.WhereOperator;
+import qa.dao.database.components.Field;
+import qa.dao.database.components.Table;
+import qa.dao.database.components.Where;
+import qa.dao.database.components.WhereOperator;
 import qa.entities.BigEntity;
 import qa.entities.Entity;
 import qa.entities.NestedEntity;
@@ -73,7 +73,7 @@ public class HqlBuilderTest {
                 logger.trace("(1)");
                 Table table = new Table(new String[]{}, "Entity");
 
-                qa.dao.databasecomponents.NestedEntity nestedEntity = new qa.dao.databasecomponents.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
+                qa.dao.database.components.NestedEntity nestedEntity = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
                 String hql = entityHqlBuilder.read(new Where("id", 1L, WhereOperator.EQUALS), table, Collections.singletonList(nestedEntity));
                 String required =
                         """
@@ -90,9 +90,9 @@ public class HqlBuilderTest {
             void second() {
                 logger.trace("(2)");
                 Table table = new Table(new String[]{}, "Entity");
-                qa.dao.databasecomponents.NestedEntity nestedEntity1 = new qa.dao.databasecomponents.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
-                qa.dao.databasecomponents.NestedEntity nestedEntity2 = new qa.dao.databasecomponents.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
-                List<qa.dao.databasecomponents.NestedEntity> entities = new ArrayList<>();
+                qa.dao.database.components.NestedEntity nestedEntity1 = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
+                qa.dao.database.components.NestedEntity nestedEntity2 = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
+                List<qa.dao.database.components.NestedEntity> entities = new ArrayList<>();
                 entities.add(nestedEntity1);
                 entities.add(nestedEntity2);
 
@@ -114,9 +114,9 @@ public class HqlBuilderTest {
         void all() {
             logger.trace("all entities");
             Table table = new Table(entityDefaultFieldNames, "Entity");
-            qa.dao.databasecomponents.NestedEntity nestedEntity1 = new qa.dao.databasecomponents.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
-            qa.dao.databasecomponents.NestedEntity nestedEntity2 = new qa.dao.databasecomponents.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
-            List<qa.dao.databasecomponents.NestedEntity> entities = new ArrayList<>();
+            qa.dao.database.components.NestedEntity nestedEntity1 = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
+            qa.dao.database.components.NestedEntity nestedEntity2 = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
+            List<qa.dao.database.components.NestedEntity> entities = new ArrayList<>();
             entities.add(nestedEntity1);
             entities.add(nestedEntity2);
 

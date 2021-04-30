@@ -4,9 +4,10 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import qa.cache.like.HasLiked;
 import qa.cache.like.HasLikes;
-import qa.dao.databasecomponents.Field;
-import qa.dao.databasecomponents.FieldDataSetterExtractor;
-import qa.dao.databasecomponents.FieldExtractor;
+import qa.dao.Domain;
+import qa.dao.database.components.Field;
+import qa.dao.database.components.FieldDataSetterExtractor;
+import qa.dao.database.components.FieldExtractor;
 import qa.domain.setters.SetterField;
 import qa.util.access.HasAuthor;
 
@@ -16,7 +17,7 @@ import java.util.List;
 
 @Entity
 @Table
-public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes, HasLiked {
+public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes, HasLiked, Domain {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -224,6 +225,11 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
                 new Field("tags", tags),
                 new Field("author", author),
         };
+    }
+
+    @Override
+    public String getClassName() {
+        return "Question";
     }
 
     public static class Builder {

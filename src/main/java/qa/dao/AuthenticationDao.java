@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import qa.domain.AuthenticationData;
 import qa.domain.UserRole;
 import qa.domain.setters.PropertySetterFactory;
-import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 
 import java.math.BigInteger;
 import java.util.LinkedList;
@@ -23,9 +22,9 @@ public class AuthenticationDao extends DaoImpl<AuthenticationData> {
     private final SessionFactory sessionFactory;
 
     @Autowired
-    public AuthenticationDao(PropertySetterFactory propertySetterFactory) {
-        super(HibernateSessionFactoryConfigurer.getSessionFactory(), new AuthenticationData(), propertySetterFactory.getSetter(new AuthenticationData()));
-        sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
+    public AuthenticationDao(PropertySetterFactory propertySetterFactory, SessionFactory sessionFactory) {
+        super(sessionFactory, propertySetterFactory.getSetter(new AuthenticationData()));
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
@@ -34,35 +33,40 @@ public class AuthenticationDao extends DaoImpl<AuthenticationData> {
     }
 
     public boolean isEmailPasswordCorrect(String email, String password, PooledPBEStringEncryptor passwordEncryptor) {
+        final String sql = "SELECT password FROM authentication WHERE email = :email";
+
         try(Session session = sessionFactory.openSession()) {
-            String sql = "SELECT password FROM authentication WHERE email = :email";
-            Transaction transaction = session.beginTransaction();
-            String pass = (String) session.createSQLQuery(sql)
+            final Transaction transaction = session.beginTransaction();
+
+            final String realPassword = (String) session.createSQLQuery(sql)
                     .setParameter("email", email)
                     .uniqueResult();
+
             transaction.commit();
-            if (pass == null)
+            if (realPassword == null)
                 return false;
 
-            return passwordEncryptor.decrypt(pass).equals(password);
+            return passwordEncryptor.decrypt(realPassword).equals(password);
         }
     }
 
     @Nullable
     @SuppressWarnings("unchecked")
     public AuthenticationData getPrincipalWithTokenData(String email) {
+        final String sql =
+                """
+                SELECT\s\
+                a.id, a.access_token_exp_date, a.refresh_token_exp_date, ur.roles\s\
+                FROM authentication AS a\s\
+                INNER JOIN user_role AS ur ON a.id = ur.auth_id\s\
+                WHERE a.email=:a
+                """;
+
         try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            String hql =
-                    """
-                    SELECT\s\
-                    a.id, a.access_token_exp_date, a.refresh_token_exp_date, ur.roles\s\
-                    FROM authentication AS a\s\
-                    INNER JOIN user_role AS ur ON a.id = ur.auth_id\s\
-                    WHERE a.email=:a
-                    """;
-            Query<?> query = session.createSQLQuery(hql).setParameter("a", email);
-            List<Object[]> result = (List<Object[]>) query.list();
+            final Transaction transaction = session.beginTransaction();
+
+            final Query<?> query = session.createSQLQuery(sql).setParameter("a", email);
+            final List<Object[]> result = (List<Object[]>) query.list();
 
             transaction.commit();
             if (result.size() == 0)
@@ -79,7 +83,7 @@ public class AuthenticationDao extends DaoImpl<AuthenticationData> {
     }
 
     private List<UserRole> convertStringToRoles(String rolesStr) {
-        List<UserRole> roles = new LinkedList<>();
+        final List<UserRole> roles = new LinkedList<>();
         for (String s : rolesStr.split(",")) {
             switch (s) {
                 case "USER" -> roles.add(UserRole.USER);

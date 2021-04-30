@@ -1,6 +1,7 @@
-package qa.dao.databasecomponents;
+package qa.dao.database.components;
 
 public class Field {
+
     private String name;
     private final Object value;
 

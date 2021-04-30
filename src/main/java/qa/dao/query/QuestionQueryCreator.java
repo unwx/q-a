@@ -2,7 +2,7 @@ package qa.dao.query;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import qa.dao.query.parameters.CommentQueryParameters;
+import qa.dao.query.parameters.QueryParameter;
 import qa.dto.internal.hibernate.question.QuestionFullStringIdsDto;
 import qa.dto.internal.hibernate.question.QuestionViewDto;
 import qa.dto.internal.hibernate.question.QuestionWithCommentsDto;
@@ -18,7 +18,7 @@ public class QuestionQueryCreator {
     private QuestionQueryCreator() {}
 
     public static Query<QuestionWithCommentsDto> questionWithCommentsQuery(Session session, long questionId) {
-        String sql =
+        final String sql =
                 """
                  SELECT\s\
                      ques.title AS que_title, ques.text AS que_text,\s\
@@ -45,12 +45,12 @@ public class QuestionQueryCreator {
         return session.createSQLQuery(sql)
                 .unwrap(Query.class)
                 .setParameter("questionId", questionId)
-                .setParameter("commentLimit", CommentQueryParameters.COMMENT_RESULT_SIZE)
+                .setParameter("commentLimit", QueryParameter.COMMENT_RESULT_SIZE)
                 .setResultTransformer(new QuestionWithCommentsDtoTransformer());
     }
 
     public static Query<QuestionViewDto> questionsViewsQuery(Session session, int page) {
-        String getQuestionViewsSql =
+        final String sql =
                 """
                 SELECT\s\
                     q.id AS que_id, q.title AS que_title, q.tags AS que_tags,\s\
@@ -65,7 +65,7 @@ public class QuestionQueryCreator {
                 INNER JOIN usr AS u ON q.author_id = u.id\s\
                 ORDER BY q.creation_date DESC\
                 """;
-        return session.createSQLQuery(getQuestionViewsSql)
+        return session.createSQLQuery(sql)
                 .unwrap(Query.class)
                 .setFirstResult(QUESTION_VIEW_RESULT_SIZE * page)
                 .setMaxResults(QUESTION_VIEW_RESULT_SIZE)
@@ -73,7 +73,7 @@ public class QuestionQueryCreator {
     }
 
     public static Query<QuestionFullStringIdsDto> questionFullIdsQuery(Session session, long questionId) {
-                String getIdsSql =
+       final String sql =
                 """
                 SELECT\s\
                      a.id AS ans_id, c_a.id AS com_ans_id, c_q.id AS com_que_id\s\
@@ -83,23 +83,22 @@ public class QuestionQueryCreator {
                 LEFT JOIN comment AS c_q ON q.id = c_q.question_id\s\
                 WHERE q.id = :questionId\
                 """;
-        return session.createSQLQuery(getIdsSql)
+        return session.createSQLQuery(sql)
                 .unwrap(Query.class)
                 .setParameter("questionId", questionId)
                 .setResultTransformer(new QuestionFullIdsDtoTransformer());
     }
 
     public static Query<Long> questionAuthorIdFromAnswerQuery(Session session, long answerId) {
-        final String getIdHql =
+        final String hql =
                 """
                 select u.id from Question q\s\
                 inner join q.answers a\s\
                 inner join q.author u\s\
                 where a.id = :answerId
                 """;
-        return session.createQuery(getIdHql)
+        return session.createQuery(hql)
                 .unwrap(Query.class)
                 .setParameter("answerId", answerId);
-
     }
 }

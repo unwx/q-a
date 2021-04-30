@@ -2,6 +2,7 @@ package qa.dao.query;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import qa.dao.query.parameters.QueryParameter;
 import qa.dto.internal.hibernate.transformer.user.UserAnswerDtoTransformer;
 import qa.dto.internal.hibernate.transformer.user.UserFullDtoTransformer;
 import qa.dto.internal.hibernate.transformer.user.UserQuestionDtoTransformer;
@@ -12,13 +13,12 @@ import qa.dto.internal.hibernate.user.UserQuestionDto;
 @SuppressWarnings({"deprecation", "unchecked"})
 public class UserQueryCreator {
 
-    private static final int RESULT_SIZE = 15;
+    private static final int RESULT_SIZE = QueryParameter.USER_RESULT_SIZE;
 
-    private UserQueryCreator() {
-    }
+    private UserQueryCreator() {}
 
     public static Query<UserFullDto> fullUserQuery(Session session, String username) {
-        String getFullUserSql =
+        final String sql =
                 """
                 SELECT\s\
                     u.id AS usr_id, u.about AS usr_about,\s\
@@ -26,16 +26,20 @@ public class UserQueryCreator {
                     q.id AS usr_q_id, q.title AS usr_q_title\s\
                 FROM usr AS u\s\
                 LEFT JOIN LATERAL\s\
-                    (SELECT id, SUBSTRING(a.text, 1, 50) AS text\s\
+                    (\
+                    SELECT id, SUBSTRING(a.text, 1, 50) AS text\s\
                     FROM answer AS a\s\
-                    WHERE author_id = u.id LIMIT :limit) AS a ON TRUE\s\
+                    WHERE author_id = u.id LIMIT :limit\s\
+                    ) AS a ON TRUE\s\
                 LEFT JOIN LATERAL\s\
-                    (SELECT id, title\s\
+                    (\
+                    SELECT id, title\s\
                     FROM question AS q\s\
-                    WHERE author_id = u.id LIMIT :limit) AS q ON TRUE\s\
+                    WHERE author_id = u.id LIMIT :limit\s\
+                    ) AS q ON TRUE\s\
                 WHERE u.username = :username\
                 """;
-        return session.createSQLQuery(getFullUserSql)
+        return session.createSQLQuery(sql)
                 .unwrap(Query.class)
                 .setParameter("username", username)
                 .setParameter("limit", RESULT_SIZE)
@@ -43,7 +47,7 @@ public class UserQueryCreator {
     }
 
     public static Query<UserQuestionDto> questionsQuery(Session session, long userId, int page) {
-        String getUserLastQuestions =
+        final String sql =
                 """
                 SELECT\s\
                     q.id AS usr_q_id, q.title AS usr_q_title\s\
@@ -59,7 +63,7 @@ public class UserQueryCreator {
                 WHERE u.id = :userId\s\
                 """;
         return session
-                .createSQLQuery(getUserLastQuestions)
+                .createSQLQuery(sql)
                 .unwrap(Query.class)
                 .setParameter("userId", userId)
                 .setParameter("limit", RESULT_SIZE)
@@ -68,7 +72,7 @@ public class UserQueryCreator {
     }
 
     public static Query<UserAnswerDto> answersQuery(Session session, long userId, int page) {
-        String getUserLastAnswers =
+        final String sql =
                 """
                 SELECT\s\
                     a.id AS usr_a_id, a.s_text AS usr_a_text\s\
@@ -85,7 +89,7 @@ public class UserQueryCreator {
                 """;
 
         return session
-                .createSQLQuery(getUserLastAnswers)
+                .createSQLQuery(sql)
                 .unwrap(Query.class)
                 .setParameter("userId", userId)
                 .setParameter("limit", RESULT_SIZE)

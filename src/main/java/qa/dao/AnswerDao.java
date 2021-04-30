@@ -9,18 +9,18 @@ import org.springframework.stereotype.Component;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.like.AnswerLikeProvider;
-import qa.dao.databasecomponents.Where;
-import qa.dao.databasecomponents.WhereOperator;
-import qa.dao.query.AnswerQueryCreator;
-import qa.dao.query.convertor.AnswerQueryResultConvertor;
+import qa.cache.like.Likeable;
+import qa.dao.database.components.Where;
+import qa.dao.database.components.WhereOperator;
+import qa.dao.query.manager.AnswerQueryManager;
 import qa.domain.Answer;
 import qa.domain.setters.PropertySetterFactory;
+import qa.dto.internal.hibernate.answer.AnswerFullDto;
 import qa.dto.internal.hibernate.answer.AnswerFullStringIdsDto;
 import qa.exceptions.dao.NullResultException;
-import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import redis.clients.jedis.Jedis;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -35,7 +35,8 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
                      SessionFactory sessionFactory,
                      JedisResourceCenter jedisResourceCenter,
                      AnswerLikeProvider likesProvider) {
-        super(HibernateSessionFactoryConfigurer.getSessionFactory(), new Answer(), propertySetterFactory.getSetter(new Answer()));
+
+        super(sessionFactory, propertySetterFactory.getSetter(new Answer()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
         this.likesProvider = likesProvider;
@@ -53,7 +54,7 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
         final AnswerFullStringIdsDto answerFullStringIdsDto;
         try (Session session = sessionFactory.openSession()) {
             final Transaction transaction = session.beginTransaction();
-            answerFullStringIdsDto = AnswerQueryCreator
+            answerFullStringIdsDto = AnswerQueryManager
                     .answerFullIdsQuery(session, answerId)
                     .uniqueResult();
 
@@ -69,7 +70,7 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
     }
 
     public boolean isExist(Long id) {
-        return super.isExist(new Where("id", id, WhereOperator.EQUALS), "Answer");
+        return super.isExist(new Where("id", id, WhereOperator.EQUALS));
     }
 
     @Nullable
@@ -81,30 +82,32 @@ public class AnswerDao extends DaoImpl<Answer> implements Likeable<Long> {
          *  if exist: return result.
          */
 
+        final List<AnswerFullDto> dto;
+        final List<Answer> answers;
+
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            List<Answer> answers = new ArrayList<>();
+            final Transaction transaction = session.beginTransaction();
 
             try {
-                answers = AnswerQueryResultConvertor
-                        .dtoToAnswerList(AnswerQueryCreator
-                                .answersWithCommentsQuery(session, questionId, page)
-                                .list()
-                        );
+                dto = AnswerQueryManager
+                        .answersWithCommentsQuery(session, questionId, page)
+                        .list();
             } catch (NullResultException ex) {
                 transaction.rollback();
-                return answers;
+                return Collections.emptyList();
             }
 
-            if (answers.isEmpty()) {
+            if (dto.isEmpty()) {
                 transaction.rollback();
                 return null;
             }
 
             transaction.commit();
-            setLikes(answers, userId);
-            return answers;
         }
+
+        answers = AnswerQueryManager.dtoToAnswerList(dto);
+        this.setLikes(answers, userId);
+        return answers;
     }
 
     @Override

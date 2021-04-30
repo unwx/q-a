@@ -1,8 +1,9 @@
 package qa.domain;
 
-import qa.dao.databasecomponents.Field;
-import qa.dao.databasecomponents.FieldDataSetterExtractor;
-import qa.dao.databasecomponents.FieldExtractor;
+import qa.dao.Domain;
+import qa.dao.database.components.Field;
+import qa.dao.database.components.FieldDataSetterExtractor;
+import qa.dao.database.components.FieldExtractor;
 import qa.domain.setters.SetterField;
 
 import javax.persistence.*;
@@ -10,7 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "usr")
-public class User implements FieldExtractor, FieldDataSetterExtractor {
+public class User implements FieldExtractor, FieldDataSetterExtractor, Domain {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -120,6 +121,11 @@ public class User implements FieldExtractor, FieldDataSetterExtractor {
                 new Field("username", username),
                 new Field("about", about),
         };
+    }
+
+    @Override
+    public String getClassName() {
+        return "User";
     }
 
     public static class Builder {

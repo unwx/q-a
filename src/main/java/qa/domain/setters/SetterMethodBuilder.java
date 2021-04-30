@@ -1,6 +1,6 @@
 package qa.domain.setters;
 
-import qa.dao.databasecomponents.FieldDataSetterExtractor;
+import qa.dao.database.components.FieldDataSetterExtractor;
 
 import java.lang.invoke.*;
 

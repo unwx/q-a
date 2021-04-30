@@ -1,8 +1,8 @@
 package qa.entities;
 
-import qa.dao.databasecomponents.Field;
-import qa.dao.databasecomponents.FieldDataSetterExtractor;
-import qa.dao.databasecomponents.FieldExtractor;
+import qa.dao.database.components.Field;
+import qa.dao.database.components.FieldDataSetterExtractor;
+import qa.dao.database.components.FieldExtractor;
 import qa.domain.setters.SetterField;
 
 @SuppressWarnings("unused")

@@ -1,9 +1,10 @@
 package qa.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import qa.dao.databasecomponents.Field;
-import qa.dao.databasecomponents.FieldDataSetterExtractor;
-import qa.dao.databasecomponents.FieldExtractor;
+import qa.dao.Domain;
+import qa.dao.database.components.Field;
+import qa.dao.database.components.FieldDataSetterExtractor;
+import qa.dao.database.components.FieldExtractor;
 import qa.domain.setters.SetterField;
 
 import javax.persistence.*;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "authentication")
-public class AuthenticationData implements FieldExtractor, FieldDataSetterExtractor {
+public class AuthenticationData implements FieldExtractor, FieldDataSetterExtractor, Domain {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -173,6 +174,11 @@ public class AuthenticationData implements FieldExtractor, FieldDataSetterExtrac
                 new SetterField("refreshTokenExpirationDateAtMillis", Long.class),
                 new SetterField("user", User.class),
         };
+    }
+
+    @Override
+    public String getClassName() {
+        return "AuthenticationData";
     }
 
     public static class Builder {

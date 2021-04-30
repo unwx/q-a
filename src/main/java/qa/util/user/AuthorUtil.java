@@ -2,7 +2,7 @@ package qa.util.user;
 
 import org.apache.logging.log4j.Logger;
 import qa.dao.Dao;
-import qa.dao.databasecomponents.Where;
+import qa.dao.database.components.Where;
 import qa.domain.setters.PropertySetterFactory;
 import qa.exceptions.rest.AccessDeniedException;
 import qa.exceptions.rest.ResourceNotFoundException;

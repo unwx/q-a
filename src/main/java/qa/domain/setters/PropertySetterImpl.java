@@ -2,7 +2,8 @@ package qa.domain.setters;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import qa.dao.databasecomponents.FieldDataSetterExtractor;
+import qa.dao.Domain;
+import qa.dao.database.components.FieldDataSetterExtractor;
 import qa.exceptions.domain.SetterNotImplementedException;
 import qa.exceptions.domain.SetterTargetIsNullException;
 import qa.exceptions.domain.SettersInitializationException;
@@ -10,22 +11,29 @@ import qa.exceptions.domain.SettersInitializationException;
 import java.io.Serial;
 import java.util.HashMap;
 
-public class PropertySetterImpl implements PropertySetter {
+public class PropertySetterImpl<E extends FieldDataSetterExtractor & Domain> implements PropertySetter {
 
     private static final Logger logger = LogManager.getLogger(PropertySetterImpl.class);
 
     private final HashMap<String, ISetter<FieldDataSetterExtractor>> setters;
+    private final E entity;
 
-    public PropertySetterImpl(Class<? extends FieldDataSetterExtractor> target, FieldDataSetterExtractor emptyObject) throws SettersInitializationException {
-        this.setters = SettersInitializer.init(target, emptyObject);
+    private static final String ERR_TARGET_NULL = "NullPointerException -> setter target is null. -> FieldDataSetterExtractor = null";
+    private static final String ERR_NOT_IMPLEMENTED = "NullPointerException -> setter %s not exist/implemented";
+
+    public PropertySetterImpl(Class<? extends FieldDataSetterExtractor> target,
+                              E entity) throws SettersInitializationException {
+
+        this.setters = SettersInitializer.init(target, entity);
+        this.entity = entity;
     }
 
     @Override
     public void setAll(FieldDataSetterExtractor object, String[] names, Object[] values) {
         for (int i = 0; i < names.length; i++) {
             try {
-                ISetter<FieldDataSetterExtractor> s = setters.get(names[i]);
-                s.set(object, values[i]);
+                final ISetter<FieldDataSetterExtractor> setter = setters.get(names[i]);
+                setter.set(object, values[i]);
             } catch (NullPointerException ex) {
                 nullPointerExceptionProcess(object, names[i]);
             }
@@ -35,38 +43,47 @@ public class PropertySetterImpl implements PropertySetter {
     @Override
     public void set(FieldDataSetterExtractor object, String name, Object value) {
         try {
-            ISetter<FieldDataSetterExtractor> s = setters.get(name);
-            s.set(object, value);
+            final ISetter<FieldDataSetterExtractor> setter = setters.get(name);
+            setter.set(object, value);
         } catch (NullPointerException ex) {
             nullPointerExceptionProcess(object, name);
         }
     }
 
+    @Override
+    public E entity() {
+        return this.entity;
+    }
+
     private void nullPointerExceptionProcess(FieldDataSetterExtractor object, String name) {
         if (object == null) {
-            String message = "NullPointerException -> setter target is null. -> FieldDataSetterExtractor = null.";
+
+            final String message = ERR_TARGET_NULL;
             logger.error(message);
             throw new SetterTargetIsNullException(message);
+
         } else {
-            String message = "NullPointerException -> setter " + name + " not exist/implemented. ";
+
+            final String message = ERR_NOT_IMPLEMENTED.formatted(name);
             logger.error(message);
             throw new SetterNotImplementedException(message);
+
         }
     }
 
     private static class SettersInitializer {
 
-        private SettersInitializer() {
-        }
+        private SettersInitializer() {}
 
-        public static HashMap<String, ISetter<FieldDataSetterExtractor>> init(Class<? extends FieldDataSetterExtractor> clazz, FieldDataSetterExtractor obj) throws SettersInitializationException {
+        public static HashMap<String, ISetter<FieldDataSetterExtractor>> init(Class<? extends FieldDataSetterExtractor> clazz,
+                                                                              FieldDataSetterExtractor obj) throws SettersInitializationException {
             return new HashMap<>() {
 
                 @Serial
                 private static final long serialVersionUID = 7124974512179832211L;
 
                 {
-                    SetterField[] fields = obj.extractSettersField();
+                    final SetterField[] fields = obj.extractSettersField();
                     for (SetterField field : fields) {
                         try {
                             put(field.getName(), SetterMethodBuilder.getSetter(clazz, field.getName(), field.getType()));

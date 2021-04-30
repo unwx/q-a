@@ -2,22 +2,21 @@ package qa.dao.query;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import qa.dao.query.parameters.CommentQueryParameters;
-import qa.dto.internal.hibernate.question.QuestionCommentDto;
-import qa.dto.internal.hibernate.transformer.question.QuestionCommentDtoTransformer;
+import qa.dao.query.parameters.QueryParameter;
+import qa.dto.internal.hibernate.comment.question.CommentQuestionDto;
+import qa.dto.internal.hibernate.transformer.comment.CommentQuestionDtoResultTransformer;
 
 @SuppressWarnings({"deprecation", "unchecked"})
 public class CommentQuestionQueryCreator {
 
-    private CommentQuestionQueryCreator() {
-    }
+    private CommentQuestionQueryCreator() {}
 
-    public static Query<QuestionCommentDto> commentsQuery(Session session, long questionId, int page) {
-        String getQuestionCommentsSql =
+    public static Query<CommentQuestionDto> commentsQuery(Session session, long questionId, int page) {
+        final String sql =
                 """
                 SELECT\s\
-                    c.id AS que_c_id, c.text AS que_c_text, c.creation_date AS que_c_c_date,\s\
-                    c.username AS que_c_u_username\s\
+                    c.id AS c_id, c.text AS c_text, c.creation_date AS c_c_date,\s\
+                    c.username AS c_u_username\s\
                 FROM question AS q\s\
                 LEFT JOIN LATERAL\s\
                     (\
@@ -30,11 +29,11 @@ public class CommentQuestionQueryCreator {
                     ) AS c ON TRUE\s\
                 WHERE q.id = :questionId\
                 """;
-        return session.createSQLQuery(getQuestionCommentsSql)
+        return session.createSQLQuery(sql)
                 .unwrap(Query.class)
                 .setParameter("questionId", questionId)
-                .setParameter("limit", CommentQueryParameters.COMMENT_RESULT_SIZE)
-                .setParameter("offset", page * CommentQueryParameters.COMMENT_RESULT_SIZE)
-                .setResultTransformer(new QuestionCommentDtoTransformer());
+                .setParameter("limit", QueryParameter.COMMENT_RESULT_SIZE)
+                .setParameter("offset", page * QueryParameter.COMMENT_RESULT_SIZE)
+                .setResultTransformer(new CommentQuestionDtoResultTransformer());
     }
 }

@@ -2,8 +2,7 @@ package qa.dao.query;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import qa.dao.query.parameters.AnswerQueryParameters;
-import qa.dao.query.parameters.CommentQueryParameters;
+import qa.dao.query.parameters.QueryParameter;
 import qa.dto.internal.hibernate.answer.AnswerFullDto;
 import qa.dto.internal.hibernate.answer.AnswerFullStringIdsDto;
 import qa.dto.internal.hibernate.transformer.answer.AnswerFullIdsDtoResultTransformer;
@@ -12,17 +11,16 @@ import qa.dto.internal.hibernate.transformer.question.QuestionAnswerFullDtoTrans
 @SuppressWarnings({"deprecation", "unchecked"})
 public class AnswerQueryCreator {
 
-    private static final int RESULT_SIZE = AnswerQueryParameters.RESULT_SIZE;
+    private static final int RESULT_SIZE = QueryParameter.ANSWER_RESULT_SIZE;
+
+    private AnswerQueryCreator() {}
 
     public static Query<AnswerFullDto> answersWithCommentsQuery(Session session, long questionId) {
         return answersWithCommentsQuery(session, questionId, 0);
     }
 
-    private AnswerQueryCreator() {
-    }
-
     public static Query<AnswerFullDto> answersWithCommentsQuery(Session session, long questionId, int page) {
-        String sql =
+        final String sql =
                 """
                 SELECT\s\
                     answ.id AS ans_id, answ.text AS ans_text,\s\
@@ -55,7 +53,7 @@ public class AnswerQueryCreator {
         return session.createSQLQuery(sql)
                 .unwrap(Query.class)
                 .setParameter("questionId", questionId)
-                .setParameter("commentLimit", CommentQueryParameters.COMMENT_RESULT_SIZE)
+                .setParameter("commentLimit", QueryParameter.COMMENT_RESULT_SIZE)
                 .setParameter("answerLimit", RESULT_SIZE)
                 .setParameter("offset", RESULT_SIZE * page)
                 .setResultTransformer(new QuestionAnswerFullDtoTransformer());
@@ -65,7 +63,7 @@ public class AnswerQueryCreator {
         final String getIdsSql =
                 """
                 SELECT\s\
-                    c_a.id as com_ans_id\s\
+                    c_a.id AS com_ans_id\s\
                 FROM answer AS a\s\
                 LEFT JOIN comment c_a ON a.id = c_a.answer_id\s\
                 WHERE a.id = :answerId\

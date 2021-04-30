@@ -1,9 +1,9 @@
 package qa.util.access;
 
 import qa.dao.Dao;
-import qa.dao.databasecomponents.NestedEntity;
-import qa.dao.databasecomponents.Table;
-import qa.dao.databasecomponents.Where;
+import qa.dao.database.components.NestedEntity;
+import qa.dao.database.components.Table;
+import qa.dao.database.components.Where;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
 

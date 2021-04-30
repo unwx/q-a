@@ -2,22 +2,21 @@ package qa.dao.query;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import qa.dao.query.parameters.CommentQueryParameters;
-import qa.dto.internal.hibernate.answer.AnswerCommentDto;
-import qa.dto.internal.hibernate.transformer.answer.AnswerCommentDtoResultTransformer;
+import qa.dao.query.parameters.QueryParameter;
+import qa.dto.internal.hibernate.comment.answer.CommentAnswerDto;
+import qa.dto.internal.hibernate.transformer.comment.CommentAnswerDtoResultTransformer;
 
 @SuppressWarnings({"deprecation", "unchecked"})
 public class CommentAnswerQueryCreator {
 
-    private CommentAnswerQueryCreator() {
-    }
+    private CommentAnswerQueryCreator() {}
 
-    public static Query<AnswerCommentDto> commentsQuery(Session session, long answerId, int page) {
-        String sql =
+    public static Query<CommentAnswerDto> commentsQuery(Session session, long answerId, int page) {
+        final String sql =
                 """
                 SELECT\s\
-                    c.id AS ans_c_id, c.creation_date as ans_c_c_date, c.text as ans_c_text,\s\
-                    c.username as ans_c_u_username\s\
+                    c.id AS c_id, c.creation_date AS c_c_date, c.text AS c_text,\s\
+                    c.username as c_u_username\s\
                 FROM answer AS a\s\
                 LEFT JOIN LATERAL\s\
                     (\
@@ -32,8 +31,8 @@ public class CommentAnswerQueryCreator {
         return session.createSQLQuery(sql)
                 .unwrap(Query.class)
                 .setParameter("answerId", answerId)
-                .setParameter("limit", CommentQueryParameters.COMMENT_RESULT_SIZE)
-                .setParameter("offset", CommentQueryParameters.COMMENT_RESULT_SIZE * page)
-                .setResultTransformer(new AnswerCommentDtoResultTransformer());
+                .setParameter("limit", QueryParameter.COMMENT_RESULT_SIZE)
+                .setParameter("offset", QueryParameter.COMMENT_RESULT_SIZE * page)
+                .setResultTransformer(new CommentAnswerDtoResultTransformer());
     }
 }

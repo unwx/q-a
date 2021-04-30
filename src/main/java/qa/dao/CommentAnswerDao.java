@@ -9,17 +9,17 @@ import org.springframework.stereotype.Component;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.like.CommentAnswerLikeProvider;
-import qa.dao.databasecomponents.Where;
-import qa.dao.databasecomponents.WhereOperator;
-import qa.dao.query.CommentAnswerQueryCreator;
-import qa.dao.query.convertor.CommentAnswerQueryResultConvertor;
+import qa.cache.like.Likeable;
+import qa.dao.database.components.Where;
+import qa.dao.database.components.WhereOperator;
+import qa.dao.query.manager.CommentAnswerQueryManager;
 import qa.domain.CommentAnswer;
 import qa.domain.setters.PropertySetterFactory;
+import qa.dto.internal.hibernate.comment.answer.CommentAnswerDto;
 import qa.exceptions.dao.NullResultException;
-import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import redis.clients.jedis.Jedis;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -34,7 +34,8 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
                             SessionFactory sessionFactory,
                             JedisResourceCenter jedisResourceCenter,
                             CommentAnswerLikeProvider likesProvider) {
-        super(HibernateSessionFactoryConfigurer.getSessionFactory(), new CommentAnswer(), propertySetterFactory.getSetter(new CommentAnswer()));
+
+        super(sessionFactory, propertySetterFactory.getSetter(new CommentAnswer()));
         this.sessionFactory = sessionFactory;
         this.jedisResourceCenter = jedisResourceCenter;
         this.likesProvider = likesProvider;
@@ -54,7 +55,7 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
     }
 
     public boolean isExist(Long id) {
-        return super.isExist(new Where("id", id, WhereOperator.EQUALS), "Comment");
+        return super.isExist(new Where("id", id, WhereOperator.EQUALS));
     }
 
     @Nullable
@@ -66,31 +67,33 @@ public class CommentAnswerDao extends DaoImpl<CommentAnswer> implements Likeable
          *  if exist: return result.
          */
 
+        final List<CommentAnswerDto> dto;
+        final List<CommentAnswer> comments;
+
         try(Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            List<CommentAnswer> comments = new ArrayList<>();
+            final Transaction transaction = session.beginTransaction();
 
             try {
-                comments = CommentAnswerQueryResultConvertor
-                        .dtoToCommentAnswerList(CommentAnswerQueryCreator
+                dto = CommentAnswerQueryManager
                                 .commentsQuery(session, answerId, page)
-                                .list()
-                        );
+                                .list();
             }
             catch (NullResultException ex) {
                 transaction.rollback();
-                return comments;
+                return Collections.emptyList();
             }
 
-            if (comments.isEmpty()) {
+            if (dto.isEmpty()) {
                 transaction.rollback();
                 return null;
             }
 
             transaction.commit();
-            setLikes(comments, userId);
-            return comments;
         }
+
+        comments = CommentAnswerQueryManager.dtoToCommentAnswerList(dto);
+        this.setLikes(comments, userId);
+        return comments;
     }
 
     @Override

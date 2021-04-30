@@ -12,8 +12,7 @@ import java.util.List;
 
 public class UserQueryResultConvertor {
 
-    private UserQueryResultConvertor() {
-    }
+    private UserQueryResultConvertor() {}
 
     public static User dtoToUser(UserFullDto dto, String username) {
         return new User.Builder()
@@ -26,7 +25,7 @@ public class UserQueryResultConvertor {
     }
 
     public static List<Answer> dtoToAnswers(List<UserAnswerDto> dto) {
-        List<Answer> answers = new ArrayList<>(dto.size());
+        final List<Answer> answers = new ArrayList<>(dto.size());
         dto.forEach((d) -> answers.add(new Answer.Builder()
                 .id(d.getAnswerId())
                 .text(d.getText())
@@ -35,7 +34,7 @@ public class UserQueryResultConvertor {
     }
 
     public static List<Question> dtoToQuestion(List<UserQuestionDto> dto) {
-        List<Question> questions = new ArrayList<>(dto.size());
+        final List<Question> questions = new ArrayList<>(dto.size());
         dto.forEach((d) -> questions.add(new Question.Builder()
                 .id(d.getQuestionId())
                 .title(d.getTitle())

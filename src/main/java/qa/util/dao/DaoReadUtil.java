@@ -4,8 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import qa.dao.Domain;
 import qa.dao.HqlBuilder;
-import qa.dao.databasecomponents.*;
+import qa.dao.database.components.*;
 import qa.domain.setters.PropertySetter;
 
 import javax.persistence.NoResultException;
@@ -14,276 +15,313 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtractor> {
+public class DaoReadUtil<E extends FieldExtractor & FieldDataSetterExtractor & Domain> {
 
-    private final HqlBuilder hqlBuilder;
+    private final HqlBuilder hqlBuilder = new HqlBuilder();
     private final PropertySetter mainSetter;
-    private final Entity targetEntity;
 
     private static final Logger logger = LogManager.getLogger(DaoReadUtil.class);
 
-    public DaoReadUtil(HqlBuilder hqlBuilder,
-                       Entity emptyEntity,
-                       PropertySetter propertySetter) {
-        this.hqlBuilder = hqlBuilder;
-        this.targetEntity = emptyEntity;
+    public DaoReadUtil(PropertySetter propertySetter) {
         this.mainSetter = propertySetter;
     }
 
-    public Entity read(final Where where,
-                       final Table target,
-                       final List<NestedEntity> nested,
-                       final Session session)
+    public E read(final Where where,
+                  final Table target,
+                  final List<NestedEntity> nested,
+                  final Session session)
             throws
             NoSuchMethodException,
             InstantiationException,
             IllegalAccessException,
             InvocationTargetException {
 
-        return readUniqueProcess(where, target, nested, session, targetEntity);
+        return this.readUniqueProcess(where, target, nested, session);
     }
 
-    public List<Entity> readList(final Where where,
-                                 final Table mainTable,
-                                 final Session session) {
-        return readListProcess(where, mainTable, session, targetEntity);
+    public List<E> readList(final Where where,
+                            final Table mainTable,
+                            final Session session) {
+        return this.readListProcess(where, mainTable, session);
     }
 
-    private Entity readUniqueProcess(Where where,
-                                     Table mainTable,
-                                     List<NestedEntity> nestedEntities,
-                                     Session session,
-                                     Entity targetEntity)
+    private E readUniqueProcess(Where where,
+                                Table mainTable,
+                                List<NestedEntity> nestedEntities,
+                                Session session)
             throws
             InvocationTargetException,
             NoSuchMethodException,
             InstantiationException,
             IllegalAccessException {
 
-        ReadSituation situation = defineSituation(mainTable.getFieldNames(), nestedEntities);
-        Object whereParameterValue = where.getFieldValue();
-        Entity result = null;
+        final ReadSituation situation = this.defineSituation(mainTable.getFieldNames(), nestedEntities);
+        final Object whereParameterValue = where.getFieldValue();
+        E result = null;
 
         session.beginTransaction();
         if (situation != ReadSituation.MAIN_NESTED_MANY_OBJECTS) {
-            String hql = hqlBuilder.read(where, mainTable, nestedEntities);
-            Query<?> query = session.createQuery(hql).setParameter(hqlBuilder.DEFAULT_WHERE_PARAM_NAME, whereParameterValue);
+            final String hql = hqlBuilder.read(where, mainTable, nestedEntities);
+            final Query<?> query = session.createQuery(hql).setParameter(hqlBuilder.DEFAULT_WHERE_PARAM_NAME, whereParameterValue);
 
             switch (situation) {
                 case MAIN_SINGLE_OBJECT -> result = readMainSingle(
                         query,
-                        mainTable.getFieldNames()[0],
-                        targetEntity);
+                        mainTable.getFieldNames()[0]
+                );
                 case MAIN_MANY_OBJECTS -> result = readMainMany(
                         query,
-                        mainTable.getFieldNames(),
-                        targetEntity);
+                        mainTable.getFieldNames()
+                );
                 case NESTED_SINGLE_OBJECT -> result = readNestedSingle(
                         query,
-                        nestedEntities.get(0),
-                        targetEntity);
+                        nestedEntities.get(0)
+                );
                 case NESTED_MANY_OBJECTS -> result = readNestedMany(
                         query,
-                        nestedEntities,
-                        targetEntity);
+                        nestedEntities
+                );
                 case MAIN_NESTED_SINGLE_OBJECT -> result = readMainNestedSingle(
                         query,
                         mainTable.getFieldNames()[0],
-                        nestedEntities.get(0),
-                        targetEntity);
+                        nestedEntities.get(0)
+                );
                 default -> logger.error("uncertain situation");
             }
+
         } else {
-            String mainHql = hqlBuilder.read(where, mainTable, Collections.emptyList());
-            String nestedHql = hqlBuilder.read(where, new Table(new String[]{}, mainTable.getClassName()), nestedEntities);
-            Query<?> nestedQuery = session.createQuery(nestedHql).setParameter(hqlBuilder.DEFAULT_WHERE_PARAM_NAME, whereParameterValue);
-            Query<?> mainQuery = session.createQuery(mainHql).setParameter(hqlBuilder.DEFAULT_WHERE_PARAM_NAME, whereParameterValue);
+            final String mainHql = this.hqlBuilder.read(where, mainTable, Collections.emptyList());
+            final String nestedHql = this.hqlBuilder.read(where, new Table(new String[]{}, mainTable.getClassName()), nestedEntities);
+            final Query<?> nestedQuery = session.createQuery(nestedHql).setParameter(this.hqlBuilder.DEFAULT_WHERE_PARAM_NAME, whereParameterValue);
+            final Query<?> mainQuery = session.createQuery(mainHql).setParameter(this.hqlBuilder.DEFAULT_WHERE_PARAM_NAME, whereParameterValue);
 
             result = readMainNestedMany(
                     mainQuery,
                     nestedQuery,
                     mainTable.getFieldNames(),
-                    nestedEntities,
-                    targetEntity);
+                    nestedEntities
+            );
         }
+
         session.getTransaction().commit();
         return result;
     }
 
-    private List<Entity> readListProcess(Where where,
-                                         Table mainTable,
-                                         Session session,
-                                         Entity targetEntity) {
-        String hql = hqlBuilder.read(where, mainTable, Collections.emptyList());
-        Query<?> query = session.createQuery(hql).setParameter(hqlBuilder.DEFAULT_WHERE_PARAM_NAME, where.getFieldValue());
-        List<Entity> result;
+    private List<E> readListProcess(Where where,
+                                    Table mainTable,
+                                    Session session) {
+
+        final String hql = this.hqlBuilder.read(where, mainTable, Collections.emptyList());
+        final Query<?> query = session.createQuery(hql).setParameter(this.hqlBuilder.DEFAULT_WHERE_PARAM_NAME, where.getFieldValue());
+        final List<E> result;
         session.beginTransaction();
+
         if (mainTable.getFieldNames().length == 1)
-            result = readMainSingleList(query, mainTable.getFieldNames()[0], targetEntity);
-        else result = readMainManyList(query, mainTable.getFieldNames(), targetEntity);
+            result = readMainSingleList(query, mainTable.getFieldNames()[0]);
+        else
+            result = readMainManyList(query, mainTable.getFieldNames());
+
         session.getTransaction().commit();
         return result;
     }
 
-    private Entity readMainSingle(Query<?> query,
-                                  String mainFieldName,
-                                  Entity targetEntity) {
+    private E readMainSingle(Query<?> query,
+                             String mainFieldName) {
+
+        final E entity = this.mainSetter.entity();
         try {
-            Object result = query.getSingleResult();
-            return setProperty(mainFieldName, result, targetEntity);
+
+            final Object result = query.getSingleResult();
+            return setProperty(mainFieldName, result, entity);
+
         } catch (NoResultException e) {
             return null;
         }
     }
 
-    private Entity readMainMany(Query<?> query,
-                                String[] mainFieldNames,
-                                Entity targetEntity) {
+    private E readMainMany(Query<?> query,
+                           String[] mainFieldNames) {
+
+        final E entity = this.mainSetter.entity();
         try {
-            Object[] result = (Object[]) query.getSingleResult();
-            return setProperties(mainFieldNames, result, targetEntity);
+
+            final Object[] result = (Object[]) query.getSingleResult();
+            return setProperties(mainFieldNames, result, entity);
+
         } catch (NoResultException e) {
             return null;
         }
     }
 
-    private Entity readNestedSingle(Query<?> query,
-                                    NestedEntity nestedEntity,
-                                    Entity targetEntity)
+    private E readNestedSingle(Query<?> query,
+                               NestedEntity nestedEntity)
             throws
             NoSuchMethodException,
             IllegalAccessException,
             InvocationTargetException,
             InstantiationException {
 
+        final E entity = this.mainSetter.entity();
         try {
-            Object result = query.getSingleResult();
-            setNested(
+            final Object result = query.getSingleResult();
+            this.setNested(
                     nestedEntity,
-                    targetEntity,
+                    entity,
                     nestedEntity.getClazz().getDeclaredConstructor().newInstance(),
                     nestedEntity.getFieldNames()[0],
                     result);
-            return targetEntity;
+            return entity;
         } catch (NoResultException e) {
             return null;
         }
     }
 
-    private Entity readNestedMany(Query<?> query,
-                                  List<NestedEntity> nestedEntity,
-                                  Entity targetEntity)
+    private E readNestedMany(Query<?> query,
+                             List<NestedEntity> nestedEntity)
             throws
             InvocationTargetException,
             NoSuchMethodException,
             InstantiationException,
             IllegalAccessException {
 
+        final E entity = this.mainSetter.entity();
         query.setMaxResults(50);
-        List<?> result = query.list();
+
+        final List<?> result = query.list();
 
         /* we want to avoid the situation when it would seem that an entity is returned,
          *that is, the result - but in the end the entities nested in it are equal to null.
          * @Nullable */
         if (result.isEmpty())
             return null;
-        setNestedResultListToEntity(result, targetEntity, nestedEntity);
-        return targetEntity; // updated;
+        this.setNestedResultListToEntity(result, entity, nestedEntity);
+        return entity; // updated;
     }
 
-    private Entity readMainNestedSingle(Query<?> query,
-                                        String mainFieldName,
-                                        NestedEntity nestedEntity,
-                                        Entity targetEntity)
+    private E readMainNestedSingle(Query<?> query,
+                                   String mainFieldName,
+                                   NestedEntity nestedEntity)
             throws
             NoSuchMethodException,
             IllegalAccessException,
             InvocationTargetException,
             InstantiationException {
 
+        final E entity = this.mainSetter.entity();
         try {
-            Object[] result = (Object[]) query.getSingleResult();
-            setProperty(mainFieldName, result[0], targetEntity);
-            setNested(nestedEntity, targetEntity, nestedEntity.getClazz().getDeclaredConstructor().newInstance(), nestedEntity.getFieldNames()[0], result[1]);
-            return targetEntity;
+
+            final Object[] result = (Object[]) query.getSingleResult();
+            this.setProperty(mainFieldName, result[0], entity);
+
+            this.setNested(
+                    nestedEntity,
+                    entity,
+                    nestedEntity
+                            .getClazz()
+                            .getDeclaredConstructor()
+                            .newInstance(),
+                    nestedEntity.getFieldNames()[0],
+                    result[1]
+            );
+
+            return entity;
+
         } catch (NoResultException e) {
             return null;
         }
     }
 
-    private Entity readMainNestedMany(Query<?> mainQuery,
-                                      Query<?> nestedQuery,
-                                      String[] mainFieldNames,
-                                      List<NestedEntity> nestedEntities,
-                                      Entity targetEntity)
+    private E readMainNestedMany(Query<?> mainQuery,
+                                 Query<?> nestedQuery,
+                                 String[] mainFieldNames,
+                                 List<NestedEntity> nestedEntities)
             throws
             InvocationTargetException,
             NoSuchMethodException,
             InstantiationException,
             IllegalAccessException {
 
+        final E entity = this.mainSetter.entity();
         try {
-            Object[] mainResult = (Object[]) mainQuery.getSingleResult();
-            setProperties(mainFieldNames, mainResult, targetEntity);
+            final Object[] mainResult = (Object[]) mainQuery.getSingleResult();
+            this.setProperties(mainFieldNames, mainResult, entity);
 
-            List<?> nestedResult = nestedQuery.list();
-            setNestedResultListToEntity(nestedResult, targetEntity, nestedEntities);
-            return targetEntity;
+            final List<?> nestedResult = nestedQuery.list();
+            this.setNestedResultListToEntity(nestedResult, entity, nestedEntities);
+
+            return entity;
         } catch (NoResultException e) {
             return null;
         }
     }
 
-    private List<Entity> readMainSingleList(Query<?> query,
-                                            String mainFieldName,
-                                            Entity targetEntity) {
+    private List<E> readMainSingleList(Query<?> query,
+                                       String mainFieldName) {
 
+        final E entity = this.mainSetter.entity();
         query.setMaxResults(50);
-        List<?> result = query.list();
-        List<Entity> entities = new LinkedList<>();
-        result.forEach((o) -> {
-            mainSetter.set(targetEntity, mainFieldName, o);
-            entities.add(targetEntity);
-        });
+
+        final List<?> result = query.list();
+        final List<E> entities = new LinkedList<>();
+
+        for (Object object : result) {
+            this.mainSetter.set(entity, mainFieldName,object);
+            entities.add(entity);
+        }
+
         return entities;
     }
 
     @SuppressWarnings("unchecked")
-    private List<Entity> readMainManyList(Query<?> query,
-                                          String[] mainFieldNames,
-                                          Entity targetEntity) {
+    private List<E> readMainManyList(Query<?> query,
+                                     String[] mainFieldNames) {
 
+        final E entity = this.mainSetter.entity();
         query.setMaxResults(50);
-        List<Object[]> result = (List<Object[]>) query.list();
-        List<Entity> entities = new LinkedList<>();
-        result.forEach((o) -> {
+
+        final List<Object[]> result = (List<Object[]>) query.list();
+        final List<E> entities = new LinkedList<>();
+
+        for (Object[] objects : result) {
+
             for (int i = 0; i < mainFieldNames.length; i++) {
-                mainSetter.set(targetEntity, mainFieldNames[i], o[i]);
+                this.mainSetter.set(entity, mainFieldNames[i],objects[i]);
             }
-            entities.add(targetEntity);
-        });
+
+            entities.add(entity);
+        }
         return entities;
     }
 
-    private void setNestedResultListToEntity(List<?> resultList, Entity to, List<NestedEntity> nestedEntities)
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    private void setNestedResultListToEntity(List<?> resultList, E to, List<NestedEntity> nestedEntities)
+            throws NoSuchMethodException,
+            IllegalAccessException,
+            InvocationTargetException,
+            InstantiationException {
+
         for (int i = 0; i < resultList.size(); i++) {
             if (nestedEntities.get(i).getFieldNames().length == 1) {
-                Object result = resultList.get(i);
-                NestedEntity e = nestedEntities.get(i);
-                setNested(e, to, e.getClazz().getDeclaredConstructor().newInstance(), e.getFieldNames()[0], result);
+
+                final Object result = resultList.get(i);
+                final NestedEntity e = nestedEntities.get(i);
+                this.setNested(e, to, e.getClazz().getDeclaredConstructor().newInstance(), e.getFieldNames()[0], result);
+
+
             } else {
-                Object[] result = (Object[]) resultList.get(i);
-                NestedEntity e = nestedEntities.get(i);
-                setNested(e, to, e.getClazz().getDeclaredConstructor().newInstance(), e.getFieldNames(), result);
+
+                final Object[] result = (Object[]) resultList.get(i);
+                final NestedEntity e = nestedEntities.get(i);
+                this.setNested(e, to, e.getClazz().getDeclaredConstructor().newInstance(), e.getFieldNames(), result);
+
             }
         }
     }
 
-    private Entity setProperty(String mainFieldName,
-                               Object mainFieldValue,
-                               Entity entity) {
-        mainSetter.set(entity, mainFieldName, mainFieldValue);
+    private E setProperty(String mainFieldName,
+                          Object mainFieldValue,
+                          E entity) {
+
+        this.mainSetter.set(entity, mainFieldName, mainFieldValue);
         return entity;
     }
 
@@ -291,14 +329,16 @@ public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtracto
                                                  Object mainFieldValue,
                                                  FieldDataSetterExtractor obj,
                                                  PropertySetter setter) {
+
         setter.set(obj, mainFieldName, mainFieldValue);
         return obj;
     }
 
-    private Entity setProperties(String[] mainFieldNames,
-                                 Object[] mainFieldValues,
-                                 Entity entity) {
-        mainSetter.setAll(entity, mainFieldNames, mainFieldValues);
+    private E setProperties(String[] mainFieldNames,
+                            Object[] mainFieldValues,
+                            E entity) {
+
+        this.mainSetter.setAll(entity, mainFieldNames, mainFieldValues);
         return entity;
     }
 
@@ -306,34 +346,37 @@ public class DaoReadUtil<Entity extends FieldExtractor & FieldDataSetterExtracto
                                                    Object[] mainFieldValues,
                                                    FieldDataSetterExtractor obj,
                                                    PropertySetter setter) {
+
         setter.setAll(obj, mainFieldNames, mainFieldValues);
         return obj;
     }
 
     private void setNested(NestedEntity nestedEntity,
-                           Entity target,
+                           E target,
                            FieldDataSetterExtractor nested,
                            String name,
                            Object value) {
-        FieldDataSetterExtractor data = setProperty(
+
+        final FieldDataSetterExtractor data = this.setProperty(
                 name,
                 value,
                 nested,
                 nestedEntity.getDomainSetter());
-        mainSetter.set(target, nestedEntity.getTargetNestedFieldName(), data);
+        this.mainSetter.set(target, nestedEntity.getTargetNestedFieldName(), data);
     }
 
     private void setNested(NestedEntity nestedEntity,
-                           Entity target,
+                           E target,
                            FieldDataSetterExtractor nested,
                            String[] names,
                            Object[] values) {
-        FieldDataSetterExtractor data = setProperties(
+
+        final FieldDataSetterExtractor data = this.setProperties(
                 names,
                 values,
                 nested,
                 nestedEntity.getDomainSetter());
-        mainSetter.set(target, nestedEntity.getTargetNestedFieldName(), data);
+        this.mainSetter.set(target, nestedEntity.getTargetNestedFieldName(), data);
     }
 
     private ReadSituation defineSituation(String[] mainFieldNames,

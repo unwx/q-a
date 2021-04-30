@@ -1,9 +1,9 @@
 package qa.util.dao;
 
 import org.hibernate.Session;
-import qa.dao.databasecomponents.NestedEntity;
-import qa.dao.databasecomponents.Table;
-import qa.dao.databasecomponents.Where;
+import qa.dao.database.components.NestedEntity;
+import qa.dao.database.components.Table;
+import qa.dao.database.components.Where;
 
 import java.util.List;
 
@@ -15,7 +15,7 @@ public interface DaoUtil<Entity> {
 
     void update(final Where where, final Entity entity, final Session session);
 
-    void delete(final String className, final Where where, final Session session);
+    void delete(final Where where, final Session session);
 
-    boolean isExist(final Where where, String className, final Session session);
+    boolean isExist(final Where where, final Session session);
 }

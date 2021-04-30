@@ -1,6 +1,7 @@
-package qa.dao.databasecomponents;
+package qa.dao.database.components;
 
 public enum WhereOperator {
+
     GREATER(">"),
     LESS("<"),
     EQUALS("=");
