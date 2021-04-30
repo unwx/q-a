@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
-import qa.cache.entity.like.provider.like.CommentAnswerLikeProvider;
+import qa.cache.like.CommentAnswerLikeProvider;
 import qa.domain.CommentAnswer;
 import qa.domain.setters.PropertySetterFactory;
 import qa.logger.TestLogger;

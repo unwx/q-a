@@ -1,7 +1,7 @@
 package qa.domain;
 
-import qa.cache.entity.like.HasLiked;
-import qa.cache.entity.like.HasLikes;
+import qa.cache.like.HasLiked;
+import qa.cache.like.HasLikes;
 import qa.dao.databasecomponents.FieldDataSetterExtractor;
 import qa.dao.databasecomponents.FieldExtractor;
 import qa.util.access.HasAuthor;

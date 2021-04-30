@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
-import qa.cache.entity.like.provider.like.AnswerLikeProvider;
+import qa.cache.like.AnswerLikeProvider;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.AnswerQueryCreator;

@@ -2,19 +2,19 @@ package qa.util.mock;
 
 import org.mockito.Mockito;
 import qa.cache.JedisResourceCenter;
-import qa.cache.entity.like.provider.cache.AnswerCacheProvider;
-import qa.cache.entity.like.provider.cache.CommentAnswerCacheProvider;
-import qa.cache.entity.like.provider.cache.CommentQuestionCacheProvider;
-import qa.cache.entity.like.provider.cache.QuestionCacheProvider;
-import qa.cache.entity.like.provider.like.AnswerLikeProvider;
-import qa.cache.entity.like.provider.like.CommentAnswerLikeProvider;
-import qa.cache.entity.like.provider.like.CommentQuestionLikeProvider;
-import qa.cache.entity.like.provider.like.QuestionLikesProvider;
-import qa.cache.entity.like.provider.remover.AnswerCacheRemover;
-import qa.cache.entity.like.provider.remover.CommentAnswerCacheRemover;
-import qa.cache.entity.like.provider.remover.CommentQuestionCacheRemover;
-import qa.cache.entity.like.provider.remover.QuestionCacheRemover;
-import qa.cache.operation.impl.*;
+import qa.cache.like.AnswerLikeProvider;
+import qa.cache.like.CommentAnswerLikeProvider;
+import qa.cache.like.CommentQuestionLikeProvider;
+import qa.cache.like.QuestionLikesProvider;
+import qa.cache.like.operation.*;
+import qa.cache.like.provider.AnswerCacheProvider;
+import qa.cache.like.provider.CommentAnswerCacheProvider;
+import qa.cache.like.provider.CommentQuestionCacheProvider;
+import qa.cache.like.provider.QuestionCacheProvider;
+import qa.cache.like.remover.AnswerCacheRemover;
+import qa.cache.like.remover.CommentAnswerCacheRemover;
+import qa.cache.like.remover.CommentQuestionCacheRemover;
+import qa.cache.like.remover.QuestionCacheRemover;
 import qa.config.RedisConfiguration;
 import qa.source.PasswordPropertyDataSource;
 
@@ -38,12 +38,12 @@ public class MockUtil { // TODO REFACTOR
     private static CommentQuestionLikeProvider commentQuestionLikeProvider;
     private static CommentAnswerLikeProvider commentAnswerLikeProvider;
 
-    private static final QuestionToLikeSetOperation            questionLikeOperation;
-    private static final AnswerToLikeSetOperation              answerLikeOperation;
-    private static final CommentQuestionToLikeSetOperation     commentQuestionLikeOperation;
-    private static final CommentAnswerToLikeSetOperation       commentAnswerLikeOperation;
+    private static final QuestionToLikeSetOperation questionLikeOperation;
+    private static final AnswerToLikeSetOperation answerLikeOperation;
+    private static final CommentQuestionToLikeSetOperation commentQuestionLikeOperation;
+    private static final CommentAnswerToLikeSetOperation commentAnswerLikeOperation;
     private static final UserQuestionLikeSetOperation          userQuestionLikeOperation;
-    private static final UserAnswerLikeSetOperation            userAnswerLikeOperation;
+    private static final UserAnswerLikeSetOperation userAnswerLikeOperation;
     private static final UserCommentQuestionLikeSetOperation   userCommentQuestionLikeOperation;
     private static final UserCommentAnswerLikeSetOperation     userCommentAnswerLikeOperation;
 

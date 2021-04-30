@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
-import qa.cache.entity.like.provider.like.QuestionLikesProvider;
+import qa.cache.like.QuestionLikesProvider;
 import qa.dao.databasecomponents.Where;
 import qa.dao.databasecomponents.WhereOperator;
 import qa.dao.query.AnswerQueryCreator;

@@ -1,6 +1,6 @@
 package qa.util;
 
-import qa.cache.operation.KeyOperation;
+import qa.cache.abstraction.KeyOperation;
 
 import java.util.Collections;
 import java.util.List;

@@ -2,8 +2,8 @@ package qa.domain;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import qa.cache.entity.like.HasLiked;
-import qa.cache.entity.like.HasLikes;
+import qa.cache.like.HasLiked;
+import qa.cache.like.HasLikes;
 import qa.dao.databasecomponents.Field;
 import qa.dao.databasecomponents.FieldDataSetterExtractor;
 import qa.dao.databasecomponents.FieldExtractor;

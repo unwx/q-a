@@ -1,6 +1,6 @@
 package qa.domain;
 
-import qa.cache.entity.like.HasLikes;
+import qa.cache.like.HasLikes;
 
 import java.util.Date;
 
