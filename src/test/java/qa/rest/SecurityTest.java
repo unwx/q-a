@@ -54,13 +54,13 @@ public class SecurityTest {
         request.header("Content-Type", "application/json");
         request.body("{\"test\":123}");
         Response response = request.post("create");
-        assertThat(response.getStatusCode(), equalTo(403));
+        assertThat(response.getStatusCode(), equalTo(401));
 
         Response response1 = request.put("edit");
-        assertThat(response1.getStatusCode(), equalTo(403));
+        assertThat(response1.getStatusCode(), equalTo(401));
 
         Response response2 = request.delete("delete");
-        assertThat(response2.getStatusCode(), equalTo(403));
+        assertThat(response2.getStatusCode(), equalTo(401));
     }
 
     @Test

@@ -1,8 +1,11 @@
 package qa.exceptions.rest;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Date;
 
 public class ErrorMessage {
+    @JsonProperty("status")
     private final int statusCode;
     private final Date timestamp;
     private final String message;

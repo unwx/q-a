@@ -1,4 +1,4 @@
-package qa.security.jwt.service;
+package qa.security.jwt.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
@@ -9,6 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 import qa.exceptions.rest.ErrorMessage;
 import qa.security.jwt.entity.*;
+import qa.security.jwt.service.JwtProvider;
 import qa.util.IpUtil;
 
 import javax.servlet.FilterChain;
@@ -20,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 
-public class JwtFilter extends GenericFilterBean {
+public class JwtFilter extends GenericFilterBean { // TODO REFACTOR
 
     private final JwtProvider jwtProvider;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -33,8 +34,8 @@ public class JwtFilter extends GenericFilterBean {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        String cleanToken = jwtProvider.resolveToken((HttpServletRequest) servletRequest);
-        if (cleanToken != null) {
+        if (servletRequest.getAttribute(PreJwtFilter.EXIST_TOKEN_ATTRIBUTE).equals(true)) {
+            String cleanToken = jwtProvider.resolveToken((HttpServletRequest) servletRequest);
             JwtIntermediateDateTransport validationResult = jwtProvider.validate(cleanToken);
             if (validationResult.getStatus() == JwtStatus.VALID) {
                 if (validationResult.getType() == JwtType.ACCESS && !((HttpServletRequest) servletRequest).getRequestURI().equals("/api/v1/authentication/refresh")) {
@@ -44,13 +45,11 @@ public class JwtFilter extends GenericFilterBean {
                     putClaimsInServletRequest(servletRequest, validationResult.getClaims());
                     authentication(validationResult.getData());
                 }
-            }
-            else if (validationResult.getStatus() == JwtStatus.INVALID) {
+            } else if (validationResult.getStatus() == JwtStatus.INVALID) {
                 invalidTokenProcess(servletResponse, "The token is not valid.");
                 logInvalidToken((HttpServletRequest) servletRequest);
                 return;
-            }
-            else if (validationResult.getStatus() == JwtStatus.EXPIRED) {
+            } else if (validationResult.getStatus() == JwtStatus.EXPIRED) {
                 invalidTokenProcess(servletResponse, "the token is expired.");
                 return;
             }
@@ -79,11 +78,11 @@ public class JwtFilter extends GenericFilterBean {
     private void logInvalidToken(HttpServletRequest servletRequest) {
         String log =
                 """
-                [invalid token]: the token is not valid.\s\
-                IPv4: %s\s\
-                User-Agent: %s\s\
-                URI: %s\
-                """.formatted(
+                        [invalid token]: the token is not valid.\s\
+                        IPv4: %s\s\
+                        User-Agent: %s\s\
+                        URI: %s\
+                        """.formatted(
                         IpUtil.getClientIpAddress(servletRequest),
                         servletRequest.getHeader("User-Agent"),
                         servletRequest.getRequestURI());
