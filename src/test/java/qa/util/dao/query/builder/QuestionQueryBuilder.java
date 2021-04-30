@@ -24,6 +24,24 @@ public class QuestionQueryBuilder implements SessionInitializer {
                          String title) {
         createQuestionQuery(
                 id,
+                1L,
+                date,
+                tags,
+                text,
+                title,
+                session)
+                .executeUpdate();
+    }
+
+    public void question(Long id,
+                         long authorId,
+                         Date date,
+                         String tags,
+                         String text,
+                         String title) {
+        createQuestionQuery(
+                id,
+                authorId,
                 date,
                 tags,
                 text,
@@ -37,6 +55,7 @@ public class QuestionQueryBuilder implements SessionInitializer {
                          Date date) {
         createQuestionQuery(
                 id,
+                1L,
                 date,
                 QuestionQueryParameters.TAGS,
                 QuestionQueryParameters.TEXT,
@@ -48,6 +67,7 @@ public class QuestionQueryBuilder implements SessionInitializer {
     public void question(Long id) {
         createQuestionQuery(
                 id,
+                1L,
                 QuestionQueryParameters.DATE,
                 QuestionQueryParameters.TAGS,
                 QuestionQueryParameters.TEXT,
@@ -59,6 +79,7 @@ public class QuestionQueryBuilder implements SessionInitializer {
     public void question() {
         createQuestionQuery(
                 1L,
+                1L,
                 QuestionQueryParameters.DATE,
                 QuestionQueryParameters.TAGS,
                 QuestionQueryParameters.TEXT,
@@ -68,6 +89,7 @@ public class QuestionQueryBuilder implements SessionInitializer {
     }
 
     private Query<?> createQuestionQuery(Long id,
+                                         long authorId,
                                          Date date,
                                          String tags,
                                          String text,
@@ -76,13 +98,14 @@ public class QuestionQueryBuilder implements SessionInitializer {
         String sql =
                 """
                 INSERT INTO question (id, creation_date, last_activity, tags, text, title, author_id)\s\
-                VALUES (:id, :date, :date, :tags, :text, :title, 1)\
+                VALUES (:id, :date, :date, :tags, :text, :title, :authorId)\
                 """;
         return session.createSQLQuery(sql)
                 .setParameter("id", id)
                 .setParameter("date", date)
                 .setParameter("tags", tags)
                 .setParameter("text", text)
-                .setParameter("title", title);
+                .setParameter("title", title)
+                .setParameter("authorId", authorId);
     }
 }

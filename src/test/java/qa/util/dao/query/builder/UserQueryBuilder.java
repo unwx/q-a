@@ -7,7 +7,6 @@ import qa.util.dao.query.params.UserQueryParameters;
 public class UserQueryBuilder implements SessionInitializer {
 
     private Session session;
-    
 
     @Override
     public UserQueryBuilder with(Session session) {

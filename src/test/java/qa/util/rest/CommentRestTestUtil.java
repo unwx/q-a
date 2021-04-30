@@ -21,9 +21,23 @@ public class CommentRestTestUtil extends RestTestUtil {
         return json;
     }
 
+    public static JSONObject commentEditJson(long commentId) {
+        JSONObject json = new JSONObject();
+        json.put("id", commentId);
+        json.put("text", CommentQueryParameters.SECOND_TEXT);
+        return json;
+    }
+
     public static JSONObject commentAnswerCreateJson() {
         JSONObject json = new JSONObject();
         json.put("answer_id", 1L);
+        json.put("text", CommentQueryParameters.TEXT);
+        return json;
+    }
+
+    public static JSONObject commentAnswerCreateJson(long answerId) {
+        JSONObject json = new JSONObject();
+        json.put("answer_id", answerId);
         json.put("text", CommentQueryParameters.TEXT);
         return json;
     }
@@ -35,9 +49,22 @@ public class CommentRestTestUtil extends RestTestUtil {
         return json;
     }
 
+    public static JSONObject commentQuestionCreateJson(long questionId) {
+        JSONObject json = new JSONObject();
+        json.put("question_id", questionId);
+        json.put("text", CommentQueryParameters.TEXT);
+        return json;
+    }
+
     public static JSONObject id() {
         JSONObject json = new JSONObject();
         json.put("id", 1L);
+        return json;
+    }
+
+    public static JSONObject id(long commentId) {
+        JSONObject json = new JSONObject();
+        json.put("id", commentId);
         return json;
     }
 

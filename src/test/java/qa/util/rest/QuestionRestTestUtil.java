@@ -34,6 +34,14 @@ public class QuestionRestTestUtil extends RestTestUtil {
         return json;
     }
 
+    public static JSONObject editQuestionJson(long questionId) {
+        JSONObject json = new JSONObject();
+        json.put("text", QuestionQueryParameters.SECOND_TEXT);
+        json.put("tags", Arrays.asList(QuestionQueryParameters.TAGS_ARRAY));
+        json.put("id", questionId);
+        return json;
+    }
+
     public static JSONObject editBADQuestionJson() {
         JSONObject json = new JSONObject();
         json.put("text", "b");
@@ -45,6 +53,12 @@ public class QuestionRestTestUtil extends RestTestUtil {
     public static JSONObject id() {
         JSONObject json = new JSONObject();
         json.put("id", 1L);
+        return json;
+    }
+
+    public static JSONObject id(long questionId) {
+        JSONObject json = new JSONObject();
+        json.put("id", questionId);
         return json;
     }
 

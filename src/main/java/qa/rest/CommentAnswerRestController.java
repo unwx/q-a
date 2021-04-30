@@ -118,7 +118,7 @@ public class CommentAnswerRestController {
      */
     @PreAuthorize("hasAuthority('USER')")
     @RequestMapping(
-            value = "/delete",
+            value = "delete",
             method = RequestMethod.DELETE,
             consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpStatus> deleteComment(@RequestBody CommentAnswerDeleteRequest request, Authentication authentication) {

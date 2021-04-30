@@ -15,6 +15,13 @@ public class AnswerRestTestUtil extends RestTestUtil {
         return json;
     }
 
+    public static JSONObject createAnswerJson(long questionId) {
+        JSONObject json = new JSONObject();
+        json.put("question_id", questionId);
+        json.put("text", AnswerQueryParameters.TEXT);
+        return json;
+    }
+
     public static JSONObject createBADAnswerJson() {
         JSONObject json = new JSONObject();
         json.put("question_id", -1L);
@@ -29,6 +36,13 @@ public class AnswerRestTestUtil extends RestTestUtil {
         return json;
     }
 
+    public static JSONObject editAnswerJson(long answerId) {
+        JSONObject json = new JSONObject();
+        json.put("id", answerId);
+        json.put("text", AnswerQueryParameters.SECOND_TEXT);
+        return json;
+    }
+
     public static JSONObject editBADAnswerJson() {
         JSONObject json = new JSONObject();
         json.put("id", -1L);
@@ -39,6 +53,12 @@ public class AnswerRestTestUtil extends RestTestUtil {
     public static JSONObject id() {
         JSONObject json = new JSONObject();
         json.put("id", 1L);
+        return json;
+    }
+
+    public static JSONObject id(long id) {
+        JSONObject json = new JSONObject();
+        json.put("id", id);
         return json;
     }
 

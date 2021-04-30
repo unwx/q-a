@@ -121,14 +121,14 @@ public class JwtTestUtil {
 
     private static ImmutablePair<String, Long> createAccessToken(String email, JwtProvider jwtProvider) {
         JwtData data = jwtProvider.createAccess(email);
-        String token = data.getToken();
+        String token = "Bearer_" + data.getToken();
         long exp = data.getExpirationAtMillis();
         return new ImmutablePair<>(token, exp);
     }
 
     private static ImmutablePair<String, Long> createRefreshToken(JwtProvider jwtProvider) {
         JwtData data = jwtProvider.createRefresh(JwtTestUtil.USER_EMAIL);
-        String token = data.getToken();
+        String token = "Bearer_" + data.getToken();
         long exp = data.getExpirationAtMillis();
         return new ImmutablePair<>(token, exp);
     }

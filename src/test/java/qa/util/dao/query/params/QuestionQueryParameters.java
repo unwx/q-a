@@ -9,7 +9,7 @@ public final class QuestionQueryParameters {
 
     public static final Date DATE = new Date(99999999999999L);
     public static final String TAGS = "java, spring";
-    public static final String[] TAGS_ARRAY = new String[]{"java", "spring"};
+    public static final String[] TAGS_ARRAY = new String[]{"java","spring"};
     public static final String TITLE = "how default redirect URL work in spring security 5";
     public static final String TEXT =
             """       

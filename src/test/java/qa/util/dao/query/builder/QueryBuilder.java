@@ -38,7 +38,7 @@ public class QueryBuilder {
         return this;
     }
 
-    public QueryBuilder user(Long id, String username) {
+    public QueryBuilder user(long id, String username) {
         userQueryBuilder
                 .with(session)
                 .user(id, username);
@@ -52,7 +52,7 @@ public class QueryBuilder {
         return this;
     }
 
-    public QueryBuilder question(Long id,
+    public QueryBuilder question(long id,
                                  Date date,
                                  String tags,
                                  String text,
@@ -60,6 +60,28 @@ public class QueryBuilder {
         questionQueryBuilder
                 .with(session)
                 .question(id, date, tags, text, title);
+        return this;
+    }
+
+    public QueryBuilder question(long id,
+                                 long authorId,
+                                 Date date,
+                                 String tags,
+                                 String text,
+                                 String title) {
+        questionQueryBuilder
+                .with(session)
+                .question(id, authorId, date, tags, text, title);
+        return this;
+    }
+
+    public QueryBuilder question(Long id,
+                                 String tags,
+                                 String text,
+                                 String title) {
+        questionQueryBuilder
+                .with(session)
+                .question(id, new Date(), tags, text, title);
         return this;
     }
 
@@ -122,6 +144,17 @@ public class QueryBuilder {
         return this;
     }
 
+    public QueryBuilder answer(long id,
+                               long authorId,
+                               long questionId,
+                               String text,
+                               Date date) {
+        answerQueryBuilder
+                .with(session)
+                .answer(id, authorId, questionId, false, date, text);
+        return this;
+    }
+
     public QueryBuilder answer(Long id,
                                Date date) {
         answerQueryBuilder
@@ -142,6 +175,17 @@ public class QueryBuilder {
                 .with(session)
                 .answer();
         return this;
+    }
+
+    public void commentQuestion(int id,
+                                long authorId,
+                                long questionId,
+                                String text,
+                                Date date) {
+
+        commentQuestionQueryBuilder
+                .with(session)
+                .commentQuestion(id, authorId, questionId, text, date);
     }
 
     public QueryBuilder commentQuestion(Long id,
@@ -177,6 +221,16 @@ public class QueryBuilder {
                 .with(session)
                 .commentAnswer(id, text, answerId, date);
         return this;
+    }
+
+    public void commentAnswer(long id,
+                              long userId,
+                              long answerId,
+                              String text,
+                              Date date) {
+        commentAnswerQueryBuilder
+                .with(session)
+                .commentAnswer(id, userId, answerId, text, date);
     }
 
     public QueryBuilder commentAnswer(Long id,

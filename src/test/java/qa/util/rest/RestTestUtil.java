@@ -18,7 +18,7 @@ public abstract class RestTestUtil {
     public static RequestSpecification getRequestJsonJwt(String json, String token) {
         RequestSpecification request = RestAssured.given();
         request.header("Content-Type", "application/json");
-        request.header("Authorization", "Bearer_" + token);
+        request.header("Authorization", token);
         request.body(json);
         return request;
     }
@@ -26,10 +26,9 @@ public abstract class RestTestUtil {
     public static RequestSpecification getRequestJwt(String token) {
         RequestSpecification request = RestAssured.given();
         request.header("Content-Type", "application/json");
-        request.header("Authorization", "Bearer_" + token);
+        request.header("Authorization", token);
         return request;
     }
-
 
 
     public static RequestSpecification getRequest() {

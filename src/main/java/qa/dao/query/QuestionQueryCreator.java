@@ -88,4 +88,18 @@ public class QuestionQueryCreator {
                 .setParameter("questionId", questionId)
                 .setResultTransformer(new QuestionFullIdsDtoTransformer());
     }
+
+    public static Query<Long> questionAuthorIdFromAnswerQuery(Session session, long answerId) {
+        final String getIdHql =
+                """
+                select u.id from Question q\s\
+                inner join q.answers a\s\
+                inner join q.author u\s\
+                where a.id = :answerId
+                """;
+        return session.createQuery(getIdHql)
+                .unwrap(Query.class)
+                .setParameter("answerId", answerId);
+
+    }
 }
