@@ -12,7 +12,7 @@ import qa.dto.internal.hibernate.user.UserQuestionDto;
 @SuppressWarnings({"deprecation", "unchecked"})
 public class UserQueryCreator {
 
-    private static final int RESULT_SIZE = 10;
+    private static final int RESULT_SIZE = 15;
 
     private UserQueryCreator() {
     }

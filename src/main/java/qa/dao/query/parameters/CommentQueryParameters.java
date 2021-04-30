@@ -1,5 +1,5 @@
 package qa.dao.query.parameters;
 
 public class CommentQueryParameters {
-    public static final int COMMENT_RESULT_SIZE = 3;
+    public static final int COMMENT_RESULT_SIZE = 8;
 }

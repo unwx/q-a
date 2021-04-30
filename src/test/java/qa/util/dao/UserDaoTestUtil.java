@@ -5,7 +5,7 @@ import qa.util.dao.query.builder.QueryBuilder;
 
 public class UserDaoTestUtil {
 
-    public static final int RESULT_SIZE = 10;
+    public static final int RESULT_SIZE = 15;
 
     private final QueryBuilder queryBuilder;
 

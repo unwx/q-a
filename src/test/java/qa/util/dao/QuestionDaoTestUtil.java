@@ -11,8 +11,8 @@ public class QuestionDaoTestUtil {
 
     private static final long dateAtMillisDefault = 360000000000L;
 
-    public static final int COMMENT_RESULT_SIZE = 3;
-    public static final int RESULT_SIZE = 6;
+    public static final int COMMENT_RESULT_SIZE = 8;
+    public static final int RESULT_SIZE = 8;
     public static final int QUESTION_VIEW_RESULT_SIZE = 20;
 
     private final QueryBuilder queryBuilder;

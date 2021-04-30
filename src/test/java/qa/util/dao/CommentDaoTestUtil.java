@@ -13,7 +13,7 @@ public class CommentDaoTestUtil {
     private final RedisQueryBuilder redisQueryBuilder;
     private static final long dateAtMillisDefault = 360000000000L;
 
-    public static final int COMMENT_RESULT_SIZE = 3;
+    public static final int COMMENT_RESULT_SIZE = 8;
 
     public CommentDaoTestUtil(SessionFactory sessionFactory,
                               JedisResourceCenter jedisResourceCenter) {
