@@ -24,11 +24,11 @@ import qa.dto.validation.wrapper.comment.CommentQuestionLikeRequestValidationWra
 import qa.dto.validation.wrapper.question.CommentQuestionGetRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.service.CommentQuestionService;
+import qa.service.util.AuthorUtil;
+import qa.service.util.PrincipalUtil;
+import qa.service.util.ResourceUtil;
+import qa.service.util.ValidationUtil;
 import qa.source.ValidationPropertyDataSource;
-import qa.util.ResourceUtil;
-import qa.util.ValidationUtil;
-import qa.util.user.AuthorUtil;
-import qa.util.user.PrincipalUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 import java.util.ArrayList;
@@ -155,7 +155,7 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
         AuthorUtil.checkIsRealAuthorAndIsEntityExist(
                 authenticationId,
                 new Where("id", commentId, WhereOperator.EQUALS),
-                CommentQuestion.class,
+                new CommentQuestion(),
                 commentQuestionDao,
                 propertySetterFactory,
                 logger,

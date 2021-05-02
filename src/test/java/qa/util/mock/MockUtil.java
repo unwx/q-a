@@ -6,7 +6,7 @@ import qa.cache.like.AnswerLikeProvider;
 import qa.cache.like.CommentAnswerLikeProvider;
 import qa.cache.like.CommentQuestionLikeProvider;
 import qa.cache.like.QuestionLikesProvider;
-import qa.cache.like.operation.*;
+import qa.cache.like.operation.impl.*;
 import qa.cache.like.provider.AnswerCacheProvider;
 import qa.cache.like.provider.CommentAnswerCacheProvider;
 import qa.cache.like.provider.CommentQuestionCacheProvider;
@@ -42,10 +42,10 @@ public class MockUtil { // TODO REFACTOR
     private static final AnswerToLikeSetOperation answerLikeOperation;
     private static final CommentQuestionToLikeSetOperation commentQuestionLikeOperation;
     private static final CommentAnswerToLikeSetOperation commentAnswerLikeOperation;
-    private static final UserQuestionLikeSetOperation          userQuestionLikeOperation;
+    private static final UserQuestionLikeSetOperation userQuestionLikeOperation;
     private static final UserAnswerLikeSetOperation userAnswerLikeOperation;
-    private static final UserCommentQuestionLikeSetOperation   userCommentQuestionLikeOperation;
-    private static final UserCommentAnswerLikeSetOperation     userCommentAnswerLikeOperation;
+    private static final UserCommentQuestionLikeSetOperation userCommentQuestionLikeOperation;
+    private static final UserCommentAnswerLikeSetOperation userCommentAnswerLikeOperation;
 
     static {
         questionLikeOperation               = Mockito.spy(QuestionToLikeSetOperation.class);

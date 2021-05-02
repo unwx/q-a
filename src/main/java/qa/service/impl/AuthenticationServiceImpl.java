@@ -23,9 +23,9 @@ import qa.dto.validation.wrapper.authentication.RegistrationRequestValidationWra
 import qa.exceptions.rest.BadRequestException;
 import qa.exceptions.rest.UnauthorizedException;
 import qa.service.AuthenticationService;
+import qa.service.util.JwtUtil;
+import qa.service.util.ValidationUtil;
 import qa.source.ValidationPropertyDataSource;
-import qa.util.JwtUtil;
-import qa.util.ValidationUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 import java.util.Collections;

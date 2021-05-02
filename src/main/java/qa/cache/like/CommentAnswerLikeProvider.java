@@ -2,8 +2,8 @@ package qa.cache.like;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import qa.cache.like.operation.CommentAnswerToLikeSetOperation;
-import qa.cache.like.operation.UserCommentAnswerLikeSetOperation;
+import qa.cache.like.operation.impl.CommentAnswerToLikeSetOperation;
+import qa.cache.like.operation.impl.UserCommentAnswerLikeSetOperation;
 import qa.cache.like.provider.CommentAnswerCacheProvider;
 import qa.cache.like.remover.CommentAnswerCacheRemover;
 

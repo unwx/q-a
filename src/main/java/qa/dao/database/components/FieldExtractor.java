@@ -1,5 +1,7 @@
 package qa.dao.database.components;
 
-public interface FieldExtractor {
+import qa.dao.Domain;
+
+public interface FieldExtractor extends Domain {
     Field[] extract();
 }

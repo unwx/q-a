@@ -77,4 +77,9 @@ public class QuestionView implements HasLikes {
     public String getIdStr() {
         return String.valueOf(this.questionId);
     }
+
+    @Override
+    public String getClassName() {
+        return "QuestionView";
+    }
 }

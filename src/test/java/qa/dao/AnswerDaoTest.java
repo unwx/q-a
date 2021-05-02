@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.like.AnswerLikeProvider;
+import qa.dao.util.HibernateSessionFactoryConfigurer;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.domain.setters.PropertySetterFactory;
@@ -19,7 +20,6 @@ import qa.tools.annotations.MockitoTest;
 import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.RedisTestUtil;
-import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import qa.util.mock.MockUtil;
 
 import java.util.Arrays;

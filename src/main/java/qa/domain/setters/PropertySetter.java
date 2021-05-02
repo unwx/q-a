@@ -1,6 +1,5 @@
 package qa.domain.setters;
 
-import qa.dao.Domain;
 import qa.dao.database.components.FieldDataSetterExtractor;
 
 public interface PropertySetter {
@@ -8,5 +7,5 @@ public interface PropertySetter {
 
     void set(FieldDataSetterExtractor object, String name, Object value);
 
-    <E extends FieldDataSetterExtractor & Domain> E entity();
+    <E extends FieldDataSetterExtractor> E entity();
 }

@@ -1,5 +1,7 @@
 package qa.cache;
 
-public interface Cache {
+import qa.dao.Domain;
+
+public interface Cache extends Domain {
     String getIdStr();
 }

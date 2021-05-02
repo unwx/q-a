@@ -10,7 +10,7 @@ import qa.dto.response.question.QuestionFullResponse;
 import qa.serializer.answer.AnswerSerializer;
 import qa.serializer.comment.CommentSerializer;
 import qa.serializer.user.AuthorSerializer;
-import qa.util.serialization.DateSerializationUtil;
+import qa.serializer.util.DateSerializationUtil;
 
 import java.io.IOException;
 import java.util.List;

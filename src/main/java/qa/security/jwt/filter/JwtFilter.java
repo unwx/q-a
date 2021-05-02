@@ -9,8 +9,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
 import qa.exceptions.rest.ErrorMessage;
 import qa.security.jwt.entity.*;
+import qa.security.jwt.filter.util.Ipv4Util;
 import qa.security.jwt.service.JwtProvider;
-import qa.util.IpUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -83,7 +83,7 @@ public class JwtFilter extends GenericFilterBean { // TODO REFACTOR
                         User-Agent: %s\s\
                         URI: %s\
                         """.formatted(
-                        IpUtil.getClientIpAddress(servletRequest),
+                        Ipv4Util.getClientIpAddress(servletRequest),
                         servletRequest.getHeader("User-Agent"),
                         servletRequest.getRequestURI());
         logger.warn(log);

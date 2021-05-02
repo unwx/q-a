@@ -21,11 +21,11 @@ import qa.exceptions.rest.AccessDeniedException;
 import qa.exceptions.rest.BadRequestException;
 import qa.service.AnswerService;
 import qa.service.err.ServiceExceptionMessage;
+import qa.service.util.AuthorUtil;
+import qa.service.util.PrincipalUtil;
+import qa.service.util.ResourceUtil;
+import qa.service.util.ValidationUtil;
 import qa.source.ValidationPropertyDataSource;
-import qa.util.ResourceUtil;
-import qa.util.ValidationUtil;
-import qa.util.user.AuthorUtil;
-import qa.util.user.PrincipalUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 import java.util.Date;
@@ -193,7 +193,7 @@ public class AnswerServiceImpl implements AnswerService { // TODO REFACTOR
         AuthorUtil.checkIsRealAuthorAndIsEntityExist(
                 PrincipalUtil.getUserIdFromAuthentication(authentication),
                 new Where("id", answerId, WhereOperator.EQUALS),
-                Answer.class,
+                new Answer(),
                 answerDao,
                 propertySetterFactory,
                 logger,

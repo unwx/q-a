@@ -2,8 +2,8 @@ package qa.cache.like.remover;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import qa.cache.like.operation.QuestionToLikeSetOperation;
-import qa.cache.like.operation.UserQuestionLikeSetOperation;
+import qa.cache.like.operation.impl.QuestionToLikeSetOperation;
+import qa.cache.like.operation.impl.UserQuestionLikeSetOperation;
 import qa.dto.internal.hibernate.question.QuestionFullStringIdsDto;
 import redis.clients.jedis.Jedis;
 

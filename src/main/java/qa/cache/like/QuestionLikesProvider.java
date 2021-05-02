@@ -1,8 +1,8 @@
 package qa.cache.like;
 
 import org.springframework.stereotype.Component;
-import qa.cache.like.operation.QuestionToLikeSetOperation;
-import qa.cache.like.operation.UserQuestionLikeSetOperation;
+import qa.cache.like.operation.impl.QuestionToLikeSetOperation;
+import qa.cache.like.operation.impl.UserQuestionLikeSetOperation;
 import qa.cache.like.provider.QuestionCacheProvider;
 import qa.cache.like.remover.QuestionCacheRemover;
 import qa.domain.Question;

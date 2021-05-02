@@ -14,9 +14,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
+import qa.dao.util.HibernateSessionFactoryConfigurer;
 import qa.security.jwt.entity.JwtData;
 import qa.security.jwt.service.JwtProvider;
-import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;

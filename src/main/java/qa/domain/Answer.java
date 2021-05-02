@@ -5,12 +5,11 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import qa.cache.like.HasLiked;
 import qa.cache.like.HasLikes;
-import qa.dao.Domain;
 import qa.dao.database.components.Field;
 import qa.dao.database.components.FieldDataSetterExtractor;
 import qa.dao.database.components.FieldExtractor;
 import qa.domain.setters.SetterField;
-import qa.util.access.HasAuthor;
+import qa.service.util.HasAuthor;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -18,7 +17,7 @@ import java.util.List;
 
 @Entity
 @Table
-public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes, HasLiked, Domain {
+public class Answer implements FieldExtractor, FieldDataSetterExtractor, HasAuthor, HasLikes, HasLiked {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

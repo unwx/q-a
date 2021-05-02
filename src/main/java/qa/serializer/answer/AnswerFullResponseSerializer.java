@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import qa.domain.CommentAnswer;
 import qa.domain.User;
 import qa.dto.response.answer.AnswerFullResponse;
-import qa.util.serialization.DateSerializationUtil;
+import qa.serializer.util.DateSerializationUtil;
 
 import java.io.IOException;
 import java.util.List;

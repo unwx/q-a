@@ -3,7 +3,6 @@ package qa.domain.setters;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-import qa.dao.Domain;
 import qa.dao.database.components.FieldDataSetterExtractor;
 import qa.exceptions.domain.SettersInitializationException;
 
@@ -17,12 +16,12 @@ public class PropertySetterFactory {
 
     private final HashMap<String, PropertySetter> propertySetters = new HashMap<>();
 
-    public <E extends FieldDataSetterExtractor & Domain> PropertySetter getSetter(E target) {
+    public <E extends FieldDataSetterExtractor> PropertySetter getSetter(E target) {
         String targetClazzName = target.getClass().getName();
         return propertySetters.computeIfAbsent(targetClazzName, c -> createPropertySetter(target));
     }
 
-    private <E extends FieldDataSetterExtractor & Domain> PropertySetter createPropertySetter(E target) {
+    private <E extends FieldDataSetterExtractor> PropertySetter createPropertySetter(E target) {
         try {
             return new PropertySetterImpl<>(target.getClass(), target); // TODO REFACTOR
 

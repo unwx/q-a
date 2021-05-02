@@ -1,8 +1,8 @@
 package qa.cache.like.remover;
 
-import qa.cache.like.operation.CacheLikeOperation;
 import qa.cache.like.operation.EntityToLikeSetOperation;
 import qa.cache.like.operation.IUserEntityLikeSetOperation;
+import qa.cache.like.operation.impl.CacheLikeOperation;
 import redis.clients.jedis.Jedis;
 
 import java.util.Stack;

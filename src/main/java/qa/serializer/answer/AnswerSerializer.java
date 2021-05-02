@@ -8,7 +8,7 @@ import qa.domain.CommentAnswer;
 import qa.domain.User;
 import qa.serializer.comment.CommentSerializer;
 import qa.serializer.user.AuthorSerializer;
-import qa.util.serialization.DateSerializationUtil;
+import qa.serializer.util.DateSerializationUtil;
 
 import java.io.IOException;
 import java.util.List;

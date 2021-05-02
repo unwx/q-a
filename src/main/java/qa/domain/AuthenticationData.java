@@ -1,7 +1,6 @@
 package qa.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import qa.dao.Domain;
 import qa.dao.database.components.Field;
 import qa.dao.database.components.FieldDataSetterExtractor;
 import qa.dao.database.components.FieldExtractor;
@@ -12,7 +11,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "authentication")
-public class AuthenticationData implements FieldExtractor, FieldDataSetterExtractor, Domain {
+public class AuthenticationData implements FieldExtractor, FieldDataSetterExtractor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

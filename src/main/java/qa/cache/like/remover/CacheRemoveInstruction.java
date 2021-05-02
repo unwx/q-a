@@ -1,6 +1,6 @@
 package qa.cache.like.remover;
 
-import qa.cache.like.operation.CacheLikeOperation;
+import qa.cache.like.operation.impl.CacheLikeOperation;
 
 import java.util.Stack;
 

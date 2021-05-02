@@ -18,9 +18,9 @@ import qa.dto.validation.wrapper.user.UserGetAnswersRequestValidationWrapper;
 import qa.dto.validation.wrapper.user.UserGetFullRequestValidationWrapper;
 import qa.dto.validation.wrapper.user.UserGetQuestionsRequestValidationWrapper;
 import qa.service.UserService;
+import qa.service.util.ResourceUtil;
+import qa.service.util.ValidationUtil;
 import qa.source.ValidationPropertyDataSource;
-import qa.util.ResourceUtil;
-import qa.util.ValidationUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 import java.util.ArrayList;

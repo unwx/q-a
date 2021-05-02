@@ -2,8 +2,8 @@ package qa.cache.like.provider;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import qa.cache.like.operation.QuestionToLikeSetOperation;
-import qa.cache.like.operation.UserQuestionLikeSetOperation;
+import qa.cache.like.operation.impl.QuestionToLikeSetOperation;
+import qa.cache.like.operation.impl.UserQuestionLikeSetOperation;
 import qa.domain.*;
 import redis.clients.jedis.Jedis;
 

@@ -3,9 +3,9 @@ package qa.cache.like.remover;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
-import qa.cache.like.operation.CacheLikeOperation;
 import qa.cache.like.operation.EntityToLikeSetOperation;
 import qa.cache.like.operation.IUserEntityLikeSetOperation;
+import qa.cache.like.operation.impl.CacheLikeOperation;
 import redis.clients.jedis.Jedis;
 
 import java.util.Stack;

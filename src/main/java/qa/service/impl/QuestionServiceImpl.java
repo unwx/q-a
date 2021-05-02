@@ -19,12 +19,8 @@ import qa.dto.response.question.QuestionViewResponse;
 import qa.dto.validation.wrapper.question.*;
 import qa.service.QuestionService;
 import qa.service.err.ServiceExceptionMessage;
+import qa.service.util.*;
 import qa.source.ValidationPropertyDataSource;
-import qa.util.QuestionTagsUtil;
-import qa.util.ResourceUtil;
-import qa.util.ValidationUtil;
-import qa.util.user.AuthorUtil;
-import qa.util.user.PrincipalUtil;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 import java.util.ArrayList;
@@ -154,7 +150,7 @@ public class QuestionServiceImpl implements QuestionService {
         AuthorUtil.checkIsRealAuthorAndIsEntityExist(
                 PrincipalUtil.getUserIdFromAuthentication(authentication),
                 new Where("id", id, WhereOperator.EQUALS),
-                Question.class,
+                new Question(),
                 questionDao,
                 propertySetterFactory,
                 logger,

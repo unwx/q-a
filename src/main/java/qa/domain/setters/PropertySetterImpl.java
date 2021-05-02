@@ -2,7 +2,6 @@ package qa.domain.setters;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import qa.dao.Domain;
 import qa.dao.database.components.FieldDataSetterExtractor;
 import qa.exceptions.domain.SetterNotImplementedException;
 import qa.exceptions.domain.SetterTargetIsNullException;
@@ -11,7 +10,7 @@ import qa.exceptions.domain.SettersInitializationException;
 import java.io.Serial;
 import java.util.HashMap;
 
-public class PropertySetterImpl<E extends FieldDataSetterExtractor & Domain> implements PropertySetter {
+public class PropertySetterImpl<E extends FieldDataSetterExtractor> implements PropertySetter {
 
     private static final Logger logger = LogManager.getLogger(PropertySetterImpl.class);
 

@@ -4,8 +4,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.web.filter.GenericFilterBean;
 import qa.security.jwt.filter.init.AuthorizedEndpointCenter;
+import qa.security.jwt.filter.util.Ipv4Util;
 import qa.security.jwt.service.JwtProvider;
-import qa.util.IpUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -65,7 +65,7 @@ public class PreJwtFilter extends GenericFilterBean {
     private void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
         logger.warn("trying to access %s\nipv4: %s".formatted(
                 request.getRequestURI(),
-                IpUtil.getClientIpAddress(request)
+                Ipv4Util.getClientIpAddress(request)
         ));
 
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

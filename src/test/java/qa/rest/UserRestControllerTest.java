@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
+import qa.dao.util.HibernateSessionFactoryConfigurer;
 import qa.domain.Answer;
 import qa.domain.Question;
 import qa.dto.response.user.UserAnswersResponse;
@@ -27,7 +28,6 @@ import qa.util.dao.AnswerDaoTestUtil;
 import qa.util.dao.QuestionDaoTestUtil;
 import qa.util.dao.UserDaoTestUtil;
 import qa.util.dao.query.params.UserQueryParameters;
-import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 import qa.util.rest.UserRestTestUtil;
 
 import java.util.Collections;

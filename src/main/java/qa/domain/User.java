@@ -1,6 +1,5 @@
 package qa.domain;
 
-import qa.dao.Domain;
 import qa.dao.database.components.Field;
 import qa.dao.database.components.FieldDataSetterExtractor;
 import qa.dao.database.components.FieldExtractor;
@@ -11,7 +10,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "usr")
-public class User implements FieldExtractor, FieldDataSetterExtractor, Domain {
+public class User implements FieldExtractor, FieldDataSetterExtractor {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

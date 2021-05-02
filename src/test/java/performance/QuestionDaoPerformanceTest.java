@@ -15,9 +15,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import qa.config.spring.SpringConfig;
 import qa.dao.QuestionDao;
+import qa.dao.util.HibernateSessionFactoryConfigurer;
 import qa.domain.Question;
 import qa.domain.QuestionView;
-import qa.util.hibernate.HibernateSessionFactoryConfigurer;
 
 import java.util.Date;
 import java.util.List;
