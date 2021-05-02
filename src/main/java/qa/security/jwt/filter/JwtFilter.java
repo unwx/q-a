@@ -1,13 +1,11 @@
 package qa.security.jwt.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
-import qa.exceptions.rest.ErrorMessage;
 import qa.security.jwt.entity.*;
 import qa.security.jwt.filter.util.Ipv4Util;
 import qa.security.jwt.service.JwtProvider;
@@ -19,14 +17,30 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
 
-public class JwtFilter extends GenericFilterBean { // TODO REFACTOR
+public class JwtFilter extends GenericFilterBean {
 
     private final JwtProvider jwtProvider;
-    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final Logger logger = LogManager.getLogger(JwtFilter.class);
+    private static final String ERR_INVALID_TOKEN = "The token is not valid.";
+    private static final String ERR_EXPIRED_TOKEN = "the token is expired.";
+    private static final String WARN_LOG =
+            """
+            [invalid token]: the token is not valid.\s\
+            IPv4: %s\s\
+            User-Agent: %s\s\
+            URI: %s\
+            """;
+    private static final String ERR_MESSAGE =
+            """
+            {\
+            "status": 401,
+            "timestamp": %s,
+            "message": %s,
+            "description": null
+            }\
+            """;
 
     public JwtFilter(JwtProvider jwtTokenProvider) {
         this.jwtProvider = jwtTokenProvider;
@@ -35,30 +49,34 @@ public class JwtFilter extends GenericFilterBean { // TODO REFACTOR
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         if (servletRequest.getAttribute(PreJwtFilter.EXIST_TOKEN_ATTRIBUTE).equals(true)) {
-            String cleanToken = jwtProvider.resolveToken((HttpServletRequest) servletRequest);
-            JwtIntermediateDateTransport validationResult = jwtProvider.validate(cleanToken);
+            final String cleanToken = jwtProvider.resolveToken((HttpServletRequest) servletRequest);
+            final JwtIntermediateDateTransport validationResult = jwtProvider.validate(cleanToken);
+
             if (validationResult.getStatus() == JwtStatus.VALID) {
                 if (validationResult.getType() == JwtType.ACCESS && !((HttpServletRequest) servletRequest).getRequestURI().equals("/api/v1/authentication/refresh")) {
-                    authentication(validationResult.getData());
+                    this.authentication(validationResult.getData());
                 }
                 if (validationResult.getType() == JwtType.REFRESH && ((HttpServletRequest) servletRequest).getRequestURI().equals("/api/v1/authentication/refresh-tokens")) {
-                    putClaimsInServletRequest(servletRequest, validationResult.getClaims());
-                    authentication(validationResult.getData());
+                    this.putClaimsInServletRequest(servletRequest, validationResult.getClaims());
+                    this.authentication(validationResult.getData());
                 }
+
             } else if (validationResult.getStatus() == JwtStatus.INVALID) {
-                invalidTokenProcess(servletResponse, "The token is not valid.");
-                logInvalidToken((HttpServletRequest) servletRequest);
+                this.invalidTokenProcess(servletResponse, ERR_INVALID_TOKEN);
+                this.logInvalidToken((HttpServletRequest) servletRequest);
                 return;
+
             } else if (validationResult.getStatus() == JwtStatus.EXPIRED) {
-                invalidTokenProcess(servletResponse, "the token is expired.");
+                this.invalidTokenProcess(servletResponse, ERR_EXPIRED_TOKEN);
                 return;
             }
         }
+
         filterChain.doFilter(servletRequest, servletResponse);
     }
 
     private void authentication(JwtAuthenticationData data) {
-        Authentication authentication = new UsernamePasswordAuthenticationToken(data, "", data.getAuthorities());
+        final Authentication authentication = new UsernamePasswordAuthenticationToken(data, "", data.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
@@ -67,22 +85,16 @@ public class JwtFilter extends GenericFilterBean { // TODO REFACTOR
     }
 
     private void invalidTokenProcess(ServletResponse servletResponse, String validationMessage) throws IOException {
-        HttpServletResponse response = (HttpServletResponse) servletResponse;
+        final HttpServletResponse response = (HttpServletResponse) servletResponse;
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        String message = objectMapper.writeValueAsString(new ErrorMessage(401, new Date(), validationMessage, null));
+        final String message = ERR_MESSAGE.formatted(System.currentTimeMillis(), validationMessage);
         response.getWriter().write(message);
     }
 
     private void logInvalidToken(HttpServletRequest servletRequest) {
-        String log =
-                """
-                        [invalid token]: the token is not valid.\s\
-                        IPv4: %s\s\
-                        User-Agent: %s\s\
-                        URI: %s\
-                        """.formatted(
+        final String log = WARN_LOG.formatted(
                         Ipv4Util.getClientIpAddress(servletRequest),
                         servletRequest.getHeader("User-Agent"),
                         servletRequest.getRequestURI());

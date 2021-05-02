@@ -25,14 +25,6 @@ public class JwtIntermediateDateTransport {
         this.data = null;
     }
 
-    public JwtIntermediateDateTransport(JwtStatus status,
-                                        @Nullable JwtAuthenticationData data) {
-        this.status = status;
-        this.data = data;
-        this.type = null;
-        this.claims = null;
-    }
-
     public JwtStatus getStatus() {
         return status;
     }

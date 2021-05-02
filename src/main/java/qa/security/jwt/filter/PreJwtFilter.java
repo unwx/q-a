@@ -17,6 +17,11 @@ import java.io.IOException;
 
 public class PreJwtFilter extends GenericFilterBean {
 
+    private final JwtProvider jwtProvider;
+
+    private static final Logger logger = LogManager.getLogger(PreJwtFilter.class);
+
+    public static final String EXIST_TOKEN_ATTRIBUTE = "jwt.pre.token.existence";
     private static final String ERR_MESSAGE =
             """
             {\
@@ -26,12 +31,6 @@ public class PreJwtFilter extends GenericFilterBean {
             "description": null
             }\
             """;
-
-    public static final String EXIST_TOKEN_ATTRIBUTE = "jwt.pre.token.existence";
-
-    private final JwtProvider jwtProvider;
-
-    private static final Logger logger = LogManager.getLogger(PreJwtFilter.class);
 
     public PreJwtFilter(JwtProvider jwtTokenProvider) {
         this.jwtProvider = jwtTokenProvider;
@@ -63,7 +62,7 @@ public class PreJwtFilter extends GenericFilterBean {
     }
 
     private void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        logger.warn("trying to access %s\nipv4: %s".formatted(
+        logger.warn("trying to access %s | ipv4: %s".formatted(
                 request.getRequestURI(),
                 Ipv4Util.getClientIpAddress(request)
         ));

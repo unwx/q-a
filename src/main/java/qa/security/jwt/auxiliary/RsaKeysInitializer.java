@@ -19,6 +19,18 @@ public class RsaKeysInitializer {
     private final RSAPropertyDataSource propertiesDataSource;
 
     private static final Logger logger = LogManager.getLogger(RsaKeysInitializer.class);
+    private static final String ERR_PUBLIC =
+                        """
+                        cannot get the PUBLIC RSA key from the file.\s\
+                        filepath: %s
+                        Cause: %s\
+                        """;
+    private static final String ERR_PRIVATE =
+                        """
+                        cannot get the PUBLIC RSA key from the file.\s\
+                        filepath: %s
+                        Cause: %s\
+                        """;
 
     @Autowired
     public RsaKeysInitializer(RSAPropertyDataSource propertiesDataSource) {
@@ -26,42 +38,28 @@ public class RsaKeysInitializer {
     }
 
     public RSAPublicKey getPublicKey() {
-        if (publicKey == null) {
+        if (this.publicKey == null) {
             try {
-                publicKey = (RSAPublicKey) PemUtil.readPublicKeyFromFile(
-                        propertiesDataSource.getRSA_PUBLIC_PATH(),
-                        "RSA");
+                this.publicKey = (RSAPublicKey) PemUtil.readPublicKeyFromFile(this.propertiesDataSource.getRSA_PUBLIC_PATH(), "RSA");
             } catch (IOException e) {
+                final String log = ERR_PUBLIC.formatted(this.propertiesDataSource.getRSA_PUBLIC_PATH(), e.getMessage());
                 e.printStackTrace();
-                String log =
-                        """
-                        cannot get the PUBLIC RSA key from the file.\s\
-                        filepath: %s
-                        Cause: %s\
-                        """.formatted(propertiesDataSource.getRSA_PUBLIC_PATH(), e.getMessage());
                 logger.fatal(log);
             }
         }
-        return publicKey;
+        return this.publicKey;
     }
 
     public RSAPrivateKey getPrivateKey() {
-        if (privateKey == null) {
+        if (this.privateKey == null) {
             try {
-                privateKey = (RSAPrivateKey) PemUtil.readPrivateKeyFromFile(
-                        propertiesDataSource.getRSA_PRIVATE_PATH(),
-                        "RSA");
+                this.privateKey = (RSAPrivateKey) PemUtil.readPrivateKeyFromFile(this.propertiesDataSource.getRSA_PRIVATE_PATH(), "RSA");
             } catch (IOException e) {
+                final String log = ERR_PRIVATE.formatted(this.propertiesDataSource.getRSA_PRIVATE_PATH(), e.getMessage());
                 e.printStackTrace();
-                String log =
-                        """
-                        cannot get the PRIVATE RSA key from the file.\s\
-                        filepath: %s
-                        Cause: %s\
-                        """.formatted(propertiesDataSource.getRSA_PRIVATE_PATH(), e.getMessage());
                 logger.fatal(log);
             }
         }
-        return privateKey;
+        return this.privateKey;
     }
 }

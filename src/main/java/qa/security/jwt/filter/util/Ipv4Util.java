@@ -7,7 +7,7 @@ public final class Ipv4Util {
     private Ipv4Util() {}
 
     public static String getClientIpAddress(HttpServletRequest request) {
-        String[] headers = new String[] {
+        final String[] headers = new String[] {
                 request.getHeader("X-Forwarded-For"),
                 request.getHeader("Proxy-Client-IP"),
                 request.getHeader("WL-Proxy-Client-IP"),

@@ -14,7 +14,7 @@ public class JwtAuthenticationData implements UserDetails {
     private final Long id;
     private final String password;
     private final String email;
-    private Boolean enabled;
+    private final Boolean enabled;
     private final Long accessTokenExpirationDateAtMills;
     private final Long refreshTokenExpirationDateAtMillis;
     private final Collection<? extends GrantedAuthority> authorities;
@@ -88,9 +88,5 @@ public class JwtAuthenticationData implements UserDetails {
 
     public Long getRefreshTokenExpirationDateAtMillis() {
         return refreshTokenExpirationDateAtMillis;
-    }
-
-    public void setEnabled(Boolean enabled) {
-        this.enabled = enabled;
     }
 }

@@ -32,16 +32,19 @@ public class JwtProvider {
     public JwtProvider(JwtUserDetailsService jwtUserDetailsService,
                        RsaKeysInitializer rsaKeysInitializer,
                        JWTPropertyDataSource propertiesDataSource) {
+
         this.jwtUserDetailsService = jwtUserDetailsService;
         this.propertiesDataSource = propertiesDataSource;
-        RSAPublicKey publicKey = rsaKeysInitializer.getPublicKey();
-        RSAPrivateKey privateKey = rsaKeysInitializer.getPrivateKey();
+
+        final RSAPublicKey publicKey = rsaKeysInitializer.getPublicKey();
+        final RSAPrivateKey privateKey = rsaKeysInitializer.getPrivateKey();
+
         algorithm = Algorithm.RSA256(publicKey, privateKey);
     }
 
     @Nullable
     public String resolveToken(HttpServletRequest req) {
-        String bearerToken = req.getHeader("Authorization");
+        final String bearerToken = req.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer_")) {
             return bearerToken.substring(7);
         }
@@ -50,20 +53,22 @@ public class JwtProvider {
 
     public JwtData createAccess(String email) {
         long expiration = new Date(getCurrentTimeAtMillis() + propertiesDataSource.getJWT_ACCESS_EXPIRATION()).getTime();
-        String cleanToken = JWT.create().
+        final String cleanToken = JWT.create().
                 withIssuer("qa")
                 .withClaim("type", "access")
                 .withSubject(email)
                 .withClaim("expm", String.valueOf(expiration))
-                //expiration at millis,
-                // I need millisecond precision an ordinary long for some reason does not give me this
+                /*
+                 * expiration at millis,
+                 * I need millisecond precision an ordinary long for some reason does not give me this
+                 */
                 .sign(algorithm);
         return new JwtData(cleanToken, expiration);
     }
 
     public JwtData createRefresh(String email) {
-        long expiration = new Date(getCurrentTimeAtMillis() + propertiesDataSource.getJWT_REFRESH_EXPIRATION()).getTime();
-        String cleanToken = JWT.create().
+        final long expiration = new Date(getCurrentTimeAtMillis() + propertiesDataSource.getJWT_REFRESH_EXPIRATION()).getTime();
+        final String cleanToken = JWT.create().
                 withIssuer("qa")
                 .withClaim("type", "refresh")
                 .withSubject(email)
@@ -73,13 +78,14 @@ public class JwtProvider {
     }
 
     public JwtIntermediateDateTransport validate(String cleanToken) {
-        long expAtMillis;
-        JwtType type;
-        JwtAuthenticationData data;
-        JwtStatus status;
-        Map<String, Claim> claimMap;
+        final long expAtMillis;
+        final JwtType type;
+        final JwtAuthenticationData data;
+        final JwtStatus status;
+        final Map<String, Claim> claimMap;
+
         try {
-            DecodedJWT jwtDecoded = JWT.require(algorithm)
+            final DecodedJWT jwtDecoded = JWT.require(algorithm)
                     .withIssuer("qa")
                     .build()
                     .verify(cleanToken);
@@ -103,8 +109,8 @@ public class JwtProvider {
     }
 
     private JwtStatus validateExpiration(Long tokenExpirationAtMills,
-                                                            JwtAuthenticationData data,
-                                                            JwtType type) {
+                                         JwtAuthenticationData data,
+                                         JwtType type) {
         if (getCurrentTimeAtMillis() > tokenExpirationAtMills
                 || type == JwtType.ACCESS && isTokenNotActual(tokenExpirationAtMills, data.getAccessTokenExpirationDateAtMills())
                 || type == JwtType.REFRESH && isTokenNotActual(tokenExpirationAtMills, data.getRefreshTokenExpirationDateAtMillis()))

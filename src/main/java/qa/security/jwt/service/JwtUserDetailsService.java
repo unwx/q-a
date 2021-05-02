@@ -16,6 +16,7 @@ public class JwtUserDetailsService implements UserDetailsService {
     private final AuthenticationDao dao;
 
     private static final Logger logger = LogManager.getLogger(JwtUserDetailsService.class);
+    private static final String ERR_USER_NOT_EXIST = "user %s not exist";
 
     @Autowired
     public JwtUserDetailsService(AuthenticationDao dao) {
@@ -24,10 +25,12 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String s) {
-        AuthenticationData data = dao.getPrincipalWithTokenData(s);
+        final AuthenticationData data = dao.getPrincipalWithTokenData(s);
+
         if (data == null) {
-            logger.error("user " + s + " not exist. throw UserNotFoundException");
+            logger.error(ERR_USER_NOT_EXIST.formatted(s));
         }
+
         return JwtAuthenticationDataFactory.create(data);
     }
 }
