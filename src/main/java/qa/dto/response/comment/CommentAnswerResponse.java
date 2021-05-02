@@ -18,5 +18,5 @@ public class CommentAnswerResponse extends CommentFullResponse {
         super(commentId, text, creationDate, author, likes, liked);
     }
 
-    protected CommentAnswerResponse() {}
+    private CommentAnswerResponse() {}
 }

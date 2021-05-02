@@ -1,5 +1,6 @@
 package qa.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import qa.cache.like.HasLiked;
 import qa.cache.like.HasLikes;
 import qa.dao.database.components.FieldDataSetterExtractor;
@@ -65,6 +66,7 @@ public abstract class Comment implements FieldExtractor, FieldDataSetterExtracto
         this.id = id;
     }
 
+    @JsonProperty("creation_date")
     public Date getCreationDate() {
         return creationDate;
     }

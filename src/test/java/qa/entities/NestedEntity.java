@@ -74,4 +74,9 @@ public class NestedEntity implements FieldExtractor, FieldDataSetterExtractor {
                 new SetterField("date", LocalDateTime.class)
         };
     }
+
+    @Override
+    public String getClassName() {
+        return "NestedEntity";
+    }
 }

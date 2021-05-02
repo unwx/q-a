@@ -8,7 +8,7 @@ public class QuestionGetViewsRequest {
         this.page = page;
     }
 
-    protected QuestionGetViewsRequest() {
+    private QuestionGetViewsRequest() {
         this.page = null;
     }
 

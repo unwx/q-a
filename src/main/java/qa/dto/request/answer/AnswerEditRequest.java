@@ -14,7 +14,7 @@ public class AnswerEditRequest {
         this.text = text;
     }
 
-    protected AnswerEditRequest() {
+    private AnswerEditRequest() {
         this.answerId = null;
         this.text = null;
     }

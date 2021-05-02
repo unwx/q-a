@@ -380,4 +380,9 @@ public class BigEntity implements FieldExtractor, FieldDataSetterExtractor {
                 new SetterField("b9", Boolean.class)
         };
     }
+
+    @Override
+    public String getClassName() {
+        return "BigEntity";
+    }
 }

@@ -30,7 +30,7 @@ public class UserFullResponse {
         this.answers = answers;
     }
 
-    protected UserFullResponse() {
+    private UserFullResponse() {
         this.userId = null;
         this.username = null;
         this.about = null;

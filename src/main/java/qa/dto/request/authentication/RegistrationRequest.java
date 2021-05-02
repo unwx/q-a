@@ -14,7 +14,7 @@ public class RegistrationRequest {
         this.password = password;
     }
 
-    protected RegistrationRequest() {
+    private RegistrationRequest() {
         this.username = null;
         this.email = null;
         this.password = null;

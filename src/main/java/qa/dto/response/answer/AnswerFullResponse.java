@@ -41,7 +41,7 @@ public class AnswerFullResponse {
         this.liked = liked;
     }
 
-    protected AnswerFullResponse() {
+    private AnswerFullResponse() {
         this.answerId = null;
         this.text = null;
         this.creationDate = null;

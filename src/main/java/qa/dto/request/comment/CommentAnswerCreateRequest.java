@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CommentAnswerCreateRequest {
 
     @JsonProperty("answer_id")
-    // TODO REFACTOR
     private final Long answerId;
     private final String text;
 
@@ -15,7 +14,7 @@ public class CommentAnswerCreateRequest {
         this.text = text;
     }
 
-    protected CommentAnswerCreateRequest() {
+    private CommentAnswerCreateRequest() {
         this.answerId = null;
         this.text = null;
     }

@@ -14,7 +14,7 @@ public class QuestionCreateRequest {
         this.tags = tags;
     }
 
-    protected QuestionCreateRequest() {
+    private QuestionCreateRequest() {
         this.title = null;
         this.text = null;
         this.tags = null;

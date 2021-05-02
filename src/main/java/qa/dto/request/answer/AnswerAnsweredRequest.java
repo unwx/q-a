@@ -11,7 +11,7 @@ public class AnswerAnsweredRequest {
         this.answerId = answerId;
     }
 
-    protected AnswerAnsweredRequest() {
+    private AnswerAnsweredRequest() {
         this.answerId = null;
     }
 

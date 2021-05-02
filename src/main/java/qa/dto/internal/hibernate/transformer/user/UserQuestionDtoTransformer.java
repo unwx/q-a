@@ -22,12 +22,12 @@ public class UserQuestionDtoTransformer implements ResultTransformer {
 
     @Override
     public Object transformTuple(Object[] objects, String[] strings) {
-        Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
+        final Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
 
         if (objects[aliasToIndexMap.get(UserQuestionDto.ID)] == null)
             throw new NullResultException("questions not exist");
 
-        Long id = ((BigInteger) objects[aliasToIndexMap.get(UserQuestionDto.ID)]).longValue();
+        final Long id = ((BigInteger) objects[aliasToIndexMap.get(UserQuestionDto.ID)]).longValue();
         return dtoMap.computeIfAbsent(id, i -> new UserQuestionDto(objects, aliasToIndexMap));
     }
 

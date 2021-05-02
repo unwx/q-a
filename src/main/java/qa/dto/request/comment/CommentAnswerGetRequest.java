@@ -14,7 +14,7 @@ public class CommentAnswerGetRequest {
         this.page = page;
     }
 
-    protected CommentAnswerGetRequest() {
+    private CommentAnswerGetRequest() {
         this.answerId = null;
         this.page = null;
     }

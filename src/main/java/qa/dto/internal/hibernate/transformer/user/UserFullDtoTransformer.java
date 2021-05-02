@@ -23,10 +23,10 @@ public class UserFullDtoTransformer implements ResultTransformer {
 
     @Override
     public Object transformTuple(Object[] objects, String[] strings) {
-        Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
+        final Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
 
-        Long id = ((BigInteger) objects[aliasToIndexMap.get(UserFullDto.ID)]).longValue();
-        UserFullDto dto = dtoMap.computeIfAbsent(id, i -> new UserFullDto(objects, aliasToIndexMap));
+        final Long id = ((BigInteger) objects[aliasToIndexMap.get(UserFullDto.ID)]).longValue();
+        final UserFullDto dto = dtoMap.computeIfAbsent(id, i -> new UserFullDto(objects, aliasToIndexMap));
 
         if (objects[aliasToIndexMap.get(UserAnswerDto.ID)] != null)
             dto.addQuestionIfAbsent(new UserQuestionDto(objects, aliasToIndexMap));

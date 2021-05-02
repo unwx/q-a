@@ -9,7 +9,7 @@ public class JwtPairResponse {
         this.refresh = refresh;
     }
 
-    protected JwtPairResponse() {
+    private JwtPairResponse() {
         this.access = null;
         this.refresh = null;
     }

@@ -8,7 +8,7 @@ public class UserGetFullRequest {
         this.username = username;
     }
 
-    protected UserGetFullRequest() {
+    private UserGetFullRequest() {
         this.username = null;
     }
 

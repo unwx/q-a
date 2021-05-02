@@ -15,7 +15,7 @@ public abstract class CommentFullResponse {
     private final int likes;
     private final boolean liked;
 
-    protected CommentFullResponse(Long commentId,
+    public CommentFullResponse(Long commentId,
                                String text,
                                Date creationDate,
                                User author,

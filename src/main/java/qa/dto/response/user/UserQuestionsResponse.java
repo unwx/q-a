@@ -10,7 +10,7 @@ public class UserQuestionsResponse {
         this.title = title;
     }
 
-    protected UserQuestionsResponse() {
+    private UserQuestionsResponse() {
         this.questionId = null;
         this.title = null;
     }

@@ -11,7 +11,7 @@ public class UserAnswersResponse {
         this.text = text;
     }
 
-    protected UserAnswersResponse() {
+    private UserAnswersResponse() {
         this.answerId = null;
         this.text = null;
     }

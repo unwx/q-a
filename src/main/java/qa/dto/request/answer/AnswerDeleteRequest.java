@@ -11,7 +11,7 @@ public class AnswerDeleteRequest {
         this.answerId = answerId;
     }
 
-    protected AnswerDeleteRequest() {
+    private AnswerDeleteRequest() {
         this.answerId = null;
     }
 

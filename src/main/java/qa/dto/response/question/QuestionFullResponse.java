@@ -52,7 +52,7 @@ public class QuestionFullResponse {
         this.liked = liked;
     }
 
-    protected QuestionFullResponse() {
+    private QuestionFullResponse() {
         this.questionId = null;
         this.text = null;
         this.title = null;

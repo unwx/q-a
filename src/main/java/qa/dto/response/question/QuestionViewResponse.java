@@ -39,7 +39,7 @@ public class QuestionViewResponse {
         this.user = user;
     }
 
-    protected QuestionViewResponse() {
+    private QuestionViewResponse() {
         this.questionId = null;
         this.title = null;
         this.tags = null;

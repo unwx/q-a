@@ -15,7 +15,7 @@ public class CommentQuestionCreateRequest {
     }
 
     /* jackson default constructor */
-    protected CommentQuestionCreateRequest() {
+    private CommentQuestionCreateRequest() {
         this.questionId = null;
         this.text = null;
     }

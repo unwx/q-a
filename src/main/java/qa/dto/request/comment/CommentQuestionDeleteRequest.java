@@ -11,7 +11,7 @@ public class CommentQuestionDeleteRequest {
         this.commentId = commentId;
     }
 
-    protected CommentQuestionDeleteRequest() {
+    private CommentQuestionDeleteRequest() {
         this.commentId = null;
     }
 

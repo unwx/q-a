@@ -11,7 +11,7 @@ public class QuestionGetFullRequest {
         this.questionId = questionId;
     }
 
-    protected QuestionGetFullRequest() {
+    private QuestionGetFullRequest() {
         this.questionId = null;
     }
 

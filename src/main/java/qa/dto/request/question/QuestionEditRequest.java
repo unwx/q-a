@@ -17,7 +17,7 @@ public class QuestionEditRequest {
         this.tags = tags;
     }
 
-    protected QuestionEditRequest() {
+    private QuestionEditRequest() {
         this.questionId = null;
         this.text = null;
         this.tags = null;

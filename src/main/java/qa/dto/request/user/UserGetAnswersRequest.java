@@ -14,7 +14,7 @@ public class UserGetAnswersRequest {
         this.page = page;
     }
 
-    protected UserGetAnswersRequest() {
+    private UserGetAnswersRequest() {
         this.userId = null;
         this.page = null;
     }

@@ -14,7 +14,7 @@ public class CommentQuestionEditRequest {
         this.text = text;
     }
 
-    protected CommentQuestionEditRequest() {
+    private CommentQuestionEditRequest() {
         this.commentId = null;
         this.text = null;
     }

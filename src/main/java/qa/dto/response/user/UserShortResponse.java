@@ -8,7 +8,7 @@ public class UserShortResponse {
         this.username = username;
     }
 
-    protected UserShortResponse() {
+    private UserShortResponse() {
         this.username = null;
     }
 

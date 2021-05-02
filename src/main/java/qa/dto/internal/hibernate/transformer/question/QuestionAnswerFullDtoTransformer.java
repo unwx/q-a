@@ -23,12 +23,12 @@ public class QuestionAnswerFullDtoTransformer implements ResultTransformer {
 
     @Override
     public Object transformTuple(Object[] objects, String[] strings) {
-        Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
+        final Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
         if (objects[aliasToIndexMap.get(AnswerFullDto.ID)] == null)
             throw new NullResultException("answers not exist");
 
-        Long answerId = ((BigInteger) objects[aliasToIndexMap.get(AnswerFullDto.ID)]).longValue();
-        AnswerFullDto dto = dtoMap.computeIfAbsent(answerId, id -> new AnswerFullDto(objects, aliasToIndexMap));
+        final Long answerId = ((BigInteger) objects[aliasToIndexMap.get(AnswerFullDto.ID)]).longValue();
+        final AnswerFullDto dto = dtoMap.computeIfAbsent(answerId, id -> new AnswerFullDto(objects, aliasToIndexMap));
 
         if (objects[aliasToIndexMap.get(AnswerCommentDto.ID)] != null)
             dtoMap.get(dto.getAnswerId()).getComments().add(new AnswerCommentDto(objects, aliasToIndexMap));

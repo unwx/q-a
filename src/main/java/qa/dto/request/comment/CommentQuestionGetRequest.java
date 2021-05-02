@@ -14,7 +14,7 @@ public class CommentQuestionGetRequest {
         this.page = page;
     }
 
-    protected CommentQuestionGetRequest() {
+    private CommentQuestionGetRequest() {
         this.questionId = null;
         this.page = null;
     }

@@ -14,7 +14,7 @@ public class AnswerGetFullRequest {
         this.page = page;
     }
 
-    protected AnswerGetFullRequest() {
+    private AnswerGetFullRequest() {
         this.questionId = null;
         this.page = null;
     }

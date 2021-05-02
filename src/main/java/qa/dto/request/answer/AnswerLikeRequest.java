@@ -11,7 +11,7 @@ public class AnswerLikeRequest {
         this.answerId = answerId;
     }
 
-    protected AnswerLikeRequest() {
+    private AnswerLikeRequest() {
         this.answerId = null;
     }
 

@@ -21,9 +21,9 @@ public class QuestionViewDtoTransformer implements ResultTransformer {
 
     @Override
     public Object transformTuple(Object[] objects, String[] strings) {
-        Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
+        final Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
 
-        Long id = ((BigInteger) objects[aliasToIndexMap.get(QuestionViewDto.ID)]).longValue();
+        final Long id = ((BigInteger) objects[aliasToIndexMap.get(QuestionViewDto.ID)]).longValue();
         return dtoMap.computeIfAbsent(id, i -> new QuestionViewDto(objects, aliasToIndexMap));
     }
 

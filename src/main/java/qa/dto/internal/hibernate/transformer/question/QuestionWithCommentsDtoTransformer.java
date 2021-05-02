@@ -21,10 +21,10 @@ public class QuestionWithCommentsDtoTransformer implements ResultTransformer {
 
     @Override
     public Object transformTuple(Object[] objects, String[] strings) {
-        Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
+        final Map<String, Integer> aliasToIndexMap = AliasUtil.aliasToIndexMap(strings);
 
-        String questionTitle = (String) objects[aliasToIndexMap.get(QuestionWithCommentsDto.TITLE)];
-        QuestionWithCommentsDto dto = dtoMap.computeIfAbsent(questionTitle, title -> new QuestionWithCommentsDto(objects, aliasToIndexMap));
+        final String questionTitle = (String) objects[aliasToIndexMap.get(QuestionWithCommentsDto.TITLE)];
+        final QuestionWithCommentsDto dto = dtoMap.computeIfAbsent(questionTitle, title -> new QuestionWithCommentsDto(objects, aliasToIndexMap));
 
         if (objects[aliasToIndexMap.get(QuestionCommentDto.ID)] != null)
             dto.getComments().add(new QuestionCommentDto(objects, aliasToIndexMap));
@@ -36,5 +36,4 @@ public class QuestionWithCommentsDtoTransformer implements ResultTransformer {
     public List<QuestionWithCommentsDto> transformList(List list) {
         return new ArrayList<>(dtoMap.values());
     }
-
 }
