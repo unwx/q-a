@@ -60,8 +60,7 @@ public class User implements FieldExtractor, FieldDataSetterExtractor {
         this.id = id;
     }
 
-    public User() {
-    }
+    public User() {}
 
 
     public Long getId() {

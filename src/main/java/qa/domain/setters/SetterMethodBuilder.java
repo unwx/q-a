@@ -12,12 +12,12 @@ public final class SetterMethodBuilder {
     @SuppressWarnings("unchecked")
     public static ISetter<FieldDataSetterExtractor> getSetter(Class<? extends FieldDataSetterExtractor> clazz, String fieldName, Class<?> fieldType) throws Throwable {
 
-        MethodHandles.Lookup caller = MethodHandles.lookup();
-        MethodType setter = MethodType.methodType(void.class, fieldType);
-        MethodHandle target = caller.findVirtual(clazz, computeSetterName(fieldName), setter);
-        MethodType func = target.type();
+        final MethodHandles.Lookup caller = MethodHandles.lookup();
+        final MethodType setter = MethodType.methodType(void.class, fieldType);
+        final MethodHandle target = caller.findVirtual(clazz, computeSetterName(fieldName), setter);
+        final MethodType func = target.type();
 
-        CallSite site = LambdaMetafactory.metafactory(
+        final CallSite site = LambdaMetafactory.metafactory(
                 caller,
                 "set",
                 MethodType.methodType(ISetter.class),
@@ -26,8 +26,7 @@ public final class SetterMethodBuilder {
                 func
         );
 
-        MethodHandle factory = site.getTarget();
-
+        final MethodHandle factory = site.getTarget();
         return (ISetter<FieldDataSetterExtractor>) factory.invoke();
     }
 

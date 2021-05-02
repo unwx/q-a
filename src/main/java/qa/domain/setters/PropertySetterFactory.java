@@ -11,39 +11,30 @@ import java.util.HashMap;
 @Component
 public class PropertySetterFactory {
 
-    private static final Logger logger = LogManager.getLogger(PropertySetterFactory.class);
-    protected PropertySetterFactory() {}
-
     private final HashMap<String, PropertySetter> propertySetters = new HashMap<>();
 
-    public <E extends FieldDataSetterExtractor> PropertySetter getSetter(E target) {
-        String targetClazzName = target.getClass().getName();
+    private static final Logger logger = LogManager.getLogger(PropertySetterFactory.class);
+    private static final String ERR_CREATION =
+                """
+                property setter creation failed ->\s\
+                class %s ->\s\
+                cannot create setters. check if your entity has setters and their ratio in extractSettersField\
+                """;
+
+    protected PropertySetterFactory() {}
+
+    public PropertySetter getSetter(FieldDataSetterExtractor target) {
+        final String targetClazzName = target.getClass().getName();
         return propertySetters.computeIfAbsent(targetClazzName, c -> createPropertySetter(target));
     }
 
-    private <E extends FieldDataSetterExtractor> PropertySetter createPropertySetter(E target) {
+    private PropertySetter createPropertySetter(FieldDataSetterExtractor target) {
         try {
-            return new PropertySetterImpl<>(target.getClass(), target); // TODO REFACTOR
-
+            return new PropertySetterImpl(target.getClass(), target);
         } catch (SettersInitializationException ex) {
-            settersInitializationException(ex, target.getClass().getName());
+            final String message = ERR_CREATION.formatted(target.getClassName());
+            logger.fatal(message);
+            throw new IllegalArgumentException(message);
         }
-        throw unexpectedException(target.getClass().getName());
-    }
-
-    private void settersInitializationException(Exception ex, String clazzName) {
-        ex.printStackTrace();
-        String message =
-                """
-                [setter factory error]: property setter creation failed ->\s\
-                class %s ->\s\
-                cannot create setters. check if your entity has setters and their ratio in extractSettersField\
-                """.formatted(clazzName);
-        logger.fatal(message);
-    }
-
-    private RuntimeException unexpectedException(String clazzName) {
-        logger.fatal("[setter factory error]: property setter creation failed -> unexpected error " + clazzName);
-        return new IllegalArgumentException();
     }
 }

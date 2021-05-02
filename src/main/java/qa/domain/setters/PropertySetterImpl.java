@@ -10,18 +10,17 @@ import qa.exceptions.domain.SettersInitializationException;
 import java.io.Serial;
 import java.util.HashMap;
 
-public class PropertySetterImpl<E extends FieldDataSetterExtractor> implements PropertySetter {
-
-    private static final Logger logger = LogManager.getLogger(PropertySetterImpl.class);
+public class PropertySetterImpl implements PropertySetter {
 
     private final HashMap<String, ISetter<FieldDataSetterExtractor>> setters;
-    private final E entity;
+    private final FieldDataSetterExtractor entity;
 
+    private static final Logger logger = LogManager.getLogger(PropertySetterImpl.class);
     private static final String ERR_TARGET_NULL = "NullPointerException -> setter target is null. -> FieldDataSetterExtractor = null";
     private static final String ERR_NOT_IMPLEMENTED = "NullPointerException -> setter %s not exist/implemented";
 
     public PropertySetterImpl(Class<? extends FieldDataSetterExtractor> target,
-                              E entity) throws SettersInitializationException {
+                              FieldDataSetterExtractor entity) throws SettersInitializationException {
 
         this.setters = SettersInitializer.init(target, entity);
         this.entity = entity;
@@ -31,7 +30,7 @@ public class PropertySetterImpl<E extends FieldDataSetterExtractor> implements P
     public void setAll(FieldDataSetterExtractor object, String[] names, Object[] values) {
         for (int i = 0; i < names.length; i++) {
             try {
-                final ISetter<FieldDataSetterExtractor> setter = setters.get(names[i]);
+                final ISetter<FieldDataSetterExtractor> setter = this.setters.get(names[i]);
                 setter.set(object, values[i]);
             } catch (NullPointerException ex) {
                 nullPointerExceptionProcess(object, names[i]);
@@ -42,7 +41,7 @@ public class PropertySetterImpl<E extends FieldDataSetterExtractor> implements P
     @Override
     public void set(FieldDataSetterExtractor object, String name, Object value) {
         try {
-            final ISetter<FieldDataSetterExtractor> setter = setters.get(name);
+            final ISetter<FieldDataSetterExtractor> setter = this.setters.get(name);
             setter.set(object, value);
         } catch (NullPointerException ex) {
             nullPointerExceptionProcess(object, name);
@@ -50,7 +49,7 @@ public class PropertySetterImpl<E extends FieldDataSetterExtractor> implements P
     }
 
     @Override
-    public E entity() {
+    public FieldDataSetterExtractor entity() {
         return this.entity;
     }
 

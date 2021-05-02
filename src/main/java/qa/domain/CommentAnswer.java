@@ -1,6 +1,5 @@
 package qa.domain;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import qa.dao.database.components.Field;
 import qa.domain.setters.SetterField;
 
@@ -22,8 +21,7 @@ public class CommentAnswer extends Comment {
         this.answer = answer;
     }
 
-    public CommentAnswer() {
-    }
+    public CommentAnswer() {}
 
     public Answer getAnswer() {
         return answer;
@@ -51,51 +49,5 @@ public class CommentAnswer extends Comment {
                 new Field("author", author),
                 new Field("answer", answer),
         };
-    }
-
-    @Override
-    public Long getId() {
-        return super.getId();
-    }
-
-    @Override
-    public void setId(Long id) {
-        super.setId(id);
-    }
-
-    @Override
-    public String getText() {
-        return super.getText();
-    }
-
-    @Override
-    public void setText(String text) {
-        super.setText(text);
-    }
-
-    @Override
-    public User getAuthor() {
-        return super.getAuthor();
-    }
-
-    @Override
-    public void setAuthor(User author) {
-        super.setAuthor(author);
-    }
-
-    @Override
-    @JsonProperty("creation_date")
-    public Date getCreationDate() {
-        return super.getCreationDate();
-    }
-
-    @Override
-    public void setCreationDate(Date creationDate) {
-        super.setCreationDate(creationDate);
-    }
-
-    @Override
-    public String getIdStr() {
-        return String.valueOf(this.id);
     }
 }

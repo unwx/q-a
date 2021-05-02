@@ -54,8 +54,7 @@ public abstract class Comment implements FieldExtractor, FieldDataSetterExtracto
         this.author = author;
     }
 
-    protected Comment() {
-    }
+    protected Comment() {}
 
 
     public Long getId() {
@@ -109,6 +108,11 @@ public abstract class Comment implements FieldExtractor, FieldDataSetterExtracto
     @Override
     public int getLikes() {
         return this.likes;
+    }
+
+    @Override
+    public String getIdStr() {
+        return String.valueOf(id);
     }
 
     @Override

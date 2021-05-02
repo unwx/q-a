@@ -201,7 +201,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
     }
 
     @Override
-    public SetterField[] extractSettersField() { // TODO optimize;
+    public SetterField[] extractSettersField() {
         return new SetterField[] {
                 new SetterField("id", Long.class),
                 new SetterField("text", String.class),
@@ -214,7 +214,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
     }
 
     @Override
-    public Field[] extract() { // TODO refactor names
+    public Field[] extract() {
         return new Field[] {
                 new Field("id", id),
                 new Field("text", text),
