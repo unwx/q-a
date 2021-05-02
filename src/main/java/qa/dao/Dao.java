@@ -22,20 +22,20 @@ import java.util.List;
  * <b>delete:</b>
  * removes entity
  */
-public interface Dao<Entity, Key> {
-    Key create(final Entity entity);
+public interface Dao<E, Key> {
+    Key create(final E entity);
 
     @Nullable
-    Entity read(final Where where, final Table target);
+    E read(final Where where, final Table target);
 
     @Nullable
-    Entity read(final Where where, final Table target, final List<NestedEntity> nested);
+    E read(final Where where, final Table target, final List<NestedEntity> nested);
 
-    List<Entity> readMany(final Where where, final Table target);
+    List<E> readMany(final Where where, final Table target);
 
-    void update(final Where where, final Entity entity);
+    void update(final Where where, final E entity);
 
-    void updateEager(final Entity entity);
+    void updateEager(final E entity);
 
     void delete(final Where where);
 

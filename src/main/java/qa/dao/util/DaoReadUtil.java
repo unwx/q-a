@@ -5,7 +5,10 @@ import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import qa.dao.HqlBuilder;
-import qa.dao.database.components.*;
+import qa.dao.database.components.FieldDataSetterExtractor;
+import qa.dao.database.components.NestedEntity;
+import qa.dao.database.components.Table;
+import qa.dao.database.components.Where;
 import qa.domain.setters.PropertySetter;
 
 import javax.persistence.NoResultException;
@@ -14,7 +17,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class DaoReadUtil<E extends FieldExtractor & FieldDataSetterExtractor> {
+public class DaoReadUtil<E extends FieldDataSetterExtractor> {
 
     private final HqlBuilder hqlBuilder = new HqlBuilder();
     private final PropertySetter mainSetter;

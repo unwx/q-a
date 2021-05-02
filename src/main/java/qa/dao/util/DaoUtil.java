@@ -1,19 +1,17 @@
 package qa.dao.util;
 
 import org.hibernate.Session;
-import qa.dao.database.components.NestedEntity;
-import qa.dao.database.components.Table;
-import qa.dao.database.components.Where;
+import qa.dao.database.components.*;
 
 import java.util.List;
 
-public interface DaoUtil<Entity> {
+public interface DaoUtil<E extends FieldExtractor & FieldDataSetterExtractor> {
 
-    Entity read(final Where where, final Table target, final List<NestedEntity> nested, final Session session);
+    E read(final Where where, final Table target, final List<NestedEntity> nested, final Session session);
 
-    List<Entity> readList(final Where where, final Table target, final Session session);
+    List<E> readList(final Where where, final Table target, final Session session);
 
-    void update(final Where where, final Entity entity, final Session session);
+    void update(final Where where, final E entity, final Session session);
 
     void delete(final Where where, final Session session);
 

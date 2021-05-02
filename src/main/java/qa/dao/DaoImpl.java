@@ -11,7 +11,7 @@ import qa.domain.setters.PropertySetter;
 import java.util.Collections;
 import java.util.List;
 
-abstract class DaoImpl<E extends FieldExtractor & FieldDataSetterExtractor> extends DaoUtilImpl<E> implements Dao<E, Object> {
+abstract class DaoImpl<E extends FieldExtractor & FieldDataSetterExtractor & Domain> extends DaoUtilImpl<E> implements Dao<E, Object> {
 
     private final SessionFactory sessionFactory;
 
