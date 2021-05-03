@@ -1,4 +1,4 @@
-package qa.service.impl.aid.process.database;
+package qa.service.impl.processor.manager;
 
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ import qa.exceptions.rest.UnauthorizedException;
 import java.util.Collections;
 
 @Component
-public class AuthenticationServiceDatabase {
+public class AuthenticationDataManager {
 
     private final PooledPBEStringEncryptor passwordEncryptor;
     private final AuthenticationDao authenticationDao;
@@ -35,8 +35,8 @@ public class AuthenticationServiceDatabase {
     private static final String ERR_USERNAME_EXIST      = "user with this username already exist";
 
 
-    public AuthenticationServiceDatabase(PasswordEncryptorFactory passwordEncryptorFactory,
-                                         AuthenticationDao authenticationDao) {
+    public AuthenticationDataManager(PasswordEncryptorFactory passwordEncryptorFactory,
+                                     AuthenticationDao authenticationDao) {
         this.passwordEncryptor = passwordEncryptorFactory.create();
         this.authenticationDao = authenticationDao;
     }

@@ -1,4 +1,4 @@
-package qa.service.impl.aid.process.validation;
+package qa.service.impl.processor.validator;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,14 +9,14 @@ import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 @Component
-public class AnswerServiceValidation {
+public class AnswerRequestValidator {
 
     private final ValidationPropertyDataSource propertyDataSource;
     private final ValidationChainAdditional validationChain;
 
     @Autowired
-    public AnswerServiceValidation(ValidationPropertyDataSource propertyDataSource,
-                                   ValidationChainAdditional validationChain) {
+    public AnswerRequestValidator(ValidationPropertyDataSource propertyDataSource,
+                                  ValidationChainAdditional validationChain) {
         this.propertyDataSource = propertyDataSource;
         this.validationChain = validationChain;
     }

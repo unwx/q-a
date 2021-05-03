@@ -1,4 +1,4 @@
-package qa.service.impl.aid.process.validation;
+package qa.service.impl.processor.validator;
 
 import org.springframework.stereotype.Component;
 import qa.dto.request.authentication.AuthenticationRequest;
@@ -10,13 +10,13 @@ import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 @Component
-public class AuthenticationServiceValidation {
+public class AuthenticationRequestValidator {
 
     private final ValidationPropertyDataSource propertyDataSource;
     private final ValidationChainAdditional chainValidator;
 
-    public AuthenticationServiceValidation(ValidationPropertyDataSource propertyDataSource,
-                                           ValidationChainAdditional chainValidator) {
+    public AuthenticationRequestValidator(ValidationPropertyDataSource propertyDataSource,
+                                          ValidationChainAdditional chainValidator) {
         this.propertyDataSource = propertyDataSource;
         this.chainValidator = chainValidator;
     }

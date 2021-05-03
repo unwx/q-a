@@ -9,18 +9,18 @@ import qa.dto.request.question.*;
 import qa.dto.response.question.QuestionFullResponse;
 import qa.dto.response.question.QuestionViewResponse;
 import qa.service.QuestionService;
-import qa.service.impl.aid.process.QuestionServiceProcess;
-import qa.service.impl.aid.process.database.QuestionServiceDatabase;
-import qa.service.impl.aid.process.validation.QuestionServiceValidation;
+import qa.service.impl.processor.QuestionServiceProcessor;
+import qa.service.impl.processor.manager.QuestionDataManager;
+import qa.service.impl.processor.validator.QuestionRequestValidator;
 
 import java.util.List;
 
 @Service
-public class QuestionServiceImpl extends QuestionServiceProcess implements QuestionService {
+public class QuestionServiceImpl extends QuestionServiceProcessor implements QuestionService {
 
     @Autowired
-    public QuestionServiceImpl(QuestionServiceValidation validation,
-                               QuestionServiceDatabase database) {
+    public QuestionServiceImpl(QuestionRequestValidator validation,
+                               QuestionDataManager database) {
         super(validation, database);
     }
 

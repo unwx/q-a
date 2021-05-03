@@ -8,18 +8,18 @@ import org.springframework.stereotype.Service;
 import qa.dto.request.answer.*;
 import qa.dto.response.answer.AnswerFullResponse;
 import qa.service.AnswerService;
-import qa.service.impl.aid.process.AnswerServiceProcess;
-import qa.service.impl.aid.process.database.AnswerServiceDatabase;
-import qa.service.impl.aid.process.validation.AnswerServiceValidation;
+import qa.service.impl.processor.AnswerServiceProcessor;
+import qa.service.impl.processor.manager.AnswerDataManager;
+import qa.service.impl.processor.validator.AnswerRequestValidator;
 
 import java.util.List;
 
 @Service
-public class AnswerServiceImpl extends AnswerServiceProcess implements AnswerService {
+public class AnswerServiceImpl extends AnswerServiceProcessor implements AnswerService {
 
     @Autowired
-    protected AnswerServiceImpl(AnswerServiceValidation validation,
-                                AnswerServiceDatabase database) {
+    protected AnswerServiceImpl(AnswerRequestValidator validation,
+                                AnswerDataManager database) {
         super(validation, database);
     }
 

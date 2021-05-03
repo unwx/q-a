@@ -1,4 +1,4 @@
-package qa.service.impl.aid.process;
+package qa.service.impl.processor;
 
 import org.springframework.stereotype.Component;
 import qa.domain.AuthenticationData;
@@ -7,20 +7,20 @@ import qa.dto.internal.JwtPairDataDto;
 import qa.dto.request.authentication.AuthenticationRequest;
 import qa.dto.request.authentication.RegistrationRequest;
 import qa.dto.response.JwtPairResponse;
-import qa.service.impl.aid.process.database.AuthenticationServiceDatabase;
-import qa.service.impl.aid.process.validation.AuthenticationServiceValidation;
+import qa.service.impl.processor.manager.AuthenticationDataManager;
+import qa.service.impl.processor.validator.AuthenticationRequestValidator;
 import qa.service.util.JwtUtil;
 
 @Component
-public class AuthenticationServiceProcess {
+public class AuthenticationServiceProcessor {
 
-    private final AuthenticationServiceValidation validation;
-    private final AuthenticationServiceDatabase database;
+    private final AuthenticationRequestValidator validation;
+    private final AuthenticationDataManager database;
     private final JwtUtil jwtUtil;
 
-    protected AuthenticationServiceProcess(AuthenticationServiceValidation validation,
-                                        AuthenticationServiceDatabase database,
-                                        JwtUtil jwtUtil) {
+    protected AuthenticationServiceProcessor(AuthenticationRequestValidator validation,
+                                             AuthenticationDataManager database,
+                                             JwtUtil jwtUtil) {
         this.validation = validation;
         this.database = database;
         this.jwtUtil = jwtUtil;

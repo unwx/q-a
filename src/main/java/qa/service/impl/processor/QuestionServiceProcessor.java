@@ -1,4 +1,4 @@
-package qa.service.impl.aid.process;
+package qa.service.impl.processor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -6,21 +6,21 @@ import org.springframework.stereotype.Component;
 import qa.dto.request.question.*;
 import qa.dto.response.question.QuestionFullResponse;
 import qa.dto.response.question.QuestionViewResponse;
-import qa.service.impl.aid.process.database.QuestionServiceDatabase;
-import qa.service.impl.aid.process.validation.QuestionServiceValidation;
+import qa.service.impl.processor.manager.QuestionDataManager;
+import qa.service.impl.processor.validator.QuestionRequestValidator;
 import qa.service.util.PrincipalUtil;
 
 import java.util.List;
 
 @Component
-public class QuestionServiceProcess {
+public class QuestionServiceProcessor {
 
-    private final QuestionServiceValidation validation;
-    private final QuestionServiceDatabase database;
+    private final QuestionRequestValidator validation;
+    private final QuestionDataManager database;
 
     @Autowired
-    protected QuestionServiceProcess(QuestionServiceValidation validation,
-                                  QuestionServiceDatabase database) {
+    protected QuestionServiceProcessor(QuestionRequestValidator validation,
+                                       QuestionDataManager database) {
         this.validation = validation;
         this.database = database;
     }

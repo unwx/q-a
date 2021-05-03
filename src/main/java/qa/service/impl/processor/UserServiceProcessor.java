@@ -1,4 +1,4 @@
-package qa.service.impl.aid.process;
+package qa.service.impl.processor;
 
 import org.springframework.stereotype.Component;
 import qa.dto.request.user.UserGetAnswersRequest;
@@ -7,19 +7,19 @@ import qa.dto.request.user.UserGetQuestionsRequest;
 import qa.dto.response.user.UserAnswersResponse;
 import qa.dto.response.user.UserFullResponse;
 import qa.dto.response.user.UserQuestionsResponse;
-import qa.service.impl.aid.process.database.UserServiceDatabase;
-import qa.service.impl.aid.process.validation.UserServiceValidation;
+import qa.service.impl.processor.manager.UserDataManager;
+import qa.service.impl.processor.validator.UserRequestValidator;
 
 import java.util.List;
 
 @Component
-public class UserServiceProcess {
+public class UserServiceProcessor {
 
-    private final UserServiceValidation validation;
-    private final UserServiceDatabase database;
+    private final UserRequestValidator validation;
+    private final UserDataManager database;
 
-    protected UserServiceProcess(UserServiceValidation validation,
-                              UserServiceDatabase database) {
+    protected UserServiceProcessor(UserRequestValidator validation,
+                                   UserDataManager database) {
         this.validation = validation;
         this.database = database;
     }

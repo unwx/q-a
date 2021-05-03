@@ -1,4 +1,4 @@
-package qa.service.impl.aid.process.database;
+package qa.service.impl.processor.manager;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class UserServiceDatabase {
+public class UserDataManager {
 
     private final UserDao userDao;
 
@@ -23,7 +23,7 @@ public class UserServiceDatabase {
     private static final String ERR_USER_NOT_EXIST_USERNAME     = "user not exist. username: %s";
 
     @Autowired
-    public UserServiceDatabase(UserDao userDao) {
+    public UserDataManager(UserDao userDao) {
         this.userDao = userDao;
     }
 

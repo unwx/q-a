@@ -8,17 +8,17 @@ import qa.dto.request.authentication.AuthenticationRequest;
 import qa.dto.request.authentication.RegistrationRequest;
 import qa.dto.response.JwtPairResponse;
 import qa.service.AuthenticationService;
-import qa.service.impl.aid.process.AuthenticationServiceProcess;
-import qa.service.impl.aid.process.database.AuthenticationServiceDatabase;
-import qa.service.impl.aid.process.validation.AuthenticationServiceValidation;
+import qa.service.impl.processor.AuthenticationServiceProcessor;
+import qa.service.impl.processor.manager.AuthenticationDataManager;
+import qa.service.impl.processor.validator.AuthenticationRequestValidator;
 import qa.service.util.JwtUtil;
 
 @Service
-public class AuthenticationServiceImpl extends AuthenticationServiceProcess implements AuthenticationService {
+public class AuthenticationServiceImpl extends AuthenticationServiceProcessor implements AuthenticationService {
 
     @Autowired
-    public AuthenticationServiceImpl(AuthenticationServiceValidation validation,
-                                     AuthenticationServiceDatabase database,
+    public AuthenticationServiceImpl(AuthenticationRequestValidator validation,
+                                     AuthenticationDataManager database,
                                      JwtUtil jwtUtil) {
         super(validation, database, jwtUtil);
     }

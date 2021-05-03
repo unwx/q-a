@@ -1,4 +1,4 @@
-package qa.service.impl.aid.process.database;
+package qa.service.impl.processor.manager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-public class QuestionServiceDatabase {
+public class QuestionDataManager {
 
     private final QuestionDao questionDao;
     private final PropertySetterFactory propertySetterFactory;
@@ -34,10 +34,10 @@ public class QuestionServiceDatabase {
     private static final String ID              = "id";
     private static final String ENTITY_NAME     = "question";
 
-    private static final Logger logger = LogManager.getLogger(QuestionServiceDatabase.class);
+    private static final Logger logger = LogManager.getLogger(QuestionDataManager.class);
 
-    public QuestionServiceDatabase(QuestionDao questionDao,
-                                   PropertySetterFactory propertySetterFactory) {
+    public QuestionDataManager(QuestionDao questionDao,
+                               PropertySetterFactory propertySetterFactory) {
         this.questionDao = questionDao;
         this.propertySetterFactory = propertySetterFactory;
     }

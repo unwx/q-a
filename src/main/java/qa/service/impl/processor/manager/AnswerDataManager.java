@@ -1,4 +1,4 @@
-package qa.service.impl.aid.process.database;
+package qa.service.impl.processor.manager;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class AnswerServiceDatabase {
+public class AnswerDataManager {
 
     private final AnswerDao answerDao;
     private final QuestionDao questionDao;
@@ -43,9 +43,9 @@ public class AnswerServiceDatabase {
     private static final String ERR_QUESTION_NOT_EXIST  = "question not exist. id: %s";
     private static final String ERR_ACCESS_DENIED       = "you do not have permission to this answer";
 
-    public AnswerServiceDatabase(AnswerDao answerDao,
-                                 QuestionDao questionDao,
-                                 PropertySetterFactory propertySetterFactory) {
+    public AnswerDataManager(AnswerDao answerDao,
+                             QuestionDao questionDao,
+                             PropertySetterFactory propertySetterFactory) {
         this.answerDao = answerDao;
         this.questionDao = questionDao;
         this.propertySetterFactory = propertySetterFactory;
