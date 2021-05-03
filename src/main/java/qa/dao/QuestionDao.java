@@ -140,7 +140,7 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
         return views;
     }
 
-    public Long getQuestionAuthorIdFromAnswer(long answerId) {
+    public long getQuestionAuthorIdFromAnswer(long answerId) {
         final Long result;
 
         try(Session session = sessionFactory.openSession()) {
@@ -153,7 +153,7 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
             transaction.commit();
         }
 
-        return result;
+        return result == null ? -1 : result;
     }
 
     @Override

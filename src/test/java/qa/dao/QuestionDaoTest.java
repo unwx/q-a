@@ -288,10 +288,10 @@ public class QuestionDaoTest {
         }
 
         @Test
-        void assert_not_found_result_equals_null() {
-            logger.trace("assert not found result equals null");
+        void assert_not_found_result_not_null() {
+            logger.trace("assert not found result equals -1");
             Long authorId = questionDao.getQuestionAuthorIdFromAnswer(1L);
-            assertThat(authorId, equalTo(null));
+            assertThat(authorId, equalTo(-1L));
         }
     }
 
