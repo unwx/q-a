@@ -49,8 +49,10 @@ public abstract class LogTraceTreePrinter {
         writeMessage(message);
     }
 
-    protected void end() {
-        print();
+    protected void print() {
+        pw.write(sb.toString());
+        pw.flush();
+        sb.setLength(0);
     }
 
     private void beforeTrace(final Map<Integer, Clazz> map, final Clazz clazz) {
@@ -132,11 +134,5 @@ public abstract class LogTraceTreePrinter {
                 .append(WHITE)
                 .append('\n');
 
-    }
-
-    private void print() {
-        pw.write(sb.toString());
-        pw.flush();
-        sb.setLength(0);
     }
 }

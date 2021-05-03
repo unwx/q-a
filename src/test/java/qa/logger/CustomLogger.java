@@ -10,7 +10,7 @@ import java.util.Stack;
 /**
  * emphasis on performance
  */
-public abstract class CustomLogger extends LogTraceTreePrinter {
+public abstract class CustomLogger extends LogTraceTreePrinter { // TODO REFACTOR
 
     private final Map<Integer, Clazz> hashToClazzMap = new HashMap<>();
     private Class<?> currentClazz;
@@ -38,8 +38,8 @@ public abstract class CustomLogger extends LogTraceTreePrinter {
                 message);
     }
 
-    protected void end() {
-        super.end();
+    protected void print() {
+        super.print();
     }
 
     private void clazz(final Class<?> clazz) {

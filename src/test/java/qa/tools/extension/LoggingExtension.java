@@ -1,25 +1,16 @@
 package qa.tools.extension;
 
 import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
-import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
 import qa.logger.TestLogger;
 import qa.tools.center.LogCenter;
 
-public class LoggingExtension implements TestExecutionExceptionHandler, BeforeAllCallback, AfterAllCallback {
+public class LoggingExtension implements BeforeAllCallback, AfterAllCallback, AfterEachCallback {
 
     private boolean superClass = true;
     private boolean hasNested = true;
-
-    @Override
-    public void handleTestExecutionException(ExtensionContext extensionContext, Throwable throwable) throws Throwable {
-        final TestLogger logger = LogCenter.get();
-        if (logger != null) {
-            logger.end();
-        }
-        throw throwable;
-    }
 
     @Override
     public void beforeAll(ExtensionContext extensionContext) throws Exception {
@@ -41,5 +32,11 @@ public class LoggingExtension implements TestExecutionExceptionHandler, BeforeAl
             LogCenter.get().end();
         else if (LogCenter.isLastClass())
             LogCenter.get().end();
+    }
+
+    @Override
+    public void afterEach(ExtensionContext extensionContext) {
+        final TestLogger logger = LogCenter.get();
+        if (logger != null) logger.print();
     }
 }

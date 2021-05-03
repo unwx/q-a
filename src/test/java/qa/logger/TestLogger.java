@@ -22,8 +22,11 @@ public class TestLogger extends CustomLogger {
         super.trace(message);
     }
 
+    public void print() {
+        super.print();
+    }
     public void end() {
-        super.end();
+        super.print();
     }
 
     private void updateClazzCounter() {
