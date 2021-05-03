@@ -17,13 +17,13 @@ import java.util.List;
 
 public class QuestionFullResponseSerializer extends JsonSerializer<QuestionFullResponse> {
 
-    private static final String ID = "id";
-    private static final String TEXT = "text";
-    private static final String TITLE = "title";
-    private static final String CREATION_DATE = "creation_date";
-    private static final String LAST_ACTIVITY = "last_activity";
-    private static final String LIKES = "likes";
-    private static final String LIKED = "liked";
+    private static final String ID              = "id";
+    private static final String TEXT            = "text";
+    private static final String TITLE           = "title";
+    private static final String CREATION_DATE   = "creation_date";
+    private static final String LAST_ACTIVITY   = "last_activity";
+    private static final String LIKES           = "likes";
+    private static final String LIKED           = "liked";
 
     private static final QuestionTagsSerializer questionTagsSerializer = new QuestionTagsSerializer();
     private static final AnswerSerializer answerSerializer = new AnswerSerializer();

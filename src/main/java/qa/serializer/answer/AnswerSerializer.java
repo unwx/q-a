@@ -15,12 +15,12 @@ import java.util.List;
 
 public class AnswerSerializer extends JsonSerializer<List<Answer>> {
 
-    private static final String ID = "id";
-    private static final String TEXT = "text";
-    private static final String ANSWERED = "answered";
-    private static final String CREATION_DATE = "creation_date";
-    private static final String LIKES = "likes";
-    private static final String LIKED = "liked";
+    private static final String ID              = "id";
+    private static final String TEXT            = "text";
+    private static final String ANSWERED        = "answered";
+    private static final String CREATION_DATE   = "creation_date";
+    private static final String LIKES           = "likes";
+    private static final String LIKED           = "liked";
 
     private static final AuthorSerializer authorSerializer = new AuthorSerializer();
     private static final CommentSerializer commentSerializer = new CommentSerializer();

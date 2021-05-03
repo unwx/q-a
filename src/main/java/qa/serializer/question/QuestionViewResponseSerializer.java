@@ -12,11 +12,11 @@ import java.io.IOException;
 
 public class QuestionViewResponseSerializer extends JsonSerializer<QuestionViewResponse> {
 
-    private static final String ID = "id";
-    private static final String ANSWERS_COUNT = "answers_count";
-    private static final String TITLE = "title";
-    private static final String CREATION_DATE = "creation_date";
-    private static final String LAST_ACTIVITY = "last_activity";
+    private static final String ID              = "id";
+    private static final String ANSWERS_COUNT   = "answers_count";
+    private static final String TITLE           = "title";
+    private static final String CREATION_DATE   = "creation_date";
+    private static final String LAST_ACTIVITY   = "last_activity";
 
     private static final QuestionTagsSerializer questionTagsSerializer = new QuestionTagsSerializer();
     private static final AuthorSerializer authorSerializer = new AuthorSerializer();

@@ -9,8 +9,8 @@ import java.io.IOException;
 
 public class AuthorSerializer extends JsonSerializer<User> {
 
-    private static final String AUTHOR = "author";
-    private static final String USERNAME = "username";
+    private static final String AUTHOR      = "author";
+    private static final String USERNAME    = "username";
 
     @Override
     public void serialize(User user, JsonGenerator gen, SerializerProvider serializerProvider) throws IOException {

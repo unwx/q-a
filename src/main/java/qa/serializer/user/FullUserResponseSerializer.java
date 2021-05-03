@@ -13,6 +13,18 @@ import java.util.List;
 
 public class FullUserResponseSerializer extends JsonSerializer<UserFullResponse> {
 
+    private static final String ID              = "id";
+    private static final String USERNAME        = "username";
+    private static final String ABOUT           = "about";
+
+    private static final String QUESTION        = "questions";
+    private static final String QUESTION_ID     = "id";
+    private static final String QUESTION_TITLE  = "title";
+
+    private static final String ANSWER          = "answers";
+    private static final String ANSWER_ID       = "id";
+    private static final String ANSWER_TEXT     = "text";
+
     @Override
     public void serialize(@NotNull UserFullResponse userFullResponse, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
@@ -23,18 +35,18 @@ public class FullUserResponseSerializer extends JsonSerializer<UserFullResponse>
     }
 
     private void writeUserData(UserFullResponse userFullResponse, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeNumberField("id", userFullResponse.getUserId());
-        jsonGenerator.writeStringField("username", userFullResponse.getUsername());
-        jsonGenerator.writeStringField("about", userFullResponse.getAbout());
+        jsonGenerator.writeNumberField(ID, userFullResponse.getUserId());
+        jsonGenerator.writeStringField(USERNAME, userFullResponse.getUsername());
+        jsonGenerator.writeStringField(ABOUT, userFullResponse.getAbout());
     }
 
     private void writeQuestionsData(List<Question> questions, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeArrayFieldStart("questions");
+        jsonGenerator.writeArrayFieldStart(QUESTION);
         for (Question q : questions) {
             jsonGenerator.writeStartObject();
 
-            jsonGenerator.writeNumberField("id", q.getId());
-            jsonGenerator.writeStringField("title", q.getTitle());
+            jsonGenerator.writeNumberField(QUESTION_ID, q.getId());
+            jsonGenerator.writeStringField(QUESTION_TITLE, q.getTitle());
 
             jsonGenerator.writeEndObject();
         }
@@ -42,12 +54,12 @@ public class FullUserResponseSerializer extends JsonSerializer<UserFullResponse>
     }
 
     private void writeAnswersData(List<Answer> answers, JsonGenerator jsonGenerator) throws IOException {
-        jsonGenerator.writeArrayFieldStart("answers");
+        jsonGenerator.writeArrayFieldStart(ANSWER);
         for (Answer a : answers) {
             jsonGenerator.writeStartObject();
 
-            jsonGenerator.writeNumberField("id", a.getId());
-            jsonGenerator.writeStringField("text", a.getText());
+            jsonGenerator.writeNumberField(ANSWER_ID, a.getId());
+            jsonGenerator.writeStringField(ANSWER_TEXT, a.getText());
 
             jsonGenerator.writeEndObject();
         }

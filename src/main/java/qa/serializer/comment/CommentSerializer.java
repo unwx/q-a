@@ -13,11 +13,11 @@ import java.util.List;
 
 public class CommentSerializer extends JsonSerializer<List<? extends Comment>> {
 
-    private static final String ID = "id";
-    private static final String TEXT = "text";
-    private static final String CREATION_DATE = "creation_date";
-    private static final String LIKES = "likes";
-    private static final String LIKED = "liked";
+    private static final String ID              = "id";
+    private static final String TEXT            = "text";
+    private static final String CREATION_DATE   = "creation_date";
+    private static final String LIKES           = "likes";
+    private static final String LIKED           = "liked";
 
     private static final AuthorSerializer authorSerializer = new AuthorSerializer();
 
