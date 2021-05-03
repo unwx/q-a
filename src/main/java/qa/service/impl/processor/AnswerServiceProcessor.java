@@ -14,44 +14,44 @@ import java.util.List;
 @Component
 public class AnswerServiceProcessor {
 
-    private final AnswerRequestValidator validation;
-    private final AnswerDataManager database;
+    private final AnswerRequestValidator validator;
+    private final AnswerDataManager dataManager;
 
     @Autowired
-    protected AnswerServiceProcessor(AnswerRequestValidator validation,
-                                     AnswerDataManager database) {
-        this.validation = validation;
-        this.database = database;
+    protected AnswerServiceProcessor(AnswerRequestValidator validator,
+                                     AnswerDataManager dataManager) {
+        this.validator = validator;
+        this.dataManager = dataManager;
     }
 
     protected Long createAnswerProcess(AnswerCreateRequest request, Authentication authentication) {
-        this.validation.validate(request);
-        this.database.throwBadRequestExIfQuestionNotExist(request.getQuestionId());
-        return this.database.saveNewAnswer(request, authentication);
+        this.validator.validate(request);
+        this.dataManager.throwBadRequestExIfQuestionNotExist(request.getQuestionId());
+        return this.dataManager.saveNewAnswer(request, authentication);
     }
 
     protected void editAnswerProcess(AnswerEditRequest request, Authentication authentication) {
-        this.validation.validate(request);
-        this.database.checkIsRealAuthor(request.getAnswerId(), authentication);
-        this.database.saveEditedAnswer(request);
+        this.validator.validate(request);
+        this.dataManager.checkIsRealAuthor(request.getAnswerId(), authentication);
+        this.dataManager.saveEditedAnswer(request);
     }
 
     protected void setAnsweredProcess(AnswerAnsweredRequest request, Authentication authentication) {
-        this.validation.validate(request);
-        this.database.checkIsQuestionAuthor(request.getAnswerId(), authentication);
-        this.database.saveAnswered(request);
+        this.validator.validate(request);
+        this.dataManager.checkIsQuestionAuthor(request.getAnswerId(), authentication);
+        this.dataManager.saveAnswered(request);
     }
 
     protected void removeAnsweredProcess(AnswerAnsweredRequest request, Authentication authentication) {
-        this.validation.validate(request);
-        this.database.checkIsQuestionAuthor(request.getAnswerId(), authentication);
-        this.database.saveNotAnswered(request);
+        this.validator.validate(request);
+        this.dataManager.checkIsQuestionAuthor(request.getAnswerId(), authentication);
+        this.dataManager.saveNotAnswered(request);
     }
 
     protected void deleteAnswerProcess(AnswerDeleteRequest request, Authentication authentication) {
-        this.validation.validate(request);
-        this.database.checkIsRealAuthor(request.getAnswerId(), authentication);
-        this.database.deleteAnswerFromDatabase(request);
+        this.validator.validate(request);
+        this.dataManager.checkIsRealAuthor(request.getAnswerId(), authentication);
+        this.dataManager.deleteAnswerFromDatabase(request);
     }
 
     protected List<AnswerFullResponse> getAnswersProcess(Long questionId, Integer page, Authentication authentication) {
@@ -59,14 +59,14 @@ public class AnswerServiceProcessor {
     }
 
     protected List<AnswerFullResponse> getAnswersProcess(AnswerGetFullRequest request, Authentication authentication) {
-        this.validation.validate(request);
+        this.validator.validate(request);
         final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
-        return this.database.getAnswersResponse(request.getQuestionId(), userId, request.getPage());
+        return this.dataManager.getAnswersResponse(request.getQuestionId(), userId, request.getPage());
     }
 
     protected void likeProcess(AnswerLikeRequest request, Authentication authentication) {
-        this.validation.validate(request);
+        this.validator.validate(request);
         final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
-        this.database.like(userId, request.getAnswerId());
+        this.dataManager.like(userId, request.getAnswerId());
     }
 }

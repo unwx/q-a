@@ -24,10 +24,10 @@ import qa.dto.validation.wrapper.comment.CommentQuestionLikeRequestValidationWra
 import qa.dto.validation.wrapper.question.CommentQuestionGetRequestValidationWrapper;
 import qa.exceptions.rest.BadRequestException;
 import qa.service.CommentQuestionService;
+import qa.service.impl.processor.validator.RequestValidator;
 import qa.service.util.AuthorUtil;
 import qa.service.util.PrincipalUtil;
 import qa.service.util.ResourceUtil;
-import qa.service.util.ValidationUtil;
 import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.ValidationChainAdditional;
 
@@ -187,22 +187,22 @@ public class CommentQuestionServiceImpl implements CommentQuestionService {
     }
 
     private void validate(CommentQuestionCreateRequest request) {
-        ValidationUtil.validate(new CommentQuestionCreateRequestValidationWrapper(request, validationPropertyDataSource), validationChain);
+        RequestValidator.validate(new CommentQuestionCreateRequestValidationWrapper(request, validationPropertyDataSource), validationChain);
     }
 
     private void validate(CommentQuestionEditRequest request) {
-        ValidationUtil.validate(new CommentQuestionEditRequestValidationWrapper(request, validationPropertyDataSource), validationChain);
+        RequestValidator.validate(new CommentQuestionEditRequestValidationWrapper(request, validationPropertyDataSource), validationChain);
     }
 
     private void validate(CommentQuestionDeleteRequest request) {
-        ValidationUtil.validate(new CommentQuestionDeleteRequestValidationWrapper(request), validationChain);
+        RequestValidator.validate(new CommentQuestionDeleteRequestValidationWrapper(request), validationChain);
     }
 
     private void validate(CommentQuestionGetRequest request) {
-        ValidationUtil.validate(new CommentQuestionGetRequestValidationWrapper(request), validationChain);
+        RequestValidator.validate(new CommentQuestionGetRequestValidationWrapper(request), validationChain);
     }
 
     private void validate(CommentQuestionLikeRequest request) {
-        ValidationUtil.validate(new CommentQuestionLikeRequestValidationWrapper(request), validationChain);
+        RequestValidator.validate(new CommentQuestionLikeRequestValidationWrapper(request), validationChain);
     }
 }

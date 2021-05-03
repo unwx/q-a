@@ -15,13 +15,13 @@ import java.util.List;
 @Component
 public class UserServiceProcessor {
 
-    private final UserRequestValidator validation;
-    private final UserDataManager database;
+    private final UserRequestValidator validator;
+    private final UserDataManager dataManager;
 
-    protected UserServiceProcessor(UserRequestValidator validation,
-                                   UserDataManager database) {
-        this.validation = validation;
-        this.database = database;
+    protected UserServiceProcessor(UserRequestValidator validator,
+                                   UserDataManager dataManager) {
+        this.validator = validator;
+        this.dataManager = dataManager;
     }
 
     protected UserFullResponse getFullUserProcess(String username) {
@@ -29,8 +29,8 @@ public class UserServiceProcessor {
     }
 
     protected UserFullResponse getFullUserProcess(UserGetFullRequest request) {
-        this.validation.validate(request);
-        return this.database.getUserResponse(request.getUsername());
+        this.validator.validate(request);
+        return this.dataManager.getUserResponse(request.getUsername());
     }
 
     protected List<UserQuestionsResponse> getUserQuestionsProcess(Long userId, Integer page) {
@@ -38,8 +38,8 @@ public class UserServiceProcessor {
     }
 
     protected List<UserQuestionsResponse> getUserQuestionsProcess(UserGetQuestionsRequest request) {
-        this.validation.validate(request);
-        return this.database.getUserQuestionsResponse(request.getUserId(), request.getPage());
+        this.validator.validate(request);
+        return this.dataManager.getUserQuestionsResponse(request.getUserId(), request.getPage());
     }
 
     protected List<UserAnswersResponse> getUserAnswersProcess(Long userId, Integer page) {
@@ -47,7 +47,7 @@ public class UserServiceProcessor {
     }
 
     protected List<UserAnswersResponse> getUserAnswersProcess(UserGetAnswersRequest request) {
-        this.validation.validate(request);
-        return this.database.getUserAnswersResponse(request.getUserId(), request.getPage());
+        this.validator.validate(request);
+        return this.dataManager.getUserAnswersResponse(request.getUserId(), request.getPage());
     }
 }

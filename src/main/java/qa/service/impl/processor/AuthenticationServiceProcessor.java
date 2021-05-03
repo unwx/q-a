@@ -14,45 +14,45 @@ import qa.service.util.JwtUtil;
 @Component
 public class AuthenticationServiceProcessor {
 
-    private final AuthenticationRequestValidator validation;
-    private final AuthenticationDataManager database;
+    private final AuthenticationRequestValidator validator;
+    private final AuthenticationDataManager dataManager;
     private final JwtUtil jwtUtil;
 
-    protected AuthenticationServiceProcessor(AuthenticationRequestValidator validation,
-                                             AuthenticationDataManager database,
+    protected AuthenticationServiceProcessor(AuthenticationRequestValidator validator,
+                                             AuthenticationDataManager dataManager,
                                              JwtUtil jwtUtil) {
-        this.validation = validation;
-        this.database = database;
+        this.validator = validator;
+        this.dataManager = dataManager;
         this.jwtUtil = jwtUtil;
     }
 
     protected JwtPairResponse loginProcess(AuthenticationRequest request) {
-        this.validation.validate(request);
+        this.validator.validate(request);
         final AuthenticationData data = new AuthenticationData.Builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .build();
 
-        this.database.authenticate(data);
+        this.dataManager.authenticate(data);
 
         final JwtPairDataDto dto = this.getTokens(request.getEmail());
-        this.database.refreshUserTokensExpirationTime(request.getEmail(), dto);
+        this.dataManager.refreshUserTokensExpirationTime(request.getEmail(), dto);
 
         return new JwtPairResponse(dto.getAccess().getToken(), dto.getRefresh().getToken());
     }
 
     protected JwtPairResponse registrationProcess(RegistrationRequest request) {
-        this.validation.validate(request);
-        this.database.checkExistence(request);
+        this.validator.validate(request);
+        this.dataManager.checkExistence(request);
 
         final JwtPairDataDto dto = this.getTokens(request.getEmail());
-        this.database.saveNewUser(request, dto);
+        this.dataManager.saveNewUser(request, dto);
         return new JwtPairResponse(dto.getAccess().getToken(), dto.getRefresh().getToken());
     }
 
     protected JwtPairResponse refreshTokensProcess(String email) {
         final JwtPairDataDto dto = this.getTokens(email);
-        this.database.refreshUserTokensExpirationTime(email, dto);
+        this.dataManager.refreshUserTokensExpirationTime(email, dto);
         return new JwtPairResponse(dto.getAccess().getToken(), dto.getRefresh().getToken());
     }
 

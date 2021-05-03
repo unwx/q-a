@@ -4,44 +4,42 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import qa.dto.request.question.*;
 import qa.dto.validation.wrapper.question.*;
-import qa.service.util.ValidationUtil;
 import qa.source.ValidationPropertyDataSource;
 import qa.validators.abstraction.ValidationChainAdditional;
 
 @Component
-public class QuestionRequestValidator {
+public class QuestionRequestValidator extends RequestValidator {
 
     private final ValidationPropertyDataSource propertyDataSource;
-    private final ValidationChainAdditional validationChain;
 
     @Autowired
     public QuestionRequestValidator(ValidationPropertyDataSource propertyDataSource,
                                     ValidationChainAdditional validationChain) {
+        super(validationChain);
         this.propertyDataSource = propertyDataSource;
-        this.validationChain = validationChain;
     }
 
     public void validate(QuestionCreateRequest request) {
-        ValidationUtil.validateWithAdditional(new QuestionCreateRequestValidationWrapper(request, propertyDataSource), validationChain);
+        super.validateWithAdditional(new QuestionCreateRequestValidationWrapper(request, propertyDataSource));
     }
 
     public void validate(QuestionEditRequest request) {
-        ValidationUtil.validateWithAdditional(new QuestionEditRequestValidationWrapper(request, propertyDataSource), validationChain);
+        super.validateWithAdditional(new QuestionEditRequestValidationWrapper(request, propertyDataSource));
     }
 
     public void validate(QuestionDeleteRequest request) {
-        ValidationUtil.validate(new QuestionDeleteRequestValidationWrapper(request), validationChain);
+        super.validate(new QuestionDeleteRequestValidationWrapper(request));
     }
 
     public void validate(QuestionGetViewsRequest request) {
-        ValidationUtil.validate(new QuestionGetViewsRequestValidationWrapper(request), validationChain);
+        super.validate(new QuestionGetViewsRequestValidationWrapper(request));
     }
 
     public void validate(QuestionGetFullRequest request) {
-        ValidationUtil.validate(new QuestionGetFullRequestValidationWrapper(request), validationChain);
+        super.validate(new QuestionGetFullRequestValidationWrapper(request));
     }
 
     public void validate(QuestionLikeRequest request) {
-        ValidationUtil.validate(new QuestionLikeRequestValidationWrapper(request), validationChain);
+        super.validate(new QuestionLikeRequestValidationWrapper(request));
     }
 }
