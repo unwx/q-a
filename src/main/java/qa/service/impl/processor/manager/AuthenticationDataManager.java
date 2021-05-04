@@ -30,7 +30,7 @@ public class AuthenticationDataManager {
     private static final String USERNAME                = "username";
     private static final String USER_CLASS_NAME         = "User";
 
-    private static final String ERR_WRONG_AUTH      = "wrong login or password";
+    private static final String ERR_WRONG_AUTH          = "wrong login or password";
     private static final String ERR_USER_ALREADY_EXIST  = "user already exist";
     private static final String ERR_USERNAME_EXIST      = "user with this username already exist";
 
