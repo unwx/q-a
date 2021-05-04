@@ -10,7 +10,6 @@ import qa.dao.database.components.WhereOperator;
 import qa.domain.Question;
 import qa.domain.QuestionView;
 import qa.domain.User;
-import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.question.QuestionCreateRequest;
 import qa.dto.request.question.QuestionEditRequest;
 import qa.dto.response.question.QuestionFullResponse;
@@ -29,7 +28,7 @@ import java.util.List;
 public class QuestionDataManager {
 
     private final QuestionDao questionDao;
-    private final PropertySetterFactory propertySetterFactory;
+    private final AuthorUtil authorUtil;
 
     private static final String ID              = "id";
     private static final String ENTITY_NAME     = "question";
@@ -37,9 +36,9 @@ public class QuestionDataManager {
     private static final Logger logger = LogManager.getLogger(QuestionDataManager.class);
 
     public QuestionDataManager(QuestionDao questionDao,
-                               PropertySetterFactory propertySetterFactory) {
+                               AuthorUtil authorUtil) {
         this.questionDao = questionDao;
-        this.propertySetterFactory = propertySetterFactory;
+        this.authorUtil = authorUtil;
     }
 
     public Long saveNewQuestion(QuestionCreateRequest request, Authentication authentication) {
@@ -59,7 +58,7 @@ public class QuestionDataManager {
         final Where where = new Where(ID, id, WhereOperator.EQUALS);
         final Question question = new Question();
 
-        AuthorUtil.checkIsRealAuthorAndIsEntityExist(userId, where, question, questionDao, propertySetterFactory, logger, ENTITY_NAME);
+        this.authorUtil.checkRightsAndExistence(userId, where, question, questionDao, logger, ENTITY_NAME);
     }
 
     public void saveEditedQuestion(QuestionEditRequest request) {

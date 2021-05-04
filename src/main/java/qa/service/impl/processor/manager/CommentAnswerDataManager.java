@@ -12,7 +12,6 @@ import qa.dao.database.components.WhereOperator;
 import qa.domain.Answer;
 import qa.domain.CommentAnswer;
 import qa.domain.User;
-import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.comment.CommentAnswerCreateRequest;
 import qa.dto.request.comment.CommentAnswerDeleteRequest;
 import qa.dto.request.comment.CommentAnswerEditRequest;
@@ -30,7 +29,7 @@ public class CommentAnswerDataManager {
 
     private final AnswerDao answerDao;
     private final CommentAnswerDao commentAnswerDao;
-    private final PropertySetterFactory propertySetterFactory;
+    private final AuthorUtil authorUtil;
 
     private static final String ID              = "id";
     private static final String ENTITY_NAME     = "comment";
@@ -41,10 +40,10 @@ public class CommentAnswerDataManager {
     @Autowired
     public CommentAnswerDataManager(AnswerDao answerDao,
                                     CommentAnswerDao commentAnswerDao,
-                                    PropertySetterFactory propertySetterFactory) {
+                                    AuthorUtil authorUtil) {
         this.answerDao = answerDao;
         this.commentAnswerDao = commentAnswerDao;
-        this.propertySetterFactory = propertySetterFactory;
+        this.authorUtil = authorUtil;
     }
 
     public Long saveNewComment(CommentAnswerCreateRequest request, Authentication authentication) {
@@ -56,9 +55,10 @@ public class CommentAnswerDataManager {
         return this.commentAnswerDao.create(commentAnswer);
     }
 
-    public void saveEditedComment(CommentAnswerEditRequest request) { // TODO BUILDERS
+    public void saveEditedComment(CommentAnswerEditRequest request) {
         final Where where = new Where(ID, request.getCommentId(), WhereOperator.EQUALS);
         final CommentAnswer commentAnswer = new CommentAnswer();
+
         commentAnswer.setText(request.getText());
         this.commentAnswerDao.update(where, commentAnswer);
     }
@@ -84,7 +84,7 @@ public class CommentAnswerDataManager {
     public void checkIsRealAuthor(Long authenticationId, long commentId) {
         final Where where = new Where(ID, commentId, WhereOperator.EQUALS);
         final CommentAnswer comment = new CommentAnswer();
-        AuthorUtil.checkIsRealAuthorAndIsEntityExist(authenticationId, where, comment, commentAnswerDao, propertySetterFactory, logger, ENTITY_NAME);
+        this.authorUtil.checkRightsAndExistence(authenticationId, where, comment, commentAnswerDao, logger, ENTITY_NAME);
     }
 
     private List<CommentAnswer> getCommentsFromDatabase(long commentId, long userId, int page) {

@@ -1,5 +1,7 @@
 package qa.service.util;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import qa.dao.Dao;
 import qa.dao.database.components.NestedEntity;
 import qa.dao.database.components.Table;
@@ -9,15 +11,20 @@ import qa.domain.setters.PropertySetterFactory;
 
 import java.util.Collections;
 
+@Component
 public final class ActionAccessUtil {
 
-    private ActionAccessUtil() {}
+    private final PropertySetterFactory propertySetterFactory;
 
-    public static <E extends HasAuthor> CheckAuthorResult isRealAuthor(Where where,
+    @Autowired
+    public ActionAccessUtil(PropertySetterFactory propertySetterFactory) {
+        this.propertySetterFactory = propertySetterFactory;
+    }
+
+    public <E extends HasAuthor> CheckAuthorResult isRealAuthor(Where where,
                                                                        Long authenticationId,
                                                                        E entity,
-                                                                       Dao<E, ?> dao,
-                                                                       PropertySetterFactory propertySetterFactory) {
+                                                                       Dao<E, ?> dao) {
         final NestedEntity nested = new NestedEntity(
                 new String[]{"id"},
                 User.class,

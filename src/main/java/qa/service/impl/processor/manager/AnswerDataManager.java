@@ -11,7 +11,6 @@ import qa.dao.database.components.WhereOperator;
 import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
-import qa.domain.setters.PropertySetterFactory;
 import qa.dto.request.answer.AnswerAnsweredRequest;
 import qa.dto.request.answer.AnswerCreateRequest;
 import qa.dto.request.answer.AnswerDeleteRequest;
@@ -33,7 +32,7 @@ public class AnswerDataManager {
 
     private final AnswerDao answerDao;
     private final QuestionDao questionDao;
-    private final PropertySetterFactory propertySetterFactory;
+    private final AuthorUtil authorUtil;
 
     private static final String ID              = "id";
     private static final String ENTITY_NAME     = "answer";
@@ -45,10 +44,10 @@ public class AnswerDataManager {
 
     public AnswerDataManager(AnswerDao answerDao,
                              QuestionDao questionDao,
-                             PropertySetterFactory propertySetterFactory) {
+                             AuthorUtil authorUtil) {
         this.answerDao = answerDao;
         this.questionDao = questionDao;
-        this.propertySetterFactory = propertySetterFactory;
+        this.authorUtil = authorUtil;
     }
 
     public Long saveNewAnswer(AnswerCreateRequest request, Authentication authentication) {
@@ -104,7 +103,7 @@ public class AnswerDataManager {
         final Where where = new Where(ID, answerId, WhereOperator.EQUALS);
         final Answer answer = new Answer();
 
-        AuthorUtil.checkIsRealAuthorAndIsEntityExist(userId, where, answer, answerDao, propertySetterFactory, logger, ENTITY_NAME);
+        this.authorUtil.checkRightsAndExistence(userId, where, answer, answerDao, logger, ENTITY_NAME);
     }
 
     public void checkIsQuestionAuthor(long answerId, Authentication authentication) {
