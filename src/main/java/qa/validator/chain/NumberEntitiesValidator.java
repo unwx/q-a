@@ -1,46 +1,54 @@
-package qa.validators.chain;
+package qa.validator.chain;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import qa.exceptions.validator.ValidationException;
-import qa.validators.abstraction.ValidationWrapper;
-import qa.validators.abstraction.Validator;
-import qa.validators.entities.ValidationNumberField;
+import qa.validator.abstraction.ValidationWrapper;
+import qa.validator.abstraction.Validator;
+import qa.validator.entities.ValidationIgnoreType;
+import qa.validator.entities.ValidationNumberField;
+
+import java.util.HashSet;
 
 public class NumberEntitiesValidator extends Validator {
 
-    private static final Logger logger = LogManager.getLogger(NumberEntitiesValidator.class);
+    private static final String ERR_INVALID_VALUE =
+                """
+                invalid value of: %s.\s\
+                (max value = %s\s\
+                min value = %s)\
+                """;
 
-    public void validate(ValidationWrapper entity) throws ValidationException {
-        valuesValidate(entity);
+    @Override
+    public void validate(ValidationWrapper entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
+        if (!ignore.contains(ValidationIgnoreType.NUMBER))
+            this.valuesValidate(entity);
     }
 
     private void valuesValidate(ValidationWrapper entity) throws ValidationException {
-        ValidationNumberField[] fields =  entity.getNumberFields();
+        final ValidationNumberField[] fields =  entity.getNumberFields();
         for (ValidationNumberField f : fields) {
-            validate(f.getNum(), f.getMin(), f.getMax());
+            this.validate(f.getNum(), f.getMin(), f.getMax());
         }
     }
 
     private void validate(Number num, Number min, Number max) throws ValidationException {
         if (num instanceof Long) {
             if (isNotValid((Long) num, (Long) min,(Long) max))
-                unsuccessfulValidationProcess(num, min, max);
+                this.unsuccessfulValidationProcess(num, min, max);
             return;
         }
         if (num instanceof Integer) {
             if (isNotValid((Integer) num, (Integer) min,(Integer) max))
-                unsuccessfulValidationProcess(num, min, max);
+                this.unsuccessfulValidationProcess(num, min, max);
             return;
         }
         if (num instanceof Double) {
             if (isNotValid((Double) num, (Double) min,(Double) max))
-                unsuccessfulValidationProcess(num, min, max);
+                this.unsuccessfulValidationProcess(num, min, max);
             return;
         }
         if (num instanceof Float) {
             if (isNotValid((Float) num, (Float) min,(Float) max))
-                unsuccessfulValidationProcess(num, min, max);
+                this.unsuccessfulValidationProcess(num, min, max);
         }
     }
 
@@ -61,13 +69,7 @@ public class NumberEntitiesValidator extends Validator {
     }
 
     private void unsuccessfulValidationProcess(Object num, Object min, Object max) throws ValidationException {
-        String message = formatMessage(
-                """
-                invalid value of: %s.\s\
-                (max value = %s\s\
-                min value = %s)\
-                """.formatted(num, max, min));
-        logger.info(unsuccessful + message);
-        throw new ValidationException(message);
+        final String message = ERR_INVALID_VALUE.formatted(num, max, min);
+        throw super.logAndThrow(message);
     }
 }

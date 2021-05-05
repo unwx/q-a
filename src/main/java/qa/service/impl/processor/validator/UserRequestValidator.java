@@ -9,7 +9,7 @@ import qa.dto.validation.wrapper.user.UserGetAnswersRequestValidationWrapper;
 import qa.dto.validation.wrapper.user.UserGetFullRequestValidationWrapper;
 import qa.dto.validation.wrapper.user.UserGetQuestionsRequestValidationWrapper;
 import qa.source.ValidationPropertyDataSource;
-import qa.validators.abstraction.ValidationChainAdditional;
+import qa.validator.abstraction.ValidationChainAdditional;
 
 @Component
 public class UserRequestValidator extends RequestValidator {

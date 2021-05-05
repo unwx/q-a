@@ -6,7 +6,7 @@ import qa.dto.request.authentication.RegistrationRequest;
 import qa.dto.validation.wrapper.authentication.AuthenticationRequestValidationWrapper;
 import qa.dto.validation.wrapper.authentication.RegistrationRequestValidationWrapper;
 import qa.source.ValidationPropertyDataSource;
-import qa.validators.abstraction.ValidationChainAdditional;
+import qa.validator.abstraction.ValidationChainAdditional;
 
 @Component
 public class AuthenticationRequestValidator extends RequestValidator {

@@ -1,18 +1,19 @@
-package qa.validators;
+package qa.validator;
 
 import org.springframework.stereotype.Component;
 import qa.exceptions.validator.ValidationException;
-import qa.validators.abstraction.ValidationChainAdditional;
-import qa.validators.abstraction.ValidationWrapper;
-import qa.validators.entities.ValidationAdditional;
+import qa.validator.abstraction.ValidationChainAdditional;
+import qa.validator.abstraction.ValidationWrapper;
+import qa.validator.additional.AdditionalValidator;
+import qa.validator.entities.ValidationAdditional;
 
 @Component
 public class ValidationChainAdditionalImpl extends ValidationChainImpl implements ValidationChainAdditional {
 
     @Override
     public void validateWithAdditionalValidator(ValidationWrapper entity) throws ValidationException {
-        validate(entity);
-        additionalPart(entity);
+        this.validate(entity);
+        this.additionalPart(entity);
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -20,8 +21,12 @@ public class ValidationChainAdditionalImpl extends ValidationChainImpl implement
         if (entity.getAdditional() == null)
             return;
         for (ValidationAdditional validationAdditional : entity.getAdditional()) {
-            if (validationAdditional != null)
-                validationAdditional.getAdditionalValidator().validate(validationAdditional.getTarget());
+            if (validationAdditional != null) {
+                final AdditionalValidator<Object> validator = validationAdditional.getAdditionalValidator();
+                final Object target = validationAdditional.getTarget();
+
+                validator.validate(target);
+            }
         }
     }
 }

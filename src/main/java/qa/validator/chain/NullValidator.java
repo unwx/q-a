@@ -1,12 +1,10 @@
-package qa.validators.chain;
+package qa.validator.chain;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import qa.exceptions.validator.ValidationException;
-import qa.validators.abstraction.ValidationField;
-import qa.validators.abstraction.ValidationWrapper;
-import qa.validators.abstraction.Validator;
-import qa.validators.entities.*;
+import qa.validator.abstraction.ValidationField;
+import qa.validator.abstraction.ValidationWrapper;
+import qa.validator.abstraction.Validator;
+import qa.validator.entities.*;
 
 import java.util.HashSet;
 
@@ -17,44 +15,45 @@ import java.util.HashSet;
  */
 public class NullValidator extends Validator {
 
-    private static final Logger logger = LogManager.getLogger(NullValidator.class);
+    private static final String ERR_NULL_FIELD = "required field is null";
 
+    @Override
     public void validate(ValidationWrapper entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
-        areAttributesAreNotNull(entity, ignore);
+        this.areAttributesAreNotNull(entity, ignore);
     }
 
     private void areAttributesAreNotNull(ValidationWrapper entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
-        objectPart(entity, ignore);
-        stringPart(entity, ignore);
-        numberPart(entity, ignore);
-        regexPart(entity, ignore);
+        this.objectPart(entity, ignore);
+        this.stringPart(entity, ignore);
+        this.numberPart(entity, ignore);
+        this.regexPart(entity, ignore);
     }
 
     private void objectPart(ValidationWrapper entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
         if (!ignore.contains(ValidationIgnoreType.OBJECT)) {
-            ValidationObjectField[] objectsFields = entity.getObjectFields();
-            nullValidationProcess(objectsFields);
+            final ValidationObjectField[] objectsFields = entity.getObjectFields();
+            this.nullValidationProcess(objectsFields);
         }
     }
 
     private void stringPart(ValidationWrapper entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
         if (!ignore.contains(ValidationIgnoreType.STRING)) {
-            ValidationStringField[] stringFields = entity.getStringFields();
-            nullValidationProcess(stringFields);
+            final ValidationStringField[] stringFields = entity.getStringFields();
+            this.nullValidationProcess(stringFields);
         }
     }
 
     private void numberPart(ValidationWrapper entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
         if (!ignore.contains(ValidationIgnoreType.NUMBER)) {
-            ValidationNumberField[] numberFields = entity.getNumberFields();
-            nullValidationProcess(numberFields);
+            final ValidationNumberField[] numberFields = entity.getNumberFields();
+            this.nullValidationProcess(numberFields);
         }
     }
 
     private void regexPart(ValidationWrapper entity, HashSet<ValidationIgnoreType> ignore) throws ValidationException {
         if (!ignore.contains(ValidationIgnoreType.REGEX)) {
-            ValidationRegexField[] regexFields = entity.getRegexFields();
-            nullValidationProcess(regexFields);
+            final ValidationRegexField[] regexFields = entity.getRegexFields();
+            this.nullValidationProcess(regexFields);
         }
     }
 
@@ -62,9 +61,7 @@ public class NullValidator extends Validator {
         for (ValidationField f : fields) {
             for (Object o : f.getField()) {
                 if (o == null) {
-                    String message = formatMessage("required field = null.");
-                    logger.info(unsuccessful + message);
-                    throw new ValidationException(message);
+                    throw super.logAndThrow(ERR_NULL_FIELD);
                 }
             }
         }

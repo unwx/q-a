@@ -9,7 +9,7 @@ import qa.dto.validation.wrapper.comment.CommentQuestionEditRequestValidationWra
 import qa.dto.validation.wrapper.comment.CommentQuestionLikeRequestValidationWrapper;
 import qa.dto.validation.wrapper.question.CommentQuestionGetRequestValidationWrapper;
 import qa.source.ValidationPropertyDataSource;
-import qa.validators.abstraction.ValidationChainAdditional;
+import qa.validator.abstraction.ValidationChainAdditional;
 
 @Component
 public class CommentQuestionRequestValidator extends RequestValidator {

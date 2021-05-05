@@ -1,4 +1,4 @@
-package qa.validators.abstraction;
+package qa.validator.abstraction;
 
 import qa.exceptions.validator.ValidationException;
 

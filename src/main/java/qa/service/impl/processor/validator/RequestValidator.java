@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import qa.exceptions.rest.BadRequestException;
 import qa.exceptions.validator.ValidationException;
-import qa.validators.abstraction.ValidationChainAdditional;
-import qa.validators.abstraction.ValidationWrapper;
+import qa.validator.abstraction.ValidationChainAdditional;
+import qa.validator.abstraction.ValidationWrapper;
 
 @Component
 public abstract class RequestValidator {

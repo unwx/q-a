@@ -3,9 +3,10 @@ package qa.dto.validation.wrapper.question;
 import org.jetbrains.annotations.Nullable;
 import qa.dto.request.question.QuestionCreateRequest;
 import qa.source.ValidationPropertyDataSource;
-import qa.validators.abstraction.ValidationWrapper;
-import qa.validators.additional.TagsValidator;
-import qa.validators.entities.*;
+import qa.validator.abstraction.ValidationWrapper;
+import qa.validator.additional.TagsValidator;
+import qa.validator.entities.ValidationAdditional;
+import qa.validator.entities.ValidationStringField;
 
 public class QuestionCreateRequestValidationWrapper extends QuestionCreateRequest implements ValidationWrapper {
 

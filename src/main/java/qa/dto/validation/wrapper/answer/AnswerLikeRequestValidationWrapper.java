@@ -2,8 +2,8 @@ package qa.dto.validation.wrapper.answer;
 
 import org.jetbrains.annotations.Nullable;
 import qa.dto.request.answer.AnswerLikeRequest;
-import qa.validators.abstraction.ValidationWrapper;
-import qa.validators.entities.ValidationNumberField;
+import qa.validator.abstraction.ValidationWrapper;
+import qa.validator.entities.ValidationNumberField;
 
 public class AnswerLikeRequestValidationWrapper extends AnswerLikeRequest implements ValidationWrapper {
     public AnswerLikeRequestValidationWrapper(AnswerLikeRequest request) {

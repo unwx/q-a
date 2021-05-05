@@ -1,7 +1,7 @@
-package qa.validators.abstraction;
+package qa.validator.abstraction;
 
 import org.jetbrains.annotations.Nullable;
-import qa.validators.entities.*;
+import qa.validator.entities.*;
 
 /**
  * <h3>fill in only the fields you need for validation</h3>

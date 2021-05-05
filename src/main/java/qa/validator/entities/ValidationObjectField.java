@@ -1,6 +1,6 @@
-package qa.validators.entities;
+package qa.validator.entities;
 
-import qa.validators.abstraction.ValidationField;
+import qa.validator.abstraction.ValidationField;
 
 public class ValidationObjectField implements ValidationField {
     private final Object obj;

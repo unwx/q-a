@@ -3,9 +3,9 @@ package qa.dto.validation.wrapper.comment;
 import org.jetbrains.annotations.Nullable;
 import qa.dto.request.comment.CommentQuestionCreateRequest;
 import qa.source.ValidationPropertyDataSource;
-import qa.validators.abstraction.ValidationWrapper;
-import qa.validators.entities.ValidationNumberField;
-import qa.validators.entities.ValidationStringField;
+import qa.validator.abstraction.ValidationWrapper;
+import qa.validator.entities.ValidationNumberField;
+import qa.validator.entities.ValidationStringField;
 
 public class CommentQuestionCreateRequestValidationWrapper extends CommentQuestionCreateRequest implements ValidationWrapper {
 

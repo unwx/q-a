@@ -2,8 +2,8 @@ package qa.dto.validation.wrapper.question;
 
 import org.jetbrains.annotations.Nullable;
 import qa.dto.request.question.QuestionGetViewsRequest;
-import qa.validators.abstraction.ValidationWrapper;
-import qa.validators.entities.ValidationNumberField;
+import qa.validator.abstraction.ValidationWrapper;
+import qa.validator.entities.ValidationNumberField;
 
 public class QuestionGetViewsRequestValidationWrapper extends QuestionGetViewsRequest implements ValidationWrapper {
 

@@ -15,8 +15,8 @@ import qa.source.ValidationPropertyDataSource;
 import qa.tools.annotations.MockitoTest;
 import qa.util.dao.query.params.QuestionQueryParameters;
 import qa.util.validation.ValidationTestUtil;
-import qa.validators.ValidationChainAdditionalImpl;
-import qa.validators.abstraction.ValidationChainAdditional;
+import qa.validator.ValidationChainAdditionalImpl;
+import qa.validator.abstraction.ValidationChainAdditional;
 
 @MockitoTest
 public class ValidationQuestionRequestsTest {

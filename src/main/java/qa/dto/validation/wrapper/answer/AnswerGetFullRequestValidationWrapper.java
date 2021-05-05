@@ -2,8 +2,8 @@ package qa.dto.validation.wrapper.answer;
 
 import org.jetbrains.annotations.Nullable;
 import qa.dto.request.answer.AnswerGetFullRequest;
-import qa.validators.abstraction.ValidationWrapper;
-import qa.validators.entities.ValidationNumberField;
+import qa.validator.abstraction.ValidationWrapper;
+import qa.validator.entities.ValidationNumberField;
 
 public class AnswerGetFullRequestValidationWrapper extends AnswerGetFullRequest implements ValidationWrapper {
 

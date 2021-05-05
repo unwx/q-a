@@ -3,8 +3,8 @@ package qa.dto.validation.wrapper.user;
 import org.jetbrains.annotations.Nullable;
 import qa.dto.request.user.UserGetFullRequest;
 import qa.source.ValidationPropertyDataSource;
-import qa.validators.abstraction.ValidationWrapper;
-import qa.validators.entities.ValidationStringField;
+import qa.validator.abstraction.ValidationWrapper;
+import qa.validator.entities.ValidationStringField;
 
 public class UserGetFullRequestValidationWrapper extends UserGetFullRequest implements ValidationWrapper {
 

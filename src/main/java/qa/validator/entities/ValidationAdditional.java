@@ -1,6 +1,6 @@
-package qa.validators.entities;
+package qa.validator.entities;
 
-import qa.validators.additional.AdditionalValidator;
+import qa.validator.additional.AdditionalValidator;
 
 public class ValidationAdditional<T> {
 

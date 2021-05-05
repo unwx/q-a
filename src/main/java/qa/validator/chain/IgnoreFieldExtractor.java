@@ -1,18 +1,18 @@
-package qa.validators.chain;
+package qa.validator.chain;
 
-import qa.validators.abstraction.ValidationWrapper;
-import qa.validators.entities.ValidationIgnoreType;
+import qa.validator.abstraction.ValidationWrapper;
+import qa.validator.entities.ValidationIgnoreType;
 
 import java.util.HashSet;
 
-public class IgnorePartValidator {
+public class IgnoreFieldExtractor {
 
     public HashSet<ValidationIgnoreType> getIgnore(ValidationWrapper entity) {
-        HashSet<ValidationIgnoreType> ignore = new HashSet<>();
-        regexPart(ignore, entity);
-        stringFieldsPart(ignore, entity);
-        numberFieldsPart(ignore, entity);
-        objectFieldsPart(ignore, entity);
+        final HashSet<ValidationIgnoreType> ignore = new HashSet<>();
+        this.regexPart(ignore, entity);
+        this.stringFieldsPart(ignore, entity);
+        this.numberFieldsPart(ignore, entity);
+        this.objectFieldsPart(ignore, entity);
         return ignore;
     }
 

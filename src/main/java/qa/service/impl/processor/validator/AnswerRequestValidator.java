@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import qa.dto.request.answer.*;
 import qa.dto.validation.wrapper.answer.*;
 import qa.source.ValidationPropertyDataSource;
-import qa.validators.abstraction.ValidationChainAdditional;
+import qa.validator.abstraction.ValidationChainAdditional;
 
 @Component
 public class AnswerRequestValidator extends RequestValidator {
