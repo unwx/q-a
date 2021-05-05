@@ -9,12 +9,4 @@ public class SetterTargetIsNullException extends RuntimeException {
     public SetterTargetIsNullException(String message) {
         super(message);
     }
-
-    public SetterTargetIsNullException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public SetterTargetIsNullException(Throwable cause) {
-        super(cause);
-    }
 }

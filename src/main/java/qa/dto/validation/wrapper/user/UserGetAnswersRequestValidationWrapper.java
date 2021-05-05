@@ -7,10 +7,6 @@ import qa.validator.entities.ValidationNumberField;
 
 public class UserGetAnswersRequestValidationWrapper extends UserGetAnswersRequest implements ValidationWrapper {
 
-    public UserGetAnswersRequestValidationWrapper(Long userId, Integer page) {
-        super(userId, page);
-    }
-
     public UserGetAnswersRequestValidationWrapper(UserGetAnswersRequest request) {
         super(request.getUserId(), request.getPage());
     }

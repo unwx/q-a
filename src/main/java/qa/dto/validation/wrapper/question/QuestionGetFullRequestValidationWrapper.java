@@ -7,10 +7,6 @@ import qa.validator.entities.ValidationNumberField;
 
 public class QuestionGetFullRequestValidationWrapper extends QuestionGetFullRequest implements ValidationWrapper {
 
-    public QuestionGetFullRequestValidationWrapper(Long questionId) {
-        super(questionId);
-    }
-
     public QuestionGetFullRequestValidationWrapper(QuestionGetFullRequest request) {
         super(request.getQuestionId());
     }

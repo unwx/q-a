@@ -11,10 +11,6 @@ public class AnswerGetFullRequestValidationWrapper extends AnswerGetFullRequest 
         super(request.getQuestionId(), request.getPage());
     }
 
-    public AnswerGetFullRequestValidationWrapper(Long questionId, Integer page) {
-        super(questionId, page);
-    }
-
     @Override
     public @Nullable ValidationNumberField[] getNumberFields() {
         return new ValidationNumberField[] {

@@ -11,10 +11,6 @@ public class QuestionGetViewsRequestValidationWrapper extends QuestionGetViewsRe
         super(request.getPage());
     }
 
-    public QuestionGetViewsRequestValidationWrapper(Integer page) {
-        super(page);
-    }
-
     @Override
     public @Nullable ValidationNumberField[] getNumberFields() {
         return new ValidationNumberField[] {

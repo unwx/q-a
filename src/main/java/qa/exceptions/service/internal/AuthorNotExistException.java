@@ -9,12 +9,4 @@ public class AuthorNotExistException extends RuntimeException {
     public AuthorNotExistException(String message) {
         super(message);
     }
-
-    public AuthorNotExistException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public AuthorNotExistException(Throwable cause) {
-        super(cause);
-    }
 }

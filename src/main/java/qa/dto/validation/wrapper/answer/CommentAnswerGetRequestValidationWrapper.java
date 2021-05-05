@@ -7,10 +7,6 @@ import qa.validator.entities.ValidationNumberField;
 
 public class CommentAnswerGetRequestValidationWrapper extends CommentAnswerGetRequest implements ValidationWrapper {
 
-    public CommentAnswerGetRequestValidationWrapper(Long answerId, Integer page) {
-        super(answerId, page);
-    }
-
     public CommentAnswerGetRequestValidationWrapper(CommentAnswerGetRequest request) {
         super(request.getAnswerId(), request.getPage());
     }

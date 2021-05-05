@@ -11,10 +11,6 @@ public class CommentQuestionGetRequestValidationWrapper extends CommentQuestionG
         super(request.getQuestionId(), request.getPage());
     }
 
-    public CommentQuestionGetRequestValidationWrapper(Long questionId, Integer page) {
-        super(questionId, page);
-    }
-
     @Override
     public @Nullable ValidationNumberField[] getNumberFields() {
         return new ValidationNumberField[] {

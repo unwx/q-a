@@ -11,11 +11,11 @@ import qa.dao.database.components.Where;
 
 import java.util.Arrays;
 
-public class DaoUpdateUtil<Entity extends FieldExtractor> {
+public class DaoUpdateUtil<E extends FieldExtractor> {
 
     private final HqlBuilder hqlBuilder = new HqlBuilder();
 
-    public void update(Where where, Entity entity, Session session) {
+    public void update(Where where, E entity, Session session) {
         final ImmutablePair<String, Field[]> pair = hqlBuilder.update(where, entity);
         this.updateProcess(pair.getLeft(), pair.getRight(), where.getFieldValue(), session);
     }

@@ -9,12 +9,4 @@ public class SetterNotImplementedException extends RuntimeException {
     public SetterNotImplementedException(String message) {
         super(message);
     }
-
-    public SetterNotImplementedException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public SetterNotImplementedException(Throwable cause) {
-        super(cause);
-    }
 }

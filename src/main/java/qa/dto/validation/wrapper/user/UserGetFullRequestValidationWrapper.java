@@ -16,12 +16,6 @@ public class UserGetFullRequestValidationWrapper extends UserGetFullRequest impl
         this.propertyDataSource = propertyDataSource;
     }
 
-    public UserGetFullRequestValidationWrapper(String username,
-                                               ValidationPropertyDataSource propertyDataSource) {
-        super(username);
-        this.propertyDataSource = propertyDataSource;
-    }
-
     @Override
     @Nullable
     public ValidationStringField[] getStringFields() {

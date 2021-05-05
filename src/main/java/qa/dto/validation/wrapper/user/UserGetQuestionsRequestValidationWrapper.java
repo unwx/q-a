@@ -11,10 +11,6 @@ public class UserGetQuestionsRequestValidationWrapper extends UserGetQuestionsRe
         super(request.getUserId(), request.getPage());
     }
 
-    public UserGetQuestionsRequestValidationWrapper(Long id, Integer page) {
-        super(id, page);
-    }
-
     @Override
     public @Nullable ValidationNumberField[] getNumberFields() {
         return new ValidationNumberField[] {
