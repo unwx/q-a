@@ -7,7 +7,7 @@ import qa.cache.like.provider.QuestionCacheProvider;
 import qa.cache.like.remover.QuestionCacheRemover;
 import qa.domain.Question;
 import qa.domain.QuestionView;
-import qa.dto.internal.hibernate.question.QuestionFullStringIdsDto;
+import qa.dto.internal.hibernate.entities.question.QuestionFullStringIdsDto;
 import redis.clients.jedis.Jedis;
 
 import java.util.List;

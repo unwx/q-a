@@ -19,10 +19,10 @@ import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.QuestionView;
 import qa.domain.setters.PropertySetterFactory;
-import qa.dto.internal.hibernate.answer.AnswerFullDto;
-import qa.dto.internal.hibernate.question.QuestionFullStringIdsDto;
-import qa.dto.internal.hibernate.question.QuestionViewDto;
-import qa.dto.internal.hibernate.question.QuestionWithCommentsDto;
+import qa.dto.internal.hibernate.entities.answer.AnswerFullDto;
+import qa.dto.internal.hibernate.entities.question.QuestionFullStringIdsDto;
+import qa.dto.internal.hibernate.entities.question.QuestionViewDto;
+import qa.dto.internal.hibernate.entities.question.QuestionWithCommentsDto;
 import qa.exceptions.dao.NullResultException;
 import redis.clients.jedis.Jedis;
 

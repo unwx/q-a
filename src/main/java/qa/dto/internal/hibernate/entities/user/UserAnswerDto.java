@@ -1,4 +1,4 @@
-package qa.dto.internal.hibernate.user;
+package qa.dto.internal.hibernate.entities.user;
 
 import java.math.BigInteger;
 import java.util.Map;

@@ -2,7 +2,7 @@ package qa.dto.internal.hibernate.transformer.user;
 
 import org.hibernate.transform.ResultTransformer;
 import qa.dto.internal.hibernate.AliasUtil;
-import qa.dto.internal.hibernate.user.UserQuestionDto;
+import qa.dto.internal.hibernate.entities.user.UserQuestionDto;
 import qa.exceptions.dao.NullResultException;
 
 import java.io.Serial;

@@ -25,7 +25,7 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String s) {
-        final AuthenticationData data = dao.getPrincipalWithTokenData(s);
+        final AuthenticationData data = this.dao.getAuthWithTokens(s);
 
         if (data == null) {
             logger.error(ERR_USER_NOT_EXIST.formatted(s));

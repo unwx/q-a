@@ -1,10 +1,10 @@
-package qa.dao.query;
+package qa.dao.query.creator;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import qa.dao.query.parameters.QueryParameter;
-import qa.dto.internal.hibernate.answer.AnswerFullDto;
-import qa.dto.internal.hibernate.answer.AnswerFullStringIdsDto;
+import qa.dto.internal.hibernate.entities.answer.AnswerFullDto;
+import qa.dto.internal.hibernate.entities.answer.AnswerFullStringIdsDto;
 import qa.dto.internal.hibernate.transformer.answer.AnswerFullIdsDtoResultTransformer;
 import qa.dto.internal.hibernate.transformer.question.QuestionAnswerFullDtoTransformer;
 

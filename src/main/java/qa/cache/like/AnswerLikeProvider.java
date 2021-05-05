@@ -7,7 +7,7 @@ import qa.cache.like.operation.impl.UserAnswerLikeSetOperation;
 import qa.cache.like.provider.AnswerCacheProvider;
 import qa.cache.like.remover.AnswerCacheRemover;
 import qa.domain.Answer;
-import qa.dto.internal.hibernate.answer.AnswerFullStringIdsDto;
+import qa.dto.internal.hibernate.entities.answer.AnswerFullStringIdsDto;
 import redis.clients.jedis.Jedis;
 
 import java.util.List;

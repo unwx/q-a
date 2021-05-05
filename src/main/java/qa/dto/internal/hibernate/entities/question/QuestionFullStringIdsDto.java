@@ -1,4 +1,4 @@
-package qa.dto.internal.hibernate.question;
+package qa.dto.internal.hibernate.entities.question;
 
 import java.math.BigInteger;
 import java.util.HashSet;

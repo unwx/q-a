@@ -2,7 +2,7 @@ package qa.dto.internal.hibernate.transformer.comment;
 
 import org.hibernate.transform.ResultTransformer;
 import qa.dto.internal.hibernate.AliasUtil;
-import qa.dto.internal.hibernate.comment.question.CommentQuestionDto;
+import qa.dto.internal.hibernate.entities.comment.question.CommentQuestionDto;
 import qa.exceptions.dao.NullResultException;
 
 import java.io.Serial;

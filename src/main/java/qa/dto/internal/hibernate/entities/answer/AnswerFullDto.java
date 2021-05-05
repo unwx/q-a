@@ -1,4 +1,4 @@
-package qa.dto.internal.hibernate.answer;
+package qa.dto.internal.hibernate.entities.answer;
 
 import java.math.BigInteger;
 import java.util.ArrayList;

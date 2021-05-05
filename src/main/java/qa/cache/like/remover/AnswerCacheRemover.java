@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import qa.cache.like.operation.impl.AnswerToLikeSetOperation;
 import qa.cache.like.operation.impl.UserAnswerLikeSetOperation;
-import qa.dto.internal.hibernate.answer.AnswerFullStringIdsDto;
+import qa.dto.internal.hibernate.entities.answer.AnswerFullStringIdsDto;
 import redis.clients.jedis.Jedis;
 
 import java.util.Stack;

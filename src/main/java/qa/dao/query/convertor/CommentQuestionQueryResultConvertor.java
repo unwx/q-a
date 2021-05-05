@@ -1,7 +1,7 @@
 package qa.dao.query.convertor;
 
 import qa.domain.CommentQuestion;
-import qa.dto.internal.hibernate.comment.question.CommentQuestionDto;
+import qa.dto.internal.hibernate.entities.comment.question.CommentQuestionDto;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -15,7 +15,7 @@ import qa.dao.database.components.WhereOperator;
 import qa.dao.query.manager.CommentAnswerQueryManager;
 import qa.domain.CommentAnswer;
 import qa.domain.setters.PropertySetterFactory;
-import qa.dto.internal.hibernate.comment.answer.CommentAnswerDto;
+import qa.dto.internal.hibernate.entities.comment.answer.CommentAnswerDto;
 import qa.exceptions.dao.NullResultException;
 import redis.clients.jedis.Jedis;
 

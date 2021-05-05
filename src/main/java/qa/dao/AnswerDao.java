@@ -15,8 +15,8 @@ import qa.dao.database.components.WhereOperator;
 import qa.dao.query.manager.AnswerQueryManager;
 import qa.domain.Answer;
 import qa.domain.setters.PropertySetterFactory;
-import qa.dto.internal.hibernate.answer.AnswerFullDto;
-import qa.dto.internal.hibernate.answer.AnswerFullStringIdsDto;
+import qa.dto.internal.hibernate.entities.answer.AnswerFullDto;
+import qa.dto.internal.hibernate.entities.answer.AnswerFullStringIdsDto;
 import qa.exceptions.dao.NullResultException;
 import redis.clients.jedis.Jedis;
 

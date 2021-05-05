@@ -2,10 +2,10 @@ package qa.dao.query.manager;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import qa.dao.query.CommentQuestionQueryCreator;
 import qa.dao.query.convertor.CommentQuestionQueryResultConvertor;
+import qa.dao.query.creator.CommentQuestionQueryCreator;
 import qa.domain.CommentQuestion;
-import qa.dto.internal.hibernate.comment.question.CommentQuestionDto;
+import qa.dto.internal.hibernate.entities.comment.question.CommentQuestionDto;
 
 import java.util.List;
 

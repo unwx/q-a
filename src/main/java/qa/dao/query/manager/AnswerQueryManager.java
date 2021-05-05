@@ -2,11 +2,11 @@ package qa.dao.query.manager;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import qa.dao.query.AnswerQueryCreator;
 import qa.dao.query.convertor.AnswerQueryResultConvertor;
+import qa.dao.query.creator.AnswerQueryCreator;
 import qa.domain.Answer;
-import qa.dto.internal.hibernate.answer.AnswerFullDto;
-import qa.dto.internal.hibernate.answer.AnswerFullStringIdsDto;
+import qa.dto.internal.hibernate.entities.answer.AnswerFullDto;
+import qa.dto.internal.hibernate.entities.answer.AnswerFullStringIdsDto;
 
 import java.util.List;
 

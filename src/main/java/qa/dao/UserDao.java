@@ -11,9 +11,9 @@ import qa.domain.Answer;
 import qa.domain.Question;
 import qa.domain.User;
 import qa.domain.setters.PropertySetterFactory;
-import qa.dto.internal.hibernate.user.UserAnswerDto;
-import qa.dto.internal.hibernate.user.UserFullDto;
-import qa.dto.internal.hibernate.user.UserQuestionDto;
+import qa.dto.internal.hibernate.entities.user.UserAnswerDto;
+import qa.dto.internal.hibernate.entities.user.UserFullDto;
+import qa.dto.internal.hibernate.entities.user.UserQuestionDto;
 import qa.exceptions.dao.NullResultException;
 
 import java.util.Collections;

@@ -1,14 +1,14 @@
-package qa.dto.internal.hibernate.question;
+package qa.dto.internal.hibernate.entities.comment.question;
 
 import java.util.Map;
 
-public class QuestionCommentAuthorDto {
+public class CommentQuestionAuthorDto {
 
     private final String username;
 
-    public static final String USERNAME = "que_c_u_username";
+    public static final String USERNAME = "c_u_username";
 
-    public QuestionCommentAuthorDto(Object[] tuples,
+    public CommentQuestionAuthorDto(Object[] tuples,
                                     Map<String, Integer> aliasToIndexMap) {
         this.username = (String) tuples[aliasToIndexMap.get(USERNAME)];
     }

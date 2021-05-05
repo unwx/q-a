@@ -2,8 +2,8 @@ package qa.dto.internal.hibernate.transformer.question;
 
 import org.hibernate.transform.ResultTransformer;
 import qa.dto.internal.hibernate.AliasUtil;
-import qa.dto.internal.hibernate.question.QuestionCommentDto;
-import qa.dto.internal.hibernate.question.QuestionWithCommentsDto;
+import qa.dto.internal.hibernate.entities.question.QuestionCommentDto;
+import qa.dto.internal.hibernate.entities.question.QuestionWithCommentsDto;
 
 import java.io.Serial;
 import java.util.ArrayList;

@@ -47,6 +47,6 @@ public class CommentQuestionToLikeSetOperation extends LikeSetOperationImpl impl
 
     @Override
     public String name() {
-        return null;
+        return name;
     }
 }

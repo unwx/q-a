@@ -1,4 +1,4 @@
-package qa.dto.internal.hibernate.comment.answer;
+package qa.dto.internal.hibernate.entities.comment.answer;
 
 import java.math.BigInteger;
 import java.util.Date;

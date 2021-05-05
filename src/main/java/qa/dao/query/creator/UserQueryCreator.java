@@ -1,14 +1,14 @@
-package qa.dao.query;
+package qa.dao.query.creator;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import qa.dao.query.parameters.QueryParameter;
+import qa.dto.internal.hibernate.entities.user.UserAnswerDto;
+import qa.dto.internal.hibernate.entities.user.UserFullDto;
+import qa.dto.internal.hibernate.entities.user.UserQuestionDto;
 import qa.dto.internal.hibernate.transformer.user.UserAnswerDtoTransformer;
 import qa.dto.internal.hibernate.transformer.user.UserFullDtoTransformer;
 import qa.dto.internal.hibernate.transformer.user.UserQuestionDtoTransformer;
-import qa.dto.internal.hibernate.user.UserAnswerDto;
-import qa.dto.internal.hibernate.user.UserFullDto;
-import qa.dto.internal.hibernate.user.UserQuestionDto;
 
 @SuppressWarnings({"deprecation", "unchecked"})
 public class UserQueryCreator {

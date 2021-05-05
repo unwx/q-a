@@ -1,9 +1,9 @@
-package qa.dao.query;
+package qa.dao.query.creator;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
 import qa.dao.query.parameters.QueryParameter;
-import qa.dto.internal.hibernate.comment.answer.CommentAnswerDto;
+import qa.dto.internal.hibernate.entities.comment.answer.CommentAnswerDto;
 import qa.dto.internal.hibernate.transformer.comment.CommentAnswerDtoResultTransformer;
 
 @SuppressWarnings({"deprecation", "unchecked"})

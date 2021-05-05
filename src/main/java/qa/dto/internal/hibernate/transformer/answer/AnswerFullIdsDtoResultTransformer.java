@@ -2,8 +2,8 @@ package qa.dto.internal.hibernate.transformer.answer;
 
 import org.hibernate.transform.ResultTransformer;
 import qa.dto.internal.hibernate.AliasUtil;
-import qa.dto.internal.hibernate.answer.AnswerFullStringIdsDto;
-import qa.dto.internal.hibernate.question.QuestionFullStringIdsDto;
+import qa.dto.internal.hibernate.entities.answer.AnswerFullStringIdsDto;
+import qa.dto.internal.hibernate.entities.question.QuestionFullStringIdsDto;
 
 import java.io.Serial;
 import java.math.BigInteger;
