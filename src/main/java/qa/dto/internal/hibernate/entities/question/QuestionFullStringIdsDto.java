@@ -14,9 +14,9 @@ public class QuestionFullStringIdsDto {
     private final HashSet<BigInteger> commentQuestionIdsSet = new HashSet<>();
     private final HashSet<BigInteger> commentAnswerIdsSet = new HashSet<>();
 
-    public static final String ANSWER_ID = "ans_id";
-    public static final String COMMENT_QUESTION_ID = "com_que_id";
-    public static final String COMMENT_ANSWER_ID = "com_ans_id";
+    public static final String ANSWER_ID                = "ans_id";
+    public static final String COMMENT_QUESTION_ID      = "com_que_id";
+    public static final String COMMENT_ANSWER_ID        = "com_ans_id";
 
     public void addAnswerIdsNX(BigInteger id) {
         if (!answerIdsSet.contains(id)) {

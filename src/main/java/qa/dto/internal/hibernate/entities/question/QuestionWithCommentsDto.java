@@ -17,11 +17,11 @@ public class QuestionWithCommentsDto {
 
     private final List<QuestionCommentDto> comments = new ArrayList<>();
 
-    public static final String TITLE = "que_title";
-    public static final String TEXT = "que_text";
-    public static final String TAGS = "que_tags";
-    public static final String CREATION_DATE = "que_c_date";
-    public static final String LAST_ACTIVITY = "que_l_activity";
+    public static final String TITLE            = "que_title";
+    public static final String TEXT             = "que_text";
+    public static final String TAGS             = "que_tags";
+    public static final String CREATION_DATE    = "que_c_date";
+    public static final String LAST_ACTIVITY    = "que_l_activity";
 
     public QuestionWithCommentsDto(Object[] tuples,
                            Map<String, Integer> aliasToIndexMap) {

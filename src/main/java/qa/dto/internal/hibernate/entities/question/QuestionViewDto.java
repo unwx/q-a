@@ -15,12 +15,12 @@ public class QuestionViewDto {
 
     private final QuestionAuthorDto author;
 
-    public static final String ID = "que_id";
-    public static final String TITLE = "que_title";
-    public static final String TAGS = "que_tags";
-    public static final String CREATION_DATE = "que_c_date";
-    public static final String LAST_ACTIVITY = "que_l_activity";
-    public static final String ANSWERS_COUNT = "que_a_count";
+    public static final String ID               = "que_id";
+    public static final String TITLE            = "que_title";
+    public static final String TAGS             = "que_tags";
+    public static final String CREATION_DATE    = "que_c_date";
+    public static final String LAST_ACTIVITY    = "que_l_activity";
+    public static final String ANSWERS_COUNT    = "que_a_count";
 
     public QuestionViewDto(Object[] tuples,
                            Map<String, Integer> aliasToIndexMap) {

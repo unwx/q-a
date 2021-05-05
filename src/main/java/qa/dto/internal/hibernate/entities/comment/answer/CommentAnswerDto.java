@@ -11,9 +11,9 @@ public class CommentAnswerDto {
     private final String text;
     private final CommentAnswerAuthorDto author;
 
-    public static final String ID = "c_id";
-    public static final String CREATION_DATE = "c_c_date";
-    public static final String TEXT = "c_text";
+    public static final String ID               = "c_id";
+    public static final String CREATION_DATE    = "c_c_date";
+    public static final String TEXT             = "c_text";
 
     public CommentAnswerDto(Object[] tuples,
                             Map<String, Integer> aliasToIndexMap) {

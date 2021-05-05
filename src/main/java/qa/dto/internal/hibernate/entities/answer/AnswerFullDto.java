@@ -15,10 +15,10 @@ public class AnswerFullDto {
     private final AnswerAuthorDto author;
     private final List<AnswerCommentDto> comments = new ArrayList<>();
 
-    public static final String ID = "ans_id";
-    public static final String TEXT = "ans_text";
-    public static final String CREATION_DATE = "ans_c_date";
-    public static final String ANSWERED = "ans_answered";
+    public static final String ID               = "ans_id";
+    public static final String TEXT             = "ans_text";
+    public static final String CREATION_DATE    = "ans_c_date";
+    public static final String ANSWERED         = "ans_answered";
 
     public AnswerFullDto(Object[] tuples,
                          Map<String, Integer> aliasToIndexMap) {

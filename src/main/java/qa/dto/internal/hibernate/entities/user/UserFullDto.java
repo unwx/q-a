@@ -16,8 +16,8 @@ public class UserFullDto {
     private final List<UserQuestionDto> questions = new ArrayList<>();
     private final List<UserAnswerDto> answers = new ArrayList<>();
 
-    public static final String ID = "usr_id";
-    public static final String ABOUT = "usr_about";
+    public static final String ID       = "usr_id";
+    public static final String ABOUT    = "usr_about";
 
     private final HashSet<Long> questionIds = new HashSet<>();
     private final HashSet<Long> answerIds = new HashSet<>();
