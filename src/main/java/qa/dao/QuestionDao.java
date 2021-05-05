@@ -27,6 +27,7 @@ import qa.exceptions.dao.NullResultException;
 import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -57,6 +58,12 @@ public class QuestionDao extends DaoImpl<Question> implements Likeable<Long> {
         final Long id = (Long) super.create(e);
         this.createLike(id);
         return id;
+    }
+
+    @Override
+    public void update(Where where, Question entity) {
+        entity.setLastActivity(new Date());
+        super.update(where, entity);
     }
 
     public void delete(long questionId) {

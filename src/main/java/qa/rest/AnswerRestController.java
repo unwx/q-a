@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/answer/")
-public class AnswerRestController { // TODO REFACTOR
+public class AnswerRestController {
 
     private final AnswerService answerService;
 

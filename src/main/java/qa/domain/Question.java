@@ -133,7 +133,7 @@ public class Question implements FieldExtractor, FieldDataSetterExtractor, HasAu
         return lastActivity;
     }
 
-    public void setLastActivity(Date lastActivity) { // TODO implement update
+    public void setLastActivity(Date lastActivity) {
         this.lastActivity = lastActivity;
     }
 

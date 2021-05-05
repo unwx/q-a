@@ -11,7 +11,7 @@ public class CommentAnswerLikeRequest {
         this.commentId = commentId;
     }
 
-    private CommentAnswerLikeRequest() { // TODO CHANGE JACKSON ACCESS TO PRIVATE
+    private CommentAnswerLikeRequest() {
         this.commentId = null;
     }
 
