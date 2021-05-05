@@ -3,17 +3,15 @@ package qa.dao;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import qa.dao.query.manager.AuthenticationQueryManager;
 import qa.domain.AuthenticationData;
-import qa.domain.UserRole;
 import qa.domain.setters.PropertySetterFactory;
+import qa.dto.internal.hibernate.entities.authentication.AuthenticationWithTokensDto;
 
-import java.math.BigInteger;
-import java.util.LinkedList;
 import java.util.List;
 
 @Component
@@ -33,13 +31,11 @@ public class AuthenticationDao extends DaoImpl<AuthenticationData> {
     }
 
     public boolean isEmailPasswordCorrect(String email, String password, PooledPBEStringEncryptor passwordEncryptor) {
-        final String sql = "SELECT password FROM authentication WHERE email = :email";
-
         try(Session session = sessionFactory.openSession()) {
             final Transaction transaction = session.beginTransaction();
 
-            final String realPassword = (String) session.createSQLQuery(sql)
-                    .setParameter("email", email)
+            final String realPassword = (String) AuthenticationQueryManager
+                    .getPasswordQuery(email, session)
                     .uniqueResult();
 
             transaction.commit();
@@ -51,46 +47,25 @@ public class AuthenticationDao extends DaoImpl<AuthenticationData> {
     }
 
     @Nullable
-    @SuppressWarnings("unchecked")
-    public AuthenticationData getPrincipalWithTokenData(String email) {
-        final String sql =
-                """
-                SELECT\s\
-                a.id, a.access_token_exp_date, a.refresh_token_exp_date, ur.roles\s\
-                FROM authentication AS a\s\
-                INNER JOIN user_role AS ur ON a.id = ur.auth_id\s\
-                WHERE a.email=:a
-                """;
+    public AuthenticationData getAuthWithTokens(String email) {
+        final AuthenticationData data;
+        final AuthenticationWithTokensDto dto;
 
         try(Session session = sessionFactory.openSession()) {
             final Transaction transaction = session.beginTransaction();
 
-            final Query<?> query = session.createSQLQuery(sql).setParameter("a", email);
-            final List<Object[]> result = (List<Object[]>) query.list();
+            List<AuthenticationWithTokensDto> temp = AuthenticationQueryManager.getAuthQuery(email, session).list();
+            dto = AuthenticationQueryManager
+                    .getAuthQuery(email, session)
+                    .uniqueResult();
 
-            transaction.commit();
-            if (result.size() == 0)
+            if (dto == null) {
+                transaction.rollback();
                 return null;
-
-            return new AuthenticationData.Builder()
-                    .id(((BigInteger) result.get(0)[0]).longValue())
-                    .accessTokenExpirationDateAtMillis(((BigInteger) result.get(0)[1]).longValue())
-                    .refreshTokenExpirationDateAtMillis(((BigInteger) result.get(0)[2]).longValue())
-                    .roles(convertStringToRoles((String) result.get(0)[3]))
-                    .email(email)
-                    .build();
-        }
-    }
-
-    private List<UserRole> convertStringToRoles(String rolesStr) {
-        final List<UserRole> roles = new LinkedList<>();
-        for (String s : rolesStr.split(",")) {
-            switch (s) {
-                case "USER" -> roles.add(UserRole.USER);
-                case "MODERATOR" -> roles.add(UserRole.MODERATOR);
-                case "ADMIN" -> roles.add(UserRole.ADMIN);
             }
         }
-        return roles;
+
+        data = AuthenticationQueryManager.dtoToAuthData(dto);
+        return data;
     }
 }
