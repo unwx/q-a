@@ -16,6 +16,9 @@ public final class ActionAccessUtil {
 
     private final PropertySetterFactory propertySetterFactory;
 
+    private static final String ID              = "id";
+    private static final String NESTED_TARGET   = "author";
+
     @Autowired
     public ActionAccessUtil(PropertySetterFactory propertySetterFactory) {
         this.propertySetterFactory = propertySetterFactory;
@@ -26,9 +29,9 @@ public final class ActionAccessUtil {
                                                                        E entity,
                                                                        Dao<E, ?> dao) {
         final NestedEntity nested = new NestedEntity(
-                new String[]{"id"},
+                new String[]{ID},
                 User.class,
-                "author",
+                NESTED_TARGET,
                 propertySetterFactory.getSetter(new User())
         );
         final Table table = new Table(new String[]{}, entity.getClassName());

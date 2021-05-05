@@ -15,10 +15,10 @@ public class UserPropertyDataSource {
     private final Integer USER_ABOUT_LENGTH_MIN;
 
     private UserPropertyDataSource(@Value("${user.username.length.max}") Integer user_username_length_max,
-                                  @Value("${user.username.length.min}") Integer user_username_length_min,
-                                  @Value("${user.username.regexp}") String user_username_regexp,
-                                  @Value("${user.about.length.max}") Integer user_about_length_max,
-                                  @Value("${user.about.length.min}") Integer user_about_length_min) {
+                                   @Value("${user.username.length.min}") Integer user_username_length_min,
+                                   @Value("${user.username.regexp}") String user_username_regexp,
+                                   @Value("${user.about.length.max}") Integer user_about_length_max,
+                                   @Value("${user.about.length.min}") Integer user_about_length_min) {
         USER_USERNAME_LENGTH_MAX = user_username_length_max;
         USER_USERNAME_LENGTH_MIN = user_username_length_min;
         USER_USERNAME_REGEXP = user_username_regexp;

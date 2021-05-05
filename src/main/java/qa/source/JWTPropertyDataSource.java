@@ -8,11 +8,14 @@ import org.springframework.stereotype.Component;
 @PropertySource("classpath:properties/jwt.properties")
 public class JWTPropertyDataSource {
 
-    @Value("${jwt.access.expiration}")
-    private Long JWT_ACCESS_EXPIRATION;
+    private final Long JWT_ACCESS_EXPIRATION;
+    private final Long JWT_REFRESH_EXPIRATION;
 
-    @Value("${jwt.refresh.expiration}")
-    private Long JWT_REFRESH_EXPIRATION;
+    public JWTPropertyDataSource(@Value("${jwt.access.expiration}") Long jwt_access_expiration,
+                                 @Value("${jwt.refresh.expiration}") Long jwt_refresh_expiration) {
+        JWT_ACCESS_EXPIRATION = jwt_access_expiration;
+        JWT_REFRESH_EXPIRATION = jwt_refresh_expiration;
+    }
 
     public Long getJWT_ACCESS_EXPIRATION() {
         return JWT_ACCESS_EXPIRATION;

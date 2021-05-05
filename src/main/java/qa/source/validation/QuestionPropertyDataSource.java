@@ -19,14 +19,14 @@ public class QuestionPropertyDataSource {
     private final Integer QUESTION_TEXT_LENGTH_MIN;
 
     private QuestionPropertyDataSource(@Value("${question.tags.count.min}") Integer question_tags_count_min,
-                                      @Value("${question.tags.count.max}") Integer question_tags_count_max,
-                                      @Value("${question.tag.length.min}") Integer question_tag_length_min,
-                                      @Value("${question.tag.length.max}") Integer question_tag_length_max,
-                                      @Value("${question.tag.regexp}") String question_tag_regexp,
-                                      @Value("${question.title.length.min}") Integer question_title_length_min,
-                                      @Value("${question.title.length.max}") Integer question_title_length_max,
-                                      @Value("${question.text.length.max}") Integer question_text_length_max,
-                                      @Value("${question.text.length.min}") Integer question_text_length_min) {
+                                       @Value("${question.tags.count.max}") Integer question_tags_count_max,
+                                       @Value("${question.tag.length.min}") Integer question_tag_length_min,
+                                       @Value("${question.tag.length.max}") Integer question_tag_length_max,
+                                       @Value("${question.tag.regexp}") String question_tag_regexp,
+                                       @Value("${question.title.length.min}") Integer question_title_length_min,
+                                       @Value("${question.title.length.max}") Integer question_title_length_max,
+                                       @Value("${question.text.length.max}") Integer question_text_length_max,
+                                       @Value("${question.text.length.min}") Integer question_text_length_min) {
         QUESTION_TAGS_COUNT_MIN = question_tags_count_min;
         QUESTION_TAGS_COUNT_MAX = question_tags_count_max;
         QUESTION_TAG_LENGTH_MIN = question_tag_length_min;
