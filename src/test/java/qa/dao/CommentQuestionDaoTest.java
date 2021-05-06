@@ -2,7 +2,6 @@ package qa.dao;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -16,9 +15,11 @@ import qa.domain.CommentQuestion;
 import qa.domain.setters.PropertySetterFactory;
 import qa.logger.TestLogger;
 import qa.tools.annotations.MockitoTest;
+import redis.clients.jedis.Jedis;
 import util.dao.CommentDaoTestUtil;
 import util.dao.QuestionDaoTestUtil;
 import util.dao.RedisTestUtil;
+import util.dao.TruncateUtil;
 import util.mock.MockUtil;
 
 import java.util.Arrays;
@@ -33,23 +34,36 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 @MockitoTest
 public class CommentQuestionDaoTest {
 
-    private SessionFactory sessionFactory;
+
     private CommentQuestionDao commentQuestionDao;
     private CommentDaoTestUtil commentDaoTestUtil;
     private QuestionDaoTestUtil questionDaoTestUtil;
+
     private RedisTestUtil redisTestUtil;
+
+    private SessionFactory sessionFactory;
+    private JedisResourceCenter jedisResourceCenter;
+
+    private static final String LOG_CORRECT_RESULT          = "assert correct result";
+    private static final String LOG_NO_DUPLICATES           = "assert no duplicates";
+    private static final String LOG_RESULT_NULL             = "assert result equals null, when answer not exist";
+    private static final String LOG_RESULT_EMPTY_LIST       = "assert result equals empty list, when question exist";
+    private static final String LOG_CORRECT_KEYS            = "assert result equals empty list, when question exist";
+    private static final String LOG_LIKE_ONE_TIME           = "assert can't like more than one times";
+    private static final String LOG_LIKED_STATUS_TRUE       = "assert get user liked status equals true";
+    private static final String LOG_LIKED_STATUS_FALSE      = "assert get user liked status equals false";
+    private static final String LOG_REMOVES_LINKED_KEYS     = "assert removes all linked keys";
+    private static final String LOG_NO_EXCEPTIONS           = "assert removes all linked keys";
 
     private final TestLogger logger = new TestLogger(CommentQuestionDaoTest.class);
 
-    private JedisResourceCenter jedisResourceCenter;
-
     @BeforeAll
     void init() {
+        final PropertySetterFactory propertySetterFactory = Mockito.spy(PropertySetterFactory.class);
+        final CommentQuestionLikeProvider likesProvider = MockUtil.mockCommentQuestionLikeProvider();
+
         sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         jedisResourceCenter = MockUtil.mockJedisCenter();
-        PropertySetterFactory propertySetterFactory = Mockito.spy(PropertySetterFactory.class);
-        CommentQuestionLikeProvider likesProvider = MockUtil.mockCommentQuestionLikeProvider();
-
 
         commentQuestionDao = new CommentQuestionDao(propertySetterFactory, sessionFactory, jedisResourceCenter, likesProvider);
         commentDaoTestUtil = new CommentDaoTestUtil(sessionFactory, jedisResourceCenter);
@@ -60,17 +74,12 @@ public class CommentQuestionDaoTest {
     @BeforeEach
     void truncate() {
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createSQLQuery("truncate table question cascade").executeUpdate();
-            session.createSQLQuery("truncate table answer cascade").executeUpdate();
-            session.createSQLQuery("truncate table comment cascade").executeUpdate();
-            session.createSQLQuery("truncate table authentication cascade").executeUpdate();
-            session.createSQLQuery("truncate table usr cascade").executeUpdate();
-            transaction.commit();
+            TruncateUtil.truncatePQ(session);
         }
-        JedisResource resource = jedisResourceCenter.getResource();
-        resource.getJedis().flushDB();
-        resource.close();
+        try(JedisResource resource = jedisResourceCenter.getResource()) {
+            final Jedis jedis = resource.getJedis();
+            TruncateUtil.truncateRedis(jedis);
+        }
     }
 
     @Nested
@@ -78,32 +87,40 @@ public class CommentQuestionDaoTest {
 
         @Test
         void assert_correct_result() {
-            logger.trace("assert correct result");
+            logger.trace(LOG_CORRECT_RESULT);
             questionDaoTestUtil.createQuestionWithComments((int) (QuestionDaoTestUtil.COMMENT_RESULT_SIZE * 1.5));
-            for (int i = 0; i < 2; i++) {
-                List<CommentQuestion> comments = commentQuestionDao.getComments(1L,-1L,  i);
-                assertThat(comments, notNullValue());
-                assertThat(comments.size(), greaterThan(0));
-                for (int y = 0; y < comments.size(); y++) {
-                    assertThat(comments, notNullValue());
-                    assertThat(comments.get(y), notNullValue());
-                    assertThat(comments.get(y).getId(), notNullValue());
-                    assertThat(comments.get(y).getText(), notNullValue());
-                    assertThat(comments.get(y).getCreationDate(), notNullValue());
-                    assertThat(comments.get(y).getAuthor(), notNullValue());
-                    assertThat(comments.get(y).getLikes(), equalTo(0));
-                    assertThat(comments.get(y).isLiked(), equalTo(false));
-                }
+
+            final long questionId = 1L;
+            final long userId = -1L;
+            final int page = 0;
+
+            final List<CommentQuestion> comments = commentQuestionDao.getComments(questionId, userId, page);
+            assertThat(comments, notNullValue());
+            assertThat(comments.isEmpty(), equalTo(false));
+
+            for (CommentQuestion cq : comments) {
+                assertThat(cq, notNullValue());
+                assertThat(cq.getId(), notNullValue());
+                assertThat(cq.getText(), notNullValue());
+                assertThat(cq.getCreationDate(), notNullValue());
+                assertThat(cq.getAuthor(), notNullValue());
+
+                assertThat(cq.getLikes(), equalTo(0));
+                assertThat(cq.isLiked(), equalTo(false));
             }
         }
 
         @Test
         void assert_no_duplicates() {
-            logger.trace("assert no duplicates");
+            logger.trace(LOG_NO_DUPLICATES);
             questionDaoTestUtil.createQuestionWithComments((int) (QuestionDaoTestUtil.COMMENT_RESULT_SIZE * 1.5));
 
-            List<CommentQuestion> comments1 = commentQuestionDao.getComments(1L, -1L, 0);
-            List<CommentQuestion> comments2 = commentQuestionDao.getComments(1L, -1L, 1);
+            final long questionId = 1L;
+            final long userId = -1L;
+            int page = 0;
+
+            final List<CommentQuestion> comments1 = commentQuestionDao.getComments(questionId, userId, page);
+            final List<CommentQuestion> comments2 = commentQuestionDao.getComments(questionId, userId, ++page);
 
             assertThat(comments1, notNullValue());
             assertThat(comments2, notNullValue());
@@ -111,16 +128,19 @@ public class CommentQuestionDaoTest {
             assertThat(comments1.size(), greaterThan(0));
             assertThat(comments2.size(), greaterThan(0));
 
-            int size1 = comments1.size();
-            int size2 = comments2.size();
-            long[] ids1 = new long[size1];
-            long[] ids2 = new long[size2];
+            final int size1 = comments1.size();
+            final int size2 = comments2.size();
+
+            final long[] ids1 = new long[size1];
+            final long[] ids2 = new long[size2];
+
             for (int i = 0; i < size1; i++) {
                 ids1[i] = comments1.get(i).getId();
             }
             for (int i = 0; i < size2; i++) {
                 ids2[i] = comments2.get(i).getId();
             }
+
             assertThat(ids1, equalTo(Arrays.stream(ids1).distinct().toArray()));
             assertThat(ids2, equalTo(Arrays.stream(ids2).distinct().toArray()));
         }
@@ -130,15 +150,27 @@ public class CommentQuestionDaoTest {
 
             @Test
             void assert_result_equals_null_question_not_exist() {
-                logger.trace("assert result equals null when question not exist");
-                assertThat(commentQuestionDao.getComments(1L, -1L, 1), equalTo(null));
+                logger.trace(LOG_RESULT_NULL);
+
+                final long questionId = 1L;
+                final long userId = -1L;
+                final int page = 1;
+
+                final List<CommentQuestion> comment = commentQuestionDao.getComments(questionId, userId, page);
+                assertThat(comment, equalTo(null));
             }
 
             @Test
             void assert_result_equals_empty_list_question_exist() {
-                logger.trace("assert result equals empty list when question exist");
+                logger.trace(LOG_RESULT_EMPTY_LIST);
                 questionDaoTestUtil.createQuestion();
-                assertThat(commentQuestionDao.getComments(1L, -1L, 1), equalTo(Collections.emptyList()));
+
+                final long questionId = 1L;
+                final long userId = -1L;
+                final int page = 1;
+
+                final List<CommentQuestion> comment = commentQuestionDao.getComments(questionId, userId, page);
+                assertThat(comment, equalTo(Collections.emptyList()));
             }
         }
     }
@@ -147,19 +179,27 @@ public class CommentQuestionDaoTest {
     class like {
         @Test
         void assert_correct_result() {
-            logger.trace("assert correct result");
+            logger.trace(LOG_CORRECT_RESULT);
             commentDaoTestUtil.createCommentQuestion();
-            List<CommentQuestion> result = commentQuestionDao.getComments(1L, -1L, 0);
+
+            final long questionId = 1L;
+            final long userId = 1L;
+            final int page = 0;
+            final int likes = 15;
+
+            final List<CommentQuestion> result = commentQuestionDao.getComments(questionId, userId, page);
             assertThat(result, notNullValue());
+            assertThat(result.isEmpty(), equalTo(false));
 
             for (CommentQuestion c : result) {
                 assertThat(c, notNullValue());
                 assertThat(c.getLikes(), equalTo(0));
-                commentDaoTestUtil.likeCommentQuestion(c.getId(), 15);
+                commentDaoTestUtil.likeCommentQuestion(c.getId(), likes);
             }
 
-            List<CommentQuestion> resultLiked = commentQuestionDao.getComments(1L, -1L, 0);
+            final List<CommentQuestion> resultLiked = commentQuestionDao.getComments(questionId, userId, page);
             assertThat(resultLiked, notNullValue());
+            assertThat(resultLiked.isEmpty(), equalTo(false));
 
             for (CommentQuestion c : resultLiked) {
                 assertThat(c, notNullValue());
@@ -169,71 +209,87 @@ public class CommentQuestionDaoTest {
 
         @Test
         void assert_correct_keys() {
-            logger.trace("assert correct keys");
-            commentDaoTestUtil.createManyCommentQuestions(2);
-            commentDaoTestUtil.likeCommentQuestion(0L, 15);
+            logger.trace(LOG_CORRECT_KEYS);
 
-            List<CommentQuestion> result = commentQuestionDao.getComments(1L, -1L, 0);
+            final long questionId = 1L;
+            final long userId = 1L;
+            final long commentId = 0L;
+            final int page = 0;
+            final int comments = 2;
+            final int likes = 15;
+
+            commentDaoTestUtil.createManyCommentQuestions(comments);
+            commentDaoTestUtil.likeCommentQuestion(commentId, likes);
+
+            final List<CommentQuestion> result = commentQuestionDao.getComments(questionId, userId, page);
             assertThat(result, notNullValue());
-            CommentQuestion comment = result.get(0);
+            assertThat(result.isEmpty(), equalTo(false));
 
-            assertThat(comment.getLikes(), equalTo(15));
-        }
-
-        @Test
-        void assert_success() {
-            logger.trace("assert success");
-            commentDaoTestUtil.createCommentQuestion();
-            commentDaoTestUtil.likeCommentQuestion(1L, 5);
-
-            List<CommentQuestion> result = commentQuestionDao.getComments(1L, -1L, 0);
-            assertThat(result, notNullValue());
-            CommentQuestion comment = result.get(0);
-
-            assertThat(result, notNullValue());
-            assertThat(comment.getLikes(), equalTo(5));
+            final CommentQuestion comment = result.get(0);
+            assertThat(comment.getLikes(), equalTo(likes));
         }
 
         @Test
         void assert_no_more_than_one() {
-            logger.trace("assert can't like more than one times");
+            logger.trace(LOG_LIKE_ONE_TIME);
             commentDaoTestUtil.createCommentQuestion();
 
-            commentQuestionDao.like(1L, 1L);
-            commentQuestionDao.like(1L, 1L);
+            final long questionId = 1L;
+            final long userId = 1L;
+            final long commentId = 1L;
+            final int page = 0;
 
-            List<CommentQuestion> result = commentQuestionDao.getComments(1L, 1L, 0);
+            commentQuestionDao.like(userId, commentId);     // 1 - success
+            commentQuestionDao.like(userId, commentId);     // 2 - ignore
+
+            final List<CommentQuestion> result = commentQuestionDao.getComments(questionId, userId, page);
             assertThat(result, notNullValue());
-            CommentQuestion comment = result.get(0);
+            assertThat(result.isEmpty(), equalTo(false));
 
+            final CommentQuestion comment = result.get(0);
             assertThat(result, notNullValue());
             assertThat(comment.getLikes(), equalTo(1));
         }
 
         @Test
         void assert_liked_by_user_caller() {
-            logger.trace("assert get user liked status equals true");
+            logger.trace(LOG_LIKED_STATUS_TRUE);
             commentDaoTestUtil.createCommentQuestion();
-            commentQuestionDao.like(1L, 1L);
 
-            List<CommentQuestion> result = commentQuestionDao.getComments(1L, 1L, 0);
+            final long questionId = 1L;
+            final long userId = 1L;
+            final long commentId = 1L;
+            final int page = 0;
+
+            commentQuestionDao.like(userId, commentId);
+
+            final List<CommentQuestion> result = commentQuestionDao.getComments(questionId, userId, page);
             assertThat(result, notNullValue());
-            CommentQuestion comment = result.get(0);
+            assertThat(result.isEmpty(), equalTo(false));
 
+            final CommentQuestion comment = result.get(0);
             assertThat(result, notNullValue());
             assertThat(comment.isLiked(), equalTo(true));
         }
 
         @Test
         void assert_not_liked_by_user_caller() {
-            logger.trace("assert get user liked status equals false");
+            logger.trace(LOG_LIKED_STATUS_FALSE);
             commentDaoTestUtil.createCommentQuestion();
-            commentQuestionDao.like(-1L, 1L);
 
-            List<CommentQuestion> result = commentQuestionDao.getComments(1L, 1L, 0);
+            final long questionId = 1L;
+            final long anotherUserId = -1L;
+            final long userId = 1L;
+            final long commentId = 1L;
+            final int page = 0;
+
+            commentQuestionDao.like(anotherUserId, commentId);
+
+            final List<CommentQuestion> result = commentQuestionDao.getComments(questionId, userId, page);
             assertThat(result, notNullValue());
-            CommentQuestion comment = result.get(0);
+            assertThat(result.isEmpty(), equalTo(false));
 
+            final CommentQuestion comment = result.get(0);
             assertThat(result, notNullValue());
             assertThat(comment.isLiked(), equalTo(false));
         }
@@ -243,11 +299,12 @@ public class CommentQuestionDaoTest {
     class delete {
         @Test
         void assert_success() {
-            logger.trace("assert success simple situation");
+            logger.trace(LOG_REMOVES_LINKED_KEYS);
             commentDaoTestUtil.createCommentQuestion();
             commentQuestionDao.like(1L, 1L);
 
-            commentQuestionDao.delete(1L);
+            final long commentId = 1L;
+            commentQuestionDao.delete(commentId);
 
             final Set<String> keys = redisTestUtil.getAllKeys();
             /*
@@ -263,9 +320,11 @@ public class CommentQuestionDaoTest {
 
         @Test
         void no_keys() {
-            logger.trace("assert no keys situation");
+            logger.trace(LOG_NO_EXCEPTIONS);
 
-            assertDoesNotThrow(() -> commentQuestionDao.delete(1L));
+            final long commentId = 1L;
+            assertDoesNotThrow(() -> commentQuestionDao.delete(commentId));
+
             final Set<String> keys = redisTestUtil.getAllKeys();
             assertThat(keys.size(), equalTo(0));
         }
