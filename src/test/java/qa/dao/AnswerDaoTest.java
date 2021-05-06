@@ -48,14 +48,14 @@ public class AnswerDaoTest {
     private static final String LOG_CORRECT_RESULT          = "assert correct result";
     private static final String LOG_NO_DUPLICATES           = "assert no duplicates";
     private static final String LOG_RESULT_NULL             = "assert result equals null, when question not exist";
-    private static final String LOG_RESULT_EMPTY_LIST       = "assert result equals empty list - when question exist";
-    private static final String LOG_CORRECT_KEYS            = "assert result equals empty list - when question exist";
+    private static final String LOG_RESULT_EMPTY_LIST       = "assert result equals empty list, when question exist";
+    private static final String LOG_CORRECT_KEYS            = "assert result equals empty list, when question exist";
     private static final String LOG_LIKE_ONE_TIME           = "assert can't like more than one times";
     private static final String LOG_LIKED_STATUS_TRUE       = "assert get user liked status equals true";
     private static final String LOG_LIKED_STATUS_FALSE      = "assert get user liked status equals false";
     private static final String LOG_REMOVES_LINKED_KEYS     = "assert removes all linked keys";
-    private static final String LOG_REMOVES_NESTED_KEYS     = "assert removes all linked keys";
-    private static final String LOG_NO_EXCEPTIONS           = "assert removes all linked keys";
+    private static final String LOG_REMOVES_NESTED_KEYS     = "assert removes all nested keys";
+    private static final String LOG_NO_EXCEPTIONS           = "assert no exceptions";
 
     private final TestLogger logger = new TestLogger(AnswerDaoTest.class);
 

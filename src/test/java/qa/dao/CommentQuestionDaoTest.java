@@ -53,7 +53,7 @@ public class CommentQuestionDaoTest {
     private static final String LOG_LIKED_STATUS_TRUE       = "assert get user liked status equals true";
     private static final String LOG_LIKED_STATUS_FALSE      = "assert get user liked status equals false";
     private static final String LOG_REMOVES_LINKED_KEYS     = "assert removes all linked keys";
-    private static final String LOG_NO_EXCEPTIONS           = "assert removes all linked keys";
+    private static final String LOG_NO_EXCEPTIONS           = "assert no exceptions";
 
     private final TestLogger logger = new TestLogger(CommentQuestionDaoTest.class);
 
