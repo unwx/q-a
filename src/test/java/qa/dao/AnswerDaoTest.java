@@ -94,41 +94,40 @@ public class AnswerDaoTest {
                     (int) (QuestionDaoTestUtil.RESULT_SIZE * 1.5),
                     QuestionDaoTestUtil.COMMENT_RESULT_SIZE);
 
-            for (int i = 0; i < 2; i++) {
-                final long questionId = 1L;
-                final long userId = -1L;
+            final long questionId = 1L;
+            final long userId = -1L;
+            final int page = 0;
 
-                final List<Answer> answers = answerDao.getAnswers(questionId, userId, i);
+            final List<Answer> answers = answerDao.getAnswers(questionId, userId, page);
 
-                assertThat(answers, notNullValue());
-                assertThat(answers.isEmpty(), equalTo(false));
+            assertThat(answers, notNullValue());
+            assertThat(answers.isEmpty(), equalTo(false));
 
-                for (Answer a : answers) {
-                    assertThat(a, notNullValue());
-                    assertThat(a.getId(), notNullValue());
-                    assertThat(a.getText(), notNullValue());
-                    assertThat(a.getAnswered(), notNullValue());
-                    assertThat(a.getCreationDate(), notNullValue());
+            for (Answer a : answers) {
+                assertThat(a, notNullValue());
+                assertThat(a.getId(), notNullValue());
+                assertThat(a.getText(), notNullValue());
+                assertThat(a.getAnswered(), notNullValue());
+                assertThat(a.getCreationDate(), notNullValue());
 
-                    assertThat(a.getLikes(), equalTo(0));
-                    assertThat(a.isLiked(), equalTo(false));
+                assertThat(a.getLikes(), equalTo(0));
+                assertThat(a.isLiked(), equalTo(false));
 
-                    assertThat(a.getAuthor(), notNullValue());
-                    assertThat(a.getAuthor().getUsername(), notNullValue());
+                assertThat(a.getAuthor(), notNullValue());
+                assertThat(a.getAuthor().getUsername(), notNullValue());
 
-                    assertThat(a.getComments(), notNullValue());
-                    for (CommentAnswer ca : a.getComments()) {
-                        assertThat(ca, notNullValue());
-                        assertThat(ca.getId(), notNullValue());
-                        assertThat(ca.getText(), notNullValue());
-                        assertThat(ca.getCreationDate(), notNullValue());
+                assertThat(a.getComments(), notNullValue());
+                for (CommentAnswer ca : a.getComments()) {
+                    assertThat(ca, notNullValue());
+                    assertThat(ca.getId(), notNullValue());
+                    assertThat(ca.getText(), notNullValue());
+                    assertThat(ca.getCreationDate(), notNullValue());
 
-                        assertThat(ca.getLikes(), equalTo(0));
-                        assertThat(ca.isLiked(), equalTo(false));
+                    assertThat(ca.getLikes(), equalTo(0));
+                    assertThat(ca.isLiked(), equalTo(false));
 
-                        assertThat(ca.getAuthor(), notNullValue());
-                        assertThat(ca.getAuthor().getUsername(), notNullValue());
-                    }
+                    assertThat(ca.getAuthor(), notNullValue());
+                    assertThat(ca.getAuthor().getUsername(), notNullValue());
                 }
             }
         }
@@ -153,11 +152,11 @@ public class AnswerDaoTest {
             assertThat(answers_1.isEmpty(), equalTo(false));
             assertThat(answers_2.isEmpty(), equalTo(false));
 
-            int size1 = answers_1.size();
-            int size2 = answers_2.size();
+            final int size1 = answers_1.size();
+            final int size2 = answers_2.size();
 
-            long[] ids1 = new long[size1];
-            long[] ids2 = new long[size2];
+            final long[] ids1 = new long[size1];
+            final long[] ids2 = new long[size2];
 
             for (int i = 0; i < size1; i++) {
                 final Answer a = answers_1.get(i);
