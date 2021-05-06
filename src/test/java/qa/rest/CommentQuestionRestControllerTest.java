@@ -22,12 +22,12 @@ import qa.dto.response.comment.CommentQuestionResponse;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
 import qa.tools.annotations.SpringTest;
-import qa.util.dao.CommentDaoTestUtil;
-import qa.util.dao.QuestionDaoTestUtil;
-import qa.util.dao.query.params.CommentQueryParameters;
-import qa.util.rest.CommentRestTestUtil;
-import qa.util.rest.JwtTestUtil;
 import redis.clients.jedis.Jedis;
+import util.dao.CommentDaoTestUtil;
+import util.dao.QuestionDaoTestUtil;
+import util.dao.query.params.CommentQueryParameters;
+import util.rest.CommentRestTestUtil;
+import util.rest.JwtTestUtil;
 
 import java.text.SimpleDateFormat;
 

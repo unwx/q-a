@@ -24,11 +24,11 @@ import qa.dto.response.user.UserFullResponse;
 import qa.dto.response.user.UserQuestionsResponse;
 import qa.logger.TestLogger;
 import qa.tools.annotations.SpringTest;
-import qa.util.dao.AnswerDaoTestUtil;
-import qa.util.dao.QuestionDaoTestUtil;
-import qa.util.dao.UserDaoTestUtil;
-import qa.util.dao.query.params.UserQueryParameters;
-import qa.util.rest.UserRestTestUtil;
+import util.dao.AnswerDaoTestUtil;
+import util.dao.QuestionDaoTestUtil;
+import util.dao.UserDaoTestUtil;
+import util.dao.query.params.UserQueryParameters;
+import util.rest.UserRestTestUtil;
 
 import java.util.Collections;
 

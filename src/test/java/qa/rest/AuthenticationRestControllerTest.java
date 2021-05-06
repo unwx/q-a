@@ -23,9 +23,9 @@ import qa.logger.TestLogger;
 import qa.security.jwt.entity.JwtStatus;
 import qa.security.jwt.service.JwtProvider;
 import qa.tools.annotations.SpringTest;
-import qa.util.dao.UserDaoTestUtil;
-import qa.util.rest.AuthenticationRestTestUtil;
-import qa.util.rest.JwtTestUtil;
+import util.dao.UserDaoTestUtil;
+import util.rest.AuthenticationRestTestUtil;
+import util.rest.JwtTestUtil;
 
 import java.math.BigInteger;
 

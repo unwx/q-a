@@ -26,11 +26,11 @@ import qa.dto.response.question.QuestionViewResponse;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
 import qa.tools.annotations.SpringTest;
-import qa.util.dao.QuestionDaoTestUtil;
-import qa.util.dao.query.params.QuestionQueryParameters;
-import qa.util.rest.JwtTestUtil;
-import qa.util.rest.QuestionRestTestUtil;
 import redis.clients.jedis.Jedis;
+import util.dao.QuestionDaoTestUtil;
+import util.dao.query.params.QuestionQueryParameters;
+import util.rest.JwtTestUtil;
+import util.rest.QuestionRestTestUtil;
 
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;

@@ -13,10 +13,10 @@ import qa.exceptions.validator.ValidationException;
 import qa.logger.TestLogger;
 import qa.source.ValidationPropertyDataSource;
 import qa.tools.annotations.MockitoTest;
-import qa.util.dao.query.params.QuestionQueryParameters;
-import qa.util.validation.ValidationTestUtil;
 import qa.validator.ValidationChainAdditionalImpl;
 import qa.validator.abstraction.ValidationChainAdditional;
+import util.dao.query.params.QuestionQueryParameters;
+import util.validation.ValidationTestUtil;
 
 @MockitoTest
 public class ValidationQuestionRequestsTest {

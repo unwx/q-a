@@ -3,7 +3,7 @@ package qa.ui;
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
 import org.json.JSONObject;
-import qa.util.rest.*;
+import util.rest.*;
 
 public class UIRequests extends RestTestUtil {
 

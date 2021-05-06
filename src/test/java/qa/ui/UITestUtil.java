@@ -1,7 +1,7 @@
 package qa.ui;
 
-import qa.util.dao.query.builder.QueryBuilder;
-import qa.util.dao.query.builder.redis.RedisQueryBuilder;
+import util.dao.query.builder.QueryBuilder;
+import util.dao.query.builder.redis.RedisQueryBuilder;
 
 import java.util.Date;
 

@@ -22,9 +22,9 @@ import qa.dto.response.question.QuestionViewResponse;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
 import qa.tools.annotations.SpringTest;
-import qa.util.dao.query.builder.QueryBuilder;
-import qa.util.dao.query.builder.redis.RedisQueryBuilder;
-import qa.util.rest.JwtTestUtil;
+import util.dao.query.builder.QueryBuilder;
+import util.dao.query.builder.redis.RedisQueryBuilder;
+import util.rest.JwtTestUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

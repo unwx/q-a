@@ -16,10 +16,10 @@ import qa.domain.CommentQuestion;
 import qa.domain.setters.PropertySetterFactory;
 import qa.logger.TestLogger;
 import qa.tools.annotations.MockitoTest;
-import qa.util.dao.CommentDaoTestUtil;
-import qa.util.dao.QuestionDaoTestUtil;
-import qa.util.dao.RedisTestUtil;
-import qa.util.mock.MockUtil;
+import util.dao.CommentDaoTestUtil;
+import util.dao.QuestionDaoTestUtil;
+import util.dao.RedisTestUtil;
+import util.mock.MockUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
