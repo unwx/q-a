@@ -23,12 +23,22 @@ import static org.hamcrest.Matchers.equalTo;
 @TestClass
 public class HqlBuilderTest {
 
-    HqlBuilder entityHqlBuilder = new HqlBuilder();
-    String[] entityDefaultFieldNames = new String[] {
+    private final HqlBuilder entityHqlBuilder = new HqlBuilder();
+    private final String[] entityDefaultFieldNames = new String[] {
             "id",
             "str",
             "date"
     };
+
+    private static final String LOG_NO_NESTED                       = "no nested entities";
+    private static final String LOG_NO_NESTED_WHERE_VALUE_NULL      = "no nested entities. where value equals null";
+    private static final String LOG_ALL_ENTITIES                    = "all entities";
+    private static final String LOG_SIMPLE_ENTITY                   = "simple entity";
+    private static final String LOG_BIG_ENTITY                      = "big entity";
+
+    private static final String ID              = "id";
+    private static final String ENTITY          = "Entity";
+    private static final String BIG_ENTITY      = "BigEntity";
 
     private final TestLogger logger = new TestLogger(HqlBuilderTest.class);
 
@@ -37,31 +47,37 @@ public class HqlBuilderTest {
 
         @Test
         public void no_nested() {
-            logger.trace("no nested");
-            Table table = new Table(entityDefaultFieldNames, "Entity");
-            String hql = entityHqlBuilder.read(new Where("id", 5, WhereOperator.EQUALS), table, Collections.emptyList());
-            String required =
+            logger.trace(LOG_NO_NESTED);
+            final Where where = new Where(ID, 5, WhereOperator.EQUALS);
+            final Table table = new Table(entityDefaultFieldNames, ENTITY);
+
+            final String hql = entityHqlBuilder.read(where, table, Collections.emptyList());
+            final String required =
                     """
                     select\s\
                     a.id as ab,a.str as ac,a.date as ad\s\
                     from Entity a\s\
                     where a.id=:a\
                     """;
+
             assertThat(hql, equalTo(required));
         }
 
         @Test
         void no_nested_null_where_value() {
-            logger.trace("no nested. where value equals null");
-            Table table = new Table(new String[]{"bool"}, "Entity");
-            String hql = entityHqlBuilder.read(new Where("where", null, WhereOperator.EQUALS), table, Collections.emptyList());
-            String required =
+            logger.trace(LOG_NO_NESTED_WHERE_VALUE_NULL);
+            final Where where = new Where(ID, null, WhereOperator.EQUALS);
+            final Table table = new Table(new String[]{"bool"}, ENTITY);
+
+            final String hql = entityHqlBuilder.read(where, table, Collections.emptyList());
+            final String required =
                     """
                     select\s\
                     a.bool as ab\s\
                     from Entity a\s\
-                    where a.where=:a\
+                    where a.id=:a\
                     """;
+
             assertThat(hql, equalTo(required));
         }
 
@@ -71,11 +87,12 @@ public class HqlBuilderTest {
             @Test
             void first() {
                 logger.trace("(1)");
-                Table table = new Table(new String[]{}, "Entity");
+                final Table table = new Table(new String[]{}, "Entity");
+                final Where where = new Where(ID, 1L, WhereOperator.EQUALS);
+                final qa.dao.database.components.NestedEntity nestedEntity = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
 
-                qa.dao.database.components.NestedEntity nestedEntity = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
-                String hql = entityHqlBuilder.read(new Where("id", 1L, WhereOperator.EQUALS), table, Collections.singletonList(nestedEntity));
-                String required =
+                final String hql = entityHqlBuilder.read(where, table, Collections.singletonList(nestedEntity));
+                final String required =
                         """
                         select\s\
                         b.id as bb,b.str as bc,b.date as bd\s\
@@ -83,21 +100,25 @@ public class HqlBuilderTest {
                         inner join a.nestedEntity as b\s\
                         where a.id=:a\
                         """;
+
                 assertThat(hql, equalTo(required));
             }
 
             @Test
             void second() {
                 logger.trace("(2)");
-                Table table = new Table(new String[]{}, "Entity");
-                qa.dao.database.components.NestedEntity nestedEntity1 = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
-                qa.dao.database.components.NestedEntity nestedEntity2 = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
-                List<qa.dao.database.components.NestedEntity> entities = new ArrayList<>();
+                final Where where = new Where(ID, 0, WhereOperator.EQUALS);
+                final Table table = new Table(new String[]{}, "Entity");
+                final qa.dao.database.components.NestedEntity nestedEntity1 = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
+                final qa.dao.database.components.NestedEntity nestedEntity2 = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
+
+
+                final List<qa.dao.database.components.NestedEntity> entities = new ArrayList<>();
                 entities.add(nestedEntity1);
                 entities.add(nestedEntity2);
 
-                String hql = entityHqlBuilder.read(new Where("id", 0, WhereOperator.EQUALS), table, entities);
-                String required =
+                final String hql = entityHqlBuilder.read(where, table, entities);
+                final String required =
                         """
                         select\s\
                         b.id as bb,b.str as bc,b.date as bd,\
@@ -106,22 +127,25 @@ public class HqlBuilderTest {
                         inner join a.nestedEntity as b inner join a.nestedEntity as c\s\
                         where a.id=:a\
                         """;
+
                 assertThat(hql, equalTo(required));
             }
         }
 
         @Test
         void all() {
-            logger.trace("all entities");
-            Table table = new Table(entityDefaultFieldNames, "Entity");
-            qa.dao.database.components.NestedEntity nestedEntity1 = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
-            qa.dao.database.components.NestedEntity nestedEntity2 = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
-            List<qa.dao.database.components.NestedEntity> entities = new ArrayList<>();
+            logger.trace(LOG_ALL_ENTITIES);
+            final Where where = new Where(ID, 0, WhereOperator.EQUALS);
+            final Table table = new Table(entityDefaultFieldNames, "Entity");
+            final qa.dao.database.components.NestedEntity nestedEntity1 = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
+            final qa.dao.database.components.NestedEntity nestedEntity2 = new qa.dao.database.components.NestedEntity(entityDefaultFieldNames, NestedEntity.class, "nestedEntity", null);
+
+            final List<qa.dao.database.components.NestedEntity> entities = new ArrayList<>();
             entities.add(nestedEntity1);
             entities.add(nestedEntity2);
 
-            String hql = entityHqlBuilder.read(new Where("id", 0, WhereOperator.EQUALS), table, entities);
-            String required =
+            final String hql = entityHqlBuilder.read(where, table, entities);
+            final String required =
                     """
                     select\s\
                     a.id as ab,a.str as ac,a.date as ad,\
@@ -131,14 +155,15 @@ public class HqlBuilderTest {
                     inner join a.nestedEntity as b inner join a.nestedEntity as c\s\
                     where a.id=:a\
                     """;
+
             assertThat(hql, equalTo(required));
         }
 
         @Test
         void big_entity() {
             logger.trace("big entity");
-            HqlBuilder hqlBuilder = new HqlBuilder();
-            String[] fieldNames = new String[]{
+            final HqlBuilder hqlBuilder = new HqlBuilder();
+            final String[] fieldNames = new String[]{
                     "l1",
                     "l2",
                     "l3",
@@ -168,9 +193,10 @@ public class HqlBuilderTest {
                     "b9"
             };
 
-            Table table = new Table(fieldNames, "BigEntity");
-            String hql = hqlBuilder.read(new Where("l1", 0, WhereOperator.EQUALS), table, Collections.emptyList());
-            String required =
+            final Where where = new Where("l1", 0, WhereOperator.EQUALS);
+            final Table table = new Table(fieldNames, BIG_ENTITY);
+            final String hql = hqlBuilder.read(where, table, Collections.emptyList());
+            final String required =
                     """
                     select\s\
                     a.l1 as ab,a.l2 as ac,a.l3 as ad,a.l4 as ae,a.l5 as af,a.l6 as ag,a.l7 as ah,a.l8 as ai,a.l9 as aj,\
@@ -179,6 +205,7 @@ public class HqlBuilderTest {
                     from BigEntity a\s\
                     where a.l1=:a\
                     """;
+
             assertThat(hql, equalTo(required));
         }
     }
@@ -188,22 +215,24 @@ public class HqlBuilderTest {
 
         @Test
         public void simple_entity() {
-            logger.trace("simple entity");
-            Entity entity = new Entity(null, "test", true, null);
-            ImmutablePair<String, Field[]> pair = entityHqlBuilder.update(new Where("id", 5L, WhereOperator.EQUALS), entity);
-            String required =
+            logger.trace(LOG_SIMPLE_ENTITY);
+            final Entity entity = new Entity(null, "test", true, null);
+            final Where where = new Where("id", 5L, WhereOperator.EQUALS);
+
+            final ImmutablePair<String, Field[]> pair = entityHqlBuilder.update(where, entity);
+            final String required =
                     """
                     update Entity a\s\
                     set\s\
                     a.str=:b,a.bool=:c\s\
                     where a.id=:a\
                     """;
-            Field[] requiredF = new Field[] {
+            final Field[] requiredF = new Field[] {
                     new Field("b", "test"),
                     new Field("c", true)
             };
-            assertThat(pair.left, equalTo(required));
 
+            assertThat(pair.left, equalTo(required));
             for (int i = 0; i < requiredF.length; i++) {
                 assertThat(requiredF[i].getName(), equalTo(pair.right[i].getName()));
                 assertThat(requiredF[i].getValue(), equalTo(pair.right[i].getValue()));
@@ -212,15 +241,15 @@ public class HqlBuilderTest {
 
         @Test
         public void big_entity() {
-            logger.trace("big entity");
-            BigEntity bigEntity = new BigEntity(
+            logger.trace(LOG_BIG_ENTITY);
+            final BigEntity bigEntity = new BigEntity(
                     1L, 2L, 3L, 4L, 4L, 4L, 4L, 8L, 9L,
                     "1", "2", "3", "3", "3", "6", "7", "8", "9",
                     true, null, true, false, false, true, true, true, true
             );
-            HqlBuilder hqlBuilder = new HqlBuilder();
-            ImmutablePair<String, Field[]> pair = hqlBuilder.update(new Where("id", 5L, WhereOperator.EQUALS), bigEntity);
-            String required =
+            final HqlBuilder hqlBuilder = new HqlBuilder();
+            final ImmutablePair<String, Field[]> pair = hqlBuilder.update(new Where("id", 5L, WhereOperator.EQUALS), bigEntity);
+            final String required =
                     """
                     update BigEntity a\s\
                     set\s\
@@ -229,7 +258,7 @@ public class HqlBuilderTest {
                     a.b1=:t,a.b3=:u,a.b4=:v,a.b5=:w,a.b6=:x,a.b7=:y,a.b8=:z,a.b9=:bb\s\
                     where a.id=:a\
                     """;
-            Field[] requiredF = new Field[]{
+            final Field[] requiredF = new Field[]{
                     new Field("b", 1L),
                     new Field("c", 2L),
                     new Field("d", 3L),
@@ -257,8 +286,8 @@ public class HqlBuilderTest {
                     new Field("z", true),
                     new Field("bb", true),
             };
-            assertThat(pair.left, equalTo(required));
 
+            assertThat(pair.left, equalTo(required));
             for (int i = 0; i < requiredF.length; i++) {
                 assertThat(requiredF[i].getValue(), equalTo(pair.right[i].getValue()));
             }
@@ -270,15 +299,14 @@ public class HqlBuilderTest {
 
         @Test
         public void entity() {
-            logger.trace("simple entity");
-            String className = "Entity";
-            Where where = new Where("id", 5L, WhereOperator.EQUALS);
-            String required =
+            logger.trace(LOG_SIMPLE_ENTITY);
+            final Where where = new Where(ID, 5L, WhereOperator.EQUALS);
+            final String required =
                     """
                     delete from Entity a\s\
                     where a.id=:a\
                     """;
-            String result = entityHqlBuilder.delete(className, where);
+            final String result = entityHqlBuilder.delete(ENTITY, where);
             assertThat(required, equalTo(result));
         }
     }
@@ -288,15 +316,14 @@ public class HqlBuilderTest {
 
         @Test
         public void entity() {
-            logger.trace("simple entity");
-            String className = "Entity";
-            Where where = new Where("id", 1L, WhereOperator.EQUALS);
-            String required =
+            logger.trace(LOG_SIMPLE_ENTITY);
+            final Where where = new Where(ID, 1L, WhereOperator.EQUALS);
+            final String required =
                     """
                     select a.id from Entity a\s\
                     where a.id=:a\
                     """;
-            String result = entityHqlBuilder.exist(className, where);
+            final String result = entityHqlBuilder.exist(ENTITY, where);
             assertThat(required, equalTo(result));
         }
     }
