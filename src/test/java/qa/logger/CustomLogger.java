@@ -10,24 +10,24 @@ import java.util.Stack;
 /**
  * emphasis on performance
  */
-public abstract class CustomLogger extends LogTraceTreePrinter { // TODO REFACTOR
+public abstract class CustomLogger extends LogTraceTreePrinter {
 
     private final Map<Integer, Clazz> hashToClazzMap = new HashMap<>();
     private Class<?> currentClazz;
     private final int clazzCount;
 
     public CustomLogger(final Class<?> clazz) {
-        getClazzData(clazz);
-        clazz(clazz);
+        this.getClazzData(clazz);
+        this.clazz(clazz);
         this.currentClazz = clazz;
         this.clazzCount = hashToClazzMap.size();
     }
 
     protected void nested(final Class<?> clazz) {
         final Clazz clz = hashToClazzMap.get(System.identityHashCode(clazz));
-        incrementParentCounter(hashToClazzMap, clz);
+        this.incrementParentCounter(hashToClazzMap, clz);
         super.clazz(hashToClazzMap, clz);
-        currentClazz = clazz;
+        this.currentClazz = clazz;
     }
 
     protected void trace(final String message) {
@@ -48,7 +48,7 @@ public abstract class CustomLogger extends LogTraceTreePrinter { // TODO REFACTO
 
     private void getClazzData(final Class<?> clazz) {
         final Stack<Class<?>> stack = new Stack<>();
-        pushStartClass(stack, clazz);
+        this.pushStartClass(stack, clazz);
 
         while (stack.size() != 0) {
             spreadClass(stack);
@@ -61,22 +61,22 @@ public abstract class CustomLogger extends LogTraceTreePrinter { // TODO REFACTO
 
         for (Class<?> clz : nested) {
             stack.push(clz);
-            hashToClazzMap.put(
-                    System.identityHashCode(clz),
-                    new Clazz(classNestedCount(clz),
-                            classTestCount(clz),
-                            System.identityHashCode(target),
-                            clz.getSimpleName()));
+
+            final Clazz clazz = new Clazz(classNestedCount(clz),
+                    this.classTestCount(clz),
+                    System.identityHashCode(target),
+                    clz.getSimpleName());
+            this.hashToClazzMap.put(System.identityHashCode(clz), clazz);
         }
     }
 
     private void pushStartClass(final Stack<Class<?>> stack, final Class<?> clazz) {
         stack.push(clazz);
-        hashToClazzMap.put(System.identityHashCode(clazz),
-                new Clazz(classNestedCount(clazz),
-                        classTestCount(clazz),
-                        null,
-                        clazz.getSimpleName()));
+        final Clazz target = new Clazz(classNestedCount(clazz),
+                this.classTestCount(clazz),
+                null,
+                clazz.getSimpleName());
+        this.hashToClazzMap.put(System.identityHashCode(clazz), target);
     }
 
     private int classTestCount(Class<?> clazz) {

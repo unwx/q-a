@@ -15,19 +15,19 @@ import java.util.Stack;
  */
 public abstract class LogTraceTreePrinter {
 
-    private static final String BLUE = "\u001B[34m";
-    private static final String WHITE = "\033[0;97m";
-    private static final String CYAN = "\033[0;96m";
+    private static final String     BLUE                = "\u001B[34m";
+    private static final String     WHITE               = "\033[0;97m";
+    private static final String     CYAN                = "\033[0;96m";
 
-    private static final char DOWN = '│';
-    private static final String RIGHT = "──";
-    private static final char DOWN_RIGHT = '└';
-    private static final char DOWN_RIGHT_DOWN = '├';
-    private static final String IDENT = "    ";
-    private static final String SMALL_IDENT = "   ";
+    private static final char       DOWN                = '│';
+    private static final String     RIGHT               = "──";
+    private static final char       DOWN_RIGHT          = '└';
+    private static final char       DOWN_RIGHT_DOWN     = '├';
+    private static final String     IDENT               = "    ";
+    private static final String     SMALL_IDENT         = "   ";
 
-    private final PrintWriter pw = new PrintWriter(System.out, false);
-    private final StringBuilder sb = new StringBuilder();
+    private final PrintWriter       pw  =   new PrintWriter(System.out, false);
+    private final StringBuilder     sb  =   new StringBuilder();
 
     protected void start(final Clazz clazz) {
         sb
@@ -40,53 +40,53 @@ public abstract class LogTraceTreePrinter {
     }
 
     protected void clazz(final Map<Integer, Clazz> map, final Clazz clazz) {
-        beforeClazz(map, clazz);
-        writeClazzName(clazz);
+        this.beforeClazz(map, clazz);
+        this.writeClazzName(clazz);
     }
 
     protected void trace(final Map<Integer, Clazz> map, final Clazz clazz, final String message) {
-        beforeTrace(map, clazz);
-        writeMessage(message);
+        this.beforeTrace(map, clazz);
+        this.writeMessage(message);
     }
 
     protected void print() {
-        pw.write(sb.toString());
-        pw.flush();
-        sb.setLength(0);
+        this.pw.write(sb.toString());
+        this.pw.flush();
+        this.sb.setLength(0);
     }
 
     private void beforeTrace(final Map<Integer, Clazz> map, final Clazz clazz) {
         final Integer key = clazz.getParent();
 
-        writeParentParentLines(map, key);
-        writeMethodLine(clazz);
+        this.writeParentParentLines(map, key);
+        this.writeMethodLine(clazz);
     }
 
     private void beforeClazz(final Map<Integer, Clazz> map, final Clazz clazz) {
         final Clazz parent = map.get(clazz.getParent());
         final Integer key = parent.getParent();
 
-        writeParentParentLines(map, key);
-        writeParentClazzLine(parent);
+        this.writeParentParentLines(map, key);
+        this.writeParentClazzLine(parent);
     }
 
     private void writeMethodLine(final Clazz clazz) {
         if (clazz.getTestCount() == clazz.getTestPassed() && clazz.getClassCount() == clazz.getClassPassed())
-            sb.append(DOWN_RIGHT);
+            this.sb.append(DOWN_RIGHT);
         else
-            sb.append(DOWN_RIGHT_DOWN);
+            this.sb.append(DOWN_RIGHT_DOWN);
     }
 
     private void writeParentClazzLine(final Clazz parent) {
         if (parent.getClassCount() == parent.getClassPassed())
-            sb.append(DOWN_RIGHT);
+            this.sb.append(DOWN_RIGHT);
         else
-            sb.append(DOWN_RIGHT_DOWN);
+            this.sb.append(DOWN_RIGHT_DOWN);
     }
 
     private void writeParentParentLines(final Map<Integer, Clazz> map, final Integer key) {
-        Stack<Boolean> instructions = getInstructionsStack(map, key);
-        writeInstructions(instructions);
+        final Stack<Boolean> instructions = getInstructionsStack(map, key);
+        this.writeInstructions(instructions);
     }
 
     private Stack<Boolean> getInstructionsStack(final Map<Integer, Clazz> map, Integer key) {
@@ -103,17 +103,17 @@ public abstract class LogTraceTreePrinter {
         final int size = stack.size();
         for (int i = 0; i < size; i++) {
             if (stack.pop())
-                sb
+                this.sb
                         .append(IDENT);
             else
-                sb
+                this.sb
                         .append(DOWN)
                         .append(SMALL_IDENT);
         }
     }
 
     private void writeClazzName(final Clazz clazz) {
-        sb
+        this.sb
                 .append(RIGHT)
                 .append(" # ")
                 .append(BLUE)
@@ -123,7 +123,7 @@ public abstract class LogTraceTreePrinter {
     }
 
     private void writeMessage(final String message) {
-        sb
+        this.sb
                 .append(RIGHT)
                 .append(CYAN)
                 .append(" < ")

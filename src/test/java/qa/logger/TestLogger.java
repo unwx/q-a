@@ -14,8 +14,8 @@ public class TestLogger extends CustomLogger {
 
     public void nested(Class<?> clazz) {
         super.nested(clazz);
-        updateClazzCounter();
-        updateCenterInfo();
+        this.updateClazzCounter();
+        this.updateCenterInfo();
     }
 
     public void trace(String message) {
@@ -25,6 +25,7 @@ public class TestLogger extends CustomLogger {
     public void print() {
         super.print();
     }
+
     public void end() {
         super.print();
     }

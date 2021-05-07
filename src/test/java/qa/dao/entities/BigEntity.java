@@ -1,4 +1,4 @@
-package qa.entities;
+package qa.dao.entities;
 
 import qa.dao.database.components.Field;
 import qa.dao.database.components.FieldDataSetterExtractor;

@@ -1,5 +1,6 @@
-package qa.entities;
+package qa.dao.entities;
 
+import qa.dao.Domain;
 import qa.dao.database.components.Field;
 import qa.dao.database.components.FieldDataSetterExtractor;
 import qa.dao.database.components.FieldExtractor;
@@ -7,20 +8,48 @@ import qa.domain.setters.SetterField;
 
 import java.time.LocalDateTime;
 
-public class NestedEntity implements FieldExtractor, FieldDataSetterExtractor {
+public class Entity implements FieldExtractor, FieldDataSetterExtractor, Domain {
+
     private Long id;
     private String str;
     private Boolean bool;
     private LocalDateTime date;
+    private NestedEntity nested1;
+    private NestedEntity nested2;
 
-    public NestedEntity(Long id, String str, Boolean bool, LocalDateTime date) {
+    public Entity(Long id, String str, Boolean bool, LocalDateTime date) {
         this.id = id;
         this.str = str;
         this.bool = bool;
         this.date = date;
     }
 
-    public NestedEntity() {
+    public Entity(Long id, String str, Boolean bool, LocalDateTime date, NestedEntity nested1, NestedEntity nested2) {
+        this.id = id;
+        this.str = str;
+        this.bool = bool;
+        this.date = date;
+        this.nested1 = nested1;
+        this.nested2 = nested2;
+    }
+
+    public Entity() {
+    }
+
+    public NestedEntity getNested1() {
+        return nested1;
+    }
+
+    public void setNested1(NestedEntity nested1) {
+        this.nested1 = nested1;
+    }
+
+    public NestedEntity getNested2() {
+        return nested2;
+    }
+
+    public void setNested2(NestedEntity nested2) {
+        this.nested2 = nested2;
     }
 
     public Long getId() {
@@ -71,12 +100,13 @@ public class NestedEntity implements FieldExtractor, FieldDataSetterExtractor {
                 new SetterField("id", Long.class),
                 new SetterField("str", String.class),
                 new SetterField("bool", Boolean.class),
-                new SetterField("date", LocalDateTime.class)
+                new SetterField("date", LocalDateTime.class),
+                new SetterField("nested1", NestedEntity.class)
         };
     }
 
     @Override
     public String getClassName() {
-        return "NestedEntity";
+        return "Entity";
     }
 }

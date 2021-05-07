@@ -7,9 +7,9 @@ import qa.dao.database.components.Field;
 import qa.dao.database.components.Table;
 import qa.dao.database.components.Where;
 import qa.dao.database.components.WhereOperator;
-import qa.entities.BigEntity;
-import qa.entities.Entity;
-import qa.entities.NestedEntity;
+import qa.dao.entities.BigEntity;
+import qa.dao.entities.Entity;
+import qa.dao.entities.NestedEntity;
 import qa.logger.TestLogger;
 import qa.tools.annotations.TestClass;
 
