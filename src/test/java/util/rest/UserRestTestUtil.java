@@ -15,11 +15,11 @@ public class UserRestTestUtil extends RestTestUtil {
 
     public static JSONObject usernameBADJson() {
         JSONObject json = new JSONObject();
-        json.put("username", UserQueryParameters.USERNAME);
+        json.put("q", UserQueryParameters.USERNAME);
         return json;
     }
 
-    public static JSONObject idPageJSON(int id, int page) {
+    public static JSONObject idPageJSON(long id, int page) {
         JSONObject json = new JSONObject();
         json.put("id", id);
         json.put("page", page);

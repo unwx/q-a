@@ -7,7 +7,6 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
-import qa.dao.util.HibernateSessionFactoryConfigurer;
 import qa.domain.Answer;
 import qa.domain.Question;
 import qa.dto.response.user.UserAnswersResponse;
@@ -24,8 +22,10 @@ import qa.dto.response.user.UserFullResponse;
 import qa.dto.response.user.UserQuestionsResponse;
 import qa.logger.TestLogger;
 import qa.tools.annotations.SpringTest;
+import redis.clients.jedis.Jedis;
 import util.dao.AnswerDaoTestUtil;
 import util.dao.QuestionDaoTestUtil;
+import util.dao.TruncateUtil;
 import util.dao.UserDaoTestUtil;
 import util.dao.query.params.UserQueryParameters;
 import util.rest.UserRestTestUtil;
@@ -38,7 +38,6 @@ import static org.hamcrest.Matchers.*;
 @SpringTest
 public class UserRestControllerTest {
 
-    private SessionFactory sessionFactory;
     private UserDaoTestUtil userDaoTestUtil;
     private AnswerDaoTestUtil answerDaoTestUtil;
     private QuestionDaoTestUtil questionDaoTestUtil;
@@ -46,30 +45,45 @@ public class UserRestControllerTest {
     @Autowired
     private JedisResourceCenter jedisResourceCenter;
 
+    @Autowired
+    private SessionFactory sessionFactory;
+
     private final TestLogger logger = new TestLogger(UserRestControllerTest.class);
+
+    private static final String GET_ENDPOINT                      = "get";
+    private static final String GET_QUESTIONS_ENDPOINT            = "questions/get";
+    private static final String GET_ANSWERS_ENDPOINT              = "answers/get";
+
+    private static final String LOG_GET_JSON                      = "by json | assert correct result";
+    private static final String LOG_GET_URL                       = "by url | assert correct result";
+    private static final String LOG_GET_JSON_EMPTY_ARRAY          = "by json | assert user questions & answers are empty list";
+    private static final String LOG_GET_URL_EMPTY_ARRAY           = "by url | assert user questions & answers are empty list";
+    private static final String LOG_GET_QUESTIONS_JSON            = "get user questions by json | assert correct result";
+    private static final String LOG_GET_QUESTIONS_URL             = "get user questions by url | assert user questions & answers are empty list";
+    private static final String LOG_GET_QUESTIONS_EMPTY_LIST      = "get user questions | assert user questions equals empty list";
+    private static final String LOG_GET_ANSWERS_JSON              = "get user answers by json | assert user questions & answers are empty list";
+    private static final String LOG_GET_ANSWERS_URL               = "get user by url | assert user questions & answers are empty list";
+    private static final String LOG_GET_ANSWERS_EMPTY_LIST        = "get user answers by url | assert user answers equals empty list";
 
     @BeforeAll
     void init() {
-        sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         userDaoTestUtil = new UserDaoTestUtil(sessionFactory);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
+
+        RestAssured.baseURI = "http://localhost:8080/api/v1/user/";
+        RestAssured.port = 8080;
     }
 
     @BeforeEach
     void truncate() {
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createSQLQuery("truncate table question cascade").executeUpdate();
-            session.createSQLQuery("truncate table authentication cascade").executeUpdate();
-            session.createSQLQuery("truncate table usr cascade").executeUpdate();
-            transaction.commit();
-            RestAssured.baseURI = "http://localhost:8080/api/v1/user/";
-            RestAssured.port = 8080;
+            TruncateUtil.truncatePQ(session);
         }
-        JedisResource resource = jedisResourceCenter.getResource();
-        resource.getJedis().flushDB();
-        resource.close();
+        try (JedisResource resource = jedisResourceCenter.getResource()) {
+            final Jedis jedis = resource.getJedis();
+            TruncateUtil.truncateRedis(jedis);
+        }
     }
 
 
@@ -81,11 +95,15 @@ public class UserRestControllerTest {
 
             @Test
             void url() throws JsonProcessingException {
-                logger.trace("by url");
-                questionDaoTestUtil.createManyQuestionsWithManyAnswers(UserDaoTestUtil.RESULT_SIZE, 2);
-                RequestSpecification request = UserRestTestUtil.getRequest();
+                logger.trace(LOG_GET_URL);
 
-                Response response = request.get("get/" + UserQueryParameters.USERNAME);
+                final int answers = 2;
+                questionDaoTestUtil.createManyQuestionsWithManyAnswers(UserDaoTestUtil.RESULT_SIZE, answers);
+
+                final String path = GET_ENDPOINT + '/' + UserQueryParameters.USERNAME;
+                final RequestSpecification request = UserRestTestUtil.getRequest();
+
+                final Response response = request.get(path);
                 assertThat(response.getStatusCode(), equalTo(200));
 
                 assertCorrectDataGetUserSuccess(response.getBody().asString());
@@ -93,12 +111,15 @@ public class UserRestControllerTest {
 
             @Test
             void json() throws JsonProcessingException {
-                logger.trace("by json");
-                questionDaoTestUtil.createManyQuestionsWithManyAnswers(UserDaoTestUtil.RESULT_SIZE, 2);
-                JSONObject json = UserRestTestUtil.usernameJson();
-                RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                logger.trace(LOG_GET_JSON);
 
-                Response response = request.get("get");
+                final int answers = 2;
+                questionDaoTestUtil.createManyQuestionsWithManyAnswers(UserDaoTestUtil.RESULT_SIZE, answers);
+
+                final JSONObject json = UserRestTestUtil.usernameJson();
+                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+
+                final Response response = request.get(GET_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(200));
 
                 assertCorrectDataGetUserSuccess(response.getBody().asString());
@@ -106,16 +127,17 @@ public class UserRestControllerTest {
         }
 
         @Nested
-        class not_found {
+        class not_found_nested {
 
             @Test
             void json_assert_empty_list() throws JsonProcessingException {
-                logger.trace("by json. assert response is empty array");
+                logger.trace(LOG_GET_JSON_EMPTY_ARRAY);
                 userDaoTestUtil.createUser();
-                JSONObject json = UserRestTestUtil.usernameJson();
-                RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
-                Response response = request.get("get");
+                final JSONObject json = UserRestTestUtil.usernameJson();
+                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+
+                final Response response = request.get(GET_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(200));
 
                 assertCorrectDataGetUserNotFound(response.getBody().asString());
@@ -123,11 +145,13 @@ public class UserRestControllerTest {
 
             @Test
             void url_assert_empty_list() throws JsonProcessingException {
-                logger.trace("by url. assert response is empty array");
+                logger.trace(LOG_GET_URL_EMPTY_ARRAY);
                 userDaoTestUtil.createUser();
-                RequestSpecification request = UserRestTestUtil.getRequest();
 
-                Response response = request.get("get/" + UserQueryParameters.USERNAME);
+                final String path = GET_ENDPOINT + '/' + UserQueryParameters.USERNAME;
+                final RequestSpecification request = UserRestTestUtil.getRequest();
+
+                final Response response = request.get(path);
                 assertThat(response.getStatusCode(), equalTo(200));
 
                 assertCorrectDataGetUserNotFound(response.getBody().asString());
@@ -139,20 +163,21 @@ public class UserRestControllerTest {
 
             @Test
             void json() {
-                logger.trace("by json");
-                JSONObject json = UserRestTestUtil.usernameBADJson();
-                RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                logger.trace(LOG_GET_JSON);
+                final JSONObject json = UserRestTestUtil.usernameBADJson();
+                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
-                Response response = request.get("questions/get");
+                final Response response = request.get(GET_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(400));
             }
 
             @Test
             void url() {
-                logger.trace("by url");
-                RequestSpecification request = UserRestTestUtil.getRequest();
+                logger.trace(LOG_GET_URL);
+                final String path = GET_ENDPOINT + "/q";
+                final RequestSpecification request = UserRestTestUtil.getRequest();
 
-                Response response = request.get("get/" + "o");
+                final Response response = request.get(path);
                 assertThat(response.getStatusCode(), equalTo(400));
             }
         }
@@ -166,12 +191,16 @@ public class UserRestControllerTest {
 
             @Test
             void json() throws JsonProcessingException {
-                logger.trace("by json");
+                logger.trace(LOG_GET_QUESTIONS_JSON);
                 questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
-                JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
-                RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
-                Response response = request.get("questions/get");
+                final long userId = 1L;
+                final int page = 1;
+
+                final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
+                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+
+                final Response response = request.get(GET_QUESTIONS_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(200));
 
                 assertCorrectDataGetQuestions(response.getBody().asString());
@@ -179,11 +208,13 @@ public class UserRestControllerTest {
 
             @Test
             void url() throws JsonProcessingException {
-                logger.trace("by url");
+                logger.trace(LOG_GET_QUESTIONS_URL);
                 questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
-                RequestSpecification request = UserRestTestUtil.getRequest();
 
-                Response response = request.get("questions/get/1/1");
+                final String path = GET_QUESTIONS_ENDPOINT + "/1/1";
+                final RequestSpecification request = UserRestTestUtil.getRequest();
+
+                final Response response = request.get(path);
                 assertThat(response.getStatusCode(), equalTo(200));
 
                 assertCorrectDataGetQuestions(response.getBody().asString());
@@ -195,22 +226,28 @@ public class UserRestControllerTest {
 
             @Test
             void json() {
-                logger.trace("by json");
+                logger.trace(LOG_GET_QUESTIONS_JSON);
                 questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
-                JSONObject json = UserRestTestUtil.idPageJSON(1, 0);
-                RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
-                Response response = request.get("questions/get");
+                final long userId = -1L;
+                final int page = 0;
+
+                final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
+                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+
+                Response response = request.get(GET_QUESTIONS_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(400));
             }
 
             @Test
             void url() {
-                logger.trace("by url");
+                logger.trace(LOG_GET_QUESTIONS_URL);
                 questionDaoTestUtil.createManyQuestions(UserDaoTestUtil.RESULT_SIZE);
-                RequestSpecification request = UserRestTestUtil.getRequest();
 
-                Response response = request.get("questions/get/1/0");
+                final String path = GET_QUESTIONS_ENDPOINT + "/-1/0";
+                final RequestSpecification request = UserRestTestUtil.getRequest();
+
+                final Response response = request.get(path);
                 assertThat(response.getStatusCode(), equalTo(400));
             }
         }
@@ -223,20 +260,25 @@ public class UserRestControllerTest {
 
                 @Test
                 void json() {
-                    logger.trace("by json");
-                    JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
-                    RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                    logger.trace(LOG_GET_QUESTIONS_JSON);
 
-                    Response response = request.get("questions/get");
+                    final long userId = 1L;
+                    final int page = 1;
+
+                    final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
+                    final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+
+                    final Response response = request.get(GET_QUESTIONS_ENDPOINT);
                     assertThat(response.getStatusCode(), equalTo(404));
                 }
 
                 @Test
                 void url() {
-                    logger.trace("by url");
-                    RequestSpecification request = UserRestTestUtil.getRequest();
+                    logger.trace(LOG_GET_QUESTIONS_URL);
+                    final String path = GET_QUESTIONS_ENDPOINT + "/1/1";
+                    final RequestSpecification request = UserRestTestUtil.getRequest();
 
-                    Response response = request.get("questions/get/1/1");
+                    final Response response = request.get(path);
                     assertThat(response.getStatusCode(), equalTo(404));
                 }
             }
@@ -246,30 +288,36 @@ public class UserRestControllerTest {
 
                 @Test
                 void json() throws JsonProcessingException {
-                    logger.trace("by json");
+                    logger.trace(LOG_GET_QUESTIONS_EMPTY_LIST);
                     userDaoTestUtil.createUser();
-                    JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
-                    RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
-                    Response response = request.get("questions/get");
+                    final long userId = 1L;
+                    final int page = 1;
+
+                    final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
+                    final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+
+                    final Response response = request.get(GET_QUESTIONS_ENDPOINT);
                     assertThat(response.getStatusCode(), equalTo(200));
 
-                    ObjectMapper mapper = new ObjectMapper();
-                    UserQuestionsResponse[] questionsResponse = mapper.readValue(response.body().asString(), UserQuestionsResponse[].class);
+                    final ObjectMapper mapper = UserRestTestUtil.getObjectMapper();
+                    final UserQuestionsResponse[] questionsResponse = mapper.readValue(response.body().asString(), UserQuestionsResponse[].class);
                     assertThat(questionsResponse.length, equalTo(0));
                 }
 
                 @Test
                 void url() throws JsonProcessingException {
-                    logger.trace("by url");
+                    logger.trace(LOG_GET_QUESTIONS_EMPTY_LIST);
                     userDaoTestUtil.createUser();
-                    RequestSpecification request = UserRestTestUtil.getRequest();
 
-                    Response response = request.get("questions/get/1/1");
+                    final String path = GET_QUESTIONS_ENDPOINT + "/1/1";
+                    final RequestSpecification request = UserRestTestUtil.getRequest();
+
+                    final Response response = request.get(path);
                     assertThat(response.getStatusCode(), equalTo(200));
 
-                    ObjectMapper mapper = new ObjectMapper();
-                    UserQuestionsResponse[] questionsResponse = mapper.readValue(response.body().asString(), UserQuestionsResponse[].class);
+                    final ObjectMapper mapper = UserRestTestUtil.getObjectMapper();
+                    final UserQuestionsResponse[] questionsResponse = mapper.readValue(response.body().asString(), UserQuestionsResponse[].class);
                     assertThat(questionsResponse.length, equalTo(0));
                 }
             }
@@ -284,12 +332,16 @@ public class UserRestControllerTest {
 
             @Test
             void json() throws JsonProcessingException {
-                logger.trace("by json");
+                logger.trace(LOG_GET_ANSWERS_JSON);
                 answerDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
-                JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
-                RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
-                Response response = request.get("answers/get");
+                final long userId = 1L;
+                final int page = 1;
+
+                final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
+                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+
+                final Response response = request.get(GET_ANSWERS_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(200));
 
                 assertCorrectDataGetAnswers(response.getBody().asString());
@@ -297,11 +349,13 @@ public class UserRestControllerTest {
 
             @Test
             void url() throws JsonProcessingException {
-                logger.trace("by url");
+                logger.trace(LOG_GET_ANSWERS_URL);
                 answerDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
-                RequestSpecification request = UserRestTestUtil.getRequest();
 
-                Response response = request.get("answers/get/1/1");
+                final String path = GET_ANSWERS_ENDPOINT + "/1/1";
+                final RequestSpecification request = UserRestTestUtil.getRequest();
+
+                final Response response = request.get(path);
                 assertThat(response.getStatusCode(), equalTo(200));
 
                 assertCorrectDataGetAnswers(response.getBody().asString());
@@ -313,22 +367,28 @@ public class UserRestControllerTest {
 
             @Test
             void json() {
-                logger.trace("by json");
+                logger.trace(LOG_GET_ANSWERS_JSON);
                 answerDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
-                JSONObject json = UserRestTestUtil.idPageJSON(1, 0);
-                RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
-                Response response = request.get("answers/get");
+                final long userId = -1L;
+                final int page = 0;
+
+                final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
+                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+
+                Response response = request.get(GET_ANSWERS_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(400));
             }
 
             @Test
             void url() {
-                logger.trace("by url");
+                logger.trace(LOG_GET_ANSWERS_URL);
                 answerDaoTestUtil.createManyAnswers(UserDaoTestUtil.RESULT_SIZE);
-                RequestSpecification request = RestAssured.given();
 
-                Response response = request.get("answers/get/1/0");
+                final String path = GET_ANSWERS_ENDPOINT + "/-1/0";
+                final RequestSpecification request = RestAssured.given();
+
+                final Response response = request.get(path);
                 assertThat(response.getStatusCode(), equalTo(400));
             }
         }
@@ -341,20 +401,26 @@ public class UserRestControllerTest {
 
                 @Test
                 void json() {
-                    logger.trace("by json");
-                    JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
-                    RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                    logger.trace(LOG_GET_ANSWERS_JSON);
 
-                    Response response = request.get("answers/get");
+                    final long userId = 1L;
+                    final int page = 1;
+
+                    final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
+                    final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+
+                    final Response response = request.get(GET_ANSWERS_ENDPOINT);
                     assertThat(response.getStatusCode(), equalTo(404));
                 }
 
                 @Test
                 void url() {
-                    logger.trace("by url");
-                    RequestSpecification request = UserRestTestUtil.getRequest();
+                    logger.trace(LOG_GET_ANSWERS_URL);
 
-                    Response response = request.get("answers/get/1/1");
+                    final String path = GET_ANSWERS_ENDPOINT + "/1/1";
+                    final RequestSpecification request = UserRestTestUtil.getRequest();
+
+                    final Response response = request.get(path);
                     assertThat(response.getStatusCode(), equalTo(404));
                 }
             }
@@ -364,30 +430,36 @@ public class UserRestControllerTest {
 
                 @Test
                 void json() throws JsonProcessingException {
-                    logger.trace("by json");
+                    logger.trace(LOG_GET_ANSWERS_EMPTY_LIST);
                     userDaoTestUtil.createUser();
-                    JSONObject json = UserRestTestUtil.idPageJSON(1, 1);
-                    RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
 
-                    Response response = request.get("answers/get");
+                    final long userId = 1L;
+                    final int page = 1;
+
+                    final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
+                    final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+
+                    final Response response = request.get(GET_ANSWERS_ENDPOINT);
                     assertThat(response.getStatusCode(), equalTo(200));
 
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    UserAnswersResponse[] answersResponse = objectMapper.readValue(response.getBody().asString(), UserAnswersResponse[].class);
+                    final ObjectMapper objectMapper = UserRestTestUtil.getObjectMapper();
+                    final UserAnswersResponse[] answersResponse = objectMapper.readValue(response.getBody().asString(), UserAnswersResponse[].class);
                     assertThat(answersResponse.length, equalTo(0));
                 }
 
                 @Test
                 void url() throws JsonProcessingException {
-                    logger.trace("by url");
+                    logger.trace(LOG_GET_ANSWERS_EMPTY_LIST);
                     userDaoTestUtil.createUser();
-                    RequestSpecification request = UserRestTestUtil.getRequest();
 
-                    Response response = request.get("answers/get/1/1");
+                    final String path = GET_ANSWERS_ENDPOINT + "/1/1";
+                    final RequestSpecification request = UserRestTestUtil.getRequest();
+
+                    final Response response = request.get(path);
                     assertThat(response.getStatusCode(), equalTo(200));
 
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    UserAnswersResponse[] answersResponse = objectMapper.readValue(response.getBody().asString(), UserAnswersResponse[].class);
+                    final ObjectMapper objectMapper = UserRestTestUtil.getObjectMapper();
+                    final UserAnswersResponse[] answersResponse = objectMapper.readValue(response.getBody().asString(), UserAnswersResponse[].class);
                     assertThat(answersResponse.length, equalTo(0));
                 }
             }
@@ -395,8 +467,10 @@ public class UserRestControllerTest {
     }
 
     private void assertCorrectDataGetAnswers(String json) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        UserAnswersResponse[] answersResponse = objectMapper.readValue(json, UserAnswersResponse[].class);
+        final ObjectMapper objectMapper = UserRestTestUtil.getObjectMapper();
+        final UserAnswersResponse[] answersResponse = objectMapper.readValue(json, UserAnswersResponse[].class);
+        assertThat(answersResponse.length, greaterThan(0));
+
         for (UserAnswersResponse userAnswersResponse : answersResponse) {
             assertThat(userAnswersResponse, notNullValue());
             assertThat(userAnswersResponse.getAnswerId(), notNullValue());
@@ -405,8 +479,8 @@ public class UserRestControllerTest {
     }
 
     private void assertCorrectDataGetQuestions(String json) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        UserQuestionsResponse[] questionsResponse = mapper.readValue(json, UserQuestionsResponse[].class);
+        final ObjectMapper objectMapper = UserRestTestUtil.getObjectMapper();
+        final UserQuestionsResponse[] questionsResponse = objectMapper.readValue(json, UserQuestionsResponse[].class);
         assertThat(questionsResponse.length, greaterThan(0));
 
         for (UserQuestionsResponse userQuestionsResponse : questionsResponse) {
@@ -417,8 +491,8 @@ public class UserRestControllerTest {
     }
 
     private void assertCorrectDataGetUserNotFound(String json) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        UserFullResponse userFullResponse = mapper.readValue(json, UserFullResponse.class);
+        final ObjectMapper mapper = UserRestTestUtil.getObjectMapper();
+        final UserFullResponse userFullResponse = mapper.readValue(json, UserFullResponse.class);
 
         assertThat(userFullResponse, notNullValue());
         assertThat(userFullResponse.getUserId(), notNullValue());
@@ -433,13 +507,16 @@ public class UserRestControllerTest {
     }
 
     private void assertCorrectDataGetUserSuccess(String json) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        UserFullResponse userFullResponse = mapper.readValue(json, UserFullResponse.class);
+        final ObjectMapper mapper = UserRestTestUtil.getObjectMapper();
+        final UserFullResponse userFullResponse = mapper.readValue(json, UserFullResponse.class);
 
         assertThat(userFullResponse, notNullValue());
         assertThat(userFullResponse.getUserId(), notNullValue());
         assertThat(userFullResponse.getAbout(), notNullValue());
         assertThat(userFullResponse.getUsername(), notNullValue());
+
+        assertThat(userFullResponse.getQuestions().size(), greaterThan(0));
+        assertThat(userFullResponse.getAnswers().size(), greaterThan(0));
 
         for (Question q : userFullResponse.getQuestions()) {
             assertThat(q.getId(), notNullValue());
