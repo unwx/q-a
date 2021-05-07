@@ -7,8 +7,7 @@ public class LogCenter {
     private static TestLogger currentLogger;
     private static boolean lastClass = false;
 
-    private LogCenter() {
-    }
+    private LogCenter() {}
 
     public static TestLogger get() {
         return currentLogger;

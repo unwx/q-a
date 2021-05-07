@@ -14,24 +14,23 @@ public class LoggingExtension implements BeforeAllCallback, AfterAllCallback, Af
 
     @Override
     public void beforeAll(ExtensionContext extensionContext) throws Exception {
+        final Class<?> caller = extensionContext.getTestClass().orElseThrow(ClassNotFoundException::new);
+
         if (superClass) {
             superClass = false;
-            if (extensionContext.getTestClass().orElseThrow().getDeclaredClasses().length == 0) {
+            if (caller.getDeclaredClasses().length == 0) {
                 hasNested = false;
             }
             return;
         }
 
-        Class<?> caller = extensionContext.getTestClass().orElseThrow(ClassNotFoundException::new);
         LogCenter.get().nested(caller);
     }
 
     @Override
     public void afterAll(ExtensionContext extensionContext) {
-        if (!hasNested)
-            LogCenter.get().end();
-        else if (LogCenter.isLastClass())
-            LogCenter.get().end();
+        if (!hasNested) LogCenter.get().end();
+        else if (LogCenter.isLastClass()) LogCenter.get().end();
     }
 
     @Override
