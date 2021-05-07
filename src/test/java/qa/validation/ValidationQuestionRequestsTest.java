@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import qa.dto.request.comment.CommentQuestionGetRequest;
 import qa.dto.request.comment.CommentQuestionLikeRequest;
 import qa.dto.request.question.*;
@@ -21,13 +22,22 @@ import util.validation.ValidationTestUtil;
 @MockitoTest
 public class ValidationQuestionRequestsTest {
 
-    private final ValidationChainAdditional validationChain = new ValidationChainAdditionalImpl();
+    private ValidationChainAdditional validationChain;
     private ValidationPropertyDataSource propertyDataSource;
 
     private final TestLogger logger = new TestLogger(ValidationQuestionRequestsTest.class);
 
+    private static final String LOG_VALID                   = "valid";
+    private static final String LOG_INVALID_ID              = "invalid id";
+    private static final String LOG_INVALID_TITLE           = "invalid title";
+    private static final String LOG_INVALID_TEXT            = "invalid text";
+    private static final String LOG_INVALID_PAGE            = "invalid page";
+    private static final String LOG_INVALID_TAG             = "invalid tag";
+    private static final String LOG_INVALID_TAG_REGEX       = "invalid by regex pattern";
+
     @BeforeAll
     void init() {
+        validationChain = Mockito.spy(ValidationChainAdditionalImpl.class);
         propertyDataSource = ValidationTestUtil.mockValidationProperties();
     }
 
@@ -36,34 +46,41 @@ public class ValidationQuestionRequestsTest {
 
         @Test
         void valid() {
-            logger.trace("valid");
-            QuestionCreateRequestValidationWrapper validationWrapper = new QuestionCreateRequestValidationWrapper(
+            logger.trace(LOG_VALID);
+            final QuestionCreateRequestValidationWrapper validationWrapper = new QuestionCreateRequestValidationWrapper(
                     new QuestionCreateRequest(
                             QuestionQueryParameters.TITLE,
                             QuestionQueryParameters.TEXT,
-                            QuestionQueryParameters.TAGS_ARRAY), propertyDataSource);
+                            QuestionQueryParameters.TAGS_ARRAY
+                    ),
+                    propertyDataSource
+            );
             Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
 
         @Test
         void invalid_title() {
-            logger.trace("invalid title");
-            QuestionCreateRequestValidationWrapper validationWrapper = new QuestionCreateRequestValidationWrapper(
+            logger.trace(LOG_INVALID_TITLE);
+            final QuestionCreateRequestValidationWrapper validationWrapper = new QuestionCreateRequestValidationWrapper(
                     new QuestionCreateRequest(
                             "How do",
                             QuestionQueryParameters.TEXT,
-                            QuestionQueryParameters.TAGS_ARRAY), propertyDataSource);
+                            QuestionQueryParameters.TAGS_ARRAY
+                    ),
+                    propertyDataSource);
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
 
         @Test
         void invalid_text() {
-            logger.trace("invalid text");
-            QuestionCreateRequestValidationWrapper validationWrapper = new QuestionCreateRequestValidationWrapper(
+            logger.trace(LOG_INVALID_TEXT);
+            final QuestionCreateRequestValidationWrapper validationWrapper = new QuestionCreateRequestValidationWrapper(
                     new QuestionCreateRequest(
                             QuestionQueryParameters.TITLE,
                             "how do",
-                            QuestionQueryParameters.TAGS_ARRAY), propertyDataSource);
+                            QuestionQueryParameters.TAGS_ARRAY
+                    ),
+                    propertyDataSource);
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
 
@@ -72,23 +89,28 @@ public class ValidationQuestionRequestsTest {
 
             @Test
             void null_tag() {
-                logger.trace("null tag");
-                QuestionCreateRequestValidationWrapper validationWrapper = new QuestionCreateRequestValidationWrapper(
+                logger.trace(LOG_INVALID_TAG);
+                final QuestionCreateRequestValidationWrapper validationWrapper = new QuestionCreateRequestValidationWrapper(
                         new QuestionCreateRequest(
                                 QuestionQueryParameters.TITLE,
                                 QuestionQueryParameters.TEXT,
-                                new String[]{null, "mockito", "autowired"}), propertyDataSource);
+                                new String[]{null, "mockito", "autowired"}
+                        ),
+                        propertyDataSource);
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void by_regex_pattern() {
-                logger.trace("invalid by regex pattern");
-                QuestionCreateRequestValidationWrapper validationWrapper = new QuestionCreateRequestValidationWrapper(
+                logger.trace(LOG_INVALID_TAG_REGEX);
+                final QuestionCreateRequestValidationWrapper validationWrapper = new QuestionCreateRequestValidationWrapper(
                         new QuestionCreateRequest(
                                 QuestionQueryParameters.TITLE,
                                 QuestionQueryParameters.TEXT,
-                                new String[]{"sp_!#@$", "q"}), propertyDataSource);
+                                new String[]{"sp_!#@$", "q"}
+                        ),
+                        propertyDataSource
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
@@ -99,25 +121,29 @@ public class ValidationQuestionRequestsTest {
 
         @Test
         void valid() {
-            logger.trace("valid");
-            QuestionEditRequestValidationWrapper validationWrapper = new QuestionEditRequestValidationWrapper(
+            logger.trace(LOG_VALID);
+            final QuestionEditRequestValidationWrapper validationWrapper = new QuestionEditRequestValidationWrapper(
                     new QuestionEditRequest(
                             1L,
                             QuestionQueryParameters.TEXT,
-                            QuestionQueryParameters.TAGS_ARRAY),
-                    propertyDataSource);
+                            QuestionQueryParameters.TAGS_ARRAY
+                    ),
+                    propertyDataSource
+            );
             Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
 
         @Test
         void invalid_id() {
-            logger.trace("invalid id");
-            QuestionEditRequestValidationWrapper validationWrapper = new QuestionEditRequestValidationWrapper(
+            logger.trace(LOG_INVALID_ID);
+            final QuestionEditRequestValidationWrapper validationWrapper = new QuestionEditRequestValidationWrapper(
                     new QuestionEditRequest(
                             -5L,
                             QuestionQueryParameters.TEXT,
-                            QuestionQueryParameters.TAGS_ARRAY),
-                    propertyDataSource);
+                            QuestionQueryParameters.TAGS_ARRAY
+                    ),
+                    propertyDataSource
+            );
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
     }
@@ -127,17 +153,19 @@ public class ValidationQuestionRequestsTest {
 
         @Test
         void valid() {
-            logger.trace("valid");
-            QuestionDeleteRequestValidationWrapper validationWrapper = new QuestionDeleteRequestValidationWrapper(
-                    new QuestionDeleteRequest(5L));
+            logger.trace(LOG_VALID);
+            final QuestionDeleteRequestValidationWrapper validationWrapper = new QuestionDeleteRequestValidationWrapper(
+                    new QuestionDeleteRequest(5L)
+            );
             Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
 
         @Test
         void invalid_id() {
-            logger.trace("invalid id");
-            QuestionDeleteRequestValidationWrapper validationWrapper = new QuestionDeleteRequestValidationWrapper(
-                    new QuestionDeleteRequest(-5L));
+            logger.trace(LOG_INVALID_ID);
+            final QuestionDeleteRequestValidationWrapper validationWrapper = new QuestionDeleteRequestValidationWrapper(
+                    new QuestionDeleteRequest(-5L)
+            );
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
     }
@@ -150,9 +178,10 @@ public class ValidationQuestionRequestsTest {
 
             @Test
             void valid() {
-                logger.trace("valid");
-                QuestionGetViewsRequestValidationWrapper validationWrapper = new QuestionGetViewsRequestValidationWrapper(
-                        new QuestionGetViewsRequest(1));
+                logger.trace(LOG_VALID);
+                final QuestionGetViewsRequestValidationWrapper validationWrapper = new QuestionGetViewsRequestValidationWrapper(
+                        new QuestionGetViewsRequest(1)
+                );
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
@@ -161,17 +190,19 @@ public class ValidationQuestionRequestsTest {
 
                 @Test
                 void zero() {
-                    logger.trace("zero page");
-                    QuestionGetViewsRequestValidationWrapper validationWrapper = new QuestionGetViewsRequestValidationWrapper(
-                            new QuestionGetViewsRequest(0));
+                    logger.trace(LOG_INVALID_PAGE);
+                    final QuestionGetViewsRequestValidationWrapper validationWrapper = new QuestionGetViewsRequestValidationWrapper(
+                            new QuestionGetViewsRequest(0)
+                    );
                     Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
                 }
 
                 @Test
                 void negative() {
-                    logger.trace("-page");
-                    QuestionGetViewsRequestValidationWrapper validationWrapper = new QuestionGetViewsRequestValidationWrapper(
-                            new QuestionGetViewsRequest(-3));
+                    logger.trace(LOG_INVALID_PAGE);
+                    final QuestionGetViewsRequestValidationWrapper validationWrapper = new QuestionGetViewsRequestValidationWrapper(
+                            new QuestionGetViewsRequest(-3)
+                    );
                     Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
                 }
             }
@@ -181,17 +212,19 @@ public class ValidationQuestionRequestsTest {
         class full_question {
             @Test
             void valid() {
-                logger.trace("valid");
-                QuestionGetFullRequestValidationWrapper validationWrapper = new QuestionGetFullRequestValidationWrapper(
-                        new QuestionGetFullRequest(1L));
+                logger.trace(LOG_VALID);
+                final QuestionGetFullRequestValidationWrapper validationWrapper = new QuestionGetFullRequestValidationWrapper(
+                        new QuestionGetFullRequest(1L)
+                );
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_id() {
-                logger.trace("invalid id");
-                QuestionGetFullRequestValidationWrapper validationWrapper = new QuestionGetFullRequestValidationWrapper(
-                        new QuestionGetFullRequest(-5L));
+                logger.trace(LOG_INVALID_ID);
+                final QuestionGetFullRequestValidationWrapper validationWrapper = new QuestionGetFullRequestValidationWrapper(
+                        new QuestionGetFullRequest(-5L)
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
@@ -201,9 +234,10 @@ public class ValidationQuestionRequestsTest {
 
             @Test
             void valid() {
-                logger.trace("valid");
-                CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
-                        new CommentQuestionGetRequest(1L, 1));
+                logger.trace(LOG_VALID);
+                final CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
+                        new CommentQuestionGetRequest(1L, 1)
+                );
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
@@ -212,17 +246,19 @@ public class ValidationQuestionRequestsTest {
 
                 @Test
                 void page() {
-                    logger.trace("invalid page");
-                    CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
-                            new CommentQuestionGetRequest(1L, 0));
+                    logger.trace(LOG_INVALID_PAGE);
+                    final CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
+                            new CommentQuestionGetRequest(1L, 0)
+                    );
                     Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
                 }
 
                 @Test
                 void question_id() {
-                    logger.trace("invalid question id");
-                    CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
-                            new CommentQuestionGetRequest(-5L, 1));
+                    logger.trace(LOG_INVALID_ID);
+                    final CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
+                            new CommentQuestionGetRequest(-5L, 1)
+                    );
                     Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
                 }
             }
@@ -233,8 +269,8 @@ public class ValidationQuestionRequestsTest {
     class like {
         @Test
         void valid() {
-            logger.trace("valid");
-            CommentQuestionLikeRequestValidationWrapper validationWrapper = new CommentQuestionLikeRequestValidationWrapper(
+            logger.trace(LOG_VALID);
+            final CommentQuestionLikeRequestValidationWrapper validationWrapper = new CommentQuestionLikeRequestValidationWrapper(
                     new CommentQuestionLikeRequest(1L)
             );
             Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
@@ -242,8 +278,8 @@ public class ValidationQuestionRequestsTest {
 
         @Test
         void invalid_id() {
-            logger.trace("invalid id");
-            CommentQuestionLikeRequestValidationWrapper validationWrapper = new CommentQuestionLikeRequestValidationWrapper(
+            logger.trace(LOG_INVALID_ID);
+            final CommentQuestionLikeRequestValidationWrapper validationWrapper = new CommentQuestionLikeRequestValidationWrapper(
                     new CommentQuestionLikeRequest(-1L)
             );
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import qa.dto.request.comment.*;
 import qa.dto.validation.wrapper.answer.CommentAnswerGetRequestValidationWrapper;
 import qa.dto.validation.wrapper.comment.*;
@@ -18,15 +19,21 @@ import util.dao.query.params.CommentQueryParameters;
 import util.validation.ValidationTestUtil;
 
 @MockitoTest
-public class ValidationCommentRequestsTest { // TODO REFACTOR
+public class ValidationCommentRequestsTest {
 
-    private final ValidationChainAdditional validationChain = new ValidationChainAdditionalImpl();
+    private ValidationChainAdditional validationChain;
     private ValidationPropertyDataSource propertyDataSource;
 
     private final TestLogger logger = new TestLogger(ValidationCommentRequestsTest.class);
 
+    private static final String LOG_VALID               = "valid";
+    private static final String LOG_INVALID_ID          = "invalid id";
+    private static final String LOG_INVALID_TEXT        = "invalid text";
+    private static final String LOG_INVALID_PAGE        = "invalid page";
+
     @BeforeAll
     void init() {
+        validationChain = Mockito.spy(ValidationChainAdditionalImpl.class);
         propertyDataSource = ValidationTestUtil.mockValidationProperties();
     }
 
@@ -38,28 +45,31 @@ public class ValidationCommentRequestsTest { // TODO REFACTOR
 
             @Test
             void valid() {
-                logger.trace("valid");
-                CommentQuestionCreateRequestValidationWrapper validationWrapper = new CommentQuestionCreateRequestValidationWrapper(
+                logger.trace(LOG_VALID);
+                final CommentQuestionCreateRequestValidationWrapper validationWrapper = new CommentQuestionCreateRequestValidationWrapper(
                         new CommentQuestionCreateRequest(1L, CommentQueryParameters.TEXT),
-                        propertyDataSource);
+                        propertyDataSource
+                );
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_id() {
-                logger.trace("invalid id");
-                CommentQuestionCreateRequestValidationWrapper validationWrapper = new CommentQuestionCreateRequestValidationWrapper(
+                logger.trace(LOG_INVALID_ID);
+                final CommentQuestionCreateRequestValidationWrapper validationWrapper = new CommentQuestionCreateRequestValidationWrapper(
                         new CommentQuestionCreateRequest(-5L, CommentQueryParameters.TEXT),
-                        propertyDataSource);
+                        propertyDataSource
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_text() {
-                logger.trace("invalid text");
-                CommentQuestionCreateRequestValidationWrapper validationWrapper = new CommentQuestionCreateRequestValidationWrapper(
+                logger.trace(LOG_INVALID_TEXT);
+                final CommentQuestionCreateRequestValidationWrapper validationWrapper = new CommentQuestionCreateRequestValidationWrapper(
                         new CommentQuestionCreateRequest(1L, "? wut"),
-                        propertyDataSource);
+                        propertyDataSource
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
@@ -69,28 +79,31 @@ public class ValidationCommentRequestsTest { // TODO REFACTOR
 
             @Test
             void valid() {
-                logger.trace("valid");
-                CommentQuestionEditRequestValidationWrapper validationWrapper = new CommentQuestionEditRequestValidationWrapper(
+                logger.trace(LOG_VALID);
+                final CommentQuestionEditRequestValidationWrapper validationWrapper = new CommentQuestionEditRequestValidationWrapper(
                         new CommentQuestionEditRequest(1L, CommentQueryParameters.TEXT),
-                        propertyDataSource);
+                        propertyDataSource
+                );
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_id() {
-                logger.trace("invalid id");
-                CommentQuestionEditRequestValidationWrapper validationWrapper = new CommentQuestionEditRequestValidationWrapper(
+                logger.trace(LOG_INVALID_ID);
+                final CommentQuestionEditRequestValidationWrapper validationWrapper = new CommentQuestionEditRequestValidationWrapper(
                         new CommentQuestionEditRequest(-5L, CommentQueryParameters.TEXT),
-                        propertyDataSource);
+                        propertyDataSource
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_text() {
-                logger.trace("invalid text");
-                CommentQuestionEditRequestValidationWrapper validationWrapper = new CommentQuestionEditRequestValidationWrapper(
+                logger.trace(LOG_INVALID_TEXT);
+                final CommentQuestionEditRequestValidationWrapper validationWrapper = new CommentQuestionEditRequestValidationWrapper(
                         new CommentQuestionEditRequest(-5L, "? wut"),
-                        propertyDataSource);
+                        propertyDataSource
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
@@ -100,17 +113,19 @@ public class ValidationCommentRequestsTest { // TODO REFACTOR
 
             @Test
             void valid() {
-                logger.trace("valid");
-                CommentQuestionDeleteRequestValidationWrapper validationWrapper = new CommentQuestionDeleteRequestValidationWrapper(
-                        new CommentQuestionDeleteRequest(1L));
+                logger.trace(LOG_VALID);
+                final CommentQuestionDeleteRequestValidationWrapper validationWrapper = new CommentQuestionDeleteRequestValidationWrapper(
+                        new CommentQuestionDeleteRequest(1L)
+                );
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_id() {
-                logger.trace("invalid id");
-                CommentQuestionDeleteRequestValidationWrapper validationWrapper = new CommentQuestionDeleteRequestValidationWrapper(
-                        new CommentQuestionDeleteRequest(-5L));
+                logger.trace(LOG_INVALID_ID);
+                final CommentQuestionDeleteRequestValidationWrapper validationWrapper = new CommentQuestionDeleteRequestValidationWrapper(
+                        new CommentQuestionDeleteRequest(-5L)
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
@@ -120,25 +135,28 @@ public class ValidationCommentRequestsTest { // TODO REFACTOR
 
             @Test
             void valid() {
-                logger.trace("valid");
-                CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
-                        new CommentQuestionGetRequest(1L, 1));
+                logger.trace(LOG_VALID);
+                final CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
+                        new CommentQuestionGetRequest(1L, 1)
+                );
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_id() {
-                logger.trace("invalid id");
-                CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
-                        new CommentQuestionGetRequest(-1L, 1));
+                logger.trace(LOG_INVALID_ID);
+                final CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
+                        new CommentQuestionGetRequest(-1L, 1)
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_page() {
-                logger.trace("invalid page");
-                CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
-                        new CommentQuestionGetRequest(1L, 0));
+                logger.trace(LOG_INVALID_PAGE);
+                final CommentQuestionGetRequestValidationWrapper validationWrapper = new CommentQuestionGetRequestValidationWrapper(
+                        new CommentQuestionGetRequest(1L, 0)
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
@@ -147,8 +165,8 @@ public class ValidationCommentRequestsTest { // TODO REFACTOR
         class like {
             @Test
             void valid() {
-                logger.trace("valid");
-                CommentQuestionLikeRequestValidationWrapper validationWrapper = new CommentQuestionLikeRequestValidationWrapper(
+                logger.trace(LOG_VALID);
+                final CommentQuestionLikeRequestValidationWrapper validationWrapper = new CommentQuestionLikeRequestValidationWrapper(
                         new CommentQuestionLikeRequest(1L)
                 );
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
@@ -156,8 +174,8 @@ public class ValidationCommentRequestsTest { // TODO REFACTOR
 
             @Test
             void invalid_id() {
-                logger.trace("invalid id");
-                CommentQuestionLikeRequestValidationWrapper validationWrapper = new CommentQuestionLikeRequestValidationWrapper(
+                logger.trace(LOG_INVALID_ID);
+                final CommentQuestionLikeRequestValidationWrapper validationWrapper = new CommentQuestionLikeRequestValidationWrapper(
                         new CommentQuestionLikeRequest(-1L)
                 );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
@@ -173,28 +191,31 @@ public class ValidationCommentRequestsTest { // TODO REFACTOR
 
             @Test
             void valid() {
-                logger.trace("valid");
-                CommentAnswerCreateRequestValidationWrapper validationWrapper = new CommentAnswerCreateRequestValidationWrapper(
+                logger.trace(LOG_VALID);
+                final CommentAnswerCreateRequestValidationWrapper validationWrapper = new CommentAnswerCreateRequestValidationWrapper(
                         new CommentAnswerCreateRequest(1L, CommentQueryParameters.TEXT),
-                        propertyDataSource);
+                        propertyDataSource
+                );
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_id() {
-                logger.trace("invalid id");
-                CommentAnswerCreateRequestValidationWrapper validationWrapper = new CommentAnswerCreateRequestValidationWrapper(
+                logger.trace(LOG_INVALID_ID);
+                final CommentAnswerCreateRequestValidationWrapper validationWrapper = new CommentAnswerCreateRequestValidationWrapper(
                         new CommentAnswerCreateRequest(-5L, CommentQueryParameters.TEXT),
-                        propertyDataSource);
+                        propertyDataSource
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_text() {
-                logger.trace("invalid text");
-                CommentAnswerCreateRequestValidationWrapper validationWrapper = new CommentAnswerCreateRequestValidationWrapper(
+                logger.trace(LOG_INVALID_TEXT);
+                final CommentAnswerCreateRequestValidationWrapper validationWrapper = new CommentAnswerCreateRequestValidationWrapper(
                         new CommentAnswerCreateRequest(1L, "? wut"),
-                        propertyDataSource);
+                        propertyDataSource
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
@@ -204,28 +225,31 @@ public class ValidationCommentRequestsTest { // TODO REFACTOR
 
             @Test
             void valid() {
-                logger.trace("valid");
-                CommentAnswerEditRequestValidationWrapper validationWrapper = new CommentAnswerEditRequestValidationWrapper(
+                logger.trace(LOG_VALID);
+                final CommentAnswerEditRequestValidationWrapper validationWrapper = new CommentAnswerEditRequestValidationWrapper(
                         new CommentAnswerEditRequest(1L, CommentQueryParameters.TEXT),
-                        propertyDataSource);
+                        propertyDataSource
+                );
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_id() {
-                logger.trace("invalid id");
-                CommentAnswerEditRequestValidationWrapper validationWrapper = new CommentAnswerEditRequestValidationWrapper(
+                logger.trace(LOG_INVALID_ID);
+                final CommentAnswerEditRequestValidationWrapper validationWrapper = new CommentAnswerEditRequestValidationWrapper(
                         new CommentAnswerEditRequest(-5L, "thank you! @username. :)"),
-                        propertyDataSource);
+                        propertyDataSource
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_text() {
-                logger.trace("invalid text");
-                CommentAnswerEditRequestValidationWrapper validationWrapper = new CommentAnswerEditRequestValidationWrapper(
+                logger.trace(LOG_INVALID_TEXT);
+                final CommentAnswerEditRequestValidationWrapper validationWrapper = new CommentAnswerEditRequestValidationWrapper(
                         new CommentAnswerEditRequest(-5L, "? wut"),
-                        propertyDataSource);
+                        propertyDataSource
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
@@ -235,17 +259,19 @@ public class ValidationCommentRequestsTest { // TODO REFACTOR
 
             @Test
             void valid() {
-                logger.trace("valid");
-                CommentAnswerDeleteRequestValidationWrapper validationWrapper = new CommentAnswerDeleteRequestValidationWrapper(
-                        new CommentAnswerDeleteRequest(1L));
+                logger.trace(LOG_VALID);
+                final CommentAnswerDeleteRequestValidationWrapper validationWrapper = new CommentAnswerDeleteRequestValidationWrapper(
+                        new CommentAnswerDeleteRequest(1L)
+                );
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_id() {
-                logger.trace("invalid id");
-                CommentAnswerDeleteRequestValidationWrapper validationWrapper = new CommentAnswerDeleteRequestValidationWrapper(
-                        new CommentAnswerDeleteRequest(-5L));
+                logger.trace(LOG_INVALID_ID);
+                final CommentAnswerDeleteRequestValidationWrapper validationWrapper = new CommentAnswerDeleteRequestValidationWrapper(
+                        new CommentAnswerDeleteRequest(-5L)
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
@@ -255,25 +281,28 @@ public class ValidationCommentRequestsTest { // TODO REFACTOR
 
             @Test
             void valid() {
-                logger.trace("valid");
-                CommentAnswerGetRequestValidationWrapper validationWrapper = new CommentAnswerGetRequestValidationWrapper(
-                        new CommentAnswerGetRequest(1L, 1));
+                logger.trace(LOG_VALID);
+                final CommentAnswerGetRequestValidationWrapper validationWrapper = new CommentAnswerGetRequestValidationWrapper(
+                        new CommentAnswerGetRequest(1L, 1)
+                );
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_id() {
-                logger.trace("invalid id");
-                CommentAnswerGetRequestValidationWrapper validationWrapper = new CommentAnswerGetRequestValidationWrapper(
-                        new CommentAnswerGetRequest(-1L, 1));
+                logger.trace(LOG_INVALID_ID);
+                final CommentAnswerGetRequestValidationWrapper validationWrapper = new CommentAnswerGetRequestValidationWrapper(
+                        new CommentAnswerGetRequest(-1L, 1)
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
 
             @Test
             void invalid_page() {
-                logger.trace("invalid page");
-                CommentAnswerGetRequestValidationWrapper validationWrapper = new CommentAnswerGetRequestValidationWrapper(
-                        new CommentAnswerGetRequest(1L, 0));
+                logger.trace(LOG_INVALID_PAGE);
+                final CommentAnswerGetRequestValidationWrapper validationWrapper = new CommentAnswerGetRequestValidationWrapper(
+                        new CommentAnswerGetRequest(1L, 0)
+                );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
             }
         }
@@ -282,8 +311,8 @@ public class ValidationCommentRequestsTest { // TODO REFACTOR
         class like {
             @Test
             void valid() {
-                logger.trace("valid");
-                CommentAnswerLikeRequestValidationWrapper validationWrapper = new CommentAnswerLikeRequestValidationWrapper(
+                logger.trace(LOG_VALID);
+                final CommentAnswerLikeRequestValidationWrapper validationWrapper = new CommentAnswerLikeRequestValidationWrapper(
                         new CommentAnswerLikeRequest(1L)
                 );
                 Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
@@ -291,8 +320,8 @@ public class ValidationCommentRequestsTest { // TODO REFACTOR
 
             @Test
             void invalid_id() {
-                logger.trace("invalid id");
-                CommentAnswerLikeRequestValidationWrapper validationWrapper = new CommentAnswerLikeRequestValidationWrapper(
+                logger.trace(LOG_INVALID_ID);
+                final CommentAnswerLikeRequestValidationWrapper validationWrapper = new CommentAnswerLikeRequestValidationWrapper(
                         new CommentAnswerLikeRequest(-1L)
                 );
                 Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));

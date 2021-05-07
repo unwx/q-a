@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import qa.dto.request.answer.*;
 import qa.dto.validation.wrapper.answer.*;
 import qa.exceptions.validator.ValidationException;
@@ -18,13 +19,19 @@ import util.validation.ValidationTestUtil;
 @MockitoTest
 public class ValidationAnswerRequestsTest {
 
-    private final ValidationChainAdditional validationChain = new ValidationChainAdditionalImpl();
+    private ValidationChainAdditional validationChain;
     private ValidationPropertyDataSource propertyDataSource;
 
     private final TestLogger logger = new TestLogger(ValidationAnswerRequestsTest.class);
 
+    private static final String LOG_VALID               = "valid";
+    private static final String LOG_INVALID_ID          = "invalid id";
+    private static final String LOG_INVALID_TEXT        = "invalid text";
+    private static final String LOG_INVALID_PAGE        = "invalid page";
+
     @BeforeAll
     void init() {
+        validationChain = Mockito.spy(ValidationChainAdditionalImpl.class);
         propertyDataSource = ValidationTestUtil.mockValidationProperties();
     }
 
@@ -33,26 +40,27 @@ public class ValidationAnswerRequestsTest {
 
         @Test
         void valid() {
-            logger.trace("valid");
-            AnswerCreateRequestValidationWrapper validationWrapper = new AnswerCreateRequestValidationWrapper(
-                    new AnswerCreateRequest(
-                            5L, AnswerQueryParameters.TEXT), propertyDataSource);
+            logger.trace(LOG_VALID);
+            final AnswerCreateRequestValidationWrapper validationWrapper = new AnswerCreateRequestValidationWrapper(
+                    new AnswerCreateRequest(5L, AnswerQueryParameters.TEXT), propertyDataSource
+            );
             Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
 
         @Test
         void invalid_id() {
-            logger.trace("invalid id");
-            AnswerCreateRequestValidationWrapper validationWrapper = new AnswerCreateRequestValidationWrapper(
+            logger.trace(LOG_INVALID_ID);
+            final AnswerCreateRequestValidationWrapper validationWrapper = new AnswerCreateRequestValidationWrapper(
                     new AnswerCreateRequest(-5L, AnswerQueryParameters.TEXT), propertyDataSource);
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
 
         @Test
         void invalid_text() {
-            logger.trace("invalid text");
-            AnswerCreateRequestValidationWrapper validationWrapper = new AnswerCreateRequestValidationWrapper(
-                    new AnswerCreateRequest(5L, "idk"), propertyDataSource);
+            logger.trace(LOG_INVALID_TEXT);
+            final AnswerCreateRequestValidationWrapper validationWrapper = new AnswerCreateRequestValidationWrapper(
+                    new AnswerCreateRequest(5L, "idk"), propertyDataSource
+            );
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
     }
@@ -62,26 +70,29 @@ public class ValidationAnswerRequestsTest {
 
         @Test
         void valid() {
-            logger.trace("valid");
-            AnswerEditRequestValidationWrapper validationWrapper = new AnswerEditRequestValidationWrapper(
+            logger.trace(LOG_VALID);
+            final AnswerEditRequestValidationWrapper validationWrapper = new AnswerEditRequestValidationWrapper(
                     new AnswerEditRequest(1L, AnswerQueryParameters.TEXT),
-                    propertyDataSource);
+                    propertyDataSource
+            );
             Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
 
         @Test
         void invalid_id() {
-            logger.trace("invalid id");
-            AnswerEditRequestValidationWrapper validationWrapper = new AnswerEditRequestValidationWrapper(
-                    new AnswerEditRequest(-5L, AnswerQueryParameters.TEXT), propertyDataSource);
+            logger.trace(LOG_INVALID_ID);
+            final AnswerEditRequestValidationWrapper validationWrapper = new AnswerEditRequestValidationWrapper(
+                    new AnswerEditRequest(-5L, AnswerQueryParameters.TEXT), propertyDataSource
+            );
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
 
         @Test
         void invalid_text() {
-            logger.trace("invalid text");
-            AnswerEditRequestValidationWrapper validationWrapper = new AnswerEditRequestValidationWrapper(
-                    new AnswerEditRequest(1L, "ahah lol! disvote."), propertyDataSource);
+            logger.trace(LOG_INVALID_TEXT);
+            final AnswerEditRequestValidationWrapper validationWrapper = new AnswerEditRequestValidationWrapper(
+                    new AnswerEditRequest(1L, "ahah lol! disvote."), propertyDataSource
+            );
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
     }
@@ -91,17 +102,19 @@ public class ValidationAnswerRequestsTest {
 
         @Test
         void valid() {
-            logger.trace("valid");
-            AnswerAnsweredRequestValidationWrapper validationWrapper = new AnswerAnsweredRequestValidationWrapper(
-                    new AnswerAnsweredRequest(1L));
+            logger.trace(LOG_VALID);
+            final AnswerAnsweredRequestValidationWrapper validationWrapper = new AnswerAnsweredRequestValidationWrapper(
+                    new AnswerAnsweredRequest(1L)
+            );
             Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
 
         @Test
         void invalid_id() {
-            logger.trace("invalid id");
-            AnswerAnsweredRequestValidationWrapper validationWrapper = new AnswerAnsweredRequestValidationWrapper(
-                    new AnswerAnsweredRequest(-5L));
+            logger.trace(LOG_INVALID_ID);
+            final AnswerAnsweredRequestValidationWrapper validationWrapper = new AnswerAnsweredRequestValidationWrapper(
+                    new AnswerAnsweredRequest(-5L)
+            );
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
     }
@@ -111,17 +124,19 @@ public class ValidationAnswerRequestsTest {
 
         @Test
         void valid() {
-            logger.trace("valid");
-            AnswerDeleteRequestValidationWrapper validationWrapper = new AnswerDeleteRequestValidationWrapper(
-                    new AnswerDeleteRequest(1L));
+            logger.trace(LOG_VALID);
+            final AnswerDeleteRequestValidationWrapper validationWrapper = new AnswerDeleteRequestValidationWrapper(
+                    new AnswerDeleteRequest(1L)
+            );
             Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
 
         @Test
         void invalid_id() {
-            logger.trace("invalid id");
-            AnswerDeleteRequestValidationWrapper validationWrapper = new AnswerDeleteRequestValidationWrapper(
-                    new AnswerDeleteRequest(-5L));
+            logger.trace(LOG_INVALID_ID);
+            final AnswerDeleteRequestValidationWrapper validationWrapper = new AnswerDeleteRequestValidationWrapper(
+                    new AnswerDeleteRequest(-5L)
+            );
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
         }
     }
@@ -130,8 +145,8 @@ public class ValidationAnswerRequestsTest {
     class get {
         @Test
         void valid() {
-            logger.trace("valid");
-            AnswerGetFullRequestValidationWrapper validationWrapper = new AnswerGetFullRequestValidationWrapper(
+            logger.trace(LOG_VALID);
+            final AnswerGetFullRequestValidationWrapper validationWrapper = new AnswerGetFullRequestValidationWrapper(
                     new AnswerGetFullRequest(1L, 1)
             );
             Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
@@ -139,8 +154,8 @@ public class ValidationAnswerRequestsTest {
 
         @Test
         void invalid_id() {
-            logger.trace("invalid id");
-            AnswerGetFullRequestValidationWrapper validationWrapper = new AnswerGetFullRequestValidationWrapper(
+            logger.trace(LOG_INVALID_ID);
+            final AnswerGetFullRequestValidationWrapper validationWrapper = new AnswerGetFullRequestValidationWrapper(
                     new AnswerGetFullRequest(-1L, 1)
             );
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
@@ -148,8 +163,8 @@ public class ValidationAnswerRequestsTest {
 
         @Test
         void invalid_page() {
-            logger.trace("invalid page");
-            AnswerGetFullRequestValidationWrapper validationWrapper = new AnswerGetFullRequestValidationWrapper(
+            logger.trace(LOG_INVALID_PAGE);
+            final AnswerGetFullRequestValidationWrapper validationWrapper = new AnswerGetFullRequestValidationWrapper(
                     new AnswerGetFullRequest(1L, 0)
             );
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
@@ -160,8 +175,8 @@ public class ValidationAnswerRequestsTest {
     class like {
         @Test
         void valid() {
-            logger.trace("valid");
-            AnswerLikeRequestValidationWrapper validationWrapper = new AnswerLikeRequestValidationWrapper(
+            logger.trace(LOG_VALID);
+            final AnswerLikeRequestValidationWrapper validationWrapper = new AnswerLikeRequestValidationWrapper(
                     new AnswerLikeRequest(1L)
             );
             Assertions.assertDoesNotThrow(() -> validationChain.validateWithAdditionalValidator(validationWrapper));
@@ -169,8 +184,8 @@ public class ValidationAnswerRequestsTest {
 
         @Test
         void invalid_id() {
-            logger.trace("invalid id");
-            AnswerLikeRequestValidationWrapper validationWrapper = new AnswerLikeRequestValidationWrapper(
+            logger.trace(LOG_INVALID_ID);
+            final AnswerLikeRequestValidationWrapper validationWrapper = new AnswerLikeRequestValidationWrapper(
                     new AnswerLikeRequest(-1L)
             );
             Assertions.assertThrows(ValidationException.class, () -> validationChain.validateWithAdditionalValidator(validationWrapper));
