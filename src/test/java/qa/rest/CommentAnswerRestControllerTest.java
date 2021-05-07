@@ -7,7 +7,6 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.RedisKeys;
-import qa.dao.util.HibernateSessionFactoryConfigurer;
 import qa.dto.response.comment.CommentAnswerResponse;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
@@ -25,12 +23,11 @@ import qa.tools.annotations.SpringTest;
 import redis.clients.jedis.Jedis;
 import util.dao.AnswerDaoTestUtil;
 import util.dao.CommentDaoTestUtil;
+import util.dao.TruncateUtil;
 import util.dao.query.params.CommentQueryParameters;
 import util.rest.AnswerRestTestUtil;
 import util.rest.CommentRestTestUtil;
 import util.rest.JwtTestUtil;
-
-import java.text.SimpleDateFormat;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -38,7 +35,6 @@ import static org.hamcrest.Matchers.*;
 @SpringTest
 public class CommentAnswerRestControllerTest {
 
-    private SessionFactory sessionFactory;
     private CommentDaoTestUtil commentDaoTestUtil;
     private AnswerDaoTestUtil answerDaoTestUtil;
 
@@ -46,13 +42,30 @@ public class CommentAnswerRestControllerTest {
     private JwtProvider jwtProvider;
 
     @Autowired
+    private SessionFactory sessionFactory;
+
+    @Autowired
     private JedisResourceCenter jedisResourceCenter;
 
     private final TestLogger logger = new TestLogger(CommentAnswerRestControllerTest.class);
 
+    private static final String CREATE_ENDPOINT          = "create";
+    private static final String EDIT_ENDPOINT            = "edit";
+    private static final String DELETE_ENDPOINT          = "delete";
+    private static final String GET_ENDPOINT             = "get";
+    private static final String LIKE_ENDPOINT            = "like";
+
+    private static final String LOG_CREATE               = "create comment-answer request";
+    private static final String LOG_EDIT                 = "edit comment-answer request";
+    private static final String LOG_DELETE               = "delete comment-answer request";
+    private static final String LOG_GET_JSON             = "by json | assert correct result";
+    private static final String LOG_GET_URL              = "by url | assert correct result";
+    private static final String LOG_LIKED                = "assert liked";
+    private static final String LOG_BAD_REQUEST          = "assert bad request";
+
+
     @BeforeAll
     void init() {
-        sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         commentDaoTestUtil = new CommentDaoTestUtil(sessionFactory, jedisResourceCenter);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
         RestAssured.baseURI = "http://localhost:8080/api/v1/comment/answer";
@@ -62,67 +75,62 @@ public class CommentAnswerRestControllerTest {
     @BeforeEach
     void truncate() {
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createSQLQuery("truncate table question cascade").executeUpdate();
-            session.createSQLQuery("truncate table question_comment cascade").executeUpdate();
-            session.createSQLQuery("truncate table answer_comment cascade").executeUpdate();
-            session.createSQLQuery("truncate table authentication cascade").executeUpdate();
-            session.createSQLQuery("truncate table usr cascade").executeUpdate();
-            session.createSQLQuery("truncate table answer cascade").executeUpdate();
-            session.createSQLQuery("truncate table comment cascade").executeUpdate();
-            transaction.commit();
+            TruncateUtil.truncatePQ(session);
         }
-        JedisResource resource = jedisResourceCenter.getResource();
-        resource.getJedis().flushDB();
-        resource.close();
+        try (JedisResource resource = jedisResourceCenter.getResource()) {
+            final Jedis jedis = resource.getJedis();
+            TruncateUtil.truncateRedis(jedis);
+        }
     }
 
     @Nested
     class success {
         @Test
         void create() {
-            logger.trace("create request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_CREATE);
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser();
-            JSONObject json = CommentRestTestUtil.commentAnswerCreateJson();
 
-            RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final JSONObject json = CommentRestTestUtil.commentAnswerCreateJson();
+            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.post("create");
+            final Response response = request.post(CREATE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
 
-            assertThat(CommentRestTestUtil.getId(CommentQueryParameters.TEXT, sessionFactory), notNullValue());
+            final Long createdId = CommentRestTestUtil.getId(CommentQueryParameters.TEXT, sessionFactory);
+            assertThat(createdId, notNullValue());
         }
 
         @Test
         void edit() {
-            logger.trace("edit request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(EDIT_ENDPOINT);
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             commentDaoTestUtil.createCommentAnswerNoUser();
-            JSONObject json = CommentRestTestUtil.commentEditJson();
 
-            RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final JSONObject json = CommentRestTestUtil.commentEditJson();
+            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.put("edit");
+            final Response response = request.put(EDIT_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
 
-            assertThat(CommentRestTestUtil.getId(CommentQueryParameters.SECOND_TEXT, sessionFactory), notNullValue());
+            final Long editedId = CommentRestTestUtil.getId(CommentQueryParameters.SECOND_TEXT, sessionFactory);
+            assertThat(editedId, notNullValue());
         }
 
         @Test
         void delete() {
-            logger.trace("delete request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_DELETE);
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             commentDaoTestUtil.createCommentAnswerNoUser();
 
-            JSONObject json = CommentRestTestUtil.id();
+            final JSONObject json = CommentRestTestUtil.id();
+            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
-
-            Response response = request.delete("delete");
+            final Response response = request.delete(DELETE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
 
-            assertThat(CommentRestTestUtil.getId(CommentQueryParameters.TEXT, sessionFactory), equalTo(null));
+            final Long deletedId = CommentRestTestUtil.getId(CommentQueryParameters.TEXT, sessionFactory);
+            assertThat(deletedId, equalTo(null));
         }
     }
 
@@ -130,37 +138,37 @@ public class CommentAnswerRestControllerTest {
     class bad_request {
         @Test
         void create() {
-            logger.trace("create bad request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-            JSONObject json = CommentRestTestUtil.commentAnswerBADCreateJson();
+            logger.trace(LOG_CREATE);
 
-            RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            final JSONObject json = CommentRestTestUtil.commentAnswerBADCreateJson();
+            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.post("create");
+            final Response response = request.post(CREATE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
         }
 
         @Test
         void edit() {
-            logger.trace("edit bad request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-            JSONObject json = CommentRestTestUtil.commentBADEditJson();
+            logger.trace(LOG_EDIT);
 
-            RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            final JSONObject json = CommentRestTestUtil.commentBADEditJson();
+            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.put("edit");
+            final Response response = request.put(EDIT_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
         }
 
         @Test
         void delete() {
-            logger.trace("delete bad request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-            JSONObject json = CommentRestTestUtil.badId();
+            logger.trace(DELETE_ENDPOINT);
 
-            RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            final JSONObject json = CommentRestTestUtil.badId();
+            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.delete("delete");
+            final Response response = request.delete(DELETE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
         }
     }
@@ -169,34 +177,34 @@ public class CommentAnswerRestControllerTest {
     class access_denied {
         @Test
         void edit() {
-            logger.trace("edit request");
-            String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_EDIT);
+            final String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             commentDaoTestUtil.createCommentAnswer();
 
-            JSONObject json = CommentRestTestUtil.commentEditJson();
+            final JSONObject json = CommentRestTestUtil.commentEditJson();
+            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
-
-            Response response = request.put("edit");
+            final Response response = request.put(EDIT_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(403));
 
-            assertThat(CommentRestTestUtil.getId(CommentQueryParameters.SECOND_TEXT, sessionFactory), equalTo(null));
+            final Long commentId = CommentRestTestUtil.getId(CommentQueryParameters.SECOND_TEXT, sessionFactory);
+            assertThat(commentId, equalTo(null));
         }
 
         @Test
         void delete() {
-            logger.trace("delete request");
-            String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_DELETE);
+            final String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             commentDaoTestUtil.createCommentAnswer();
 
-            JSONObject json = CommentRestTestUtil.id();
+            final JSONObject json = CommentRestTestUtil.id();
+            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
-
-            Response response = request.delete("delete");
+            final Response response = request.delete(DELETE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(403));
 
-            assertThat(CommentRestTestUtil.getId(CommentQueryParameters.TEXT, sessionFactory), notNullValue());
+            final Long commentId = CommentRestTestUtil.getId(CommentQueryParameters.TEXT, sessionFactory);
+            assertThat(commentId, notNullValue());
         }
     }
 
@@ -206,34 +214,35 @@ public class CommentAnswerRestControllerTest {
         class assert_correct_result {
             @Test
             void json() throws JsonProcessingException {
-                logger.trace("by json. assert correct result");
+                logger.trace(LOG_GET_JSON);
                 commentDaoTestUtil.createManyCommentAnswers(CommentDaoTestUtil.COMMENT_RESULT_SIZE);
-                JSONObject json = CommentRestTestUtil.idPage();
 
-                RequestSpecification request = CommentRestTestUtil.getRequestJson(json.toString());
+                final JSONObject json = CommentRestTestUtil.idPage();
+                final RequestSpecification request = CommentRestTestUtil.getRequestJson(json.toString());
 
-                Response response = request.get("get");
+                final Response response = request.get(GET_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(200));
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
 
-                CommentAnswerResponse[] body = mapper.readValue(response.getBody().asString(), CommentAnswerResponse[].class);
+                final ObjectMapper mapper = CommentRestTestUtil.getObjectMapper();
+                final CommentAnswerResponse[] body = mapper.readValue(response.getBody().asString(), CommentAnswerResponse[].class);
+
                 assertCorrectResultGetComments(body);
             }
 
             @Test
             void url() throws JsonProcessingException {
-                logger.trace("by url. assert correct result");
+                logger.trace(LOG_GET_URL);
                 commentDaoTestUtil.createManyCommentAnswers(CommentDaoTestUtil.COMMENT_RESULT_SIZE);
 
-                RequestSpecification request = CommentRestTestUtil.getRequest();
+                final String path = GET_ENDPOINT + "/1/1";
+                final RequestSpecification request = CommentRestTestUtil.getRequest();
 
-                Response response = request.get("get/1/1");
+                final Response response = request.get(path);
                 assertThat(response.getStatusCode(), equalTo(200));
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
 
-                CommentAnswerResponse[] body = mapper.readValue(response.getBody().asString(), CommentAnswerResponse[].class);
+                final ObjectMapper mapper = CommentRestTestUtil.getObjectMapper();
+                final CommentAnswerResponse[] body = mapper.readValue(response.getBody().asString(), CommentAnswerResponse[].class);
+
                 assertCorrectResultGetComments(body);
             }
         }
@@ -242,24 +251,25 @@ public class CommentAnswerRestControllerTest {
         class bad_request {
             @Test
             void json() {
-                logger.trace("bad request. assert correct result");
+                logger.trace(LOG_GET_JSON);
                 commentDaoTestUtil.createManyCommentAnswers(CommentDaoTestUtil.COMMENT_RESULT_SIZE);
-                JSONObject json = CommentRestTestUtil.badIdPage();
 
-                RequestSpecification request = CommentRestTestUtil.getRequestJson(json.toString());
+                final JSONObject json = CommentRestTestUtil.badIdPage();
+                final RequestSpecification request = CommentRestTestUtil.getRequestJson(json.toString());
 
-                Response response = request.get("get");
+                final Response response = request.get(GET_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(400));
             }
 
             @Test
             void url() {
-                logger.trace("bad request. assert correct result");
+                logger.trace(LOG_GET_JSON);
                 commentDaoTestUtil.createManyCommentAnswers(CommentDaoTestUtil.COMMENT_RESULT_SIZE);
 
-                RequestSpecification request = CommentRestTestUtil.getRequest();
+                final String path = GET_ENDPOINT + "/1/0";
+                final RequestSpecification request = CommentRestTestUtil.getRequest();
 
-                Response response = request.get("get/1/0");
+                final Response response = request.get(path);
                 assertThat(response.getStatusCode(), equalTo(400));
             }
         }
@@ -269,27 +279,28 @@ public class CommentAnswerRestControllerTest {
     class like {
         @Test
         void assert_liked() {
-            logger.trace("assert liked");
+            logger.trace(LOG_LIKED);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             commentDaoTestUtil.createCommentAnswerNoUser();
 
             final JSONObject json = AnswerRestTestUtil.id();
             final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            final Response response = request.post("like");
+            final Response response = request.post(LIKE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
+
             assertKeysUpdated();
         }
 
         @Test
         void bad_request() {
-            logger.trace("bad request");
+            logger.trace(LOG_BAD_REQUEST);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
             final JSONObject json = AnswerRestTestUtil.badId();
             final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            final Response response = request.post("like");
+            final Response response = request.post(LIKE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
         }
     }
@@ -302,19 +313,22 @@ public class CommentAnswerRestControllerTest {
             assertThat(r.getCommentId(), notNullValue());
             assertThat(r.getText(), notNullValue());
             assertThat(r.getCreationDate(), notNullValue());
+
             assertThat(r.getAuthor(), notNullValue());
             assertThat(r.getAuthor().getUsername(), notNullValue());
+
             assertThat(r.getLikes(), equalTo(0));
             assertThat(r.isLiked(), equalTo(false));
         }
     }
 
     private void assertKeysUpdated() {
+        final String key = "1";
         try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
             final Jedis jedis = jedisResource.getJedis();
-            final boolean userEntityCreated = jedis.sadd(RedisKeys.getUserToCommentAnswerLikes("1"), "1") == 0;
-            final boolean entityUserCreated = jedis.sadd(RedisKeys.getCommentAnswerToUserLikes("1"), "1") == 0;
-            final boolean entityUpdated = jedis.get(RedisKeys.getCommentAnswerLikes("1")).equals("1");
+            final boolean userEntityCreated = jedis.sadd(RedisKeys.getUserToCommentAnswerLikes(key), "1") == 0;
+            final boolean entityUserCreated = jedis.sadd(RedisKeys.getCommentAnswerToUserLikes(key), "1") == 0;
+            final boolean entityUpdated = jedis.get(RedisKeys.getCommentAnswerLikes(key)).equals("1");
             assertThat(userEntityCreated && entityUserCreated && entityUpdated, equalTo(true));
         }
     }

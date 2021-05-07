@@ -125,8 +125,8 @@ public class AnswerRestControllerTest {
             final Response response = request.put(EDIT_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
 
-            final Long createdId = getId(AnswerQueryParameters.SECOND_TEXT);
-            assertThat(createdId, notNullValue());
+            final Long editedId = getId(AnswerQueryParameters.SECOND_TEXT);
+            assertThat(editedId, notNullValue());
         }
 
         @Test
