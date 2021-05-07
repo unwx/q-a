@@ -6,56 +6,60 @@ import io.restassured.specification.RequestSpecification;
 import qa.dto.response.question.QuestionFullResponse;
 import qa.dto.response.question.QuestionViewResponse;
 
-import java.text.SimpleDateFormat;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 public class UIRequestExecutor {
 
-    public static final String AUTHENTICATION           = "authentication";
-    public static final String QUESTION                 = "question";
-    public static final String ANSWER                   = "answer";
-    public static final String COMMENT_QUESTION         = "comment/question";
-    public static final String COMMENT_ANSWER           = "comment/answer";
+    public static final String AUTHENTICATION               = "authentication";
+    public static final String QUESTION                     = "question";
+    public static final String ANSWER                       = "answer";
+    public static final String COMMENT_QUESTION             = "comment/question";
+    public static final String COMMENT_ANSWER               = "comment/answer";
 
-    public static final String LOGIN                    = AUTHENTICATION    + "/login";
+    public static final String LOGIN                        = AUTHENTICATION    + "/login";
 
-    public static final String QUESTION_CREATE          = QUESTION          + "/create";
-    public static final String QUESTION_EDIT            = QUESTION          + "/edit";
-    public static final String QUESTION_DELETE          = QUESTION          + "/delete";
-    public static final String QUESTION_VIEW            = QUESTION          + "/get/views/%s";
-    public static final String QUESTION_FULL            = QUESTION          + "/get/full/%s";
-    public static final String QUESTION_LIKE            = QUESTION          + "/like";
+    public static final String QUESTION_CREATE              = QUESTION          + "/create";
+    public static final String QUESTION_EDIT                = QUESTION          + "/edit";
+    public static final String QUESTION_DELETE              = QUESTION          + "/delete";
+    public static final String QUESTION_VIEW                = QUESTION          + "/get/views/%s";
+    public static final String QUESTION_FULL                = QUESTION          + "/get/full/%s";
+    public static final String QUESTION_LIKE                = QUESTION          + "/like";
 
-    public static final String ANSWER_CREATE            = ANSWER            + "/create";
-    public static final String ANSWER_EDIT              = ANSWER            + "/edit";
-    public static final String ANSWER_ANSWERED          = ANSWER            + "/answered";
-    public static final String ANSWER_NOT_ANSWERED      = ANSWER            + "/not-answered";
-    public static final String ANSWER_DELETE            = ANSWER            + "/delete";
-    public static final String ANSWER_LIKE              = ANSWER            + "/like";
+    public static final String ANSWER_CREATE                = ANSWER            + "/create";
+    public static final String ANSWER_EDIT                  = ANSWER            + "/edit";
+    public static final String ANSWER_ANSWERED              = ANSWER            + "/answered";
+    public static final String ANSWER_NOT_ANSWERED          = ANSWER            + "/not-answered";
+    public static final String ANSWER_DELETE                = ANSWER            + "/delete";
+    public static final String ANSWER_LIKE                  = ANSWER            + "/like";
 
-    public static final String COMMENT_QUESTION_CREATE  = COMMENT_QUESTION  + "/create";
-    public static final String COMMENT_QUESTION_EDIT    = COMMENT_QUESTION  + "/edit";
-    public static final String COMMENT_QUESTION_DELETE  = COMMENT_QUESTION  + "/delete";
+    public static final String COMMENT_QUESTION_CREATE      = COMMENT_QUESTION  + "/create";
+    public static final String COMMENT_QUESTION_EDIT        = COMMENT_QUESTION  + "/edit";
+    public static final String COMMENT_QUESTION_DELETE      = COMMENT_QUESTION  + "/delete";
 
-    public static final String COMMENT_ANSWER_CREATE    = COMMENT_ANSWER    + "/create";
-    public static final String COMMENT_ANSWER_EDIT      = COMMENT_ANSWER    + "/edit";
-    public static final String COMMENT_ANSWER_DELETE    = COMMENT_ANSWER    + "/delete";
+    public static final String COMMENT_ANSWER_CREATE        = COMMENT_ANSWER    + "/create";
+    public static final String COMMENT_ANSWER_EDIT          = COMMENT_ANSWER    + "/edit";
+    public static final String COMMENT_ANSWER_DELETE        = COMMENT_ANSWER    + "/delete";
 
-    private static final ObjectMapper mapper = new ObjectMapper();
-
-    static {
-        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-    }
+    private static final ObjectMapper mapper = UIRequests.getObjectMapper();
 
     public static QuestionViewResponse[] getViews(RequestSpecification request) throws JsonProcessingException {
-        final String viewsBody = request.get(QUESTION_VIEW.formatted(1)).body().asString();
+        final String path = QUESTION_VIEW.formatted(1);
+        final String viewsBody = request
+                .get(path)
+                .body()
+                .asString();
+
         return mapper.readValue(viewsBody, QuestionViewResponse[].class);
     }
 
     public static QuestionFullResponse getQuestion(RequestSpecification request, long questionId) throws JsonProcessingException {
-        final String questionBody = request.get(QUESTION_FULL.formatted(questionId)).body().asString();
+        final String path = QUESTION_FULL.formatted(questionId);
+        final String questionBody = request
+                .get(path)
+                .body()
+                .asString();
+
         return mapper.readValue(questionBody, QuestionFullResponse.class);
     }
 

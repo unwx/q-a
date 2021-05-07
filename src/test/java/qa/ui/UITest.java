@@ -6,7 +6,6 @@ import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +21,12 @@ import qa.dto.response.question.QuestionViewResponse;
 import qa.logger.TestLogger;
 import qa.security.jwt.service.JwtProvider;
 import qa.tools.annotations.SpringTest;
+import redis.clients.jedis.Jedis;
+import util.dao.TruncateUtil;
 import util.dao.query.builder.QueryBuilder;
 import util.dao.query.builder.redis.RedisQueryBuilder;
 import util.rest.JwtTestUtil;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,11 +37,6 @@ import static org.hamcrest.Matchers.*;
 public class UITest {
 
     private static String accessToken;
-    private static final ObjectMapper mapper = new ObjectMapper();
-
-    static {
-        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
-    }
 
     @Autowired
     private SessionFactory sessionFactory;
@@ -57,23 +52,31 @@ public class UITest {
 
     private final TestLogger logger = new TestLogger(UITest.class);
 
+    private static final String LOG_QUESTIONS_CHECK_CLICK               = "check question and click one";
+    private static final String LOG_QUESTIONS_CHECK_LIKE                = "check question, like it and leave comment";
+    private static final String LOG_ANSWER_LIKE_COMMENT                 = "like answer, leave comment";
+    private static final String LOG_ANSWER_ANSWERED                     = "create question, answer it, set answered, remove answered";
+    private static final String LOG_QUESTION_CREATE_DELETE              = "create question, then delete";
+    private static final String LOG_QUESTION_CREATE_UPDATE              = "create question, then update";
+    private static final String LOG_ANSWER_CREATE_DELETE                = "create answer, then delete";
+    private static final String LOG_ANSWER_CREATE_UPDATE                = "create answer, then update";
+    private static final String LOG_COMMENT_QUESTION_CREATE_DELETE      = "create comment-question, then delete";
+    private static final String LOG_COMMENT_QUESTION_CREATE_UPDATE      = "create comment-question, then update";
+    private static final String LOG_COMMENT_ANSWER_CREATE_DELETE        = "create comment-answer, then delete";
+    private static final String LOG_COMMENT_ANSWER_CREATE_UPDATE        = "create comment-answer, then update";
+
     @BeforeAll
     void init() throws JsonProcessingException {
         RestAssured.baseURI = "http://localhost:8080/api/v1/";
         RestAssured.port = 8080;
 
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createSQLQuery("truncate table question cascade").executeUpdate();
-            session.createSQLQuery("truncate table answer cascade").executeUpdate();
-            session.createSQLQuery("truncate table comment cascade").executeUpdate();
-            session.createSQLQuery("truncate table authentication cascade").executeUpdate();
-            session.createSQLQuery("truncate table usr cascade").executeUpdate();
-            transaction.commit();
+            TruncateUtil.truncatePQ(session);
         }
-        JedisResource resource = jedisCenter.getResource();
-        resource.getJedis().flushDB();
-        resource.close();
+        try (JedisResource resource = jedisCenter.getResource()) {
+            final Jedis jedis = resource.getJedis();
+            TruncateUtil.truncateRedis(jedis);
+        }
 
         final QueryBuilder queryBuilder = new QueryBuilder(sessionFactory);
         final RedisQueryBuilder redisQueryBuilder = new RedisQueryBuilder(jedisCenter);
@@ -90,7 +93,7 @@ public class UITest {
 
     @Test
     void check_questions_click_one() throws JsonProcessingException {
-        logger.trace("check question and click one");
+        logger.trace(LOG_QUESTIONS_CHECK_CLICK);
         final RequestSpecification request = UIRequests.getRequest();
         final QuestionViewResponse[] views = UIRequestExecutor.getViews(request);
 
@@ -103,7 +106,7 @@ public class UITest {
 
     @Test
     void check_question_like_it_leave_comment() throws JsonProcessingException {
-        logger.trace("check question, like it and leave comment");
+        logger.trace(LOG_QUESTIONS_CHECK_LIKE);
         final RequestSpecification request = UIRequests.getRequest();
         final RequestSpecification authenticatedRequest = UIRequests.getRequestJwt(accessToken);
 
@@ -130,7 +133,7 @@ public class UITest {
 
     @Test
     void like_answer_leave_comment() throws JsonProcessingException {
-        logger.trace("like answer, leave comment");
+        logger.trace(LOG_ANSWER_LIKE_COMMENT);
         final RequestSpecification authenticatedRequest = UIRequests.getRequestJwt(accessToken);
 
         QuestionFullResponse question = null;
@@ -173,7 +176,7 @@ public class UITest {
          * the first sets the "answered" status to the answer
          * then remove it. (answered)
          */
-        logger.trace("create question, answer it, set answered, remove answered");
+        logger.trace(LOG_ANSWER_ANSWERED);
         final RequestSpecification authenticatedRequest = UIRequests.getRequestJwt(accessToken);
         final String secondUserToken = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
 
@@ -203,7 +206,7 @@ public class UITest {
 
     @Test
     void create_delete_question() {
-        logger.trace("create question, then delete");
+        logger.trace(LOG_QUESTION_CREATE_DELETE);
         final RequestSpecification authenticatedRequest = UIRequests.getRequestJwt(accessToken);
 
         final RequestSpecification createQuestionRequest = UIRequests.createQuestion(accessToken);
@@ -218,7 +221,7 @@ public class UITest {
 
     @Test
     void create_update_question() throws JsonProcessingException {
-        logger.trace("create question, then update");
+        logger.trace(LOG_QUESTION_CREATE_UPDATE);
         final RequestSpecification authenticatedRequest = UIRequests.getRequestJwt(accessToken);
 
         final RequestSpecification createQuestionRequest = UIRequests.createQuestion(accessToken);
@@ -241,7 +244,7 @@ public class UITest {
 
     @Test
     void create_delete_answer() throws JsonProcessingException {
-        logger.trace("create answer, then delete");
+        logger.trace(LOG_ANSWER_CREATE_DELETE);
         final RequestSpecification authenticatedRequest = UIRequests.getRequestJwt(accessToken);
         final QuestionViewResponse[] views = UIRequestExecutor.getViews(authenticatedRequest);
         final long questionId = views[0].getQuestionId();
@@ -263,7 +266,7 @@ public class UITest {
 
     @Test
     void create_update_answer() throws JsonProcessingException {
-        logger.trace("create answer, then update");
+        logger.trace(LOG_ANSWER_CREATE_UPDATE);
         final RequestSpecification authenticatedRequest = UIRequests.getRequestJwt(accessToken);
         final QuestionViewResponse[] views = UIRequestExecutor.getViews(authenticatedRequest);
         final long questionId = views[0].getQuestionId();
@@ -287,7 +290,7 @@ public class UITest {
 
     @Test
     void create_delete_comment_question() throws JsonProcessingException {
-        logger.trace("create comment question, then delete");
+        logger.trace(LOG_COMMENT_QUESTION_CREATE_DELETE);
         final RequestSpecification authenticatedRequest = UIRequests.getRequestJwt(accessToken);
         final QuestionViewResponse[] views = UIRequestExecutor.getViews(authenticatedRequest);
         final long questionId = views[0].getQuestionId();
@@ -308,7 +311,7 @@ public class UITest {
 
     @Test
     void create_update_comment_question() throws JsonProcessingException {
-        logger.trace("create comment question, then update");
+        logger.trace(LOG_COMMENT_QUESTION_CREATE_UPDATE);
         final RequestSpecification authenticatedRequest = UIRequests.getRequestJwt(accessToken);
         final QuestionViewResponse[] views = UIRequestExecutor.getViews(authenticatedRequest);
         final long questionId = views[0].getQuestionId();
@@ -334,7 +337,7 @@ public class UITest {
 
     @Test
     void create_delete_comment_answer() throws JsonProcessingException {
-        logger.trace("create comment answer, then delete");
+        logger.trace(LOG_COMMENT_ANSWER_CREATE_DELETE);
         final RequestSpecification authenticatedRequest = UIRequests.getRequestJwt(accessToken);
 
         QuestionFullResponse question = null;
@@ -367,7 +370,7 @@ public class UITest {
 
     @Test
     void create_update_comment_answer() throws JsonProcessingException {
-        logger.trace("create comment answer, then update");
+        logger.trace(LOG_COMMENT_ANSWER_CREATE_UPDATE);
         final RequestSpecification authenticatedRequest = UIRequests.getRequestJwt(accessToken);
         QuestionFullResponse question = null;
         List<Answer> answers = new ArrayList<>();

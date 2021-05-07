@@ -1,6 +1,5 @@
 package qa.ui;
 
-import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
 import org.json.JSONObject;
 import util.rest.*;
@@ -10,27 +9,17 @@ public class UIRequests extends RestTestUtil {
     private UIRequests() {}
 
     public static RequestSpecification authorize() {
-        final JSONObject json = new JSONObject();
-        json.put("email", JwtTestUtil.USER_EMAIL);
-        json.put("password", JwtTestUtil.USER_PASSWORD);
-
-        final RequestSpecification request = RestAssured.given();
-        request.body(json.toString());
-        request.header("Content-Type", "application/json");
-        return request;
+        final JSONObject json = AuthenticationRestTestUtil.getLoginJson();
+        return getRequestJson(json.toString());
     }
 
     public static RequestSpecification questionLike(long questionId, String accessToken) {
-        final JSONObject json = new JSONObject();
-        json.put("id", questionId);
-
+        final JSONObject json = QuestionRestTestUtil.id(questionId);
         return getRequestJsonJwt(json.toString(), accessToken);
     }
 
     public static RequestSpecification answerLike(long answerId, String accessToken) {
-        final JSONObject json = new JSONObject();
-        json.put("id", answerId);
-
+        final JSONObject json = AnswerRestTestUtil.id(answerId);
         return getRequestJsonJwt(json.toString(), accessToken);
     }
 
