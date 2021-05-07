@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import qa.cache.JedisResource;
 import qa.cache.JedisResourceCenter;
 import qa.cache.RedisKeys;
-import qa.dao.util.HibernateSessionFactoryConfigurer;
 import qa.domain.CommentAnswer;
 import qa.dto.response.answer.AnswerFullResponse;
 import qa.logger.TestLogger;
@@ -26,12 +25,12 @@ import qa.tools.annotations.SpringTest;
 import redis.clients.jedis.Jedis;
 import util.dao.AnswerDaoTestUtil;
 import util.dao.QuestionDaoTestUtil;
+import util.dao.TruncateUtil;
 import util.dao.query.params.AnswerQueryParameters;
 import util.rest.AnswerRestTestUtil;
 import util.rest.JwtTestUtil;
 
 import java.math.BigInteger;
-import java.text.SimpleDateFormat;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -40,11 +39,8 @@ import static org.hamcrest.Matchers.notNullValue;
 @SpringTest
 public class AnswerRestControllerTest {
 
-    private SessionFactory sessionFactory;
     private QuestionDaoTestUtil questionDaoTestUtil;
     private AnswerDaoTestUtil answerDaoTestUtil;
-
-    private final TestLogger logger = new TestLogger(AnswerRestControllerTest.class);
 
     @Autowired
     private JwtProvider jwtProvider;
@@ -52,29 +48,46 @@ public class AnswerRestControllerTest {
     @Autowired
     private JedisResourceCenter jedisResourceCenter;
 
+    @Autowired
+    private SessionFactory sessionFactory;
+
+    private final TestLogger logger = new TestLogger(AnswerRestControllerTest.class);
+
+    private static final String CREATE_ENDPOINT             = "create";
+    private static final String EDIT_ENDPOINT               = "edit";
+    private static final String DELETE_ENDPOINT             = "delete";
+    private static final String ANSWERED_ENDPOINT           = "answered";
+    private static final String NOT_ANSWERED_ENDPOINT       = "not-answered";
+    private static final String GET_ENDPOINT                = "get";
+    private static final String LIKE_ENDPOINT               = "like";
+
+    private static final String LOG_CREATE                  = "create answer request";
+    private static final String LOG_EDIT                    = "edit answer request";
+    private static final String LOG_DELETE                  = "delete answer request";
+    private static final String LOG_ANSWERED                = "answered request";
+    private static final String LOG_NOT_ANSWERED            = "not answered request";
+    private static final String LOG_GET_URL                 = "get answers by url only";
+    private static final String LOG_GET_JSON                = "get answers by json only";
+    private static final String LOG_LIKED                   = "assert liked";
+    private static final String LOG_BAD_REQUEST             = "assert bad request";
+
     @BeforeAll
     void init() {
-        sessionFactory = HibernateSessionFactoryConfigurer.getSessionFactory();
         questionDaoTestUtil = new QuestionDaoTestUtil(sessionFactory, jedisResourceCenter);
         answerDaoTestUtil = new AnswerDaoTestUtil(sessionFactory, jedisResourceCenter);
+        RestAssured.baseURI = "http://localhost:8080/api/v1/answer/";
+        RestAssured.port = 8080;
     }
 
     @BeforeEach
     void truncate() {
         try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            session.createSQLQuery("truncate table question cascade").executeUpdate();
-            session.createSQLQuery("truncate table question_comment cascade").executeUpdate();
-            session.createSQLQuery("truncate table authentication cascade").executeUpdate();
-            session.createSQLQuery("truncate table usr cascade").executeUpdate();
-            session.createSQLQuery("truncate table answer cascade").executeUpdate();
-            transaction.commit();
-            RestAssured.baseURI = "http://localhost:8080/api/v1/answer/";
-            RestAssured.port = 8080;
+            TruncateUtil.truncatePQ(session);
         }
-        JedisResource resource = jedisResourceCenter.getResource();
-        resource.getJedis().flushDB();
-        resource.close();
+        try (JedisResource resource = jedisResourceCenter.getResource()) {
+            final Jedis jedis = resource.getJedis();
+            TruncateUtil.truncateRedis(jedis);
+        }
     }
 
     @Nested
@@ -82,61 +95,71 @@ public class AnswerRestControllerTest {
 
         @Test
         void create() {
-            logger.trace("create request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_CREATE);
+
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             questionDaoTestUtil.createQuestionNoUser();
 
-            JSONObject json = AnswerRestTestUtil.createAnswerJson();
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final JSONObject json = AnswerRestTestUtil.createAnswerJson();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.post("create");
+            final Response response = request.post(CREATE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
 
-            assertThat(getId(AnswerQueryParameters.TEXT), equalTo(Long.parseLong(response.getBody().asString())));
+            final Long createdId = getId(AnswerQueryParameters.TEXT);
+            final Long responseId = Long.parseLong(response.getBody().asString());
+
+            assertThat(createdId, equalTo(responseId));
         }
 
         @Test
         void edit() {
-            logger.trace("edit request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_EDIT);
+
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser();
 
-            JSONObject json = AnswerRestTestUtil.editAnswerJson();
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final JSONObject json = AnswerRestTestUtil.editAnswerJson();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.put("edit");
+            final Response response = request.put(EDIT_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
 
-            assertThat(getId(AnswerQueryParameters.SECOND_TEXT), notNullValue());
+            final Long createdId = getId(AnswerQueryParameters.SECOND_TEXT);
+            assertThat(createdId, notNullValue());
         }
 
         @Test
         void delete() {
-            logger.trace("delete request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_DELETE);
+
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser();
 
-            assertThat(getId(AnswerQueryParameters.TEXT), notNullValue());
+            final Long createdId = getId(AnswerQueryParameters.TEXT);
+            assertThat(createdId, notNullValue());
 
-            JSONObject json = AnswerRestTestUtil.id();
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final JSONObject json = AnswerRestTestUtil.id();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.delete("delete");
+            final Response response = request.delete(DELETE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
 
-            assertThat(getId(AnswerQueryParameters.TEXT), equalTo(null));
+            final Long deletedId = getId(AnswerQueryParameters.TEXT);
+            assertThat(deletedId, equalTo(null));
         }
 
         @Test
         void answered() {
-            logger.trace("answered request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_ANSWERED);
+
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser();
 
-            JSONObject json = AnswerRestTestUtil.id();
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final JSONObject json = AnswerRestTestUtil.id();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.post("answered");
+            final Response response = request.post(ANSWERED_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
 
             assertThat(getAnswered(), equalTo(true));
@@ -144,14 +167,15 @@ public class AnswerRestControllerTest {
 
         @Test
         void not_answered() {
-            logger.trace("not answered request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_NOT_ANSWERED);
+
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser(false);
 
-            JSONObject json = AnswerRestTestUtil.id();
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final JSONObject json = AnswerRestTestUtil.id();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.post("not-answered");
+            final Response response = request.post(NOT_ANSWERED_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
 
             assertThat(getAnswered(), equalTo(false));
@@ -163,61 +187,61 @@ public class AnswerRestControllerTest {
 
         @Test
         void create() {
-            logger.trace("create request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_CREATE);
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
-            JSONObject json = AnswerRestTestUtil.createBADAnswerJson();
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final JSONObject json = AnswerRestTestUtil.createBADAnswerJson();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.post("create");
+            final Response response = request.post(CREATE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
         }
 
         @Test
         void edit() {
-            logger.trace("edit request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_EDIT);
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
-            JSONObject json = AnswerRestTestUtil.editBADAnswerJson();
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final JSONObject json = AnswerRestTestUtil.editBADAnswerJson();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.put("edit");
+            final Response response = request.put(EDIT_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
         }
 
         @Test
         void answered() {
-            logger.trace("answered request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_ANSWERED);
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
-            JSONObject json = AnswerRestTestUtil.badId();
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final JSONObject json = AnswerRestTestUtil.badId();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.post("answered");
+            final Response response = request.post(ANSWERED_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
         }
 
         @Test
         void not_answered() {
-            logger.trace("not answered request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(NOT_ANSWERED_ENDPOINT);
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
-            JSONObject json = AnswerRestTestUtil.badId();
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final JSONObject json = AnswerRestTestUtil.badId();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.post("not-answered");
+            final Response response = request.post(NOT_ANSWERED_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
         }
 
         @Test
         void delete() {
-            logger.trace("delete request");
-            String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_DELETE);
+            final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
-            JSONObject json = AnswerRestTestUtil.badId();
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final JSONObject json = AnswerRestTestUtil.badId();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            Response response = request.delete("delete");
+            final Response response = request.delete(DELETE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
         }
     }
@@ -227,58 +251,65 @@ public class AnswerRestControllerTest {
 
         @Test
         void edit() {
-            logger.trace("edit request");
-            String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(EDIT_ENDPOINT);
+
+            final String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
             answerDaoTestUtil.createAnswerNoUser();
 
-            JSONObject json = AnswerRestTestUtil.editAnswerJson();
+            final JSONObject json = AnswerRestTestUtil.editAnswerJson();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
-            Response response = request.put("edit");
+            final Response response = request.put(EDIT_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(403));
         }
 
         @Test
         void answered() {
-            logger.trace("answered request");
-            String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_ANSWERED);
+
+            final String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
             answerDaoTestUtil.createAnswerNoUser();
 
-            JSONObject json = AnswerRestTestUtil.id();
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
-            Response response = request.post("answered");
+            final JSONObject json = AnswerRestTestUtil.id();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+
+            final Response response = request.post(ANSWERED_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(403));
         }
 
         @Test
         void not_answered() {
-            logger.trace("not answered request");
-            String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_NOT_ANSWERED);
+
+            final String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
             answerDaoTestUtil.createAnswerNoUser(false);
 
-            JSONObject json = AnswerRestTestUtil.id();
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
-            Response response = request.post("not-answered");
+            final JSONObject json = AnswerRestTestUtil.id();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+
+            final Response response = request.post(NOT_ANSWERED_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(403));
         }
 
         @Test
         void delete() {
-            logger.trace("delete request");
-            String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+            logger.trace(LOG_DELETE);
+
+            final String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
             answerDaoTestUtil.createAnswerNoUser();
 
-            JSONObject json = AnswerRestTestUtil.id();
-            RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
-            Response response = request.delete("delete");
+            final JSONObject json = AnswerRestTestUtil.id();
+            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+
+            final Response response = request.delete(DELETE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(403));
         }
     }
@@ -289,22 +320,31 @@ public class AnswerRestControllerTest {
         class success {
             @Test
             void url() throws JsonProcessingException {
-                logger.trace("get answers by url");
-                answerDaoTestUtil.createManyAnswersWithManyComments(9, 3);
+                logger.trace(LOG_GET_URL);
+
+                final int answers = 9;
+                final int comments = 3;
+                final String path = GET_ENDPOINT + "/1/1";
+
+                answerDaoTestUtil.createManyAnswersWithManyComments(answers, comments);
                 final RequestSpecification request = AnswerRestTestUtil.getRequest();
 
-                final Response response = request.get("get/1/1");
+                final Response response = request.get(path);
                 assertCorrectAnswerData(response);
             }
 
             @Test
             void json() throws JsonProcessingException {
-                logger.trace("get answers by json");
-                answerDaoTestUtil.createManyAnswersWithManyComments(9, 3);
+                logger.trace(LOG_GET_JSON);
+
+                final int answers = 9;
+                final int comments = 3;
+
+                answerDaoTestUtil.createManyAnswersWithManyComments(answers, comments);
                 final JSONObject json = AnswerRestTestUtil.getAnswerJson();
                 final RequestSpecification request = AnswerRestTestUtil.getRequestJson(json.toString());
 
-                final Response response = request.get("get");
+                final Response response = request.get(GET_ENDPOINT);
                 assertCorrectAnswerData(response);
             }
         }
@@ -313,20 +353,22 @@ public class AnswerRestControllerTest {
         class bad_request {
             @Test
             void url() {
-                logger.trace("get answers by url");
+                logger.trace(LOG_GET_URL);
                 final RequestSpecification request = AnswerRestTestUtil.getRequest();
 
-                final Response response = request.get("get/1/0");
+                final String path = GET_ENDPOINT + "/1/0";
+
+                final Response response = request.get(path);
                 assertThat(response.getStatusCode(), equalTo(400));
             }
 
             @Test
             void json() {
-                logger.trace("get answers by json");
+                logger.trace(LOG_GET_JSON);
                 final JSONObject json = AnswerRestTestUtil.badGetAnswerJson();
                 final RequestSpecification request = AnswerRestTestUtil.getRequestJson(json.toString());
 
-                final Response response = request.get("get");
+                final Response response = request.get(GET_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(400));
             }
         }
@@ -336,84 +378,103 @@ public class AnswerRestControllerTest {
     class like {
         @Test
         void assert_liked() {
-            logger.trace("assert liked");
+            logger.trace(LOG_LIKED);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser();
 
             final JSONObject json = AnswerRestTestUtil.id();
             final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            final Response response = request.post("like");
+            final Response response = request.post(LIKE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
             assertKeysUpdated();
         }
 
         @Test
         void bad_request() {
-            logger.trace("bad request");
+            logger.trace(LOG_BAD_REQUEST);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
             final JSONObject json = AnswerRestTestUtil.badId();
             final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
-            final Response response = request.post("like");
+            final Response response = request.post(LIKE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
         }
     }
 
     private void assertCorrectAnswerData(Response response) throws JsonProcessingException {
-        final ObjectMapper mapper = new ObjectMapper();
-        mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")); // TODO REFACTOR
+        final ObjectMapper mapper = AnswerRestTestUtil.getObjectMapper();
+        final String body = response.body().asString();
 
-        final AnswerFullResponse[] answers = mapper.readValue(response.getBody().asString(), AnswerFullResponse[].class);
+        final AnswerFullResponse[] answers = mapper.readValue(body, AnswerFullResponse[].class);
         for (final AnswerFullResponse answer : answers) {
             assertThat(answer, notNullValue());
             assertThat(answer.getAnswerId(), notNullValue());
             assertThat(answer.getText(), notNullValue());
             assertThat(answer.getAnswered(), notNullValue());
             assertThat(answer.getCreationDate(), notNullValue());
+
             assertThat(answer.getAuthor(), notNullValue());
             assertThat(answer.getAuthor().getUsername(), notNullValue());
+
             assertThat(answer.getLikes(), equalTo(0));
             assertThat(answer.isLiked(), equalTo(false));
             for (CommentAnswer comment : answer.getComments()) {
                 assertThat(comment.getId(), notNullValue());
                 assertThat(comment.getText(), notNullValue());
+
                 assertThat(comment.getAuthor(), notNullValue());
                 assertThat(comment.getAuthor().getUsername(), notNullValue());
+
                 assertThat(comment.getLikes(), equalTo(0));
                 assertThat(comment.isLiked(), equalTo(false));
             }
         }
     }
 
-    private Long getId(String text) {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            BigInteger result = (BigInteger) session.createSQLQuery("SELECT id FROM answer WHERE text = :text")
-                    .setParameter("text", text).uniqueResult();
-            transaction.commit();
-            return result == null ? null : result.longValue();
+    private void assertKeysUpdated() {
+        final String key = "1";
+        try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
+            final Jedis jedis = jedisResource.getJedis();
+            final boolean userEntityCreated = jedis.sadd(RedisKeys.getUserToAnswerLikes(key), "1") == 0;
+            final boolean entityUserCreated = jedis.sadd(RedisKeys.getAnswerToUserLikes(key), "1") == 0;
+            final boolean entityUpdated = jedis.get(RedisKeys.getAnswerLikes(key)).equals("1");
+            assertThat(userEntityCreated && entityUserCreated && entityUpdated, equalTo(true));
         }
+    }
+
+    private Long getId(String text) {
+        final String sql = "SELECT id FROM answer WHERE text = :text";
+        final BigInteger result;
+
+        try (Session session = sessionFactory.openSession()) {
+            final Transaction transaction = session.beginTransaction();
+
+            result = (BigInteger) session
+                    .createSQLQuery(sql)
+                    .setParameter("text", text)
+                    .uniqueResult();
+
+            transaction.commit();
+        }
+        return result == null ? null : result.longValue();
     }
 
     private Boolean getAnswered() {
-        try (Session session = sessionFactory.openSession()) {
-            Transaction transaction = session.beginTransaction();
-            Boolean result = (Boolean) session.createSQLQuery("SELECT answered FROM answer WHERE text = :text")
-                    .setParameter("text", AnswerQueryParameters.TEXT).uniqueResult();
-            transaction.commit();
-            return result;
-        }
-    }
+        final String sql = "SELECT answered FROM answer WHERE text = :text";
+        final Boolean result;
 
-    private void assertKeysUpdated() {
-        try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
-            final Jedis jedis = jedisResource.getJedis();
-            final boolean userEntityCreated = jedis.sadd(RedisKeys.getUserToAnswerLikes("1"), "1") == 0;
-            final boolean entityUserCreated = jedis.sadd(RedisKeys.getAnswerToUserLikes("1"), "1") == 0;
-            final boolean entityUpdated = jedis.get(RedisKeys.getAnswerLikes("1")).equals("1");
-            assertThat(userEntityCreated && entityUserCreated && entityUpdated, equalTo(true));
+        try (Session session = sessionFactory.openSession()) {
+            final Transaction transaction = session.beginTransaction();
+
+            result = (Boolean) session
+                    .createSQLQuery(sql)
+                    .setParameter("text", AnswerQueryParameters.TEXT)
+                    .uniqueResult();
+
+            transaction.commit();
         }
+        return result;
     }
 }

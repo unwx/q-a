@@ -1,11 +1,20 @@
 package util.rest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.specification.RequestSpecification;
+
+import java.text.SimpleDateFormat;
 
 public abstract class RestTestUtil {
 
     protected RestTestUtil() {
+    }
+
+    public static ObjectMapper getObjectMapper() {
+        final ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+        return objectMapper;
     }
 
     public static RequestSpecification getRequestJson(String json) {
