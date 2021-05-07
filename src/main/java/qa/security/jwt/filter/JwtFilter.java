@@ -37,7 +37,7 @@ public class JwtFilter extends GenericFilterBean {
             {\
             "status": 401,
             "timestamp": %s,
-            "message": %s,
+            "message": "%s",
             "description": null
             }\
             """;
