@@ -25,12 +25,6 @@ public class UserRestController {
         this.userService = userService;
     }
 
-    @RequestMapping(value = "test/{username}", method = RequestMethod.GET)
-    public ResponseEntity<UserFullResponse> test(@PathVariable String username) {
-        return userService.getFullUser(username);
-    }
-
-
     /**
      * @uri
      * /api/v1/user/get/{username}
