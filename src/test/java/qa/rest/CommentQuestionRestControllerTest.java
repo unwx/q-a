@@ -7,7 +7,6 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -88,10 +87,8 @@ public class CommentQuestionRestControllerTest {
         void create() {
             logger.trace(LOG_CREATE);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            final RequestSpecification request = CommentRestTestUtil.commentQuestionCreateRequest(token);
             questionDaoTestUtil.createQuestionNoUser();
-
-            final JSONObject json = CommentRestTestUtil.commentQuestionCreateJson();
-            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
             final Response response = request.post(CREATE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
@@ -104,10 +101,8 @@ public class CommentQuestionRestControllerTest {
         void edit() {
             logger.trace(LOG_EDIT);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            final RequestSpecification request = CommentRestTestUtil.editCommentRequest(token);
             commentDaoTestUtil.createCommentQuestionNoUser();
-
-            final JSONObject json = CommentRestTestUtil.commentEditJson();
-            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
             final Response response = request.put(EDIT_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
@@ -120,10 +115,8 @@ public class CommentQuestionRestControllerTest {
         void delete() {
             logger.trace(LOG_DELETE);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            final RequestSpecification request = CommentRestTestUtil.idRequest(token);
             commentDaoTestUtil.createCommentQuestionNoUser();
-
-            final JSONObject json = CommentRestTestUtil.id();
-            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
             final Response response = request.delete(DELETE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
@@ -138,10 +131,8 @@ public class CommentQuestionRestControllerTest {
         @Test
         void create() {
             logger.trace(LOG_CREATE);
-
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-            final JSONObject json = CommentRestTestUtil.commentQuestionBADCreateJson();
-            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = CommentRestTestUtil.commentQuestionCreateBadRequest(token);
 
             final Response response = request.post(CREATE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
@@ -150,10 +141,8 @@ public class CommentQuestionRestControllerTest {
         @Test
         void edit() {
             logger.trace(LOG_EDIT);
-
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-            final JSONObject json = CommentRestTestUtil.commentBADEditJson();
-            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = CommentRestTestUtil.editCommentBadRequest(token);
 
             final Response response = request.put(EDIT_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
@@ -162,10 +151,8 @@ public class CommentQuestionRestControllerTest {
         @Test
         void delete() {
             logger.trace(LOG_DELETE);
-
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-            final JSONObject json = CommentRestTestUtil.badId();
-            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = CommentRestTestUtil.idBadRequest(token);
 
             final Response response = request.delete(DELETE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
@@ -178,10 +165,8 @@ public class CommentQuestionRestControllerTest {
         void edit() {
             logger.trace(LOG_EDIT);
             final String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+            final RequestSpecification request = CommentRestTestUtil.editCommentRequest(token);
             commentDaoTestUtil.createCommentQuestion();
-
-            final JSONObject json = CommentRestTestUtil.commentEditJson();
-            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
             final Response response = request.put(EDIT_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(403));
@@ -194,10 +179,8 @@ public class CommentQuestionRestControllerTest {
         void delete() {
             logger.trace(LOG_DELETE);
             final String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
+            final RequestSpecification request = CommentRestTestUtil.idRequest(token);
             commentDaoTestUtil.createCommentQuestion();
-
-            final JSONObject json = CommentRestTestUtil.id();
-            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
             final Response response = request.delete(DELETE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(403));
@@ -215,9 +198,7 @@ public class CommentQuestionRestControllerTest {
             void json() throws JsonProcessingException {
                 logger.trace(LOG_GET_JSON);
                 commentDaoTestUtil.createManyCommentQuestions(CommentDaoTestUtil.COMMENT_RESULT_SIZE);
-
-                final JSONObject json = CommentRestTestUtil.idPage();
-                final RequestSpecification request = CommentRestTestUtil.getRequestJson(json.toString());
+                final RequestSpecification request = CommentRestTestUtil.idPageRequest();
 
                 final Response response = request.get(GET_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(200));
@@ -252,9 +233,7 @@ public class CommentQuestionRestControllerTest {
             void json() {
                 logger.trace(LOG_GET_JSON);
                 commentDaoTestUtil.createManyCommentQuestions(CommentDaoTestUtil.COMMENT_RESULT_SIZE);
-
-                final JSONObject json = CommentRestTestUtil.badIdPage();
-                final RequestSpecification request = CommentRestTestUtil.getRequestJson(json.toString());
+                final RequestSpecification request = CommentRestTestUtil.idPageBadRequest();
 
                 final Response response = request.get(GET_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(400));
@@ -280,10 +259,8 @@ public class CommentQuestionRestControllerTest {
         void assert_liked() {
             logger.trace(LOG_LIKED);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
+            final RequestSpecification request = CommentRestTestUtil.idRequest(token);
             commentDaoTestUtil.createCommentQuestionNoUser();
-
-            final JSONObject json = CommentRestTestUtil.id();
-            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
             final Response response = request.post(LIKE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
@@ -295,9 +272,7 @@ public class CommentQuestionRestControllerTest {
         void bad_request() {
             logger.trace(LOG_BAD_REQUEST);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-
-            final JSONObject json = CommentRestTestUtil.badId();
-            final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = CommentRestTestUtil.idBadRequest(token);
 
             final Response response = request.post(LIKE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));

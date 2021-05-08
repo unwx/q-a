@@ -53,32 +53,26 @@ public class UIRequests extends RestTestUtil {
     }
 
     public static RequestSpecification createCommentQuestion(long questionId, String accessToken) {
-        final JSONObject json = CommentRestTestUtil.commentQuestionCreateJson(questionId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return CommentRestTestUtil.commentQuestionCreateRequest(questionId, accessToken);
     }
 
     public static RequestSpecification editCommentQuestion(long commentId, String accessToken) {
-        final JSONObject json = CommentRestTestUtil.commentEditJson(commentId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return CommentRestTestUtil.editCommentRequest(commentId, accessToken);
     }
 
     public static RequestSpecification deleteCommentQuestion(long commentId, String accessToken) {
-        final JSONObject json = CommentRestTestUtil.id(commentId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return CommentRestTestUtil.idRequest(commentId, accessToken);
     }
 
     public static RequestSpecification createCommentAnswer(long answerId, String accessToken) {
-        final JSONObject json = CommentRestTestUtil.commentAnswerCreateJson(answerId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return CommentRestTestUtil.commentAnswerCreateRequest(answerId, accessToken);
     }
 
     public static RequestSpecification editCommentAnswer(long commentId, String accessToken) {
-        final JSONObject json = CommentRestTestUtil.commentEditJson(commentId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return CommentRestTestUtil.editCommentRequest(commentId, accessToken);
     }
 
     public static RequestSpecification deleteCommentAnswer(long commentId, String accessToken) {
-        final JSONObject json = CommentRestTestUtil.id(commentId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return CommentRestTestUtil.idRequest(commentId, accessToken);
     }
 }
