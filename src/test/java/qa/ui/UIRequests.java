@@ -1,7 +1,6 @@
 package qa.ui;
 
 import io.restassured.specification.RequestSpecification;
-import org.json.JSONObject;
 import util.rest.*;
 
 public class UIRequests extends RestTestUtil {
@@ -13,8 +12,7 @@ public class UIRequests extends RestTestUtil {
     }
 
     public static RequestSpecification questionLike(long questionId, String accessToken) {
-        final JSONObject json = QuestionRestTestUtil.id(questionId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return QuestionRestTestUtil.idRequest(questionId, accessToken);
     }
 
     public static RequestSpecification answerLike(long answerId, String accessToken) {
@@ -22,18 +20,15 @@ public class UIRequests extends RestTestUtil {
     }
 
     public static RequestSpecification createQuestion(String accessToken) {
-        final JSONObject json = QuestionRestTestUtil.createQuestionJson();
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return QuestionRestTestUtil.createQuestionRequest(accessToken);
     }
 
     public static RequestSpecification editQuestion(long questionId, String accessToken) {
-        final JSONObject json = QuestionRestTestUtil.editQuestionJson(questionId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return QuestionRestTestUtil.editQuestionRequest(questionId, accessToken);
     }
 
     public static RequestSpecification deleteQuestion(long questionId, String accessToken) {
-        final JSONObject json = QuestionRestTestUtil.id(questionId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return QuestionRestTestUtil.idRequest(questionId, accessToken);
     }
 
     public static RequestSpecification createAnswer(long questionId, String accessToken) {

@@ -12,19 +12,16 @@ import util.dao.query.params.UserQueryParameters;
 
 public class JwtTestUtil {
 
-    public final static String USER_PASSWORD = "ho3kLS4hl2dp-asd";
-    public final static String USER_EMAIL = "yahoo@yahoo.com";
-    public final static String USER_SECOND_EMAIL = "second@yahoo.com";
+    public final static String USER_PASSWORD          = "ho3kLS4hl2dp-asd";
+    public final static String USER_EMAIL             = "yahoo@yahoo.com";
+    public final static String USER_SECOND_EMAIL      = "second@yahoo.com";
 
-    
-
-    private JwtTestUtil() {
-    }
+    private JwtTestUtil() {}
 
     public static String createUserWithToken(SessionFactory sessionFactory, JwtProvider jwtProvider) {
-        ImmutablePair<String, Long> pair = createAccessToken(USER_EMAIL, jwtProvider);
-        String token = pair.left;
-        Long exp = pair.right;
+        final ImmutablePair<String, Long> pair = createAccessToken(USER_EMAIL, jwtProvider);
+        final String token = pair.left;
+        final Long exp = pair.right;
 
         createAuthenticationWithUserWithRoles(
                 1L,
@@ -39,8 +36,8 @@ public class JwtTestUtil {
     public static ImmutablePair<String, Long> createUserWithRefreshTokenAndEncryptedPassword(SessionFactory sessionFactory,
                                                                  JwtProvider jwtProvider,
                                                                  PooledPBEStringEncryptor encryptor) {
-        ImmutablePair<String, Long> pair = createRefreshToken(jwtProvider);
 
+        final ImmutablePair<String, Long> pair = createRefreshToken(jwtProvider);
         createAuthenticationWithUserWithRoles(
                 1L,
                 UserQueryParameters.USERNAME,
@@ -52,9 +49,9 @@ public class JwtTestUtil {
     }
 
     public static String createSecondUserWithToken(SessionFactory sessionFactory, JwtProvider jwtProvider) {
-        ImmutablePair<String, Long> pair = createAccessToken(USER_SECOND_EMAIL, jwtProvider);
-        String token = pair.left;
-        Long exp = pair.right;
+        final ImmutablePair<String, Long> pair = createAccessToken(USER_SECOND_EMAIL, jwtProvider);
+        final String token = pair.left;
+        final Long exp = pair.right;
 
         createAuthenticationWithUserWithRoles(
                 2L,
@@ -86,7 +83,7 @@ public class JwtTestUtil {
     }
 
     private static Query<?> createAuthenticationQuery(Long id, String email, Long exp, String password, Session session) {
-        String sql =
+        final String sql =
                 """
                 INSERT INTO authentication (id, access_token_exp_date, email, enabled, password, refresh_token_exp_date, user_id)\s\
                 VALUES (:id, :exp, :email, true, :password, :exp, :id)\
@@ -99,7 +96,7 @@ public class JwtTestUtil {
     }
 
     private static Query<?> createRolesQuery(Long id, Session session) {
-        String sql =
+        final String sql =
                 """
                 INSERT INTO user_role (auth_id, roles)\s\
                 VALUES (:id, 'USER')\
@@ -109,7 +106,7 @@ public class JwtTestUtil {
     }
 
     private static Query<?> createUserQuery(Long id, String username, Session session) {
-        String sql =
+        final String sql =
                 """
                 INSERT INTO usr (id, about, username)\s\
                 VALUES (:id, 'about', :username)\
@@ -120,16 +117,16 @@ public class JwtTestUtil {
     }
 
     private static ImmutablePair<String, Long> createAccessToken(String email, JwtProvider jwtProvider) {
-        JwtData data = jwtProvider.createAccess(email);
-        String token = "Bearer_" + data.getToken();
-        long exp = data.getExpirationAtMillis();
+        final JwtData data = jwtProvider.createAccess(email);
+        final String token = "Bearer_" + data.getToken();
+        final long exp = data.getExpirationAtMillis();
         return new ImmutablePair<>(token, exp);
     }
 
     private static ImmutablePair<String, Long> createRefreshToken(JwtProvider jwtProvider) {
-        JwtData data = jwtProvider.createRefresh(JwtTestUtil.USER_EMAIL);
-        String token = "Bearer_" + data.getToken();
-        long exp = data.getExpirationAtMillis();
+        final JwtData data = jwtProvider.createRefresh(JwtTestUtil.USER_EMAIL);
+        final String token = "Bearer_" + data.getToken();
+        final long exp = data.getExpirationAtMillis();
         return new ImmutablePair<>(token, exp);
     }
 }
