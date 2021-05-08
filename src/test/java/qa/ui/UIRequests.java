@@ -9,8 +9,7 @@ public class UIRequests extends RestTestUtil {
     private UIRequests() {}
 
     public static RequestSpecification authorize() {
-        final JSONObject json = AuthenticationRestTestUtil.getLoginJson();
-        return getRequestJson(json.toString());
+        return AuthenticationRestTestUtil.getLoginRequest();
     }
 
     public static RequestSpecification questionLike(long questionId, String accessToken) {

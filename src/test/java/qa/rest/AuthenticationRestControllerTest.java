@@ -9,7 +9,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -78,8 +77,7 @@ public class AuthenticationRestControllerTest {
         @Test
         void success_assert_valid_tokens() throws JsonProcessingException {
             logger.trace(LOG_SUCCESS_VALID);
-            final JSONObject json = AuthenticationRestTestUtil.getRegistrationJson();
-            final RequestSpecification request = AuthenticationRestTestUtil.getRequestJson(json.toString());
+            final RequestSpecification request = AuthenticationRestTestUtil.getRegistrationRequest();
 
             final Response response = request.post(REGISTRATION_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
@@ -96,8 +94,7 @@ public class AuthenticationRestControllerTest {
             logger.trace(LOG_FAILED_USER_EXIST);
             userDaoTestUtil.createUser();
 
-            final JSONObject json = AuthenticationRestTestUtil.getRegistrationJson();
-            final RequestSpecification request = AuthenticationRestTestUtil.getRequestJson(json.toString());
+            final RequestSpecification request = AuthenticationRestTestUtil.getRegistrationRequest();
 
             final Response response = request.post(REGISTRATION_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
@@ -120,8 +117,7 @@ public class AuthenticationRestControllerTest {
             logger.trace(LOG_SUCCESS_VALID);
             JwtTestUtil.createUserWithRefreshTokenAndEncryptedPassword(sessionFactory, jwtProvider, passwordEncryptorFactory.create());
 
-            final JSONObject json = AuthenticationRestTestUtil.getLoginJson();
-            final RequestSpecification request = AuthenticationRestTestUtil.getRequestJson(json.toString());
+            final RequestSpecification request = AuthenticationRestTestUtil.getLoginRequest();
 
             final Response response = request.post(LOGIN_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
@@ -136,8 +132,7 @@ public class AuthenticationRestControllerTest {
         @Test
         void failed_wrong_login_or_password() throws JsonProcessingException {
             logger.trace(LOG_FAILED_WRONG_AUTH);
-            final JSONObject json = AuthenticationRestTestUtil.getLoginJson();
-            final RequestSpecification request = AuthenticationRestTestUtil.getRequestJson(json.toString());
+            final RequestSpecification request = AuthenticationRestTestUtil.getLoginRequest();
 
             final Response response = request.post(LOGIN_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(401));
