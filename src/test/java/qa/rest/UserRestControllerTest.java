@@ -7,7 +7,6 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -115,9 +114,7 @@ public class UserRestControllerTest {
 
                 final int answers = 2;
                 questionDaoTestUtil.createManyQuestionsWithManyAnswers(UserDaoTestUtil.RESULT_SIZE, answers);
-
-                final JSONObject json = UserRestTestUtil.usernameJson();
-                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                final RequestSpecification request = UserRestTestUtil.usernameRequest();
 
                 final Response response = request.get(GET_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(200));
@@ -133,9 +130,7 @@ public class UserRestControllerTest {
             void json_assert_empty_list() throws JsonProcessingException {
                 logger.trace(LOG_GET_JSON_EMPTY_ARRAY);
                 userDaoTestUtil.createUser();
-
-                final JSONObject json = UserRestTestUtil.usernameJson();
-                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                final RequestSpecification request = UserRestTestUtil.usernameRequest();
 
                 final Response response = request.get(GET_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(200));
@@ -164,8 +159,7 @@ public class UserRestControllerTest {
             @Test
             void json() {
                 logger.trace(LOG_GET_JSON);
-                final JSONObject json = UserRestTestUtil.usernameBADJson();
-                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                final RequestSpecification request = UserRestTestUtil.usernameBadRequest();
 
                 final Response response = request.get(GET_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(400));
@@ -197,8 +191,7 @@ public class UserRestControllerTest {
                 final long userId = 1L;
                 final int page = 1;
 
-                final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
-                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                final RequestSpecification request = UserRestTestUtil.idPageRequest(userId, page);
 
                 final Response response = request.get(GET_QUESTIONS_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(200));
@@ -232,8 +225,7 @@ public class UserRestControllerTest {
                 final long userId = -1L;
                 final int page = 0;
 
-                final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
-                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                final RequestSpecification request = UserRestTestUtil.idPageRequest(userId, page);
 
                 Response response = request.get(GET_QUESTIONS_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(400));
@@ -265,8 +257,7 @@ public class UserRestControllerTest {
                     final long userId = 1L;
                     final int page = 1;
 
-                    final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
-                    final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                    final RequestSpecification request = UserRestTestUtil.idPageRequest(userId, page);
 
                     final Response response = request.get(GET_QUESTIONS_ENDPOINT);
                     assertThat(response.getStatusCode(), equalTo(404));
@@ -294,8 +285,7 @@ public class UserRestControllerTest {
                     final long userId = 1L;
                     final int page = 1;
 
-                    final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
-                    final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                    final RequestSpecification request = UserRestTestUtil.idPageRequest(userId, page);
 
                     final Response response = request.get(GET_QUESTIONS_ENDPOINT);
                     assertThat(response.getStatusCode(), equalTo(200));
@@ -338,8 +328,7 @@ public class UserRestControllerTest {
                 final long userId = 1L;
                 final int page = 1;
 
-                final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
-                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                final RequestSpecification request = UserRestTestUtil.idPageRequest(userId, page);
 
                 final Response response = request.get(GET_ANSWERS_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(200));
@@ -373,8 +362,7 @@ public class UserRestControllerTest {
                 final long userId = -1L;
                 final int page = 0;
 
-                final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
-                final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                final RequestSpecification request = UserRestTestUtil.idPageRequest(userId, page);
 
                 Response response = request.get(GET_ANSWERS_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(400));
@@ -406,8 +394,7 @@ public class UserRestControllerTest {
                     final long userId = 1L;
                     final int page = 1;
 
-                    final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
-                    final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                    final RequestSpecification request = UserRestTestUtil.idPageRequest(userId, page);
 
                     final Response response = request.get(GET_ANSWERS_ENDPOINT);
                     assertThat(response.getStatusCode(), equalTo(404));
@@ -436,8 +423,7 @@ public class UserRestControllerTest {
                     final long userId = 1L;
                     final int page = 1;
 
-                    final JSONObject json = UserRestTestUtil.idPageJSON(userId, page);
-                    final RequestSpecification request = UserRestTestUtil.getRequestJson(json.toString());
+                    final RequestSpecification request = UserRestTestUtil.idPageRequest(userId, page);
 
                     final Response response = request.get(GET_ANSWERS_ENDPOINT);
                     assertThat(response.getStatusCode(), equalTo(200));

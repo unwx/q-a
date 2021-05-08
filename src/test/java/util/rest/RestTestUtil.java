@@ -8,24 +8,25 @@ import java.text.SimpleDateFormat;
 
 public abstract class RestTestUtil {
 
-    protected RestTestUtil() {
-    }
+    protected RestTestUtil() {}
 
     public static ObjectMapper getObjectMapper() {
         final ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+        final String format = "yyyy-MM-dd HH:mm:ss";
+
+        objectMapper.setDateFormat(new SimpleDateFormat(format));
         return objectMapper;
     }
 
     public static RequestSpecification getRequestJson(String json) {
-        RequestSpecification request = RestAssured.given();
+        final RequestSpecification request = RestAssured.given();
         request.header("Content-Type", "application/json");
         request.body(json);
         return request;
     }
 
     public static RequestSpecification getRequestJsonJwt(String json, String token) {
-        RequestSpecification request = RestAssured.given();
+        final RequestSpecification request = RestAssured.given();
         request.header("Content-Type", "application/json");
         request.header("Authorization", token);
         request.body(json);
@@ -33,12 +34,11 @@ public abstract class RestTestUtil {
     }
 
     public static RequestSpecification getRequestJwt(String token) {
-        RequestSpecification request = RestAssured.given();
+        final RequestSpecification request = RestAssured.given();
         request.header("Content-Type", "application/json");
         request.header("Authorization", token);
         return request;
     }
-
 
     public static RequestSpecification getRequest() {
         return RestAssured.given();

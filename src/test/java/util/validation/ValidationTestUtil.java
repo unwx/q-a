@@ -7,8 +7,7 @@ public class ValidationTestUtil {
 
     private static ValidationPropertyDataSource propertyDataSource;
 
-    private ValidationTestUtil() {
-    }
+    private ValidationTestUtil() {}
 
     public static ValidationPropertyDataSource mockValidationProperties() {
         if (propertyDataSource == null) {
