@@ -24,7 +24,7 @@ public class AnswerRestTestUtil extends RestTestUtil {
     }
 
     public static RequestSpecification createAnswerBadRequest(String accessToken) {
-        final JSONObject json = createBADAnswerJson();
+        final JSONObject json = badCreateAnswerJson();
         return getRequestJsonJwt(json.toString(), accessToken);
     }
 
@@ -39,7 +39,7 @@ public class AnswerRestTestUtil extends RestTestUtil {
     }
 
     public static RequestSpecification editAnswerBadRequest(String accessToken) {
-        final JSONObject json = editBADAnswerJson();
+        final JSONObject json = badEditAnswerJson();
         return getRequestJsonJwt(json.toString(), accessToken);
     }
 
@@ -82,7 +82,7 @@ public class AnswerRestTestUtil extends RestTestUtil {
         return json;
     }
 
-    private static JSONObject createBADAnswerJson() {
+    private static JSONObject badCreateAnswerJson() {
         final JSONObject json = new JSONObject();
         json.put(QUESTION_ID, -1L);
         json.put(TEXT, ".,m--x.m");
@@ -103,7 +103,7 @@ public class AnswerRestTestUtil extends RestTestUtil {
         return json;
     }
 
-    private static JSONObject editBADAnswerJson() {
+    private static JSONObject badEditAnswerJson() {
         final JSONObject json = new JSONObject();
         json.put(ID, -1L);
         json.put(TEXT, ".,m--x.m");

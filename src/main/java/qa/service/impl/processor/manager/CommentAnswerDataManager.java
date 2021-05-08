@@ -77,16 +77,38 @@ public class CommentAnswerDataManager {
         this.commentAnswerDao.like(userId, commentId);
     }
 
+    /**
+     *
+     * @throws BadRequestException:
+     * if answer not exist
+     */
     public void throwBadRequestExIfAnswerNotExist(long commentId) {
         if (!isAnswerExist(commentId)) throw new BadRequestException(ERR_ANSWER_NOT_EXIST.formatted(commentId));
     }
 
+    /**
+     *
+     * @throws
+     * qa.exceptions.rest.ResourceNotFoundException:
+     * if comment not exist
+     *
+     * AuthorNotExistException:
+     * if author not exist
+     *
+     * AccessDeniedException:
+     * if not real author
+     */
     public void checkIsRealAuthor(Long authenticationId, long commentId) {
         final Where where = new Where(ID, commentId, WhereOperator.EQUALS);
         final CommentAnswer comment = new CommentAnswer();
         this.authorUtil.checkRightsAndExistence(authenticationId, where, comment, commentAnswerDao, logger, ENTITY_NAME);
     }
 
+    /**
+     *
+     * @throws qa.exceptions.rest.ResourceNotFoundException:
+     * if result is null
+     */
     private List<CommentAnswer> getCommentsFromDatabase(long commentId, long userId, int page) {
         final List<CommentAnswer> comments = this.commentAnswerDao.getComments(commentId, userId, page - 1);
         return ResourceUtil.throwResourceNFExceptionIfNull(comments, ERR_ANSWER_NOT_EXIST.formatted(commentId));

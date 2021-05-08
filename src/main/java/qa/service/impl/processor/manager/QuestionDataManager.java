@@ -53,14 +53,6 @@ public class QuestionDataManager {
         return questionDao.create(question);
     }
 
-    public void checkIsRealAuthor(long id, Authentication authentication) {
-        final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
-        final Where where = new Where(ID, id, WhereOperator.EQUALS);
-        final Question question = new Question();
-
-        this.authorUtil.checkRightsAndExistence(userId, where, question, questionDao, logger, ENTITY_NAME);
-    }
-
     public void saveEditedQuestion(QuestionEditRequest request) {
         final Where where = new Where(ID, request.getQuestionId(), WhereOperator.EQUALS);
         final Question question = new Question.Builder()
@@ -95,9 +87,34 @@ public class QuestionDataManager {
         return this.questionDao.getQuestionViewsDto(page - 1);
     }
 
+    /**
+     *
+     * @throws qa.exceptions.rest.ResourceNotFoundException:
+     * if result is null
+     */
     private Question getFullQuestionFromDatabase(long questionId, long userId) {
         final Question question = this.questionDao.getFullQuestion(questionId, userId);
         return ResourceUtil.throwResourceNFExceptionIfNull(question, ServiceExceptionMessage.ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questionId));
+    }
+
+    /**
+     *
+     * @throws
+     * qa.exceptions.rest.ResourceNotFoundException:
+     * if question not exist
+     *
+     * AuthorNotExistException:
+     * if author not exist
+     *
+     * AccessDeniedException:
+     * if not real author
+     */
+    public void checkIsRealAuthor(long id, Authentication authentication) {
+        final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
+        final Where where = new Where(ID, id, WhereOperator.EQUALS);
+        final Question question = new Question();
+
+        this.authorUtil.checkRightsAndExistence(userId, where, question, questionDao, logger, ENTITY_NAME);
     }
 
     private List<QuestionViewResponse> convertViewDtoToResponse(List<QuestionView> views) {

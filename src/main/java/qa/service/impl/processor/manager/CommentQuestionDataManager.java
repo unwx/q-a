@@ -75,17 +75,39 @@ public class CommentQuestionDataManager {
         this.commentQuestionDao.like(userId, commentId);
     }
 
+    /**
+     *
+     * @throws BadRequestException:
+     * if question not exist
+     */
     public void throwBadRequestExIfQuestionNotExist(long questionId) {
         if (!isQuestionExist(questionId))
             throw new BadRequestException(ERR_QUESTION_NOT_EXIST.formatted(questionId));
     }
 
+    /**
+     *
+     * @throws
+     * qa.exceptions.rest.ResourceNotFoundException:
+     * if comment not exist
+     *
+     * AuthorNotExistException:
+     * if author not exist
+     *
+     * AccessDeniedException:
+     * if not real author
+     */
     public void checkIsRealAuthorCommentQuestion(Long authenticationId, long commentId) {
         final Where where = new Where(ID, commentId, WhereOperator.EQUALS);
         final CommentQuestion comment = new CommentQuestion();
         this.authorUtil.checkRightsAndExistence(authenticationId, where, comment, commentQuestionDao, logger, ENTITY_NAME);
     }
 
+    /**
+     *
+     * @throws qa.exceptions.rest.ResourceNotFoundException:
+     * if result is null
+     */
     private List<CommentQuestion> getCommentFromDatabase(long questionId, long userId, int page) {
         final List<CommentQuestion> questions = this.commentQuestionDao.getComments(questionId, userId, page - 1);
         return ResourceUtil.throwResourceNFExceptionIfNull(questions, ERR_QUESTION_NOT_EXIST.formatted(questions));

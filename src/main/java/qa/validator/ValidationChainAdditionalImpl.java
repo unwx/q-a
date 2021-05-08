@@ -12,7 +12,7 @@ public class ValidationChainAdditionalImpl extends ValidationChainImpl implement
 
     @Override
     public void validateWithAdditionalValidator(ValidationWrapper entity) throws ValidationException {
-        this.validate(entity);
+        super.validate(entity);
         this.additionalPart(entity);
     }
 

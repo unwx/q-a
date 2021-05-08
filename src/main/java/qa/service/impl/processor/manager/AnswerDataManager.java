@@ -98,6 +98,18 @@ public class AnswerDataManager {
         this.answerDao.like(userId, answerId);
     }
 
+    /**
+     *
+     * @throws
+     * qa.exceptions.rest.ResourceNotFoundException:
+     * if answer not exist
+     *
+     * AuthorNotExistException:
+     * if author not exist
+     *
+     * AccessDeniedException:
+     * if not real author
+     */
     public void checkIsRealAuthor(Long answerId, Authentication authentication) {
         final long userId = PrincipalUtil.getUserIdFromAuthentication(authentication);
         final Where where = new Where(ID, answerId, WhereOperator.EQUALS);
@@ -112,10 +124,20 @@ public class AnswerDataManager {
         if (realAuthorId != authenticationId) throw new AccessDeniedException(ERR_ACCESS_DENIED);
     }
 
+    /**
+     *
+     * @throws BadRequestException:
+     * if question not exist
+     */
     public void throwBadRequestExIfQuestionNotExist(long questionId) {
         if (!isQuestionExist(questionId)) throw new BadRequestException(ERR_QUESTION_NOT_EXIST.formatted(questionId));
     }
 
+    /**
+     *
+     * @throws qa.exceptions.rest.ResourceNotFoundException:
+     * if result is null
+     */
     private List<Answer> getAnswersFromDatabase(long questionId, long userId, int page) {
         final List<Answer> answers = this.answerDao.getAnswers(questionId, userId, page - 1);
         return ResourceUtil.throwResourceNFExceptionIfNull(answers, ServiceExceptionMessage.ERR_MESSAGE_QUESTION_NOT_EXIST_ID.formatted(questionId));

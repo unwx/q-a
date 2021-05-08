@@ -42,16 +42,31 @@ public class UserDataManager {
         return this.convertAnswersToResponseDto(answers);
     }
 
+    /**
+     *
+     * @throws qa.exceptions.rest.ResourceNotFoundException:
+     * if result is null
+     */
     private User getFullUserFromDatabase(String username) {
         final User user = this.userDao.readFullUser(username);
         return ResourceUtil.throwResourceNFExceptionIfNull(user, ERR_USER_NOT_EXIST_USERNAME.formatted(username));
     }
 
+    /**
+     *
+     * @throws qa.exceptions.rest.ResourceNotFoundException:
+     * if result is null
+     */
     private List<Question> getUserQuestionsFromDatabase(long userId, int page) {
         final List<Question> questions = this.userDao.readUserQuestions(userId, page - 1);
         return ResourceUtil.throwResourceNFExceptionIfNull(questions, ERR_USER_NOT_EXIST_ID.formatted(userId));
     }
 
+    /**
+     *
+     * @throws qa.exceptions.rest.ResourceNotFoundException:
+     * if result is null
+     */
     private List<Answer> getUserAnswersFromDatabase(long userId, int page) {
         final List<Answer> answers = this.userDao.readUserAnswers(userId, page - 1);
         return ResourceUtil.throwResourceNFExceptionIfNull(answers, ERR_USER_NOT_EXIST_ID.formatted(userId));

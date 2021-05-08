@@ -4,9 +4,9 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.example</groupId>
+  <groupId>unwx-serhii</groupId>
   <artifactId>qa</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0</version>
   <packaging>war</packaging>
 
   <name>qa Maven Webapp</name>
@@ -16,6 +16,8 @@
     <java.version>15</java.version>
     <maven.compiler.source>15</maven.compiler.source>
     <maven.compiler.target>15</maven.compiler.target>
+
+    <javax.servlet-api-version>4.0.1</javax.servlet-api-version>
 
     <spring-version>5.3.4</spring-version>
     <spring-security-version>5.4.4</spring-security-version>
@@ -27,10 +29,22 @@
 
     <java-jwt-version>3.13.0</java-jwt-version>
 
+    <junit-jupiter-api-version>5.7.1</junit-jupiter-api-version>
+    <java-hamcrest-version>2.0.0.0</java-hamcrest-version>
     <mockito-core-version>3.8.0</mockito-core-version>
     <rest-assured-version>4.3.3</rest-assured-version>
 
+    <log4j-version>2.14.1</log4j-version>
+
     <slf4j-version>1.7.30</slf4j-version>
+    <jasypt-version>1.9.3</jasypt-version>
+    <jamon-version>2.82</jamon-version>
+    <json-version>20210307</json-version>
+    <jb-annotations-version>20.1.0</jb-annotations-version>
+    <jackson-databind-version>2.12.2</jackson-databind-version>
+    <bcprov-jdk15on-version>1.68</bcprov-jdk15on-version>
+    <commons-lang3-version>3.12.0</commons-lang3-version>
+    <commons-validator-version>1.7</commons-validator-version>
   </properties>
 
   <dependencies>
@@ -57,7 +71,7 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
-      <version>4.0.1</version>
+      <version>${javax.servlet-api-version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -85,7 +99,7 @@
     <dependency>
       <groupId>org.jasypt</groupId>
       <artifactId>jasypt</artifactId>
-      <version>1.9.3</version>
+      <version>${jasypt-version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
@@ -106,19 +120,19 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.7.1</version>
+      <version>${junit-jupiter-api-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>java-hamcrest</artifactId>
-      <version>2.0.0.0</version>
+      <version>${java-hamcrest-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
-      <version>5.3.5</version>
+      <version>${spring-version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -142,49 +156,49 @@
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20210307</version>
+      <version>${json-version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.jetbrains</groupId>
       <artifactId>annotations</artifactId>
-      <version>20.1.0</version>
+      <version>${jb-annotations-version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.12.2</version>
+      <version>${jackson-databind-version}</version>
     </dependency>
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk15on</artifactId>
-      <version>1.68</version>
+      <version>${bcprov-jdk15on-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>3.12.0</version>
+      <version>${commons-lang3-version}</version>
     </dependency>
     <dependency>
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
-      <version>1.7</version>
+      <version>${commons-validator-version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-api</artifactId>
-      <version>2.14.1</version>
+      <version>${log4j-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
-      <version>2.14.1</version>
+      <version>${log4j-version}</version>
     </dependency>
     <dependency>
       <groupId>com.jamonapi</groupId>
       <artifactId>jamon</artifactId>
-      <version>2.82</version>
+      <version>${jamon-version}</version>
     </dependency>
 
     <dependency>
