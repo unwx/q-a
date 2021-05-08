@@ -26,11 +26,11 @@
 - [Mockito](https://site.mockito.org/)
 - [REST-assured](https://github.com/rest-assured/rest-assured)
 
-### 🔌 More dependencies: [pom.xml](https://github.com/unwx/q-a#-Dependencies)
-
 ### 💾 Databases
 - Postgresql:&nbsp;&nbsp;&nbsp;12.6
 - Redis:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5.0.7
+
+### 🔌 More dependencies: [pom.xml](https://github.com/unwx/q-a#-Dependencies)
 
 ## ⚓️ Request mappings
 ### 🔑 Authentication
