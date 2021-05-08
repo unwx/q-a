@@ -33,7 +33,7 @@ public class PropertySetterTest {
 
     @Test
     public void assert_correct_test_data() {
-        Entity entity = new Entity();
+        final Entity entity = new Entity();
         assertThat(entity.getId(), equalTo(null));
         assertThat(entity.getStr(), equalTo(null));
         assertThat(entity.getBool(), equalTo(null));
@@ -46,8 +46,8 @@ public class PropertySetterTest {
         @Test
         public void default_entity() {
             logger.trace("simple entity");
-            PropertySetter propertySetter = propertySetterFactory.getSetter(new Entity());
-            Entity entity = new Entity();
+            final PropertySetter propertySetter = propertySetterFactory.getSetter(new Entity());
+            final Entity entity = new Entity();
 
             propertySetter.set(entity, "id", 1L); //id - Long
             propertySetter.set(entity, "str", "string"); // str - String
@@ -63,9 +63,9 @@ public class PropertySetterTest {
         @Test
         public void nested_entity() {
             logger.trace("nested entity");
-            PropertySetter propertySetter = propertySetterFactory.getSetter(new Entity());
-            Entity entity = new Entity();
-            NestedEntity nestedEntity = new NestedEntity();
+            final PropertySetter propertySetter = propertySetterFactory.getSetter(new Entity());
+            final Entity entity = new Entity();
+            final NestedEntity nestedEntity = new NestedEntity();
 
             propertySetter.set(entity, "nested1", nestedEntity);
 
@@ -75,8 +75,8 @@ public class PropertySetterTest {
         @Test
         public void set_all_default() {
             logger.trace("set all primitive");
-            PropertySetter propertySetter = propertySetterFactory.getSetter(new Entity());
-            Entity entity = new Entity();
+            final PropertySetter propertySetter = propertySetterFactory.getSetter(new Entity());
+            final Entity entity = new Entity();
 
             propertySetter.setAll(
                     entity,
@@ -93,9 +93,10 @@ public class PropertySetterTest {
     @Test
     public void setAll_null_params() {
         logger.trace("set all null");
-        PropertySetter propertySetter = propertySetterFactory.getSetter(new Entity());
+        final PropertySetter propertySetter = propertySetterFactory.getSetter(new Entity());
         assertThrows(SetterTargetIsNullException.class, () -> propertySetter.set(null, "id", 1L));
-        Entity entity = new Entity();
+
+        final Entity entity = new Entity();
         assertThrows(SetterNotImplementedException.class, () -> propertySetter.set(entity, null, 1L));
         assertDoesNotThrow(() -> propertySetter.set(entity, "id", null));
     }
