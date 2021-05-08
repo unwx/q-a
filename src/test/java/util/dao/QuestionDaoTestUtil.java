@@ -25,152 +25,152 @@ public class QuestionDaoTestUtil {
     }
 
     public void createQuestionWithCommentsAndAnswersWithComments(int answers, int comments) {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .user()
                 .question();
-        redisQueryBuilder
+        this.redisQueryBuilder
                 .openJedis()
                 .question()
                 .closeJedis();
 
         long commentId = answers;
         for (int i = 0; i < answers; i++) {
-            queryBuilder
+            this.queryBuilder
                     .answer((long) i, new Date(i * dateAtMillisDefault))
                     .commentQuestion((long) i, new Date(i * dateAtMillisDefault))
                     .flushAndClear();
-            redisQueryBuilder
+            this.redisQueryBuilder
                     .answer(i)
                     .commentQuestion(i);
             for (int y = 0; y < comments; y++) {
-                queryBuilder.commentAnswer(commentId, (long) i, new Date(y + dateAtMillisDefault));
-                redisQueryBuilder.commentAnswer(commentId);
+                this.queryBuilder.commentAnswer(commentId, (long) i, new Date(y + dateAtMillisDefault));
+                this.redisQueryBuilder.commentAnswer(commentId);
                 commentId++;
             }
         }
-        queryBuilder.closeSession();
+        this.queryBuilder.closeSession();
     }
 
     public void createQuestionWithComments(int comments) {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .user()
                 .question();
-        redisQueryBuilder
+        this.redisQueryBuilder
                 .openJedis()
                 .question();
 
         for (int i = 0; i < comments; i++) {
-            queryBuilder.commentQuestion((long) i, new Date(dateAtMillisDefault * i));
-            redisQueryBuilder.commentQuestion(i);
+            this.queryBuilder.commentQuestion((long) i, new Date(dateAtMillisDefault * i));
+            this.redisQueryBuilder.commentQuestion(i);
             if (i % 20 == 0)
                 queryBuilder.flushAndClear();
         }
-        queryBuilder.closeSession();
-        redisQueryBuilder.closeJedis();
+        this.queryBuilder.closeSession();
+        this.redisQueryBuilder.closeJedis();
     }
 
     public void createQuestionWithAnswersWithComments(int answers, int comments) {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .user()
                 .question();
-        redisQueryBuilder
+        this.redisQueryBuilder
                 .openJedis()
                 .question();
 
         long commentId = 0;
         for (int i = 0; i < answers; i++) {
-            queryBuilder
+            this.queryBuilder
                     .answer((long) i, new Date(i * dateAtMillisDefault))
                     .flushAndClear();
-            redisQueryBuilder.answer(i);
+            this.redisQueryBuilder.answer(i);
             for (int y = 0; y < comments; y++) {
-                queryBuilder.commentAnswer(commentId, (long) i, new Date(y + dateAtMillisDefault + i * 1000L));
-                redisQueryBuilder.commentAnswer(commentId);
+                this.queryBuilder.commentAnswer(commentId, (long) i, new Date(y + dateAtMillisDefault + i * 1000L));
+                this.redisQueryBuilder.commentAnswer(commentId);
                 commentId++;
             }
         }
-        queryBuilder.closeSession();
-        redisQueryBuilder.closeJedis();
+        this.queryBuilder.closeSession();
+        this.redisQueryBuilder.closeJedis();
     }
 
     public void createManyQuestionsWithManyAnswers(int questions, int answers) {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .user();
-        redisQueryBuilder
+        this.redisQueryBuilder
                 .openJedis();
 
         long answerId = 0;
         for (int i = 0; i < questions; i++) {
-            queryBuilder
+            this.queryBuilder
                     .question((long) i, new Date(i * dateAtMillisDefault))
                     .flushAndClear();
-            redisQueryBuilder
+            this.redisQueryBuilder
                     .question(i);
             for (int y = 0; y < answers; y++) {
                 queryBuilder.answer(answerId, (long) i, new Date(y + dateAtMillisDefault + i * 1000L));
                 answerId++;
             }
         }
-        queryBuilder.closeSession();
-        redisQueryBuilder.closeJedis();
+        this.queryBuilder.closeSession();
+        this.redisQueryBuilder.closeJedis();
     }
 
     public void createManyQuestions(int questions) {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .user();
-        redisQueryBuilder.openJedis();
+        this.redisQueryBuilder.openJedis();
         for (int i = 0; i < questions; i++) {
-            queryBuilder.question((long) i, new Date(i * dateAtMillisDefault));
-            redisQueryBuilder.question(i);
+            this.queryBuilder.question((long) i, new Date(i * dateAtMillisDefault));
+            this.redisQueryBuilder.question(i);
             if (i % 20 == 0) {
                 queryBuilder.flushAndClear();
             }
         }
-        queryBuilder.closeSession();
-        redisQueryBuilder.closeJedis();
+        this.queryBuilder.closeSession();
+        this.redisQueryBuilder.closeJedis();
     }
 
     public void createQuestion() {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .user()
                 .question()
                 .closeSession();
-        redisQueryBuilder
+        this.redisQueryBuilder
                 .openJedis()
                 .question()
                 .closeJedis();
     }
 
     public void createQuestionNoUser() {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .question()
                 .closeSession();
-        redisQueryBuilder
+        this.redisQueryBuilder
                 .openJedis()
                 .question()
                 .closeJedis();
     }
 
     public void like(long questionId, int times) {
-        redisQueryBuilder.openJedis();
+        this.redisQueryBuilder.openJedis();
         for (int i = 0; i < times; i++) {
-            redisQueryBuilder.questionLikeIncr(questionId);
+            this.redisQueryBuilder.questionLikeIncr(questionId);
         }
-        redisQueryBuilder.closeJedis();
+        this.redisQueryBuilder.closeJedis();
     }
 
     public void like(int times) {
-        redisQueryBuilder.openJedis();
+        this.redisQueryBuilder.openJedis();
         for (int i = 0; i < times; i++) {
-            redisQueryBuilder.questionLikeIncr();
+            this.redisQueryBuilder.questionLikeIncr();
         }
-        redisQueryBuilder.closeJedis();
+        this.redisQueryBuilder.closeJedis();
     }
 }

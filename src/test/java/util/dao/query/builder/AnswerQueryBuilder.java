@@ -9,7 +9,6 @@ import java.util.Date;
 public class AnswerQueryBuilder implements SessionInitializer {
 
     private Session session;
-    
 
     @Override
     public AnswerQueryBuilder with(Session session) {
@@ -22,7 +21,7 @@ public class AnswerQueryBuilder implements SessionInitializer {
                        Date date,
                        String text,
                        Long questionId) {
-        createAnswerQuery(
+        this.createAnswerQuery(
                 id,
                 1L,
                 answered,
@@ -38,7 +37,7 @@ public class AnswerQueryBuilder implements SessionInitializer {
                        Boolean answered,
                        Date date,
                        String text) {
-        createAnswerQuery(
+        this.createAnswerQuery(
                 id,
                 authorId,
                 answered,
@@ -52,7 +51,7 @@ public class AnswerQueryBuilder implements SessionInitializer {
     public void answer(Long id,
                        Long questionId,
                        Date date) {
-        createAnswerQuery(
+        this.createAnswerQuery(
                 id,
                 1L,
                 false,
@@ -65,7 +64,7 @@ public class AnswerQueryBuilder implements SessionInitializer {
     public void answer(Long id,
                        Boolean answered,
                        Date date) {
-        createAnswerQuery(
+        this.createAnswerQuery(
                 id,
                 1L,
                 answered,
@@ -77,7 +76,7 @@ public class AnswerQueryBuilder implements SessionInitializer {
 
     public void answer(Long id,
                        Boolean answered) {
-        createAnswerQuery(
+        this.createAnswerQuery(
                 id,
                 1L,
                 answered,
@@ -89,7 +88,7 @@ public class AnswerQueryBuilder implements SessionInitializer {
 
     public void answer(Long id,
                        Date date) {
-        createAnswerQuery(
+        this.createAnswerQuery(
                 id,
                 1L,
                 AnswerQueryParameters.ANSWERED,
@@ -100,7 +99,7 @@ public class AnswerQueryBuilder implements SessionInitializer {
     }
 
     public void answer(Long id) {
-        createAnswerQuery(
+        this.createAnswerQuery(
                 id,
                 1L,
                 AnswerQueryParameters.ANSWERED,
@@ -111,7 +110,7 @@ public class AnswerQueryBuilder implements SessionInitializer {
     }
 
     public void answer() {
-        createAnswerQuery(
+        this.createAnswerQuery(
                 1L,
                 1L,
                 AnswerQueryParameters.ANSWERED,
@@ -128,7 +127,7 @@ public class AnswerQueryBuilder implements SessionInitializer {
                                        String text,
                                        Long question,
                                        Session session) {
-        String sql =
+        final String sql =
                 """
                 INSERT INTO answer (id, answered, creation_date, text, author_id, question_id)\s\
                 VALUES (:id, :answered, :date, :text, :authorId, :questionId)

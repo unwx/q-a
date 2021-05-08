@@ -31,82 +31,82 @@ public class RedisQueryBuilder {
     }
 
     public RedisQueryBuilder question(long questionId) {
-        questionLikeQueryBuilder.create(String.valueOf(questionId));
+        this.questionLikeQueryBuilder.create(String.valueOf(questionId));
         return this;
     }
 
     public RedisQueryBuilder question() {
-        questionLikeQueryBuilder.create("1");
+        this.questionLikeQueryBuilder.create("1");
         return this;
     }
 
     public RedisQueryBuilder questionLikeIncr(long id) {
-        questionLikeQueryBuilder.like(id);
+        this.questionLikeQueryBuilder.like(id);
         return this;
     }
 
     public RedisQueryBuilder questionLikeIncr() {
-        questionLikeQueryBuilder.like(1L);
+        this.questionLikeQueryBuilder.like(1L);
         return this;
     }
 
     public RedisQueryBuilder answer(long answerId) {
-        answerLikeQueryBuilder.create(String.valueOf(answerId));
+        this.answerLikeQueryBuilder.create(String.valueOf(answerId));
         return this;
     }
 
     public RedisQueryBuilder answer() {
-        answerLikeQueryBuilder.create("1");
+        this.answerLikeQueryBuilder.create("1");
         return this;
     }
 
     public RedisQueryBuilder answerLikeIncr(long answerId) {
-        answerLikeQueryBuilder.like(answerId);
+        this.answerLikeQueryBuilder.like(answerId);
         return this;
     }
 
     public RedisQueryBuilder answerLikeIncr() {
-        answerLikeQueryBuilder.like(1L);
+        this.answerLikeQueryBuilder.like(1L);
         return this;
     }
 
     public RedisQueryBuilder commentQuestion(long commentId) {
-        commentQuestionLikeQueryBuilder.create(String.valueOf(commentId));
+        this.commentQuestionLikeQueryBuilder.create(String.valueOf(commentId));
         return this;
     }
 
     public RedisQueryBuilder commentQuestion() {
-        commentQuestionLikeQueryBuilder.create("1");
+        this.commentQuestionLikeQueryBuilder.create("1");
         return this;
     }
 
     public RedisQueryBuilder commentQuestionLikeIncr(long commentId) {
-        commentQuestionLikeQueryBuilder.like(commentId);
+        this.commentQuestionLikeQueryBuilder.like(commentId);
         return this;
     }
 
     public RedisQueryBuilder commentQuestionLikeIncr() {
-        commentQuestionLikeQueryBuilder.like(1L);
+        this.commentQuestionLikeQueryBuilder.like(1L);
         return this;
     }
 
     public RedisQueryBuilder commentAnswer(long commentId) {
-        commentAnswerLikeQueryBuilder.create(String.valueOf(commentId));
+        this.commentAnswerLikeQueryBuilder.create(String.valueOf(commentId));
         return this;
     }
 
     public RedisQueryBuilder commentAnswer() {
-        commentAnswerLikeQueryBuilder.create("1");
+        this.commentAnswerLikeQueryBuilder.create("1");
         return this;
     }
 
     public RedisQueryBuilder commentAnswerLikeIncr(long commentId) {
-        commentAnswerLikeQueryBuilder.like(commentId);
+        this.commentAnswerLikeQueryBuilder.like(commentId);
         return this;
     }
 
     public RedisQueryBuilder commentAnswerLikeIncr() {
-        commentAnswerLikeQueryBuilder.like(1L);
+        this.commentAnswerLikeQueryBuilder.like(1L);
         return this;
     }
 }

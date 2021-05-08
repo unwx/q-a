@@ -22,13 +22,4 @@ public class RedisTestUtil {
         }
         return keys;
     }
-
-    public Set<String> getKeyValues(String key) {
-        final Set<String> values;
-        try (JedisResource jedisResource = jedisResourceCenter.getResource()) {
-            final Jedis jedis = jedisResource.getJedis();
-            values = jedis.smembers(key);
-        }
-        return values;
-    }
 }

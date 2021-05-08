@@ -18,7 +18,7 @@ import qa.cache.like.remover.QuestionCacheRemover;
 import qa.config.RedisConfiguration;
 import qa.source.PasswordPropertyDataSource;
 
-public class MockUtil { // TODO REFACTOR
+public class MockUtil {
 
     private static RedisConfiguration redisConfiguration;
     private static JedisResourceCenter jedisResourceCenter;

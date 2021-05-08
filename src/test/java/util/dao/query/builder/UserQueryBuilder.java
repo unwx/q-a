@@ -15,15 +15,15 @@ public class UserQueryBuilder implements SessionInitializer {
     }
 
     public void user(Long id, String username) {
-        createUserQuery(id, username, session).executeUpdate();
+        this.createUserQuery(id, username, session).executeUpdate();
     }
 
     public void user() {
-        createUserQuery(1L, UserQueryParameters.USERNAME, session).executeUpdate();
+        this.createUserQuery(1L, UserQueryParameters.USERNAME, session).executeUpdate();
     }
 
     private Query<?> createUserQuery(Long id, String username, Session session) {
-        String sql =
+        final String sql =
                 """
                 INSERT INTO usr (id, about, username)\s\
                 VALUES (:id, 'about', :username)\

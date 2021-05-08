@@ -14,7 +14,7 @@ public class UserDaoTestUtil {
     }
 
     public void createUser() {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .user()
                 .closeSession();

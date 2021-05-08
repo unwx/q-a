@@ -22,35 +22,35 @@ public class CommentDaoTestUtil {
     }
 
     public void createCommentAnswer() {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .user()
                 .question()
                 .answer()
                 .commentAnswer()
                 .closeSession();
-        redisQueryBuilder
+        this.redisQueryBuilder
                 .openJedis()
                 .commentAnswer()
                 .closeJedis();
     }
 
     public void createCommentQuestion() {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .user()
                 .question()
                 .answer()
                 .commentQuestion()
                 .closeSession();
-        redisQueryBuilder
+        this.redisQueryBuilder
                 .openJedis()
                 .commentQuestion()
                 .closeJedis();
     }
 
     public void createCommentAnswerNoUser() {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .question()
                 .answer()
@@ -59,83 +59,83 @@ public class CommentDaoTestUtil {
     }
 
     public void createCommentQuestionNoUser() {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .question()
                 .answer()
                 .commentQuestion()
                 .closeSession();
-        redisQueryBuilder
+        this.redisQueryBuilder
                 .openJedis()
                 .commentQuestion()
                 .closeJedis();
     }
 
     public void createManyCommentQuestions(int comment) {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .user()
                 .question();
-        redisQueryBuilder.openJedis();
+        this.redisQueryBuilder.openJedis();
 
         for (int i = 0; i < comment; i++) {
-            queryBuilder.commentQuestion((long) i, new Date(dateAtMillisDefault * i));
-            redisQueryBuilder.commentQuestion(i);
+            this.queryBuilder.commentQuestion((long) i, new Date(dateAtMillisDefault * i));
+            this.redisQueryBuilder.commentQuestion(i);
             if (i % 25 == 0)
                 queryBuilder.flushAndClear();
         }
-        queryBuilder.closeSession();
-        redisQueryBuilder.closeJedis();
+        this.queryBuilder.closeSession();
+        this.redisQueryBuilder.closeJedis();
     }
 
     public void createManyCommentAnswers(int comment) {
-        queryBuilder
+        this.queryBuilder
                 .openSession()
                 .user()
                 .question()
                 .answer();
-        redisQueryBuilder.openJedis();
+        this.redisQueryBuilder.openJedis();
 
         for (int i = 0; i < comment; i++) {
-            queryBuilder.commentAnswer((long) i, new Date(dateAtMillisDefault * i));
-            redisQueryBuilder.commentAnswer(i);
+            this.queryBuilder.commentAnswer((long) i, new Date(dateAtMillisDefault * i));
+            this.redisQueryBuilder.commentAnswer(i);
             if (i % 25 == 0)
-                queryBuilder.flushAndClear();
+                this.queryBuilder.flushAndClear();
         }
-        queryBuilder.closeSession();
-        redisQueryBuilder.closeJedis();
+        this.queryBuilder.closeSession();
+        this.redisQueryBuilder.closeJedis();
     }
 
 
     public void likeCommentQuestion(long commentId, int times) {
-        redisQueryBuilder.openJedis();
+        this.redisQueryBuilder.openJedis();
         for (int i = 0; i < times; i++) {
-            redisQueryBuilder.commentQuestionLikeIncr(commentId);
+            this.redisQueryBuilder.commentQuestionLikeIncr(commentId);
         }
-        redisQueryBuilder.closeJedis();
+        this.redisQueryBuilder.closeJedis();
     }
 
     public void likeCommentQuestion(int times) {
-        redisQueryBuilder.openJedis();
+        this.redisQueryBuilder.openJedis();
         for (int i = 0; i < times; i++) {
-            redisQueryBuilder.commentQuestionLikeIncr();
+            this.redisQueryBuilder.commentQuestionLikeIncr();
         }
-        redisQueryBuilder.closeJedis();
+        this.redisQueryBuilder.closeJedis();
     }
 
     public void likeCommentAnswer(long commentId, int times) {
-        redisQueryBuilder.openJedis();
+        this.redisQueryBuilder.openJedis();
         for (int i = 0; i < times; i++) {
-            redisQueryBuilder.commentAnswerLikeIncr(commentId);
+            this.redisQueryBuilder.commentAnswerLikeIncr(commentId);
         }
-        redisQueryBuilder.closeJedis();
+        this.redisQueryBuilder.closeJedis();
     }
 
     public void likeCommentAnswer(int times) {
-        redisQueryBuilder.openJedis();
+        this.redisQueryBuilder.openJedis();
         for (int i = 0; i < times; i++) {
-            redisQueryBuilder.commentAnswerLikeIncr();
+            this.redisQueryBuilder.commentAnswerLikeIncr();
         }
-        redisQueryBuilder.closeJedis();
+        this.redisQueryBuilder.closeJedis();
     }
 }

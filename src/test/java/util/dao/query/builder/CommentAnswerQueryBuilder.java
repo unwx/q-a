@@ -9,7 +9,6 @@ import java.util.Date;
 public class CommentAnswerQueryBuilder implements SessionInitializer {
 
     private Session session;
-    
 
     @Override
     public CommentAnswerQueryBuilder with(Session session) {
@@ -22,7 +21,7 @@ public class CommentAnswerQueryBuilder implements SessionInitializer {
                               long answerId,
                               String text,
                               Date date) {
-        createCommentAnswerQuery(
+        this.createCommentAnswerQuery(
                 id,
                 userId,
                 text,
@@ -36,7 +35,7 @@ public class CommentAnswerQueryBuilder implements SessionInitializer {
                               String text,
                               Long questionId,
                               Date date) {
-        createCommentAnswerQuery(
+        this.createCommentAnswerQuery(
                 id,
                 1L,
                 text,
@@ -49,7 +48,7 @@ public class CommentAnswerQueryBuilder implements SessionInitializer {
     public void commentAnswer(Long id,
                               Date date,
                               Long answerId) {
-        createCommentAnswerQuery(
+        this.createCommentAnswerQuery(
                 id,
                 1L,
                 CommentQueryParameters.TEXT,
@@ -61,7 +60,7 @@ public class CommentAnswerQueryBuilder implements SessionInitializer {
 
     public void commentAnswer(Long id,
                               Date date) {
-        createCommentAnswerQuery(
+        this.createCommentAnswerQuery(
                 id,
                 1L,
                 CommentQueryParameters.TEXT,
@@ -72,7 +71,7 @@ public class CommentAnswerQueryBuilder implements SessionInitializer {
     }
 
     public void commentAnswer() {
-        createCommentAnswerQuery(
+        this.createCommentAnswerQuery(
                 1L,
                 1L,
                 CommentQueryParameters.TEXT,
@@ -88,7 +87,7 @@ public class CommentAnswerQueryBuilder implements SessionInitializer {
                                               Long answerId,
                                               Date date,
                                               Session session) {
-        String sql =
+        final String sql =
                 """
                 INSERT INTO comment (comment_type, id, text, author_id, answer_id, question_id, creation_date)\s\
                 VALUES ('answer', :id, :text, :authorId, :answerId, null, :date)\

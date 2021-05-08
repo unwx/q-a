@@ -22,7 +22,7 @@ public class QuestionQueryBuilder implements SessionInitializer {
                          String tags,
                          String text,
                          String title) {
-        createQuestionQuery(
+        this.createQuestionQuery(
                 id,
                 1L,
                 date,
@@ -39,7 +39,7 @@ public class QuestionQueryBuilder implements SessionInitializer {
                          String tags,
                          String text,
                          String title) {
-        createQuestionQuery(
+        this.createQuestionQuery(
                 id,
                 authorId,
                 date,
@@ -53,7 +53,7 @@ public class QuestionQueryBuilder implements SessionInitializer {
 
     public void question(Long id,
                          Date date) {
-        createQuestionQuery(
+        this.createQuestionQuery(
                 id,
                 1L,
                 date,
@@ -65,7 +65,7 @@ public class QuestionQueryBuilder implements SessionInitializer {
     }
 
     public void question(Long id) {
-        createQuestionQuery(
+        this.createQuestionQuery(
                 id,
                 1L,
                 QuestionQueryParameters.DATE,
@@ -77,7 +77,7 @@ public class QuestionQueryBuilder implements SessionInitializer {
     }
 
     public void question() {
-        createQuestionQuery(
+        this.createQuestionQuery(
                 1L,
                 1L,
                 QuestionQueryParameters.DATE,
@@ -95,7 +95,7 @@ public class QuestionQueryBuilder implements SessionInitializer {
                                          String text,
                                          String title,
                                          Session session) {
-        String sql =
+        final String sql =
                 """
                 INSERT INTO question (id, creation_date, last_activity, tags, text, title, author_id)\s\
                 VALUES (:id, :date, :date, :tags, :text, :title, :authorId)\

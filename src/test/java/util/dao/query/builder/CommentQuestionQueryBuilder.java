@@ -6,7 +6,7 @@ import util.dao.query.params.CommentQueryParameters;
 
 import java.util.Date;
 
-public class CommentQuestionQueryBuilder implements SessionInitializer { // TODO REFACTOR
+public class CommentQuestionQueryBuilder implements SessionInitializer {
 
     private Session session;
 
@@ -21,7 +21,7 @@ public class CommentQuestionQueryBuilder implements SessionInitializer { // TODO
                                 long questionId,
                                 String text,
                                 Date date) {
-        createCommentQuestionQuery(
+        this.createCommentQuestionQuery(
                 id,
                 authorId,
                 text,
@@ -35,7 +35,7 @@ public class CommentQuestionQueryBuilder implements SessionInitializer { // TODO
                                 String text,
                                 Long questionId,
                                 Date date) {
-        createCommentQuestionQuery(
+        this.createCommentQuestionQuery(
                 id,
                 1L,
                 text,
@@ -47,7 +47,7 @@ public class CommentQuestionQueryBuilder implements SessionInitializer { // TODO
 
     public void commentQuestion(Long id,
                                 Date date) {
-        createCommentQuestionQuery(
+        this.createCommentQuestionQuery(
                 id,
                 1L,
                 CommentQueryParameters.TEXT,
@@ -58,7 +58,7 @@ public class CommentQuestionQueryBuilder implements SessionInitializer { // TODO
     }
 
     public void commentQuestion() {
-        createCommentQuestionQuery(
+        this.createCommentQuestionQuery(
                 1L,
                 1L,
                 CommentQueryParameters.TEXT,
@@ -74,7 +74,7 @@ public class CommentQuestionQueryBuilder implements SessionInitializer { // TODO
                                                 Long questionId,
                                                 Date date,
                                                 Session session) {
-        String sql =
+        final String sql =
                 """
                 INSERT INTO comment (comment_type, id, text, author_id, answer_id, question_id, creation_date)\s\
                 VALUES ('question', :id, :text, :authorId, null, :questionId, :date)\

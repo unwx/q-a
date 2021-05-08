@@ -39,14 +39,14 @@ public class QueryBuilder {
     }
 
     public QueryBuilder user(long id, String username) {
-        userQueryBuilder
+        this.userQueryBuilder
                 .with(session)
                 .user(id, username);
         return this;
     }
 
     public QueryBuilder user() {
-        userQueryBuilder
+        this.userQueryBuilder
                 .with(session)
                 .user();
         return this;
@@ -57,7 +57,7 @@ public class QueryBuilder {
                                  String tags,
                                  String text,
                                  String title) {
-        questionQueryBuilder
+        this.questionQueryBuilder
                 .with(session)
                 .question(id, date, tags, text, title);
         return this;
@@ -69,7 +69,7 @@ public class QueryBuilder {
                                  String tags,
                                  String text,
                                  String title) {
-        questionQueryBuilder
+        this.questionQueryBuilder
                 .with(session)
                 .question(id, authorId, date, tags, text, title);
         return this;
@@ -79,7 +79,7 @@ public class QueryBuilder {
                                  String tags,
                                  String text,
                                  String title) {
-        questionQueryBuilder
+        this.questionQueryBuilder
                 .with(session)
                 .question(id, new Date(), tags, text, title);
         return this;
@@ -87,21 +87,21 @@ public class QueryBuilder {
 
     public QueryBuilder question(Long id,
                                  Date date) {
-        questionQueryBuilder
+        this.questionQueryBuilder
                 .with(session)
                 .question(id, date);
         return this;
     }
 
     public QueryBuilder question(Long id) {
-        questionQueryBuilder
+        this.questionQueryBuilder
                 .with(session)
                 .question(id);
         return this;
     }
 
     public QueryBuilder question() {
-        questionQueryBuilder
+        this.questionQueryBuilder
                 .with(session)
                 .question();
         return this;
@@ -112,7 +112,7 @@ public class QueryBuilder {
                                Date date,
                                String text,
                                Long questionId) {
-        answerQueryBuilder
+        this.answerQueryBuilder
                 .with(session)
                 .answer(id, answered, date, text, questionId);
         return this;
@@ -121,7 +121,7 @@ public class QueryBuilder {
     public QueryBuilder answer(Long id,
                                Boolean answered,
                                Date date) {
-        answerQueryBuilder
+        this.answerQueryBuilder
                 .with(session)
                 .answer(id, answered, date);
         return this;
@@ -129,7 +129,7 @@ public class QueryBuilder {
 
     public QueryBuilder answer(Long id,
                                Boolean answered) {
-        answerQueryBuilder
+        this.answerQueryBuilder
                 .with(session)
                 .answer(id, answered);
         return this;
@@ -138,7 +138,7 @@ public class QueryBuilder {
     public QueryBuilder answer(Long id,
                                Long questionId,
                                Date date) {
-        answerQueryBuilder
+        this.answerQueryBuilder
                 .with(session)
                 .answer(id, questionId, date);
         return this;
@@ -149,7 +149,7 @@ public class QueryBuilder {
                                long questionId,
                                String text,
                                Date date) {
-        answerQueryBuilder
+        this.answerQueryBuilder
                 .with(session)
                 .answer(id, authorId, questionId, false, date, text);
         return this;
@@ -157,21 +157,21 @@ public class QueryBuilder {
 
     public QueryBuilder answer(Long id,
                                Date date) {
-        answerQueryBuilder
+        this.answerQueryBuilder
                 .with(session)
                 .answer(id, date);
         return this;
     }
 
     public QueryBuilder answer(Long id) {
-        answerQueryBuilder
+        this.answerQueryBuilder
                 .with(session)
                 .answer(id);
         return this;
     }
 
     public QueryBuilder answer() {
-        answerQueryBuilder
+        this.answerQueryBuilder
                 .with(session)
                 .answer();
         return this;
@@ -183,7 +183,7 @@ public class QueryBuilder {
                                 String text,
                                 Date date) {
 
-        commentQuestionQueryBuilder
+        this.commentQuestionQueryBuilder
                 .with(session)
                 .commentQuestion(id, authorId, questionId, text, date);
     }
@@ -192,7 +192,7 @@ public class QueryBuilder {
                                         String text,
                                         Long questionId,
                                         Date date) {
-        commentQuestionQueryBuilder
+        this.commentQuestionQueryBuilder
                 .with(session)
                 .commentQuestion(id, text, questionId, date);
         return this;
@@ -200,14 +200,14 @@ public class QueryBuilder {
 
     public QueryBuilder commentQuestion(Long id,
                                         Date date) {
-        commentQuestionQueryBuilder
+        this.commentQuestionQueryBuilder
                 .with(session)
                 .commentQuestion(id, date);
         return this;
     }
 
     public QueryBuilder commentQuestion() {
-        commentQuestionQueryBuilder
+        this.commentQuestionQueryBuilder
                 .with(session)
                 .commentQuestion();
         return this;
@@ -217,7 +217,7 @@ public class QueryBuilder {
                                       String text,
                                       Long answerId,
                                       Date date) {
-        commentAnswerQueryBuilder
+        this.commentAnswerQueryBuilder
                 .with(session)
                 .commentAnswer(id, text, answerId, date);
         return this;
@@ -228,7 +228,7 @@ public class QueryBuilder {
                               long answerId,
                               String text,
                               Date date) {
-        commentAnswerQueryBuilder
+        this.commentAnswerQueryBuilder
                 .with(session)
                 .commentAnswer(id, userId, answerId, text, date);
     }
@@ -236,7 +236,7 @@ public class QueryBuilder {
     public QueryBuilder commentAnswer(Long id,
                               Long answerId,
                               Date date) {
-        commentAnswerQueryBuilder
+        this.commentAnswerQueryBuilder
                 .with(session)
                 .commentAnswer(id, date, answerId);
         return this;
@@ -244,14 +244,14 @@ public class QueryBuilder {
 
     public QueryBuilder commentAnswer(Long id,
                               Date date) {
-        commentAnswerQueryBuilder
+        this.commentAnswerQueryBuilder
                 .with(session)
                 .commentAnswer(id, date);
         return this;
     }
 
     public QueryBuilder commentAnswer() {
-        commentAnswerQueryBuilder
+        this.commentAnswerQueryBuilder
                 .with(session)
                 .commentAnswer();
         return this;
