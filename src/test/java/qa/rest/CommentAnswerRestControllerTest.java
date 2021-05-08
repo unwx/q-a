@@ -25,7 +25,6 @@ import util.dao.AnswerDaoTestUtil;
 import util.dao.CommentDaoTestUtil;
 import util.dao.TruncateUtil;
 import util.dao.query.params.CommentQueryParameters;
-import util.rest.AnswerRestTestUtil;
 import util.rest.CommentRestTestUtil;
 import util.rest.JwtTestUtil;
 
@@ -283,7 +282,7 @@ public class CommentAnswerRestControllerTest {
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             commentDaoTestUtil.createCommentAnswerNoUser();
 
-            final JSONObject json = AnswerRestTestUtil.id();
+            final JSONObject json = CommentRestTestUtil.id();
             final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
             final Response response = request.post(LIKE_ENDPOINT);
@@ -297,7 +296,7 @@ public class CommentAnswerRestControllerTest {
             logger.trace(LOG_BAD_REQUEST);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
-            final JSONObject json = AnswerRestTestUtil.badId();
+            final JSONObject json = CommentRestTestUtil.badId();
             final RequestSpecification request = CommentRestTestUtil.getRequestJsonJwt(json.toString(), token);
 
             final Response response = request.post(LIKE_ENDPOINT);

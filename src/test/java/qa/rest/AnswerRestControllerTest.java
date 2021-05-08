@@ -8,7 +8,6 @@ import io.restassured.specification.RequestSpecification;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -100,8 +99,7 @@ public class AnswerRestControllerTest {
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             questionDaoTestUtil.createQuestionNoUser();
 
-            final JSONObject json = AnswerRestTestUtil.createAnswerJson();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.createAnswerRequest(token);
 
             final Response response = request.post(CREATE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
@@ -119,8 +117,7 @@ public class AnswerRestControllerTest {
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser();
 
-            final JSONObject json = AnswerRestTestUtil.editAnswerJson();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.editAnswerRequest(token);
 
             final Response response = request.put(EDIT_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
@@ -139,8 +136,7 @@ public class AnswerRestControllerTest {
             final Long createdId = getId(AnswerQueryParameters.TEXT);
             assertThat(createdId, notNullValue());
 
-            final JSONObject json = AnswerRestTestUtil.id();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.idRequest(token);
 
             final Response response = request.delete(DELETE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
@@ -156,8 +152,7 @@ public class AnswerRestControllerTest {
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser();
 
-            final JSONObject json = AnswerRestTestUtil.id();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.idRequest(token);
 
             final Response response = request.post(ANSWERED_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
@@ -172,8 +167,7 @@ public class AnswerRestControllerTest {
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser(false);
 
-            final JSONObject json = AnswerRestTestUtil.id();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.idRequest(token);
 
             final Response response = request.post(NOT_ANSWERED_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
@@ -190,8 +184,7 @@ public class AnswerRestControllerTest {
             logger.trace(LOG_CREATE);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
-            final JSONObject json = AnswerRestTestUtil.createBADAnswerJson();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.createAnswerBadRequest(token);
 
             final Response response = request.post(CREATE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
@@ -202,8 +195,7 @@ public class AnswerRestControllerTest {
             logger.trace(LOG_EDIT);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
-            final JSONObject json = AnswerRestTestUtil.editBADAnswerJson();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.editAnswerBadRequest(token);
 
             final Response response = request.put(EDIT_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
@@ -214,8 +206,7 @@ public class AnswerRestControllerTest {
             logger.trace(LOG_ANSWERED);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
-            final JSONObject json = AnswerRestTestUtil.badId();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.idBadRequest(token);
 
             final Response response = request.post(ANSWERED_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
@@ -226,8 +217,7 @@ public class AnswerRestControllerTest {
             logger.trace(NOT_ANSWERED_ENDPOINT);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
-            final JSONObject json = AnswerRestTestUtil.badId();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.idBadRequest(token);
 
             final Response response = request.post(NOT_ANSWERED_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
@@ -238,8 +228,7 @@ public class AnswerRestControllerTest {
             logger.trace(LOG_DELETE);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
-            final JSONObject json = AnswerRestTestUtil.badId();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.idBadRequest(token);
 
             final Response response = request.delete(DELETE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));
@@ -255,11 +244,9 @@ public class AnswerRestControllerTest {
 
             final String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-
             answerDaoTestUtil.createAnswerNoUser();
 
-            final JSONObject json = AnswerRestTestUtil.editAnswerJson();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.editAnswerRequest(token);
 
             final Response response = request.put(EDIT_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(403));
@@ -271,11 +258,9 @@ public class AnswerRestControllerTest {
 
             final String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-
             answerDaoTestUtil.createAnswerNoUser();
 
-            final JSONObject json = AnswerRestTestUtil.id();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.idRequest(token);
 
             final Response response = request.post(ANSWERED_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(403));
@@ -287,11 +272,9 @@ public class AnswerRestControllerTest {
 
             final String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-
             answerDaoTestUtil.createAnswerNoUser(false);
 
-            final JSONObject json = AnswerRestTestUtil.id();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.idRequest(token);
 
             final Response response = request.post(NOT_ANSWERED_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(403));
@@ -303,11 +286,9 @@ public class AnswerRestControllerTest {
 
             final String token = JwtTestUtil.createSecondUserWithToken(sessionFactory, jwtProvider);
             JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
-
             answerDaoTestUtil.createAnswerNoUser();
 
-            final JSONObject json = AnswerRestTestUtil.id();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.idRequest(token);
 
             final Response response = request.delete(DELETE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(403));
@@ -341,8 +322,7 @@ public class AnswerRestControllerTest {
                 final int comments = 3;
 
                 answerDaoTestUtil.createManyAnswersWithManyComments(answers, comments);
-                final JSONObject json = AnswerRestTestUtil.getAnswerJson();
-                final RequestSpecification request = AnswerRestTestUtil.getRequestJson(json.toString());
+                final RequestSpecification request = AnswerRestTestUtil.getAnswerRequest();
 
                 final Response response = request.get(GET_ENDPOINT);
                 assertCorrectAnswerData(response);
@@ -365,8 +345,7 @@ public class AnswerRestControllerTest {
             @Test
             void json() {
                 logger.trace(LOG_GET_JSON);
-                final JSONObject json = AnswerRestTestUtil.badGetAnswerJson();
-                final RequestSpecification request = AnswerRestTestUtil.getRequestJson(json.toString());
+                final RequestSpecification request = AnswerRestTestUtil.getAnswerBadRequest();
 
                 final Response response = request.get(GET_ENDPOINT);
                 assertThat(response.getStatusCode(), equalTo(400));
@@ -382,8 +361,7 @@ public class AnswerRestControllerTest {
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
             answerDaoTestUtil.createAnswerNoUser();
 
-            final JSONObject json = AnswerRestTestUtil.id();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.idRequest(token);
 
             final Response response = request.post(LIKE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(200));
@@ -395,8 +373,7 @@ public class AnswerRestControllerTest {
             logger.trace(LOG_BAD_REQUEST);
             final String token = JwtTestUtil.createUserWithToken(sessionFactory, jwtProvider);
 
-            final JSONObject json = AnswerRestTestUtil.badId();
-            final RequestSpecification request = AnswerRestTestUtil.getRequestJsonJwt(json.toString(), token);
+            final RequestSpecification request = AnswerRestTestUtil.idBadRequest(token);
 
             final Response response = request.post(LIKE_ENDPOINT);
             assertThat(response.getStatusCode(), equalTo(400));

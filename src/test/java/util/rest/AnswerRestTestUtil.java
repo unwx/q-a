@@ -1,84 +1,144 @@
 package util.rest;
 
+import io.restassured.specification.RequestSpecification;
 import org.json.JSONObject;
 import util.dao.query.params.AnswerQueryParameters;
 
 public class AnswerRestTestUtil extends RestTestUtil {
 
-    private AnswerRestTestUtil() {
+    private static final String ID              = "id";
+    private static final String TEXT            = "text";
+    private static final String PAGE            = "page";
+    private static final String QUESTION_ID     = "question_id";
+
+    private AnswerRestTestUtil() {}
+
+    public static RequestSpecification createAnswerRequest(String accessToken) {
+        final JSONObject json = createAnswerJson();
+        return getRequestJsonJwt(json.toString(), accessToken);
     }
 
-    public static JSONObject createAnswerJson() {
-        JSONObject json = new JSONObject();
-        json.put("question_id", 1L);
-        json.put("text", AnswerQueryParameters.TEXT);
+    public static RequestSpecification createAnswerRequest(long questionId, String accessToken) {
+        final JSONObject json = createAnswerJson(questionId);
+        return getRequestJsonJwt(json.toString(), accessToken);
+    }
+
+    public static RequestSpecification createAnswerBadRequest(String accessToken) {
+        final JSONObject json = createBADAnswerJson();
+        return getRequestJsonJwt(json.toString(), accessToken);
+    }
+
+    public static RequestSpecification editAnswerRequest(String accessToken) {
+        final JSONObject json = editAnswerJson();
+        return getRequestJsonJwt(json.toString(), accessToken);
+    }
+
+    public static RequestSpecification editAnswerRequest(long answerId, String accessToken) {
+        final JSONObject json = editAnswerJson(answerId);
+        return getRequestJsonJwt(json.toString(), accessToken);
+    }
+
+    public static RequestSpecification editAnswerBadRequest(String accessToken) {
+        final JSONObject json = editBADAnswerJson();
+        return getRequestJsonJwt(json.toString(), accessToken);
+    }
+
+    public static RequestSpecification getAnswerRequest() {
+        final JSONObject json = getAnswerJson();
+        return getRequestJson(json.toString());
+    }
+
+    public static RequestSpecification getAnswerBadRequest() {
+        final JSONObject json = badGetAnswerJson();
+        return getRequestJson(json.toString());
+    }
+
+    public static RequestSpecification idRequest(String accessToken) {
+        final JSONObject json = id();
+        return getRequestJsonJwt(json.toString(), accessToken);
+    }
+
+    public static RequestSpecification idRequest(long answerId, String accessToken) {
+        final JSONObject json = id(answerId);
+        return getRequestJsonJwt(json.toString(), accessToken);
+    }
+
+    public static RequestSpecification idBadRequest(String accessToken) {
+        final JSONObject json = badId();
+        return getRequestJsonJwt(json.toString(), accessToken);
+    }
+
+    private static JSONObject createAnswerJson() {
+        final JSONObject json = new JSONObject();
+        json.put(QUESTION_ID, 1L);
+        json.put(TEXT, AnswerQueryParameters.TEXT);
         return json;
     }
 
-    public static JSONObject createAnswerJson(long questionId) {
-        JSONObject json = new JSONObject();
-        json.put("question_id", questionId);
-        json.put("text", AnswerQueryParameters.TEXT);
+    private static JSONObject createAnswerJson(long questionId) {
+        final JSONObject json = new JSONObject();
+        json.put(QUESTION_ID, questionId);
+        json.put(TEXT, AnswerQueryParameters.TEXT);
         return json;
     }
 
-    public static JSONObject createBADAnswerJson() {
-        JSONObject json = new JSONObject();
-        json.put("question_id", -1L);
-        json.put("text", ".,m--x.m");
+    private static JSONObject createBADAnswerJson() {
+        final JSONObject json = new JSONObject();
+        json.put(QUESTION_ID, -1L);
+        json.put(TEXT, ".,m--x.m");
         return json;
     }
 
-    public static JSONObject editAnswerJson() {
-        JSONObject json = new JSONObject();
-        json.put("id", 1L);
-        json.put("text", AnswerQueryParameters.SECOND_TEXT);
+    private static JSONObject editAnswerJson() {
+        final JSONObject json = new JSONObject();
+        json.put(ID, 1L);
+        json.put(TEXT, AnswerQueryParameters.SECOND_TEXT);
         return json;
     }
 
-    public static JSONObject editAnswerJson(long answerId) {
-        JSONObject json = new JSONObject();
-        json.put("id", answerId);
-        json.put("text", AnswerQueryParameters.SECOND_TEXT);
+    private static JSONObject editAnswerJson(long answerId) {
+        final JSONObject json = new JSONObject();
+        json.put(ID, answerId);
+        json.put(TEXT, AnswerQueryParameters.SECOND_TEXT);
         return json;
     }
 
-    public static JSONObject editBADAnswerJson() {
-        JSONObject json = new JSONObject();
-        json.put("id", -1L);
-        json.put("text", ".,m--x.m");
+    private static JSONObject editBADAnswerJson() {
+        final JSONObject json = new JSONObject();
+        json.put(ID, -1L);
+        json.put(TEXT, ".,m--x.m");
         return json;
     }
 
-    public static JSONObject id() {
-        JSONObject json = new JSONObject();
-        json.put("id", 1L);
+    private static JSONObject id() {
+        final JSONObject json = new JSONObject();
+        json.put(ID, 1L);
         return json;
     }
 
-    public static JSONObject id(long id) {
-        JSONObject json = new JSONObject();
-        json.put("id", id);
+    private static JSONObject id(long id) {
+        final JSONObject json = new JSONObject();
+        json.put(ID, id);
         return json;
     }
 
-    public static JSONObject badId() {
-        JSONObject json = new JSONObject();
-        json.put("id", -1L);
+    private static JSONObject badId() {
+        final JSONObject json = new JSONObject();
+        json.put(ID, -1L);
         return json;
     }
 
-    public static JSONObject getAnswerJson() {
-        JSONObject json = new JSONObject();
-        json.put("id", 1L);
-        json.put("page", 1);
+    private static JSONObject getAnswerJson() {
+        final JSONObject json = new JSONObject();
+        json.put(ID, 1L);
+        json.put(PAGE, 1);
         return json;
     }
 
-    public static JSONObject badGetAnswerJson() {
-        JSONObject json = new JSONObject();
-        json.put("id", 1L);
-        json.put("page", 0);
+    private static JSONObject badGetAnswerJson() {
+        final JSONObject json = new JSONObject();
+        json.put(ID, 1L);
+        json.put(PAGE, 0);
         return json;
     }
 }

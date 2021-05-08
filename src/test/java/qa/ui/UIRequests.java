@@ -19,8 +19,7 @@ public class UIRequests extends RestTestUtil {
     }
 
     public static RequestSpecification answerLike(long answerId, String accessToken) {
-        final JSONObject json = AnswerRestTestUtil.id(answerId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return AnswerRestTestUtil.idRequest(answerId, accessToken);
     }
 
     public static RequestSpecification createQuestion(String accessToken) {
@@ -39,23 +38,19 @@ public class UIRequests extends RestTestUtil {
     }
 
     public static RequestSpecification createAnswer(long questionId, String accessToken) {
-        final JSONObject json = AnswerRestTestUtil.createAnswerJson(questionId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return AnswerRestTestUtil.createAnswerRequest(questionId, accessToken);
     }
 
     public static RequestSpecification editAnswer(long answerId, String accessToken) {
-        final JSONObject json = AnswerRestTestUtil.editAnswerJson(answerId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return AnswerRestTestUtil.editAnswerRequest(answerId, accessToken);
     }
 
     public static RequestSpecification setAnswered(long answerId, String accessToken) {
-        final JSONObject json = AnswerRestTestUtil.id(answerId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return AnswerRestTestUtil.idRequest(answerId, accessToken);
     }
 
     public static RequestSpecification deleteAnswer(long answerId, String accessToken) {
-        final JSONObject json = AnswerRestTestUtil.id(answerId);
-        return getRequestJsonJwt(json.toString(), accessToken);
+        return AnswerRestTestUtil.idRequest(answerId, accessToken);
     }
 
     public static RequestSpecification createCommentQuestion(long questionId, String accessToken) {
